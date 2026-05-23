@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: GAP-01 PHASE-02 — Metadata Extraction and Load Classification</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111',
+          background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff',
+          clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d'
+        }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch(e => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root{--bg:#0d0d0d;--bg-soft:#111;--panel:rgba(13,13,13,.88);--panel-strong:rgba(19,19,19,.96);--line:rgba(0,245,255,.26);--line-strong:rgba(57,255,20,.38);--text:#e9f6ff;--muted:#8ea3ad;--accent-blue:#00f5ff;--accent-green:#39ff14;--glow-blue:0 0 18px rgba(0,245,255,.42);--glow-green:0 0 18px rgba(57,255,20,.28);--shadow:0 14px 40px rgba(0,0,0,.32);--radius-lg:22px;--radius-md:16px;--radius-sm:12px;--narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;--technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace}
+    *{box-sizing:border-box}
+    body{position:relative;margin:0;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at top left,rgba(0,245,255,.12),transparent 28%),radial-gradient(circle at 85% 12%,rgba(57,255,20,.08),transparent 24%),linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%);color:var(--text);font-family:var(--narrative-font);line-height:1.6;letter-spacing:.01em}
+    body::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:32px 32px;opacity:.16}
+    a{color:var(--accent-blue)}
+    code,pre,.technical,.meta-chip,.section-kicker,.pill,.metric-label,.metric-value,.repo-tag,.mermaid{font-family:var(--technical-font)}
+    .page-shell{width:min(1180px,calc(100vw - 32px));margin:0 auto;padding:32px 0 72px;position:relative;z-index:1}
+    .hero{position:relative;padding:28px;margin-bottom:24px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,rgba(0,245,255,.08),transparent 28%),linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),var(--panel-strong);box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,255,255,.02)}
+    .hero::after{content:"";position:absolute;inset:auto -10% -55% 42%;height:280px;background:radial-gradient(circle,rgba(0,245,255,.18),transparent 64%);filter:blur(12px);pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr);gap:22px;align-items:end}
+    .section-kicker{margin:0 0 12px;color:var(--accent-green);font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.22em;text-shadow:var(--glow-green)}
+    .phase-title{margin:0;max-width:14ch;font-size:clamp(2.5rem,5vw,4.7rem);line-height:.94;letter-spacing:-.05em;color:#f5feff;text-transform:uppercase;text-wrap:balance;text-shadow:0 0 24px rgba(0,245,255,.2)}
+    .hero-summary{margin:18px 0 0;max-width:60ch;color:var(--muted);font-size:.98rem}
+    .hero-meta{display:grid;gap:12px}
+    .meta-card{padding:16px 18px;border:1px solid rgba(57,255,20,.2);border-radius:18px;background:rgba(255,255,255,.025);box-shadow:inset 0 0 0 1px rgba(0,0,0,.24)}
+    .meta-label{margin-bottom:6px;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.16em}
+    .meta-chip{color:var(--accent-blue);font-size:1rem;font-weight:700;letter-spacing:.02em;text-shadow:var(--glow-blue);word-break:break-word}
+    .repo-tag{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:8px 12px;border:1px solid rgba(0,245,255,.24);border-radius:999px;background:rgba(0,245,255,.08);color:var(--accent-blue);font-size:.82rem;letter-spacing:.04em}
+    .section{position:relative;margin-top:22px;padding:24px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--panel);box-shadow:var(--shadow)}
+    .section::before{content:"";position:absolute;left:24px;right:24px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.9),rgba(57,255,20,.9),transparent);transform:translateY(-1px)}
+    .section-header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 18px;align-items:end;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .section-title{margin:0;font-size:clamp(1.2rem,2vw,1.7rem);line-height:1.1;color:#f0feff}
+    .section-index{display:inline-flex;align-items:center;gap:10px;color:var(--accent-green);font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;text-shadow:var(--glow-green)}
+    .section-index::after{content:"";width:44px;height:1px;background:linear-gradient(90deg,rgba(57,255,20,.9),transparent)}
+    .summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .column-card,.diagram-frame,.technical-frame,.viz-frame,.question-frame,.empty-state{border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-md);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01)),rgba(7,7,7,.82);box-shadow:inset 0 0 0 1px rgba(255,255,255,.012)}
+    .column-card{padding:18px;min-height:200px}
+    .column-label{margin:0 0 12px;color:var(--accent-blue);font-size:.83rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;text-shadow:var(--glow-blue)}
+    .diagram-frame,.chart-frame,.technical-frame,.viz-frame,.question-frame{padding:18px}
+    .diagram-frame{overflow-x:auto;overflow-y:auto;overscroll-behavior-x:contain;overscroll-behavior-y:contain;max-height:min(70vh,720px)}
+    .mermaid{width:100%;max-width:100%;min-width:0;color:var(--text)}
+    .mermaid svg{display:block;width:auto!important;min-width:100%;max-width:none!important;height:auto!important}
+    .diagram-frame.compact-diagram{padding:12px;max-height:min(62vh,560px)}
+    .diagram-frame.compact-diagram .mermaid{min-width:900px}
+    .chart-frame,.viz-frame{overflow:hidden}
+    .technical-frame{color:#d6f6ff}
+    .technical-frame table{width:100%;border-collapse:collapse}
+    .technical-frame th,.technical-frame td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+    .technical-frame th{color:var(--accent-green);font-size:.76rem;text-align:left;letter-spacing:.12em;text-transform:uppercase}
+    .chart-frame canvas,.viz-frame canvas,canvas.report-chart{display:block;width:100%!important;max-width:100%;height:280px!important;min-height:280px;max-height:280px}
+    .metric-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+    .metric{padding:14px 16px;border:1px solid rgba(0,245,255,.18);border-radius:var(--radius-sm);background:rgba(0,245,255,.04)}
+    .metric-label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.16em}
+    .metric-value{margin-top:8px;color:var(--accent-green);font-size:1.2rem;font-weight:700;text-shadow:var(--glow-green)}
+    .pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid rgba(57,255,20,.22);border-radius:999px;background:rgba(57,255,20,.06);color:#d9ffd0;font-size:.8rem}
+    .question-frame ul,.technical-frame ul,.column-card ul{margin:0;padding-left:20px}
+    .question-frame li,.technical-frame li,.column-card li{margin-bottom:8px}
+    .footer-note{margin-top:18px;text-align:right;color:rgba(142,163,173,.72);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+    @media(max-width:900px){.hero-grid,.summary-grid,.metric-strip{grid-template-columns:1fr}.phase-title{max-width:none}}
+    @media(max-width:640px){.page-shell{width:min(100vw - 20px,1180px);padding-top:16px;padding-bottom:42px}.hero,.section{padding:18px;border-radius:20px}.section::before{left:18px;right:18px}.phase-title{font-size:clamp(2rem,12vw,3rem)}}
+    @media print{body{background:#fff;color:#111}.hero,.section{border:1px solid #ccc;box-shadow:none;background:#fff}.hero::after{display:none}body::before{display:none}.section-kicker,.section-index,.column-label,.metric-label{color:#333;text-shadow:none}.phase-title,.section-title{color:#111;text-shadow:none}.meta-chip,.metric-value{color:#006;text-shadow:none}.pill{border-color:#999;background:#f5f5f5;color:#333}}
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">GAP-01 PHASE-02</h1>
+          <p class="hero-summary">
+            Metadata Extraction and Load Classification &mdash; compute operational metadata from ingested 8760 series, classify TOU consumption under Decision 963, and detect industry archetype via load-shape heuristics.
+          </p>
+          <div class="pill-row">
+            <span class="pill">project :: GAP-01 Factory Data Ingestion Pipeline</span>
+            <span class="pill">date :: 2026-05-23</span>
+          </div>
+          <div class="repo-tag">repo :: tah-allotrope/reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">GAP-01 Factory Data Ingestion Pipeline</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">tah-allotrope/reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-05-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header">
+        <div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div>
+      </div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <div class="column-label">Inputs</div>
+          <ul>
+            <li><strong>PHASE-01 FactoryLoadResult:</strong> Validated 8760 kW series from any supported format</li>
+            <li><strong>VNData tariff system:</strong> <code>build_vietnam_tariff()</code>, <code>resolve_vietnam_regime()</code> from <code>preprocess.py</code></li>
+            <li><strong>Decision 963 TOU windows:</strong> Peak 17-22 weekday, offpeak 0-5, standard remainder</li>
+            <li><strong>Rate multipliers:</strong> Industrial MV 22-110kV: peak 1.57, standard 0.86, offpeak 0.56</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <div class="column-label">Outputs</div>
+          <ul>
+            <li><strong>LoadMetadata:</strong> peak_demand_kw, annual_consumption_mwh, load_factor, daytime/nighttime/weekend/weekday averages</li>
+            <li><strong>TOUClassification:</strong> peak/offpeak/normal consumption MWh and share percentages under Decision 963</li>
+            <li><strong>ArchetypeResult:</strong> Industry archetype label + confidence (high/medium/low) + feature ratios</li>
+            <li><strong>20 passing tests</strong> covering all three extraction paths</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Tests Passing</div><div class="metric-value">47 / 47</div></div>
+        <div class="metric"><div class="metric-label">Saigon18 Peak</div><div class="metric-value">30,246 kW</div></div>
+        <div class="metric"><div class="metric-label">Saigon18 Annual</div><div class="metric-value">184,262 MWh</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header">
+        <div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div>
+      </div>
+      <div class="diagram-frame compact-diagram technical">
+        <div class="mermaid">flowchart LR
+    A[8760 loads_kw] --> B[extract_load_metadata]
+    A --> C[classify_tou_consumption]
+    A --> D[classify_industry_archetype]
+    B --> E[LoadMetadata: peak, annual, load_factor, day/night/weekend splits]
+    C --> F{VNData available?}
+    F -->|Yes| G[resolve_vietnam_regime]
+    F -->|No| H[Hardcoded D963 windows]
+    G --> I[Hour-by-hour TOU bucketing]
+    H --> I
+    I --> J[TOUClassification: peak/offpeak/normal shares]
+    D --> K[Compute weekend/weekday ratio]
+    D --> L[Compute night/day ratio]
+    D --> M[Compute peak concentration]
+    K --> N[Heuristic classifier]
+    L --> N
+    M --> N
+    N --> O[ArchetypeResult: label + confidence]</div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header">
+        <div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div>
+      </div>
+      <div class="technical-frame">
+        <ul>
+          <li><strong>Load factor:</strong> <code>average_demand / peak_demand</code>. Saigon18 = 0.695 (typical continuous industrial).</li>
+          <li><strong>TOU bucketing:</strong> Each of 8760 hours is classified as peak/offpeak/standard based on hour-of-day and day-of-week. Decision 963 maps: peak = hours 17-22 Mon-Sat, offpeak = hours 0-5 all days, standard = remainder.</li>
+          <li><strong>Weekend/weekday ratio:</strong> <code>weekend_avg_kw / weekday_avg_kw</code>. Saigon18 = 1.015 (nearly flat &rarr; continuous operation).</li>
+          <li><strong>Night/day ratio:</strong> <code>nighttime_avg_kw / daytime_avg_kw</code>. Saigon18 = 0.959 (near-unity confirms 24/7 operation).</li>
+          <li><strong>Peak concentration:</strong> <code>mean(9am-5pm weekday kW) / overall_mean_kw</code>. Measures how much load concentrates in business hours.</li>
+          <li><strong>Archetype decision tree:</strong> continuous_process if nd &gt; 0.7 AND ww &gt; 0.7; single_shift if ww &lt; 0.3 AND nd &lt; 0.4; two_shift if ww &lt; 0.6 AND nd &gt; 0.4; commercial variants by peak_concentration thresholds; load_factor tiebreaker for ambiguous cases.</li>
+          <li><strong>Confidence scoring:</strong> High = clearly within thresholds (e.g., nd &gt; 0.85 and ww &gt; 0.85 for continuous). Medium = within primary thresholds but not deep. Low = fallback classification.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header">
+        <div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div>
+      </div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool</th><th>Version</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Python</td><td>3.14.2</td><td>Runtime for metadata module and tests</td></tr>
+            <tr><td>pytest</td><td>9.0.2</td><td>Test execution (20 new tests)</td></tr>
+            <tr><td>VNData / preprocess.py</td><td>&mdash;</td><td>Regime resolution and TOU window extraction</td></tr>
+            <tr><td>vn_tariff_2025.json</td><td>&mdash;</td><td>Decision 963 TOU schedule and rate multipliers</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header">
+        <div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div>
+      </div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Case Study</th><th>Peak (kW)</th><th>Annual (MWh)</th><th>Load Factor</th><th>Archetype</th><th>Confidence</th></tr></thead>
+          <tbody>
+            <tr><td>saigon18</td><td>30,246</td><td>184,262</td><td>0.695</td><td>continuous_process</td><td>high</td></tr>
+            <tr><td>ninhsim</td><td>30,246</td><td>184,260</td><td>0.695</td><td>continuous_process</td><td>high</td></tr>
+            <tr><td>regina</td><td>2,240</td><td>9,780</td><td>0.499</td><td>&mdash;</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="viz-frame" style="margin-top:16px"><canvas id="touChart"></canvas></div>
+      <div class="viz-frame" style="margin-top:16px"><canvas id="archetypeChart"></canvas></div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header">
+        <div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Hour-boundary approximation:</strong> Decision 963 peak starts at 17:30 but the module maps to hour 17 (17:00-17:59). This causes ~2.8% overcount of peak energy. Sub-hourly TOU bucketing would fix this but adds complexity.</li>
+          <li><strong>No public holidays:</strong> Sunday schedule is used for Sundays only; Vietnamese public holidays are not explicitly mapped. This slightly underestimates offpeak consumption for factories that shut down on holidays.</li>
+          <li><strong>Archetype thresholds are heuristic:</strong> Not trained on labeled data. Edge cases (e.g., a mall with extended hours) may misclassify. The confidence field flags uncertainty, and downstream workflows can override.</li>
+          <li><strong>Saigon18 and ninhsim have identical load profiles:</strong> This is expected &mdash; ninhsim's NinhsimSample.csv is the same load data as saigon18, just in a different format.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags">
+      <div class="section-header">
+        <div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div>
+      </div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>No errors:</strong> All 20 metadata tests and all 27 loader tests passed on first run.</li>
+          <li><strong>VNData integration confirmed:</strong> <code>test_with_vn_data</code> successfully loads <code>load_vietnam_data()</code> and resolves Decision 963 regime for TOU classification.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header">
+        <div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>PHASE-03:</strong> Partial data handling &mdash; sub-hourly resampling, monthly-to-8760 synthesis, REopt simulated_load API, offline fallback with normalized reference shapes.</li>
+          <li><strong>PHASE-04:</strong> CLI entrypoint, JSON artifact writer, and validation of all 6 case studies.</li>
+          <li><strong>Future refinement:</strong> Consider adding Vietnamese public holiday calendar for more accurate TOU classification. The <code>vn_tariff_2025.json</code> already has the schedule structure to support this.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    Chart.defaults.devicePixelRatio = 1;
+    Chart.defaults.animation = false;
+    Chart.defaults.resizeDelay = 150;
+    Chart.defaults.normalized = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    new Chart(document.getElementById('touChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Peak (21.5%)', 'Normal (54.4%)', 'Off-peak (24.1%)'],
+        datasets: [{
+          data: [21.5, 54.4, 24.1],
+          backgroundColor: ['rgba(255,99,132,0.7)', 'rgba(0,245,255,0.5)', 'rgba(57,255,20,0.5)'],
+          borderColor: ['rgba(255,99,132,1)', 'rgba(0,245,255,1)', 'rgba(57,255,20,1)'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false,
+        plugins: {
+          title: { display: true, text: 'Saigon18 TOU Consumption Split (Decision 963)', color: '#8ea3ad', font: { size: 13 } },
+          legend: { labels: { color: '#8ea3ad' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('archetypeChart'), {
+      type: 'radar',
+      data: {
+        labels: ['Weekend/Weekday', 'Night/Day', 'Peak Concentration', 'Load Factor'],
+        datasets: [{
+          label: 'Saigon18',
+          data: [1.015, 0.959, 1.02, 0.695],
+          backgroundColor: 'rgba(0,245,255,0.2)',
+          borderColor: 'rgba(0,245,255,0.8)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(0,245,255,1)'
+        }]
+      },
+      options: {
+        animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false,
+        plugins: {
+          title: { display: true, text: 'Saigon18 Load Shape Features (continuous_process / high)', color: '#8ea3ad', font: { size: 13 } },
+          legend: { display: false }
+        },
+        scales: {
+          r: {
+            beginAtZero: true, max: 1.5,
+            ticks: { color: '#8ea3ad', backdropColor: 'transparent' },
+            grid: { color: 'rgba(255,255,255,0.08)' },
+            pointLabels: { color: '#8ea3ad', font: { size: 11 } }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
