@@ -1929,3 +1929,53 @@ artifacts/reports/saigon18/
 - `reports/2026-05-19-validation-sprint-phase-02.html`
 - `reports/2026-05-19-validation-sprint-phase-03.html`
 - `reports/2026-05-19-validation-sprint-phase-04.html`
+
+---
+
+## Client Demo Gap Plans — GAP-01 + GAP-04 Implementation — 2026-05-23
+
+### GAP-01: Factory Data Ingestion (COMPLETE)
+
+- [x] PHASE-01: Excel/CSV parser with multi-sheet support, unit detection, interpolation
+- [x] PHASE-02: Validation engine with 7 rule types, anomaly detection, auto-repair
+- [x] PHASE-03: Format-agnostic bridge producing REopt-ready load profiles
+- [x] PHASE-04: CLI entrypoint, artifact writer, case study validation (saigon18 + ninhsim)
+- Plan: `plans/active/2026-05-22-gap01-factory-ingestion-plan.md` — status: **complete**
+- Commit: `515f3e6` — GAP-01 PHASE-04 final
+
+### GAP-04: Generalized Settlement Engine (PHASE-03 in progress)
+
+- [x] PHASE-01: Core settlement engine — `ContractParams`, `compute_hourly_settlement()`, `compute_buyer_benchmark()` — 29 tests PASS
+- [x] PHASE-02: Contract presets (4 named), `run_strike_sweep()` — 15 tests PASS
+- [x] PHASE-03: Regression tests (ninhsim CfD + saigon18 private-wire replay) — 13 tests PASS
+- [ ] PHASE-03: Generate `/report GAP-04-PHASE-03` (pending next session)
+- Plan: `plans/active/2026-05-22-gap04-generalized-settlement-plan.md`
+
+#### Key Files
+
+- `src/python/reopt_pysam_vn/integration/settlement.py` — generalized settlement engine
+- `tests/python/integration/test_settlement_generic.py` — 29 core tests
+- `tests/python/integration/test_settlement_presets.py` — 15 preset/sweep tests
+- `tests/python/integration/test_settlement_regression.py` — 13 regression tests
+
+#### Commits
+
+- `2785978` — GAP-04 PHASE-01 (generalized settlement engine)
+- `86186a7` — GAP-04 PHASE-02 (contract presets, strike sweep)
+
+#### Reports
+
+- `reports/2026-05-23-gap04-phase-01.html`
+- `reports/2026-05-23-gap04-phase-02.html`
+
+### Remaining Gap Plans
+
+- **GAP-02** (Multi-scenario comparison dashboard) — depends on GAP-04 (nearly complete)
+- **GAP-03** (Automated report generation) — no dependencies
+- **GAP-05** (Developer matching engine) — no dependencies
+
+### Next Session
+
+1. Generate PHASE-03 report via `/report GAP-04-PHASE-03`
+2. Commit and push, mark GAP-04 plan as complete
+3. Proceed to remaining gap plans (GAP-02, GAP-03, GAP-05)
