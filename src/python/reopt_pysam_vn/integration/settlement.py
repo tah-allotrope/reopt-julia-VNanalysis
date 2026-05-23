@@ -6,7 +6,7 @@ support any factory+project pair. See GAP-04 plan for design rationale.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, replace
 
 
 VALID_MODES = ("private_wire", "virtual_cfd")
@@ -221,3 +221,87 @@ def compute_buyer_benchmark(
         "total_load_kwh": total_load,
         "blended_rate_vnd_kwh": blended,
     }
+
+
+PRESET_CONTRACTS: dict[str, ContractParams] = {
+    "decree57_private_wire_standard": ContractParams(
+        mode="private_wire",
+        strike_vnd_kwh=1012.0,
+        escalation_rate=0.05,
+        settlement_quantity_rule="matched_only",
+        excess_treatment="export_at_surplus",
+        export_cap_pct=20.0,
+        surplus_rate_vnd_kwh=671.0,
+        dppa_adder_vnd_kwh=0.0,
+        kpp_pct=0.0,
+    ),
+    "virtual_cfd_matched_only": ContractParams(
+        mode="virtual_cfd",
+        strike_vnd_kwh=1800.0,
+        escalation_rate=0.05,
+        settlement_quantity_rule="matched_only",
+        excess_treatment="curtail",
+        export_cap_pct=20.0,
+        surplus_rate_vnd_kwh=671.0,
+        dppa_adder_vnd_kwh=523.34,
+        kpp_pct=2.7263,
+    ),
+    "virtual_cfd_full_volume": ContractParams(
+        mode="virtual_cfd",
+        strike_vnd_kwh=1800.0,
+        escalation_rate=0.05,
+        settlement_quantity_rule="contracted_volume",
+        excess_treatment="cfd_on_excess",
+        export_cap_pct=20.0,
+        surplus_rate_vnd_kwh=671.0,
+        dppa_adder_vnd_kwh=523.34,
+        kpp_pct=2.7263,
+    ),
+    "physical_dppa_export_50pct": ContractParams(
+        mode="private_wire",
+        strike_vnd_kwh=1012.0,
+        escalation_rate=0.05,
+        settlement_quantity_rule="matched_only",
+        excess_treatment="export_at_surplus",
+        export_cap_pct=50.0,
+        surplus_rate_vnd_kwh=671.0,
+        dppa_adder_vnd_kwh=0.0,
+        kpp_pct=0.0,
+    ),
+}
+
+
+def run_strike_sweep(
+    loads_kw: list[float],
+    generation_kw: list[float],
+    tariff_rates_vnd_kwh: list[float],
+    fmp_vnd_kwh: list[float],
+    base_params: ContractParams,
+    strike_range_vnd_kwh: list[float],
+    *,
+    market_source_label: str = "",
+) -> list[dict]:
+    benchmark = compute_buyer_benchmark(loads_kw, tariff_rates_vnd_kwh)
+    evn_cost = benchmark["evn_only_cost_vnd"]
+
+    results = []
+    for strike in strike_range_vnd_kwh:
+        params = replace(base_params, strike_vnd_kwh=strike)
+        settlement = compute_hourly_settlement(
+            loads_kw, generation_kw, tariff_rates_vnd_kwh, fmp_vnd_kwh,
+            params, market_source_label=market_source_label,
+        )
+        summary = settlement.annual_summary
+        savings = evn_cost - summary["buyer_cost_vnd"]
+        results.append({
+            "strike_vnd_kwh": strike,
+            "buyer_cost_vnd": summary["buyer_cost_vnd"],
+            "buyer_blended_rate_vnd_kwh": summary["buyer_blended_rate_vnd_kwh"],
+            "developer_revenue_vnd": summary["developer_revenue_vnd"],
+            "buyer_savings_vs_evn_vnd": savings,
+            "matched_mwh": summary["matched_mwh"],
+            "excess_mwh": summary["excess_mwh"],
+            "hours_with_negative_cfd": summary["hours_with_negative_cfd"],
+        })
+
+    return results
