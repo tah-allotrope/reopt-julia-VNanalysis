@@ -18,6 +18,7 @@ class FactoryLoadResult:
     source_path: str
     source_format: str
     detected_column: str
+    synthesis_method: str = "none"
 
 
 class LoadLengthError(ValueError):
@@ -320,8 +321,17 @@ def ingest_factory_load(
 
     cleaning_summary["original_row_count"] = original_row_count
 
+    synthesis_method = "none"
     if len(cleaned) != 8760:
-        raise LoadLengthError(len(cleaned), _guess_resolution(len(cleaned)))
+        from .synthesize import detect_resolution, route_synthesis
+
+        resolution = detect_resolution(len(cleaned))
+        if resolution in ("15min", "30min", "monthly"):
+            cleaned, synthesis_method = route_synthesis(cleaned, len(cleaned))
+            cleaning_summary["synthesis_method"] = synthesis_method
+            cleaning_summary["synthesis_source_rows"] = original_row_count
+        else:
+            raise LoadLengthError(len(cleaned), _guess_resolution(len(cleaned)))
 
     return FactoryLoadResult(
         loads_kw=cleaned,
@@ -329,4 +339,5 @@ def ingest_factory_load(
         source_path=str(path),
         source_format=source_format,
         detected_column=detected_column,
+        synthesis_method=synthesis_method,
     )

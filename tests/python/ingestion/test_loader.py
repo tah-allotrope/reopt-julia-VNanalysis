@@ -242,7 +242,7 @@ class TestValidationGate:
         finally:
             path.unlink()
 
-    def test_15min_resolution_detected(self):
+    def test_15min_auto_resampled(self):
         data = [100.0] * 35040
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", delete=False
@@ -251,9 +251,9 @@ class TestValidationGate:
             path = Path(f.name)
 
         try:
-            with pytest.raises(LoadLengthError) as exc_info:
-                ingest_factory_load(path)
-            assert "15-minute" in exc_info.value.likely_resolution
+            result = ingest_factory_load(path)
+            assert len(result.loads_kw) == 8760
+            assert result.synthesis_method == "resampled_15min"
         finally:
             path.unlink()
 
