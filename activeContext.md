@@ -1943,13 +1943,13 @@ artifacts/reports/saigon18/
 - Plan: `plans/active/2026-05-22-gap01-factory-ingestion-plan.md` — status: **complete**
 - Commit: `515f3e6` — GAP-01 PHASE-04 final
 
-### GAP-04: Generalized Settlement Engine (PHASE-03 in progress)
+### GAP-04: Generalized Settlement Engine (COMPLETE)
 
 - [x] PHASE-01: Core settlement engine — `ContractParams`, `compute_hourly_settlement()`, `compute_buyer_benchmark()` — 29 tests PASS
 - [x] PHASE-02: Contract presets (4 named), `run_strike_sweep()` — 15 tests PASS
 - [x] PHASE-03: Regression tests (ninhsim CfD + saigon18 private-wire replay) — 13 tests PASS
-- [ ] PHASE-03: Generate `/report GAP-04-PHASE-03` (pending next session)
-- Plan: `plans/active/2026-05-22-gap04-generalized-settlement-plan.md`
+- [x] PHASE-03: Report generated — `reports/2026-05-25-gap04-phase-03.html`
+- Plan: `plans/active/2026-05-22-gap04-generalized-settlement-plan.md` — status: **complete**
 
 #### Key Files
 
@@ -1967,15 +1967,15 @@ artifacts/reports/saigon18/
 
 - `reports/2026-05-23-gap04-phase-01.html`
 - `reports/2026-05-23-gap04-phase-02.html`
+- `reports/2026-05-25-gap04-phase-03.html`
 
 ### Remaining Gap Plans
 
-- **GAP-02** (Multi-scenario comparison dashboard) — depends on GAP-04 (nearly complete)
-- **GAP-03** (Automated report generation) — no dependencies
-- **GAP-05** (Developer matching engine) — no dependencies
+- **GAP-02** (Onsite vs Offsite Procurement Comparison) — depends on GAP-04 (now complete)
+- **GAP-03** (Developer Project Catalog & Matching) — no dependencies
+- **GAP-05** (Regulatory Scenario Toggle) — no dependencies
 
 ### Next Session
 
-1. Generate PHASE-03 report via `/report GAP-04-PHASE-03`
-2. Commit and push, mark GAP-04 plan as complete
-3. Proceed to remaining gap plans (GAP-02, GAP-03, GAP-05)
+1. Proceed to GAP-02, GAP-03, or GAP-05 implementation
+2. Update GAP-04 plan status to complete in the plan file

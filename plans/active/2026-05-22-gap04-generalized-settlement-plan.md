@@ -1,7 +1,7 @@
 ---
 title: "GAP-04: Generalized Settlement Engine"
 date: "2026-05-22"
-status: "draft"
+status: "complete"
 request: "Extract and parameterize the DPPA settlement engine from case-study-specific code into a shared module"
 plan_type: "multi-phase"
 research_inputs:
