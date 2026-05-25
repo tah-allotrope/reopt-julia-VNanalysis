@@ -1969,9 +1969,33 @@ artifacts/reports/saigon18/
 - `reports/2026-05-23-gap04-phase-02.html`
 - `reports/2026-05-25-gap04-phase-03.html`
 
+### GAP-02: Onsite vs Offsite Procurement Comparison (COMPLETE)
+
+- [x] PHASE-01: Parameterized settlement engines — already delivered by GAP-04 (`settlement.py`)
+- [x] PHASE-02: Onsite/offsite evaluation pipelines — `procurement.py` with `evaluate_onsite()`, `evaluate_offsite()`, `ProjectConfig`
+- [x] PHASE-03: Side-by-side comparison artifact — `compare_procurement_options()`, `ProcurementComparison`, recommendation logic
+- [x] PHASE-04: CLI entrypoint, HTML report, end-to-end validation — 12 tests PASS
+- Plan: `plans/active/2026-05-22-gap02-procurement-comparison-plan.md` — status: **complete**
+
+#### Key Results (saigon18 factory)
+
+| Metric | Onsite (40 MWp + 66 MWh) | Offsite (54 MW CfD) |
+|---|---|---|
+| Buyer Cost | 298.3B VND/yr | 411.3B VND/yr |
+| Savings vs EVN | +70.3B VND | -42.8B VND (premium) |
+| RE Penetration | 38.6% | 71.8% |
+| Recommendation | **WINNER** | — |
+
+#### Key Files
+
+- `src/python/reopt_pysam_vn/integration/procurement.py` — Procurement engine (260 lines)
+- `tests/python/integration/test_procurement.py` — 12 tests
+- `scripts/python/integration/compare_procurement.py` — CLI entrypoint
+- `artifacts/reports/procurement_comparison.json` — Comparison artifact
+- `reports/2026-05-25-gap02-phase-04.html` — HTML report
+
 ### Remaining Gap Plans
 
-- **GAP-02** (Onsite vs Offsite Procurement Comparison) — depends on GAP-04 (now complete)
 - **GAP-03** (Developer Project Catalog & Matching) — no dependencies
 - **GAP-05** (Regulatory Scenario Toggle) — no dependencies
 

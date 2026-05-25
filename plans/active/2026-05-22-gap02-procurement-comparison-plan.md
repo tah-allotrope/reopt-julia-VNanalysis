@@ -1,7 +1,7 @@
 ---
 title: "GAP-02: Onsite vs Offsite Procurement Comparison Engine"
 date: "2026-05-22"
-status: "draft"
+status: "complete"
 request: "Side-by-side onsite PPA vs offsite CfD DPPA evaluation for the same factory under Vietnam regulatory framework"
 plan_type: "multi-phase"
 research_inputs:
