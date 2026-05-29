@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "source": "Derived from saigon18 case study (2026-03-20 scenario-a fixed sizing).",
+    "strike_basis": "indicative_staging"
+  },
+  "project_id": "saigon18_onsite_solar_bess",
+  "name": "Saigon18 Rooftop Solar + Storage",
+  "developer": "Allotrope Energy Partners",
+  "location": {
+    "lat": 10.82,
+    "lon": 106.63,
+    "province": "Ho Chi Minh City",
+    "region": "south"
+  },
+  "technology": "solar_bess",
+  "capacity_mw": 40.36,
+  "bess_mw": 20.0,
+  "bess_mwh": 66.0,
+  "grid_connection": "onsite_private_wire",
+  "indicative_strike_usc_kwh": 7.4,
+  "available_from": "2026-Q4",
+  "dppa_structure": "private_wire",
+  "status": "development",
+  "generation_profile_path": null,
+  "notes": "Behind-the-meter rooftop + ground-mount solar with large BESS for a single large industrial offtaker in the south. Private-wire only; cannot serve offsite factories."
+}

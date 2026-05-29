@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "source": "Derived from ninhsim optimized solar+wind CPPA result.",
+    "strike_basis": "indicative_staging"
+  },
+  "project_id": "ninhsim_offsite_solar_wind",
+  "name": "Ninh Sim Solar + Wind CPPA",
+  "developer": "Allotrope Energy Partners",
+  "location": {
+    "lat": 11.56,
+    "lon": 108.99,
+    "province": "Ninh Thuan",
+    "region": "central"
+  },
+  "technology": "hybrid",
+  "capacity_mw": 54.0,
+  "solar_mw": 14.0,
+  "wind_mw": 40.0,
+  "bess_mw": 0.0,
+  "bess_mwh": 0.0,
+  "grid_connection": "grid_connected_110kv",
+  "indicative_strike_usc_kwh": 8.1,
+  "available_from": "2027-Q1",
+  "dppa_structure": "virtual_cfd",
+  "status": "development",
+  "generation_profile_path": null,
+  "notes": "Grid-connected hybrid (14 MW solar + 40 MW wind) sized for a virtual CfD DPPA. Wind complements daytime solar to flatten the combined generation shape."
+}

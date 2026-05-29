@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "source": "Synthetic large-scale prospective wind project to demonstrate matching against an oversized offsite project.",
+    "strike_basis": "indicative_staging"
+  },
+  "project_id": "prospective_offsite_wind",
+  "name": "Quang Tri Coastal Wind",
+  "developer": "Allotrope Energy Partners",
+  "location": {
+    "lat": 16.70,
+    "lon": 107.10,
+    "province": "Quang Tri",
+    "region": "central"
+  },
+  "technology": "wind",
+  "capacity_mw": 50.0,
+  "bess_mw": 0.0,
+  "bess_mwh": 0.0,
+  "grid_connection": "grid_connected_110kv",
+  "indicative_strike_usc_kwh": 8.6,
+  "available_from": "2028-Q2",
+  "dppa_structure": "virtual_cfd",
+  "status": "prospective",
+  "generation_profile_path": null,
+  "notes": "Large-scale prospective wind farm in the central coast. Likely oversized for most single factories; useful for portfolio-scale or multi-offtaker virtual CfD structures."
+}

@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "title": "Developer Project Catalog Schema",
+    "description": "GAP-03: schema for developer project records used by the factory-to-project matching engine.",
+    "created": "2026-05-29",
+    "pattern": "One JSON file per project under data/projects/. Indicative strike prices are labeled indicative_staging."
+  },
+  "required": [
+    "project_id",
+    "name",
+    "developer",
+    "location",
+    "technology",
+    "capacity_mw",
+    "bess_mw",
+    "bess_mwh",
+    "grid_connection",
+    "indicative_strike_usc_kwh",
+    "available_from",
+    "dppa_structure",
+    "status",
+    "notes"
+  ],
+  "optional": [
+    "generation_profile_path"
+  ],
+  "fields": {
+    "project_id": { "type": "string" },
+    "name": { "type": "string" },
+    "developer": { "type": "string" },
+    "location": {
+      "type": "object",
+      "required": ["lat", "lon", "province", "region"],
+      "fields": {
+        "lat": { "type": "number" },
+        "lon": { "type": "number" },
+        "province": { "type": "string" },
+        "region": { "type": "string", "enum": ["north", "central", "south"] }
+      }
+    },
+    "technology": {
+      "type": "string",
+      "enum": ["solar", "wind", "solar_bess", "wind_bess", "hybrid"]
+    },
+    "capacity_mw": { "type": "number", "min": 0 },
+    "bess_mw": { "type": "number", "min": 0 },
+    "bess_mwh": { "type": "number", "min": 0 },
+    "grid_connection": {
+      "type": "string",
+      "enum": ["onsite_private_wire", "grid_connected_22kv", "grid_connected_110kv"]
+    },
+    "indicative_strike_usc_kwh": { "type": "number", "min": 0 },
+    "available_from": { "type": "string" },
+    "dppa_structure": {
+      "type": "string",
+      "enum": ["private_wire", "virtual_cfd", "physical_dppa"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["operational", "construction", "development", "prospective"]
+    },
+    "generation_profile_path": { "type": ["string", "null"] },
+    "notes": { "type": "string" }
+  }
+}

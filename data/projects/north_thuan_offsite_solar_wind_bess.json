@@ -1,0 +1,29 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "source": "Derived from north_thuan 30 MW solar + wind offsite validation path.",
+    "strike_basis": "indicative_staging"
+  },
+  "project_id": "north_thuan_offsite_solar_wind_bess",
+  "name": "North Thuan Hybrid + Storage",
+  "developer": "Allotrope Energy Partners",
+  "location": {
+    "lat": 11.70,
+    "lon": 108.90,
+    "province": "Ninh Thuan",
+    "region": "central"
+  },
+  "technology": "hybrid",
+  "capacity_mw": 50.0,
+  "solar_mw": 30.0,
+  "wind_mw": 20.0,
+  "bess_mw": 10.0,
+  "bess_mwh": 40.0,
+  "grid_connection": "grid_connected_110kv",
+  "indicative_strike_usc_kwh": 7.9,
+  "available_from": "2027-Q3",
+  "dppa_structure": "virtual_cfd",
+  "status": "development",
+  "generation_profile_path": null,
+  "notes": "Grid-connected hybrid (30 MW solar + 20 MW wind) with 10 MW / 40 MWh BESS for firming. Sized for a mid-to-large industrial offtaker via virtual CfD."
+}

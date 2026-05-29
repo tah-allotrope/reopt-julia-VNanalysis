@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "schema_version": "1.0.0",
+    "source": "Derived from AGENTS.md real-project basis (3.2 MWp PV, 1 MW / 2.2 MWh BESS, 22kV).",
+    "strike_basis": "indicative_staging"
+  },
+  "project_id": "real_project_onsite_solar_bess",
+  "name": "Binh Duong Onsite Solar + Storage",
+  "developer": "Allotrope Energy Partners",
+  "location": {
+    "lat": 11.00,
+    "lon": 106.70,
+    "province": "Binh Duong",
+    "region": "south"
+  },
+  "technology": "solar_bess",
+  "capacity_mw": 3.2,
+  "bess_mw": 1.0,
+  "bess_mwh": 2.2,
+  "grid_connection": "onsite_private_wire",
+  "indicative_strike_usc_kwh": 7.2,
+  "available_from": "2026-Q3",
+  "dppa_structure": "private_wire",
+  "status": "operational",
+  "generation_profile_path": null,
+  "notes": "Small behind-the-meter solar + BESS at 22kV for a single south-region factory. Operational reference project; private-wire only."
+}
