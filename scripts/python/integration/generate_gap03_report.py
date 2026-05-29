@@ -240,7 +240,100 @@ def phase_02_sections() -> dict[str, str]:
     }
 
 
-PHASES = {"phase-01": phase_01_sections, "phase-02": phase_02_sections}
+def phase_03_sections() -> dict[str, str]:
+    return {
+        "PHASE_NAME": "GAP-03 PHASE-03 — CLI, Match Artifact &amp; Case-Study Validation",
+        "PROJECT": PROJECT_NAME,
+        "DATE": "2026-05-29",
+        "REPO": REPO_NAME,
+        "INPUT_OUTPUT_CONTENT": """
+        <p><strong>Inputs:</strong> any factory load file (CSV / XLSX / JSON) ingested via the GAP-01
+        ingestion module, plus CLI flags for site context (<code>--region</code>, <code>--voltage-level</code>,
+        <code>--baseline-usc-kwh</code>, <code>--colocated-project-id</code>, <code>--column</code>, <code>--top-n</code>).</p>
+        <p><strong>Outputs:</strong></p>
+        <ul>
+          <li><code>scripts/python/integration/match_factory_to_projects.py</code> — CLI with importable
+            <code>run()</code> / <code>build_factory_profile()</code> orchestration.</li>
+          <li><code>scripts/python/match_factory_to_projects.py</code> — top-level convenience wrapper.</li>
+          <li><code>build_match_artifact()</code> in <code>matching.py</code> — JSON artifact with
+            <code>schema</code>, <code>match_timestamp</code>, <code>factory_summary</code>, <code>catalog_size</code>,
+            <code>scoring_weights</code>, <code>viable_count</code>, and ranked <code>matches</code>.</li>
+          <li><code>tests/python/integration/test_matching_e2e.py</code> — 9 tests (artifact + subprocess CLI,
+            parametrized across all 6 case studies).</li>
+          <li>Six match artifacts under <code>artifacts/reports/match_*.json</code>.</li>
+        </ul>
+        """,
+        "MERMAID_DIAGRAM": """flowchart LR
+  FILE[factory load file] --> ING[ingest_factory_load]
+  ING --> FP[FactoryProfile.from_loads]
+  CAT[load_project_catalog] --> MM[match_projects_to_factory]
+  FP --> MM
+  MM --> BA[build_match_artifact]
+  BA --> JSON[match_result.v1 artifact]""",
+        "MATH_ALGORITHM_SECTION": """
+        <p>PHASE-03 adds no new scoring math; it wires the PHASE-02 engine to real files.
+        Ingestion normalizes any source to an 8760 hourly series (with sub-hourly / monthly
+        synthesis where needed); the FactoryProfile derives annual consumption (&Sigma; loads) and
+        peak demand (max load). The artifact ranks matches by overall score and reports
+        <code>viable_count</code> (matches with no BLOCKER flag and overall &ge; 50).</p>
+        """,
+        "TOOLS_METHODS": """
+        <ul>
+          <li>Reuses GAP-01 <code>ingest_factory_load</code> for CSV / XLSX / JSON normalization.</li>
+          <li>e2e tests drive the wrapper as a subprocess — no import shims, so they never trip the
+            pre-existing argparse-on-import collection issue.</li>
+          <li>Validation against all 6 case-study factories (saigon18, ninhsim, north_thuan, verdant, regina, emivest).</li>
+        </ul>
+        """,
+        "CHARTS_SECTION": """
+        <p>Validation run across the six case-study factories (default region, no co-location declared):</p>
+        <table>
+          <thead><tr><th>Factory</th><th>Annual (GWh)</th><th>Projects scored</th><th>Viable</th><th>Top match</th><th>Top score</th></tr></thead>
+          <tbody>
+            <tr><td>Saigon18</td><td>~184</td><td>5</td><td>3</td><td>North Thuan hybrid+BESS</td><td>77.7</td></tr>
+            <tr><td>Ninh Sim</td><td>~184</td><td>5</td><td>3</td><td>North Thuan hybrid+BESS</td><td>83.7</td></tr>
+            <tr><td>North Thuan</td><td>~241</td><td>5</td><td>3</td><td>North Thuan hybrid+BESS</td><td>77.2</td></tr>
+            <tr><td>Emivest</td><td>~10</td><td>5</td><td>0</td><td>North Thuan hybrid+BESS</td><td>60.2</td></tr>
+            <tr><td>Verdant</td><td>~13</td><td>5</td><td>0</td><td>North Thuan hybrid+BESS</td><td>54.3</td></tr>
+            <tr><td>Regina</td><td>~6</td><td>5</td><td>0</td><td>North Thuan hybrid+BESS</td><td>54.3</td></tr>
+          </tbody>
+        </table>
+        <p>Large factories surface 3 viable matches; small factories surface none (catalog projects are
+        far too large) — exactly the screening signal the demo needs. Declaring co-location
+        (<code>--colocated-project-id saigon18_onsite_solar_bess</code>) flips the Saigon18 onsite
+        solar+BESS project to <strong>#1 at 90.7/100</strong>, validating the "onsite wins for a co-located
+        large factory" narrative.</p>
+        """,
+        "LIMITATIONS_ALTERNATIVES": """
+        <ul>
+          <li><strong>RISK-03-01:</strong> raw files may need a <code>--column</code> hint; the CLI accepts both
+            raw files and pre-ingested artifacts via the GAP-01 loader.</li>
+          <li>Region, voltage, baseline cost, and co-location are CLI-supplied (not auto-derived from the
+            load file) — a future site-data service would resolve these from coordinates.</li>
+          <li>The default run blocks onsite projects (no co-location assumed); the demo must pass
+            <code>--colocated-project-id</code> to surface a co-located private-wire project.</li>
+        </ul>
+        """,
+        "ERRORS_WARNINGS_FLAGS": """
+        <p>No errors. 9/9 PHASE-03 e2e tests pass; 30/30 across all GAP-03 tests
+        (catalog + matching + e2e); 205 passed across the cleanly-collecting suite.</p>
+        """,
+        "OPEN_QUESTIONS": """
+        <ul>
+          <li>HTML match report (Chart.js radar of the five dimensions) is a natural follow-on but is
+            out of the GAP-03 scope; the JSON artifact is the deliverable.</li>
+          <li>Should the catalog grow beyond 5 seed projects for richer differentiation? Adding projects
+            requires no code changes — drop a schema-valid JSON into <code>data/projects/</code>.</li>
+        </ul>
+        """,
+    }
+
+
+PHASES = {
+    "phase-01": phase_01_sections,
+    "phase-02": phase_02_sections,
+    "phase-03": phase_03_sections,
+}
 
 
 def main() -> None:

@@ -11,7 +11,8 @@ prescribe. All five dimensions use equal default weights (20% each).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from typing import Any
 
 from reopt_pysam_vn.integration.project_catalog import ProjectRecord
@@ -123,6 +124,11 @@ class ProjectMatch:
     def is_viable(self) -> bool:
         has_blocker = any(f.startswith("BLOCKER") for f in self.flags)
         return (not has_blocker) and self.overall_score >= VIABILITY_MIN_SCORE
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["is_viable"] = self.is_viable
+        return data
 
 
 # --------------------------------------------------------------------------
@@ -399,3 +405,35 @@ def match_projects_to_factory(
     matches = [score_project(p, factory, weights) for p in project_catalog]
     matches.sort(key=lambda m: m.overall_score, reverse=True)
     return matches
+
+
+def build_match_artifact(
+    factory: FactoryProfile,
+    matches: list[ProjectMatch],
+    *,
+    catalog_size: int,
+    top_n: int | None = None,
+    weights: dict[str, float] | None = None,
+) -> dict[str, Any]:
+    """Assemble a machine-readable match-result artifact."""
+    weights = weights or DEFAULT_WEIGHTS
+    ranked = matches if top_n is None else matches[:top_n]
+    viable = [m for m in ranked if m.is_viable]
+    return {
+        "schema": "gap03.match_result.v1",
+        "match_timestamp": datetime.now(timezone.utc).isoformat(),
+        "factory_summary": {
+            "name": factory.name,
+            "region": factory.region,
+            "annual_consumption_mwh": round(factory.annual_consumption_kwh / 1000.0, 1),
+            "peak_demand_mw": round(factory.peak_demand_kw / 1000.0, 3),
+            "voltage_level": factory.voltage_level,
+            "evn_baseline_usc_kwh": factory.evn_baseline_usc_kwh,
+            "colocated_project_id": factory.colocated_project_id,
+            "location": factory.location,
+        },
+        "catalog_size": catalog_size,
+        "scoring_weights": dict(weights),
+        "viable_count": len(viable),
+        "matches": [m.to_dict() for m in ranked],
+    }
