@@ -1,0 +1,51 @@
+{
+  "regime_impact": {
+    "regime_a": {
+      "id": "decision_963_2026_current",
+      "name": "Decision 963/2026 current active TOU (evening-only peak)",
+      "annual_bill_vnd": 381939013105.90564,
+      "peak_consumption_mwh": 39601.53,
+      "offpeak_consumption_mwh": 44382.364,
+      "normal_consumption_mwh": 100302.1945
+    },
+    "regime_b": {
+      "id": "decision_14_2025_legacy",
+      "name": "Decision 14/2025 legacy TOU (pre-963 split peak)",
+      "annual_bill_vnd": 372128113673.4987,
+      "peak_consumption_mwh": 33665.081,
+      "offpeak_consumption_mwh": 45170.348,
+      "normal_consumption_mwh": 105450.6595
+    },
+    "delta": {
+      "annual_bill_delta_vnd": -9810899432.406921,
+      "delta_pct": -2.568708379022416,
+      "peak_hours_changed": 5,
+      "peak_consumption_delta_mwh": -5936.4490000000005
+    },
+    "analysis_timestamp": "2026-05-30",
+    "customer_type": "industrial",
+    "voltage_level": "medium_voltage_22kv_to_110kv"
+  },
+  "solar": null,
+  "bess": {
+    "bess_power_kw": 1000.0,
+    "bess_capacity_kwh": 4000.0,
+    "regime_a_cycles_per_day": 1,
+    "regime_b_cycles_per_day": 2,
+    "regime_a_annual_arbitrage_vnd": 1393542453.0300002,
+    "regime_b_annual_arbitrage_vnd": 2787084906.0600004,
+    "delta_annual_arbitrage_vnd": 1393542453.0300002,
+    "basis": "theoretical_maximum_no_efficiency_losses"
+  },
+  "generated_at": "2026-05-30",
+  "inputs": {
+    "regime_a_id": "decision_963_2026_current",
+    "regime_b_id": "decision_14_2025_legacy",
+    "customer_type": "industrial",
+    "voltage_level": "medium_voltage_22kv_to_110kv",
+    "year": 2026,
+    "has_pv": false,
+    "bess_power_kw": 1000.0,
+    "bess_capacity_kwh": 4000.0
+  }
+}

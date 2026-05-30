@@ -41,6 +41,14 @@ STANDARD = "standard"
 OFFPEAK = "offpeak"
 
 
+def _require_8760(series: List[float], name: str) -> None:
+    """Raise ValueError unless ``series`` has exactly 8760 elements."""
+    if len(series) != HOURS_PER_YEAR:
+        raise ValueError(
+            f"{name} must be {HOURS_PER_YEAR} hours long, got {len(series)}"
+        )
+
+
 @dataclass(frozen=True)
 class RegimeSide:
     """Per-regime bill and consumption breakdown for one side of the comparison."""
@@ -230,10 +238,7 @@ def compute_regime_impact(
     Raises:
         ValueError: if ``loads_kw`` is not 8760 hours long.
     """
-    if len(loads_kw) != HOURS_PER_YEAR:
-        raise ValueError(
-            f"loads_kw must be {HOURS_PER_YEAR} hours long, got {len(loads_kw)}"
-        )
+    _require_8760(loads_kw, "loads_kw")
     if vn is None:
         vn = load_vietnam_data()
     if year is None:
@@ -275,4 +280,257 @@ def compute_regime_impact(
         analysis_timestamp=date.today().isoformat(),
         customer_type=customer_type,
         voltage_level=voltage_level,
+    )
+
+
+# ---------------------------------------------------------------------------
+# PHASE-02 — Solar / BESS value impact, artifact, orchestration
+# ---------------------------------------------------------------------------
+
+
+def regime_tou_rates_vnd(
+    vn: VNData,
+    customer_type: str,
+    voltage_level: str,
+    regime_id: str,
+    year: Optional[int] = None,
+) -> List[float]:
+    """Return the 8760-hour TOU energy rate series for a regime in VND per kWh.
+
+    Wraps ``build_vietnam_tariff()`` (which returns USD) and converts back to VND
+    so downstream monetary outputs stay in VND, consistent with PHASE-01 bills.
+    """
+    if year is None:
+        year = date.today().year
+    tariff_dict = build_vietnam_tariff(
+        vn, customer_type, voltage_level, regime_id=regime_id, year=year
+    )
+    return [
+        convert_usd_to_vnd(r, exchange_rate=vn.exchange_rate)
+        for r in tariff_dict["tou_energy_rates_per_kwh"]
+    ]
+
+
+@dataclass(frozen=True)
+class SolarValueDelta:
+    """Avoided-cost value of a PV profile under two regimes (delta is B minus A)."""
+
+    pv_annual_generation_mwh: float
+    regime_a_value_vnd: float
+    regime_b_value_vnd: float
+    delta_value_vnd: float
+    delta_pct: float
+
+
+@dataclass(frozen=True)
+class BessArbitrageDelta:
+    """Theoretical-maximum BESS arbitrage value under two regimes (delta is B minus A).
+
+    Arbitrage is idealized: perfect foresight, no round-trip efficiency losses. The
+    number of cycles per day equals the number of distinct daily peak windows (charge
+    at off-peak, discharge at peak). Treat values as a theoretical ceiling.
+    """
+
+    bess_power_kw: float
+    bess_capacity_kwh: float
+    regime_a_cycles_per_day: int
+    regime_b_cycles_per_day: int
+    regime_a_annual_arbitrage_vnd: float
+    regime_b_annual_arbitrage_vnd: float
+    delta_annual_arbitrage_vnd: float
+    basis: str = "theoretical_maximum_no_efficiency_losses"
+
+
+def estimate_solar_value_impact(
+    loads_kw: List[float],
+    regime_a_tariff: List[float],
+    regime_b_tariff: List[float],
+    pv_profile_kw: List[float],
+) -> SolarValueDelta:
+    """Estimate the avoided-cost value of a PV profile under two regimes.
+
+    Avoided cost per hour is the energy the PV displaces (capped at on-site load)
+    valued at that regime's TOU rate: ``min(pv[h], load[h]) * rate[h]``.
+
+    Args:
+        loads_kw: 8760 on-site load (caps behind-the-meter avoided energy).
+        regime_a_tariff: 8760 VND/kWh rates for regime A.
+        regime_b_tariff: 8760 VND/kWh rates for regime B.
+        pv_profile_kw: 8760 PV generation profile in kW.
+    """
+    _require_8760(loads_kw, "loads_kw")
+    _require_8760(regime_a_tariff, "regime_a_tariff")
+    _require_8760(regime_b_tariff, "regime_b_tariff")
+    _require_8760(pv_profile_kw, "pv_profile_kw")
+
+    value_a = 0.0
+    value_b = 0.0
+    for h in range(HOURS_PER_YEAR):
+        avoided = pv_profile_kw[h]
+        if loads_kw[h] < avoided:
+            avoided = loads_kw[h]
+        value_a += avoided * regime_a_tariff[h]
+        value_b += avoided * regime_b_tariff[h]
+
+    delta_value = value_b - value_a
+    delta_pct = (delta_value / value_a) * 100.0 if value_a else 0.0
+    return SolarValueDelta(
+        pv_annual_generation_mwh=sum(pv_profile_kw) / 1000.0,
+        regime_a_value_vnd=value_a,
+        regime_b_value_vnd=value_b,
+        delta_value_vnd=delta_value,
+        delta_pct=delta_pct,
+    )
+
+
+def _weekday_peak_window_count(rates: List[float]) -> int:
+    """Count distinct daily peak windows from an 8760 rate series.
+
+    Peak hours-of-day are those that ever carry the maximum rate (peak appears only on
+    weekdays in these schedules). Contiguous runs of peak hours-of-day are counted as
+    separate windows; a wrap-around run (hour 23 and hour 0 both peak) counts as one.
+    """
+    peak_rate = max(rates)
+    is_peak_hod = [False] * 24
+    for h in range(HOURS_PER_YEAR):
+        if rates[h] == peak_rate:
+            is_peak_hod[h % 24] = True
+
+    windows = 0
+    for hour in range(24):
+        if is_peak_hod[hour] and not is_peak_hod[(hour - 1) % 24]:
+            windows += 1
+    return windows
+
+
+def _arbitrage_days(rates: List[float]) -> int:
+    """Number of days in the year that contain at least one peak hour."""
+    peak_rate = max(rates)
+    days = 0
+    for d in range(365):
+        slice_ = rates[d * 24 : (d + 1) * 24]
+        if any(r == peak_rate for r in slice_):
+            days += 1
+    return days
+
+
+def _annual_arbitrage_vnd(
+    rates: List[float], bess_power_kw: float, bess_capacity_kwh: float
+) -> tuple:
+    """Return (cycles_per_day, annual_arbitrage_vnd) for one regime.
+
+    Per cycle, the battery charges its usable energy at the off-peak rate and discharges
+    it at the peak rate. Usable energy per cycle is capped by power over a 2-hour nominal
+    charge/discharge block (``power * 2``) and by capacity — a theoretical maximum.
+    """
+    peak_rate = max(rates)
+    offpeak_rate = min(rates)
+    spread = peak_rate - offpeak_rate
+    cycles_per_day = _weekday_peak_window_count(rates)
+    usable_energy_kwh = min(bess_capacity_kwh, bess_power_kw * 2.0)
+    annual = (
+        _arbitrage_days(rates) * cycles_per_day * usable_energy_kwh * spread
+    )
+    return cycles_per_day, annual
+
+
+def estimate_bess_arbitrage_impact(
+    regime_a_tariff: List[float],
+    regime_b_tariff: List[float],
+    bess_power_kw: float,
+    bess_capacity_kwh: float,
+) -> BessArbitrageDelta:
+    """Estimate theoretical BESS arbitrage value under two regimes (delta is B minus A)."""
+    _require_8760(regime_a_tariff, "regime_a_tariff")
+    _require_8760(regime_b_tariff, "regime_b_tariff")
+    if bess_power_kw <= 0 or bess_capacity_kwh <= 0:
+        raise ValueError("bess_power_kw and bess_capacity_kwh must be positive")
+
+    cycles_a, annual_a = _annual_arbitrage_vnd(
+        regime_a_tariff, bess_power_kw, bess_capacity_kwh
+    )
+    cycles_b, annual_b = _annual_arbitrage_vnd(
+        regime_b_tariff, bess_power_kw, bess_capacity_kwh
+    )
+    return BessArbitrageDelta(
+        bess_power_kw=bess_power_kw,
+        bess_capacity_kwh=bess_capacity_kwh,
+        regime_a_cycles_per_day=cycles_a,
+        regime_b_cycles_per_day=cycles_b,
+        regime_a_annual_arbitrage_vnd=annual_a,
+        regime_b_annual_arbitrage_vnd=annual_b,
+        delta_annual_arbitrage_vnd=annual_b - annual_a,
+    )
+
+
+@dataclass(frozen=True)
+class RegimeComparisonArtifact:
+    """Combined PHASE-01 + PHASE-02 result, ready to serialize to JSON."""
+
+    regime_impact: RegimeImpact
+    solar: Optional[SolarValueDelta]
+    bess: Optional[BessArbitrageDelta]
+    generated_at: str
+    inputs: Dict
+
+    def to_dict(self) -> Dict:
+        return {
+            "regime_impact": self.regime_impact.to_dict(),
+            "solar": asdict(self.solar) if self.solar is not None else None,
+            "bess": asdict(self.bess) if self.bess is not None else None,
+            "generated_at": self.generated_at,
+            "inputs": self.inputs,
+        }
+
+
+def build_regime_comparison(
+    loads_kw: List[float],
+    regime_a_id: str,
+    regime_b_id: str,
+    customer_type: str,
+    voltage_level: str,
+    pv_profile_kw: Optional[List[float]] = None,
+    bess_power_kw: Optional[float] = None,
+    bess_capacity_kwh: Optional[float] = None,
+    vn: Optional[VNData] = None,
+    year: Optional[int] = None,
+) -> RegimeComparisonArtifact:
+    """Orchestrate the full regime comparison: bill impact + optional solar + optional BESS."""
+    if vn is None:
+        vn = load_vietnam_data()
+    if year is None:
+        year = date.today().year
+
+    impact = compute_regime_impact(
+        loads_kw, regime_a_id, regime_b_id, customer_type, voltage_level, vn=vn, year=year
+    )
+
+    rates_a = regime_tou_rates_vnd(vn, customer_type, voltage_level, regime_a_id, year)
+    rates_b = regime_tou_rates_vnd(vn, customer_type, voltage_level, regime_b_id, year)
+
+    solar = None
+    if pv_profile_kw is not None:
+        solar = estimate_solar_value_impact(loads_kw, rates_a, rates_b, pv_profile_kw)
+
+    bess = None
+    if bess_power_kw is not None and bess_capacity_kwh is not None:
+        bess = estimate_bess_arbitrage_impact(
+            rates_a, rates_b, bess_power_kw, bess_capacity_kwh
+        )
+
+    return RegimeComparisonArtifact(
+        regime_impact=impact,
+        solar=solar,
+        bess=bess,
+        generated_at=date.today().isoformat(),
+        inputs={
+            "regime_a_id": regime_a_id,
+            "regime_b_id": regime_b_id,
+            "customer_type": customer_type,
+            "voltage_level": voltage_level,
+            "year": year,
+            "has_pv": pv_profile_kw is not None,
+            "bess_power_kw": bess_power_kw,
+            "bess_capacity_kwh": bess_capacity_kwh,
+        },
     )

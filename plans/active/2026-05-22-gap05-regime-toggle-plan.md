@@ -72,11 +72,11 @@ Compute the annual EVN bill for a factory under two regulatory regimes in under 
 Add estimated solar and BESS value impact under each regime, produce a machine-readable artifact, and expose via CLI.
 
 **Tasks**
-- [ ] TASK-02-01: Add `estimate_solar_value_impact(loads_kw, regime_a_tariff, regime_b_tariff, pv_profile_kw) -> SolarValueDelta` to `regime_impact.py`. Compute the avoided-cost value of solar generation under each regime's TOU rates (multiply PV output × TOU rate per hour, sum).
-- [ ] TASK-02-02: Add `estimate_bess_arbitrage_impact(regime_a_tariff, regime_b_tariff, bess_power_kw, bess_capacity_kwh) -> BessArbitrageDelta`. Compute theoretical arbitrage value: charge at offpeak, discharge at peak, under each regime. Report cycle count per day and annual arbitrage revenue.
-- [ ] TASK-02-03: Add `RegimeComparisonArtifact` that combines `RegimeImpact` + `SolarValueDelta` + `BessArbitrageDelta` into a single JSON artifact.
-- [ ] TASK-02-04: Create `scripts/python/reopt/compare_regimes.py` CLI accepting `--factory <path>`, `--regime-a <id>`, `--regime-b <id>`, `--customer-type`, `--voltage-level`, `--solar-profile <path>` (optional), `--bess-power <kw>` (optional), `--output <path>`.
-- [ ] TASK-02-05: Add `tests/python/reopt/test_regime_impact_solar_bess.py` with tests for: solar value drop under Decision 963 (morning peak lost), BESS arbitrage halving (one cycle vs two), combined artifact structure.
+- [x] TASK-02-01: Add `estimate_solar_value_impact(loads_kw, regime_a_tariff, regime_b_tariff, pv_profile_kw) -> SolarValueDelta` to `regime_impact.py`. Compute the avoided-cost value of solar generation under each regime's TOU rates (multiply PV output × TOU rate per hour, sum).
+- [x] TASK-02-02: Add `estimate_bess_arbitrage_impact(regime_a_tariff, regime_b_tariff, bess_power_kw, bess_capacity_kwh) -> BessArbitrageDelta`. Compute theoretical arbitrage value: charge at offpeak, discharge at peak, under each regime. Report cycle count per day and annual arbitrage revenue.
+- [x] TASK-02-03: Add `RegimeComparisonArtifact` that combines `RegimeImpact` + `SolarValueDelta` + `BessArbitrageDelta` into a single JSON artifact.
+- [x] TASK-02-04: Create `scripts/python/reopt/compare_regimes.py` CLI accepting `--factory <path>`, `--regime-a <id>`, `--regime-b <id>`, `--customer-type`, `--voltage-level`, `--solar-profile <path>` (optional), `--bess-power <kw>` (optional), `--output <path>`.
+- [x] TASK-02-05: Add `tests/python/reopt/test_regime_impact_solar_bess.py` with tests for: solar value drop under Decision 963 (morning peak lost), BESS arbitrage halving (one cycle vs two), combined artifact structure.
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/reopt/regime_impact.py` — Solar/BESS impact functions added.
@@ -87,9 +87,9 @@ Add estimated solar and BESS value impact under each regime, produce a machine-r
 - PHASE-01
 
 **Exit Criteria**
-- [ ] Solar avoided-cost value under Decision 963 is lower than under Decision 14 for a daytime-generation profile (morning peak premium lost).
-- [ ] BESS arbitrage revenue under Decision 963 is approximately 50% of Decision 14 (one cycle vs two).
-- [ ] CLI produces a valid JSON artifact.
+- [x] Solar avoided-cost value under Decision 963 is lower than under Decision 14 for a daytime-generation profile (morning peak premium lost).
+- [x] BESS arbitrage revenue under Decision 963 is approximately 50% of Decision 14 (one cycle vs two).
+- [x] CLI produces a valid JSON artifact.
 
 **Phase Risks**
 - **RISK-02-01:** BESS arbitrage estimation is simplified (perfect foresight, no efficiency losses). Mitigate by labeling as "theoretical maximum" in the artifact and documentation.

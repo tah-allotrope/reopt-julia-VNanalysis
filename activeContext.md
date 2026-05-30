@@ -14,10 +14,11 @@ Per-phase workflow: TDD (red→green) → `/report <phase>` → git commit → g
 - [x] TASK-01-04: peak/offpeak/normal hour classification per regime
 - [x] TASK-01-05: `tests/python/reopt/test_regime_impact.py` (saigon18, flat, same-regime) — 7 tests PASS
 - [x] Exit: non-zero delta 963 vs 14 (-2.6%); < 1s; peak_hours_changed=5; 107 regression tests PASS
-- [ ] report + commit + push
+- [x] report + commit + push — commit 0f50400, pushed to origin/main
 
-### PHASE-02 — Solar/BESS Value Impact and CLI
-- [ ] TASK-02-01..05: solar value, BESS arbitrage, artifact, CLI, tests
+### PHASE-02 — Solar/BESS Value Impact and CLI ✅
+- [x] TASK-02-01..05: solar value, BESS arbitrage, RegimeComparisonArtifact, compare_regimes.py CLI, tests (6 PASS)
+- [x] Exit: solar value 963<14 for daytime PV; BESS 963≈50% of 14 (1 vs 2 cycles); CLI writes valid JSON; 132 tests PASS
 - [ ] report + commit + push
 
 ### PHASE-03 — HTML Report and Forward Regimes
