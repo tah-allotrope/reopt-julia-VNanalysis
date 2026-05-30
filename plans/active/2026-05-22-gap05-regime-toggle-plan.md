@@ -44,11 +44,11 @@ Build a rapid regulatory-scenario comparison surface that computes the tariff im
 Compute the annual EVN bill for a factory under two regulatory regimes in under 1 second, Python-only.
 
 **Tasks**
-- [ ] TASK-01-01: Create `src/python/reopt_pysam_vn/reopt/regime_impact.py` with `compute_regime_impact(loads_kw, regime_a_id, regime_b_id, customer_type, voltage_level) -> RegimeImpact`.
-- [ ] TASK-01-02: Implement `RegimeImpact` dataclass: `regime_a` (id, name, annual_bill_vnd, peak_consumption_mwh, offpeak_consumption_mwh, normal_consumption_mwh), `regime_b` (same fields), `delta` (annual_bill_delta_vnd, delta_pct, peak_hours_changed, peak_consumption_delta_mwh), `analysis_timestamp`, `customer_type`, `voltage_level`.
-- [ ] TASK-01-03: Use `load_vietnam_data()` and `build_vietnam_tariff()` to construct 8760 TOU rate arrays for both regimes, then multiply by `loads_kw` and sum for annual bills. This is the hot path and must complete in < 1 second.
-- [ ] TASK-01-04: Add peak/offpeak/normal hour classification for each regime using the TOU window definitions from `vn_tariff_2025.json`.
-- [ ] TASK-01-05: Add `tests/python/reopt/test_regime_impact.py` with tests for: Decision 963 vs Decision 14 on saigon18 load (expect bill change due to morning-peak removal), Decision 963 vs Decision 14 on a flat-load profile (expect smaller change), same-regime comparison (expect zero delta).
+- [x] TASK-01-01: Create `src/python/reopt_pysam_vn/reopt/regime_impact.py` with `compute_regime_impact(loads_kw, regime_a_id, regime_b_id, customer_type, voltage_level) -> RegimeImpact`.
+- [x] TASK-01-02: Implement `RegimeImpact` dataclass: `regime_a` (id, name, annual_bill_vnd, peak_consumption_mwh, offpeak_consumption_mwh, normal_consumption_mwh), `regime_b` (same fields), `delta` (annual_bill_delta_vnd, delta_pct, peak_hours_changed, peak_consumption_delta_mwh), `analysis_timestamp`, `customer_type`, `voltage_level`.
+- [x] TASK-01-03: Use `load_vietnam_data()` and `build_vietnam_tariff()` to construct 8760 TOU rate arrays for both regimes, then multiply by `loads_kw` and sum for annual bills. This is the hot path and must complete in < 1 second.
+- [x] TASK-01-04: Add peak/offpeak/normal hour classification for each regime using the TOU window definitions from `vn_tariff_2025.json`.
+- [x] TASK-01-05: Add `tests/python/reopt/test_regime_impact.py` with tests for: Decision 963 vs Decision 14 on saigon18 load (expect bill change due to morning-peak removal), Decision 963 vs Decision 14 on a flat-load profile (expect smaller change), same-regime comparison (expect zero delta).
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/reopt/regime_impact.py` — New rapid comparison module.
@@ -60,9 +60,9 @@ Compute the annual EVN bill for a factory under two regulatory regimes in under 
 - None
 
 **Exit Criteria**
-- [ ] `compute_regime_impact()` on saigon18 load returns a non-zero `annual_bill_delta_vnd` between Decision 963 and Decision 14.
-- [ ] Execution time < 1 second on a standard workstation.
-- [ ] `peak_hours_changed` correctly reflects the TOU window shift (morning peak hours removed, evening peak extended).
+- [x] `compute_regime_impact()` on saigon18 load returns a non-zero `annual_bill_delta_vnd` between Decision 963 and Decision 14.
+- [x] Execution time < 1 second on a standard workstation.
+- [x] `peak_hours_changed` correctly reflects the TOU window shift (morning peak hours removed, evening peak extended).
 
 **Phase Risks**
 - **RISK-01-01:** `build_vietnam_tariff()` may not support regime-specific TOU windows directly. Mitigate by extending it with a `regime_id` parameter if needed (the regime engine already does this via `resolve_vietnam_regime()`).

@@ -1,5 +1,36 @@
 # Active Context — Saigon18 REopt Integration
 
+## GAP-05: Interactive Regulatory Scenario Toggle — 2026-05-30
+
+Plan: `plans/active/2026-05-22-gap05-regime-toggle-plan.md`
+Goal: Python-only rapid regime comparison (Decision 963 vs Decision 14 + forward regimes),
+no Julia/REopt solve, < 1s bill comparison on a real factory load.
+Per-phase workflow: TDD (red→green) → `/report <phase>` → git commit → git push origin main.
+
+### PHASE-01 — Rapid EVN Bill Regime Comparison ✅
+- [x] TASK-01-01: `regime_impact.py` + `compute_regime_impact(loads_kw, regime_a_id, regime_b_id, customer_type, voltage_level)`
+- [x] TASK-01-02: `RegimeImpact` dataclass (regime_a/regime_b sides + delta + meta)
+- [x] TASK-01-03: build 8760 rates via `build_vietnam_tariff()`, multiply by loads, sum (< 1s)
+- [x] TASK-01-04: peak/offpeak/normal hour classification per regime
+- [x] TASK-01-05: `tests/python/reopt/test_regime_impact.py` (saigon18, flat, same-regime) — 7 tests PASS
+- [x] Exit: non-zero delta 963 vs 14 (-2.6%); < 1s; peak_hours_changed=5; 107 regression tests PASS
+- [ ] report + commit + push
+
+### PHASE-02 — Solar/BESS Value Impact and CLI
+- [ ] TASK-02-01..05: solar value, BESS arbitrage, artifact, CLI, tests
+- [ ] report + commit + push
+
+### PHASE-03 — HTML Report and Forward Regimes
+- [ ] TASK-03-01..05: Chart.js HTML report, forward presets, multi-regime, tests, wrapper
+- [ ] report + commit + push
+
+### Notes / decisions
+- Bill computed in USD via `build_vietnam_tariff()`, converted to VND via `convert_usd_to_vnd`.
+- Hour classification reuses resolved regime `tou_schedule` + same Mon-Sat/Sun calendar as `_build_8760_rates`.
+- CON-001: support both 963-multiplier cases as data-driven regimes (no hardcoding).
+
+---
+
 ## Phase 40 - Decision 963 TOU Migration (PHASE-01) - 2026-05-07
 
 - [x] TASK-01-01: Update vn_tariff_2025.json TOU schedule to Decision 963 windows
