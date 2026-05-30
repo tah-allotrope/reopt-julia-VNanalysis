@@ -40,6 +40,15 @@ PEAK = "peak"
 STANDARD = "standard"
 OFFPEAK = "offpeak"
 
+# Forward-looking regime presets defined in vn_regime_registry_2026.json. These are
+# draft/preview/sensitivity bundles for scenarios that have not been finalized by MOIT.
+# Results for the placeholder bundles are provisional (see CON-001 / RISK-03-01).
+FORWARD_REGIME_PRESETS = (
+    "decree57_rooftop_50pct_draft",
+    "decree146_two_part_trial_2026",
+    "decision_963_2026_repriced_multipliers",
+)
+
 
 def _require_8760(series: List[float], name: str) -> None:
     """Raise ValueError unless ``series`` has exactly 8760 elements."""
@@ -281,6 +290,44 @@ def compute_regime_impact(
         customer_type=customer_type,
         voltage_level=voltage_level,
     )
+
+
+def compute_multi_regime_impact(
+    loads_kw: List[float],
+    regime_ids: List[str],
+    customer_type: str,
+    voltage_level: str,
+    vn: Optional[VNData] = None,
+    year: Optional[int] = None,
+) -> List[RegimeImpact]:
+    """Compare a load across 3+ regimes in one call against a common baseline.
+
+    The first id in ``regime_ids`` is the baseline; the result list contains one
+    ``RegimeImpact`` per id, each comparing the baseline (A) against that id (B).
+    The baseline-vs-itself entry has a zero delta.
+
+    Args:
+        regime_ids: Two or more regime ids; ``regime_ids[0]`` is the baseline.
+
+    Raises:
+        ValueError: if fewer than two regime ids are supplied.
+    """
+    if len(regime_ids) < 2:
+        raise ValueError(
+            f"compute_multi_regime_impact needs at least 2 regime ids, got {len(regime_ids)}"
+        )
+    if vn is None:
+        vn = load_vietnam_data()
+    if year is None:
+        year = date.today().year
+
+    baseline = regime_ids[0]
+    return [
+        compute_regime_impact(
+            loads_kw, baseline, rid, customer_type, voltage_level, vn=vn, year=year
+        )
+        for rid in regime_ids
+    ]
 
 
 # ---------------------------------------------------------------------------

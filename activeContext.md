@@ -21,9 +21,12 @@ Per-phase workflow: TDD (red→green) → `/report <phase>` → git commit → g
 - [x] Exit: solar value 963<14 for daytime PV; BESS 963≈50% of 14 (1 vs 2 cycles); CLI writes valid JSON; 132 tests PASS
 - [ ] report + commit + push
 
-### PHASE-03 — HTML Report and Forward Regimes
-- [ ] TASK-03-01..05: Chart.js HTML report, forward presets, multi-regime, tests, wrapper
+### PHASE-03 — HTML Report and Forward Regimes ✅
+- [x] TASK-03-01..05: generate_regime_comparison_report.py (Chart.js HTML), FORWARD_REGIME_PRESETS, compute_multi_regime_impact, tests (5 PASS), scripts/python/compare_regimes.py wrapper
+- [x] Exit: HTML report renders (4 canvases + TOU strips); 3-regime sweep in one call; forward presets accessible+valid; 137 tests PASS
 - [ ] report + commit + push
+
+**GAP-05 COMPLETE** — all 3 phases implemented, 18 new tests, 137 reopt tests pass, plan boxes all checked.
 
 ### Notes / decisions
 - Bill computed in USD via `build_vietnam_tariff()`, converted to VND via `convert_usd_to_vnd`.

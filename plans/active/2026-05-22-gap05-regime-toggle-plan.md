@@ -1,7 +1,7 @@
 ---
 title: "GAP-05: Interactive Regulatory Scenario Toggle"
 date: "2026-05-22"
-status: "draft"
+status: "implemented"
 request: "Rapid regime comparison surface for client demo — toggle Decision 963 vs Decision 14 without Julia solve"
 plan_type: "multi-phase"
 research_inputs:
@@ -99,11 +99,11 @@ Add estimated solar and BESS value impact under each regime, produce a machine-r
 Generate an HTML report with Chart.js visualizations and add support for forward-looking regime scenarios.
 
 **Tasks**
-- [ ] TASK-03-01: Create `scripts/python/reopt/generate_regime_comparison_report.py` producing an HTML report with: factory load profile chart, TOU window comparison (color-coded hours), annual bill comparison bar chart, solar value impact chart, BESS arbitrage comparison, regulatory timeline.
-- [ ] TASK-03-02: Add forward-regime presets to `regime_impact.py`: `decree57_rooftop_50pct_draft` (50% export cap), `decree146_two_part_trial_2026` (capacity + energy charges), `decision_963_2026_repriced_multipliers` (placeholder for revised multipliers).
-- [ ] TASK-03-03: Support multi-regime comparison: `compute_multi_regime_impact(loads_kw, regime_ids, customer_type, voltage_level) -> list[RegimeImpact]` for sweeping across 3+ regimes in one call.
-- [ ] TASK-03-04: Add `tests/python/reopt/test_regime_impact_multi.py` with tests for: 3-regime comparison, forward-regime preset validation.
-- [ ] TASK-03-05: Create convenience wrapper at `scripts/python/compare_regimes.py`.
+- [x] TASK-03-01: Create `scripts/python/reopt/generate_regime_comparison_report.py` producing an HTML report with: factory load profile chart, TOU window comparison (color-coded hours), annual bill comparison bar chart, solar value impact chart, BESS arbitrage comparison, regulatory timeline.
+- [x] TASK-03-02: Add forward-regime presets to `regime_impact.py`: `decree57_rooftop_50pct_draft` (50% export cap), `decree146_two_part_trial_2026` (capacity + energy charges), `decision_963_2026_repriced_multipliers` (placeholder for revised multipliers).
+- [x] TASK-03-03: Support multi-regime comparison: `compute_multi_regime_impact(loads_kw, regime_ids, customer_type, voltage_level) -> list[RegimeImpact]` for sweeping across 3+ regimes in one call.
+- [x] TASK-03-04: Add `tests/python/reopt/test_regime_impact_multi.py` with tests for: 3-regime comparison, forward-regime preset validation.
+- [x] TASK-03-05: Create convenience wrapper at `scripts/python/compare_regimes.py`.
 
 **Files / Surfaces**
 - `scripts/python/reopt/generate_regime_comparison_report.py` — HTML report generator.
@@ -114,9 +114,9 @@ Generate an HTML report with Chart.js visualizations and add support for forward
 - PHASE-02
 
 **Exit Criteria**
-- [ ] HTML report renders in a browser with Chart.js bar charts and TOU window visualization.
-- [ ] Multi-regime comparison produces results for at least 3 regimes in one call.
-- [ ] Forward-regime presets are accessible and produce valid (even if placeholder) results.
+- [x] HTML report renders in a browser with Chart.js bar charts and TOU window visualization.
+- [x] Multi-regime comparison produces results for at least 3 regimes in one call.
+- [x] Forward-regime presets are accessible and produce valid (even if placeholder) results.
 
 **Phase Risks**
 - **RISK-03-01:** Forward-regime data (e.g., repriced multipliers) may not exist yet. Mitigate by using placeholder multipliers and labeling as `provisional` in the artifact.
