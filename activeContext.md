@@ -28,6 +28,19 @@ Per-phase workflow: TDD (red→green) → `/report <phase>` → git commit → g
 
 **GAP-05 COMPLETE** — all 3 phases implemented, 18 new tests, 137 reopt tests pass, plan boxes all checked.
 
+### Review / Results — GAP-05 (2026-05-30)
+- New module `src/python/reopt_pysam_vn/reopt/regime_impact.py`: `compute_regime_impact`,
+  `estimate_solar_value_impact`, `estimate_bess_arbitrage_impact`, `build_regime_comparison`,
+  `compute_multi_regime_impact`, `regime_tou_rates_vnd`, `FORWARD_REGIME_PRESETS`.
+- CLIs: `scripts/python/reopt/compare_regimes.py`, `scripts/python/reopt/generate_regime_comparison_report.py`,
+  `scripts/python/compare_regimes.py` (wrapper).
+- Tests: `test_regime_impact.py` (7), `test_regime_impact_solar_bess.py` (6), `test_regime_impact_multi.py` (5).
+- Headline numbers (saigon18): 963 vs 14 bill delta -2.57%; solar avoided cost -14.2% under 963;
+  BESS arbitrage 963 ≈ 50% of 14 (1 vs 2 cycles); Decree-146 trial +19% from demand charge.
+- Commits pushed to origin/main: 0f50400 (P1), 56167ca (P2), 38ea63d (P3).
+- Built on TDD red→green each phase; reused build_vietnam_tariff / resolve_vietnam_regime and
+  GAP-01 ingest_factory_load. No Julia/REopt solve — entire toggle is < 1s Python tariff math.
+
 ### Notes / decisions
 - Bill computed in USD via `build_vietnam_tariff()`, converted to VND via `convert_usd_to_vnd`.
 - Hour classification reuses resolved regime `tou_schedule` + same Mon-Sat/Sun calendar as `_build_8760_rates`.
