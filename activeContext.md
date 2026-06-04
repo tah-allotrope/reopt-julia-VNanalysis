@@ -42,6 +42,16 @@ System Python 3.14 has no PySAM wheel (graceful synthetic fallback). Full `.venv
 - [x] report `reports/2026-06-04-samsung-ttc-phase-03.html` + commit + push
 - CAVEAT: developer revenue taken on contracted 70 GWh (conservative); real plant ~92.5 GWh + merchant tail would lift NPV. Null IRR is documented Single Owner behavior (cashflow never crosses positive).
 
+### PHASE-04 — Regime Stress + Combined Decision + Final Report ✅ (PLAN COMPLETE)
+- [x] TASK-04-01: `build_samsung_ttc_regime_stress` — GAP-05 `compute_multi_regime_impact` on SEVT load across Decision 963 / 14 legacy / Decree 146 two-part. Results: 963 baseline 2,036.7 B VND; 14 legacy −2.1% (5 peak-hrs shift); Decree 146 two-part +17.9% (+365 B demand charge).
+- [x] TASK-04-02: `build_samsung_ttc_combined_decision` — rolls up settlement + strike sweep + adder + regime stress → `recommended_position = buyer_favorable_developer_subeconomic` (buyer saves, no overlap), explicit rationale + directional caveat.
+- [x] TASK-04-03: `analyze_samsung_ttc_combined.py` → `samsung_ttc_regime-stress.json`, `samsung_ttc_combined-decision.json`; final client report `reports/2026-06-04-final-samsung-ttc-dppa.html` (exec summary, deal facts, 4-phase methodology, 3 charts, recommendation, risks, sources).
+- [x] TASK-04-04: `test_dppa_samsung_ttc_phase_04.py` — 3 tests (regime nonzero + two-part worse, combined roll-up, buyer-only path), red→green.
+- [x] Exit: regime stress + combined decision artifacts written; final report renders; recommended `buyer_favorable_developer_subeconomic`. Regression green under .venv.
+- [x] report + commit + push
+
+**SAMSUNG-TTC DPPA PLAN COMPLETE** — all 4 phases done (20 new tests). Headline directional result: buyer saves ~25 B VND/yr ($0.95M) on the 70 GWh slice at the Southern-ceiling strike; developer sub-economic across the band (conservative basis) → no overlap; DPPA adder is the dominant lever; Decree 146 two-part trial +18% buyer bill. The scheduled 2am routine (trig_01RLrLrKGtR4iBttQdHz4VHz) will detect phases done and go straight to building the deck.
+
 Note: two PRE-EXISTING integration tests (`test_case_study_ranking.py`, north_thuan loader) abort pytest
 collection because they import scripts that call `argparse.parse_args()` at import — unrelated to this work
 (committed in `19df5bd`). Ran regression with those collectors excluded.

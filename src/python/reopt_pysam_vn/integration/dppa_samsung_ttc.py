@@ -905,3 +905,145 @@ def build_samsung_ttc_adder_sensitivity(
         ),
     }
     return risk
+
+
+# --- PHASE-04: regime stress, combined decision -------------------------------
+SAMSUNG_TTC_REGIME_STRESS_IDS = (
+    "decision_963_2026_current",
+    "decision_14_2025_legacy",
+    "decree146_two_part_trial_2026",
+)
+
+
+def build_samsung_ttc_regime_stress(
+    extracted: dict,
+    *,
+    regime_ids: tuple[str, ...] = SAMSUNG_TTC_REGIME_STRESS_IDS,
+) -> dict:
+    """Stress the buyer's EVN benchmark (outside option) across tariff regimes.
+
+    Uses the GAP-05 ``compute_multi_regime_impact`` on the SEVT load: Decision 963
+    (current baseline) vs Decision 14 legacy vs the Decree 146 two-part trial. A
+    higher EVN bill under a regime makes the DPPA's avoided cost larger; the
+    Decree 146 two-part trial is the key forward risk (capacity charge that can
+    also double-charge DPPA volume). Directional.
+    """
+    from reopt_pysam_vn.reopt.regime_impact import compute_multi_regime_impact
+
+    loads_kw = [float(value) for value in extracted["loads_kw"]]
+    customer_type = extracted["site"]["customer_type"]
+    voltage_level = extracted["site"]["voltage_level"]
+    impacts = compute_multi_regime_impact(
+        loads_kw, list(regime_ids), customer_type, voltage_level
+    )
+    regimes = []
+    for impact in impacts:
+        regimes.append(
+            {
+                "regime_id": impact.regime_b.id,
+                "regime_name": impact.regime_b.name,
+                "annual_bill_vnd": impact.regime_b.annual_bill_vnd,
+                "annual_bill_gvnd": impact.regime_b.annual_bill_vnd / 1e9,
+                "annual_bill_delta_vnd": impact.delta.annual_bill_delta_vnd,
+                "delta_pct": impact.delta.delta_pct,
+                "peak_hours_changed": impact.delta.peak_hours_changed,
+            }
+        )
+    return {
+        "case": "DPPA_SAMSUNG_TTC",
+        "model": "Samsung-TTC DPPA Regime Stress",
+        "baseline_regime_id": regime_ids[0],
+        "regimes": regimes,
+        "interpretation": (
+            "Buyer EVN bill (outside option) under each tariff regime. A higher bill "
+            "raises the DPPA's avoided-cost value; the Decree 146 two-part trial lifts "
+            "the bill via a capacity charge but risks double-charging the DPPA volume."
+        ),
+        "quality": {
+            "basis": "directional",
+            "voltage_level": voltage_level,
+            "customer_type": customer_type,
+            "caveat": (
+                "Directional: regime bills are computed on the synthetic SEVT load; "
+                "the Decree 146 two-part trial is a paper trial, not yet on actual bills."
+            ),
+        },
+    }
+
+
+def build_samsung_ttc_combined_decision(
+    extracted: dict,
+    *,
+    run_developer: bool = True,
+    developer_runner=None,
+) -> dict:
+    """Roll up settlement, strike sweep, adder lever, and regime stress into one
+    explicit, caveated decision artifact. Directional."""
+    base = analyze_samsung_ttc_settlement(extracted)
+    sweep = build_samsung_ttc_strike_sweep(
+        extracted, run_developer=run_developer, developer_runner=developer_runner
+    )
+    adder = build_samsung_ttc_adder_sensitivity(extracted)
+    stress = build_samsung_ttc_regime_stress(extracted)
+    definition = build_samsung_ttc_definition(extracted)
+
+    buyer_saves = (
+        float(base["benchmark"]["year_one_costs"]["buyer_savings_vs_evn_vnd"]) > 0.0
+    )
+    overlap = bool(sweep["negotiation_summary"]["overlap_found"])
+    if overlap:
+        recommended = "advance_negotiable_band_exists"
+    elif buyer_saves:
+        recommended = "buyer_favorable_developer_subeconomic"
+    else:
+        recommended = "reject_no_buyer_saving"
+
+    rationale = [
+        f"Buyer saves ~{base['contracted_slice']['buyer_savings_vnd'] / 1e9:.1f} B VND/yr "
+        f"on the contracted 70 GWh at the Southern-ceiling strike (1,012 VND/kWh).",
+        f"Developer is sub-economic across the strike band (no overlap) under "
+        f"conservative {SAMSUNG_TTC_INSTALLED_COST_USD_PER_KW:.0f} USD/kW capex on the "
+        f"contracted 70 GWh; counting the plant's full yield would lift developer NPV.",
+        "DPPA grid-service adder is the dominant buyer lever; buyer flips to a premium "
+        "near ~0.9x the inherited 523 VND/kWh adder.",
+        "Decree 146 two-part trial raises the buyer's EVN bill ~18%, making the DPPA "
+        "more attractive unless it double-charges the contracted volume.",
+    ]
+
+    return {
+        "case": "DPPA_SAMSUNG_TTC",
+        "model": "Samsung-TTC DPPA Combined Decision",
+        "deal": definition,
+        "base_settlement": {
+            "solar_summary": base["solar_summary"],
+            "contracted_slice": base["contracted_slice"],
+            "buyer_savings_vs_evn_vnd": float(
+                base["benchmark"]["year_one_costs"]["buyer_savings_vs_evn_vnd"]
+            ),
+        },
+        "strike_sweep": {
+            "strike_band": sweep["strike_band"],
+            "developer_screen": sweep["developer_screen"],
+            "negotiation_summary": sweep["negotiation_summary"],
+            "sweep": sweep["sweep"],
+        },
+        "adder_sensitivity": adder["adder_sensitivity"],
+        "regime_stress": stress,
+        "decision": {
+            "buyer_saves_at_base_strike": buyer_saves,
+            "developer_overlap_found": overlap,
+            "recommended_position": recommended,
+            "rationale": rationale,
+        },
+        "quality": {
+            "basis": "directional",
+            "strike_basis": "southern_ground_mount_ceiling",
+            "market_reference_price_type": base["quality"]["market_reference_price_type"],
+            "solar_profile_source": base["quality"]["solar_profile_source"],
+            "caveat": (
+                "Directional only: undisclosed/triangulated commercial terms (strike, "
+                "DPPA adder, KPP, tenor), proxy CFMP series, non-site-specific solar, "
+                "conservative developer capex and revenue basis. Not a bankable verdict."
+            ),
+        },
+    }
