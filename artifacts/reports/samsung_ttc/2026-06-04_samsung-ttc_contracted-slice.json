@@ -1,12 +1,12 @@
 {
   "contracted_slice": {
-    "matched_quantity_gwh": 70.00000000000023,
-    "buyer_cost_on_matched_vnd": 108676221112.47676,
-    "evn_avoided_cost_on_matched_vnd": 134117522383.63763,
-    "buyer_savings_vnd": 25441301271.160873,
-    "buyer_savings_usd": 963685.6542106392,
-    "buyer_effective_cost_vnd_per_kwh": 1552.5174444639488,
-    "evn_avoided_cost_vnd_per_kwh": 1915.9646054805314,
+    "matched_quantity_gwh": 69.99999999999991,
+    "buyer_cost_on_matched_vnd": 108674077687.7839,
+    "evn_avoided_cost_on_matched_vnd": 133878445735.4996,
+    "buyer_savings_vnd": 25204368047.7157,
+    "buyer_savings_usd": 954710.9108983219,
+    "buyer_effective_cost_vnd_per_kwh": 1552.4868241112006,
+    "evn_avoided_cost_vnd_per_kwh": 1912.549224792854,
     "dppa_adder_vnd_per_kwh": 523.34,
     "kpp_factor": 1.027263
   },
@@ -15,7 +15,7 @@
     "strike_vnd_per_kwh": 1012.0,
     "strike_basis": "southern_ground_mount_no_storage_ceiling",
     "market_reference_price_type": "proxy_cfmp_or_fmp",
-    "solar_profile_source": "synthetic_clear_sky_south_calibrated",
+    "solar_profile_source": "pvwatts_v8_cached_south_himawari_calibrated_70gwh",
     "caveat": "Directional only: strike anchored to the Southern ground-mount ceiling, CfD settled against a proxy CFMP series, solar from a representative (non-site-specific) southern profile, and the DPPA grid-service adder inherited from the Case-2 default. Not bankable."
   }
 }

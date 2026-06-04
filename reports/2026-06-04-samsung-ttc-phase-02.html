@@ -127,12 +127,13 @@
           <p class="section-kicker">Phase Report / Directional Deal Model</p>
           <h1 class="phase-title">Samsung-TTC DPPA / Phase 02</h1>
           <p class="hero-summary">
-            Generated the fixed 49&nbsp;MWp southern-solar 8,760 (no Julia solve) and ran it through the
-            reused Case-2 CfD settlement engine with the Samsung Southern-ceiling strike. At a 1,012&nbsp;VND/kWh
-            strike the buyer's effective cost on the contracted 70&nbsp;GWh is <strong>1,553&nbsp;VND/kWh</strong> vs
-            an EVN avoided cost of <strong>1,916&nbsp;VND/kWh</strong> &mdash; a directional saving of
-            <strong>~25.4&nbsp;B&nbsp;VND/yr (~$0.96M)</strong>. PySAM was unavailable, so solar is a representative
-            (non-site-specific) profile; every number is <code>directional</code>.
+            Generated the fixed 49&nbsp;MWp southern-solar 8,760 via <strong>PySAM PVWatts v8</strong> (cached
+            southern Himawari resource, no Julia solve) and ran it through the reused Case-2 CfD settlement engine
+            with the Samsung Southern-ceiling strike. At a 1,012&nbsp;VND/kWh strike the buyer's effective cost on
+            the contracted 70&nbsp;GWh is <strong>1,552&nbsp;VND/kWh</strong> vs an EVN avoided cost of
+            <strong>1,913&nbsp;VND/kWh</strong> &mdash; a directional saving of <strong>~25.2&nbsp;B&nbsp;VND/yr
+            (~$0.95M)</strong>. The result is robust to the solar shape (synthetic vs PVWatts moved it &lt;1%);
+            every number is <code>directional</code>.
           </p>
           <div class="pill-row" aria-label="report metadata">
             <span class="pill">project :: Samsung-TTC DPPA Economics</span>
@@ -142,8 +143,8 @@
           <div class="repo-tag">repo :: reopt-pysam</div>
         </div>
         <div class="hero-meta">
-          <div class="meta-card"><div class="meta-label">Solar (fixed 49 MWp)</div><div class="meta-chip">70.0 GWh / 19.3% AC CF</div></div>
-          <div class="meta-card"><div class="meta-label">Directional buyer saving</div><div class="meta-chip">~25.4 B VND/yr (~$0.96M)</div></div>
+          <div class="meta-card"><div class="meta-label">Solar (PVWatts, fixed 49 MWp)</div><div class="meta-chip">70.0 GWh / 19.3% AC CF</div></div>
+          <div class="meta-card"><div class="meta-label">Directional buyer saving</div><div class="meta-chip">~25.2 B VND/yr (~$0.95M)</div></div>
           <div class="meta-card"><div class="meta-label">Phase Status</div><div class="meta-chip">PHASE-02 COMPLETE</div></div>
         </div>
       </div>
@@ -172,8 +173,8 @@
       </div>
       <div class="metric-strip">
         <div class="metric"><div class="metric-label">Matched (contracted)</div><div class="metric-value">70.0 GWh</div></div>
-        <div class="metric"><div class="metric-label">Buyer eff. cost (slice)</div><div class="metric-value">1,553 VND/kWh</div></div>
-        <div class="metric"><div class="metric-label">EVN avoided (slice)</div><div class="metric-value">1,916 VND/kWh</div></div>
+        <div class="metric"><div class="metric-label">Buyer eff. cost (slice)</div><div class="metric-value">1,552 VND/kWh</div></div>
+        <div class="metric"><div class="metric-label">EVN avoided (slice)</div><div class="metric-value">1,913 VND/kWh</div></div>
       </div>
     </section>
 
@@ -202,12 +203,12 @@ flowchart LR
           <thead><tr><th>Quantity</th><th>Formula / Method</th><th>Result</th></tr></thead>
           <tbody>
             <tr><td>Solar hour weight</td><td><code>arc(h)&middot;seasonal(doy)</code>, arc = <code>sin(&pi;(h&minus;6)/12)</code> for 06&ndash;18h else 0; seasonal = <code>1 + 0.18&middot;cos(2&pi;(doy&minus;15)/365)</code></td><td>daytime-only, dry-season lift</td></tr>
-            <tr><td>Calibration</td><td>scale weights to annual target, AC-clip at 41.4 MW, redistribute any clip loss</td><td>70.00 GWh; peak 29.8 MW (no clip)</td></tr>
+            <tr><td>Solar source &amp; calibration</td><td>PVWatts v8 (cached southern Himawari, 49 MWp native <strong>92.5 GWh</strong>) shape scaled to disclosed 70 GWh, AC-clipped 41.4 MW</td><td>70.00 GWh; peak 27.7 MW (no clip)</td></tr>
             <tr><td>AC capacity factor</td><td><code>70 GWh &divide; (41.4 MW &times; 8,760 h)</code></td><td>19.3% (validates the brief's estimate)</td></tr>
             <tr><td>Matched quantity (hourly)</td><td><code>min(load, generation)</code>; load &raquo; solar &rArr; matched = solar</td><td>70.0 GWh fully matched, 0 export</td></tr>
-            <tr><td>Buyer cost on matched (per kWh)</td><td><code>strike + adder + market&middot;(kpp&minus;1)</code> = 1,012 + 523.34 + 671&middot;0.0273</td><td>1,552.52 VND/kWh</td></tr>
-            <tr><td>EVN avoided on matched</td><td><code>&Sigma;(matched&middot;retail) &divide; matched</code> (solar lands in standard + a little peak TOU)</td><td>1,915.96 VND/kWh</td></tr>
-            <tr><td>Directional saving</td><td><code>(avoided &minus; effective) &times; 70 GWh</code></td><td>~25.44 B VND/yr (~$0.96M)</td></tr>
+            <tr><td>Buyer cost on matched (per kWh)</td><td><code>strike + adder + market&middot;(kpp&minus;1)</code> = 1,012 + 523.34 + 671&middot;0.0273</td><td>1,552.49 VND/kWh</td></tr>
+            <tr><td>EVN avoided on matched</td><td><code>&Sigma;(matched&middot;retail) &divide; matched</code> (solar lands in standard + a little peak TOU)</td><td>1,912.55 VND/kWh</td></tr>
+            <tr><td>Directional saving</td><td><code>(avoided &minus; effective) &times; 70 GWh</code></td><td>~25.20 B VND/yr (~$0.95M)</td></tr>
           </tbody>
         </table>
       </div>
@@ -219,7 +220,7 @@ flowchart LR
         <table>
           <thead><tr><th>Tool / Method</th><th>Role in Phase 02</th></tr></thead>
           <tbody>
-            <tr><td>Representative solar proxy</td><td>PySAM unavailable &rarr; deterministic southern profile (RISK-02-02 fallback), flagged <code>synthetic_clear_sky_south_calibrated</code>.</td></tr>
+            <tr><td>PySAM PVWatts v8</td><td>Real southern Himawari resource drives the 8,760 shape (49 MWp native 92.5 GWh), scaled to disclosed 70 GWh. Deterministic synthetic fallback retained for environments without PySAM.</td></tr>
             <tr><td>Case-2 engine reuse</td><td>Settlement / benchmark / physical helpers imported unchanged; only the strike is overridden to the Samsung anchor.</td></tr>
             <tr><td>Strike override</td><td>Engine defaults strike to ~1,938 (95% of weighted EVN); replaced with Southern ceiling 1,012 via the settlement-inputs key.</td></tr>
             <tr><td>Contracted-slice isolation</td><td>Savings computed on the 70 GWh matched volume so the 930 GWh non-solar residual does not dilute the signal.</td></tr>
@@ -234,7 +235,7 @@ flowchart LR
       <div class="viz-frame"><canvas id="costChart" aria-label="Buyer effective cost vs EVN avoided cost on the contracted slice"></canvas></div>
       <p class="hero-summary" style="margin-top:14px">
         On the contracted 70&nbsp;GWh, the buyer's effective cost (strike 1,012 + DPPA grid-service adder 523 + small KPP loss)
-        sits at 1,553&nbsp;VND/kWh &mdash; well under the 1,916&nbsp;VND/kWh the buyer would otherwise pay EVN for that
+        sits at 1,552&nbsp;VND/kWh &mdash; well under the 1,913&nbsp;VND/kWh the buyer would otherwise pay EVN for that
         solar-hour energy. The DPPA grid-service adder (inherited from the Case-2 default) consumes the largest share of the
         gross headroom and is the single most impactful assumption to vary in PHASE-03/04. <strong>All figures directional.</strong>
       </p>
@@ -244,7 +245,7 @@ flowchart LR
       <div class="section-header"><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
       <div class="question-frame">
         <ul>
-          <li><strong>Solar is a proxy.</strong> PySAM PVWatts was unavailable, so the 8,760 is a representative southern profile calibrated to 70 GWh &mdash; not a Duc Hue 2 site-specific yield. Second-best (when PySAM is installed): run PVWatts at the Tay Ninh coordinates and re-calibrate.</li>
+          <li><strong>Solar resource is not site-specific.</strong> PVWatts v8 runs on the cached southern <em>Khanh Hoa</em> Himawari resource (native 92.5 GWh for 49 MWp), scaled to the disclosed 70 GWh &mdash; not a Duc Hue 2 / Tay Ninh yield. Second-best: fetch a Tay Ninh NSRDB resource (needs an NREL API key) and re-run.</li>
           <li><strong>Inherited adder &amp; KPP.</strong> The 523.34 VND/kWh DPPA grid-service adder and 1.0273 KPP come from the Case-2 ninhsim defaults; they materially shape the buyer's effective cost and should be deal-calibrated.</li>
           <li><strong>Synthetic buyer load.</strong> Savings are computed on the matched slice, so the load shape barely matters here &mdash; but the 1,000 GWh total remains an assumption.</li>
           <li><strong>Single strike point.</strong> This phase reports the base strike (1,012). The full buyer-premium surface and developer viability come in PHASE-03.</li>
@@ -256,7 +257,7 @@ flowchart LR
       <div class="section-header"><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
       <div class="question-frame technical">
         <ul>
-          <li><span class="flag flag-warn">handled</span> PySAM not installed &rarr; switched to the planned representative-solar fallback (RISK-02-02) instead of failing the phase.</li>
+          <li><span class="flag flag-ok">resolved</span> PySAM 7.1.0 is installed in the repo <code>.venv</code> (Python 3.12); PVWatts v8 now drives the solar. The system Python 3.14 has no PySAM wheel &mdash; the synthetic fallback keeps tests green there. Result moved &lt;1% (25.44 &rarr; 25.20 B VND/yr).</li>
           <li><span class="flag flag-ok">by design</span> Engine strike default (~1,938) overridden to the Samsung Southern ceiling (1,012); asserted in tests.</li>
           <li><span class="flag flag-warn">pre-existing</span> Two integration collectors (<code>test_case_study_ranking</code>, north_thuan) still abort on import-time argparse; excluded from the regression run (flagged as a separate task).</li>
         </ul>
@@ -292,7 +293,7 @@ flowchart LR
           labels: ['Strike (S. ceiling)','+ DPPA adder','+ KPP loss = buyer effective','EVN avoided (slice)'],
           datasets: [{
             label: 'VND / kWh on contracted 70 GWh (directional)',
-            data: [1012, 1535.34, 1552.52, 1915.96],
+            data: [1012, 1535.34, 1552.49, 1912.55],
             backgroundColor: ['rgba(57,255,20,0.55)','rgba(255,200,80,0.40)','rgba(0,245,255,0.50)','rgba(255,120,120,0.45)'],
             borderColor: ['rgba(57,255,20,0.95)','rgba(255,200,80,0.9)','rgba(0,245,255,0.9)','rgba(255,120,120,0.9)'],
             borderWidth: 1.5

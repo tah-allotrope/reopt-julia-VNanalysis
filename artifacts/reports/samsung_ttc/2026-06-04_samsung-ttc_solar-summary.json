@@ -1,6 +1,8 @@
 {
   "annual_solar_gwh": 70.0,
   "ac_capacity_factor": 0.19301612511856706,
-  "peak_ac_kw": 29793.140549914784,
-  "solar_profile_source": "synthetic_clear_sky_south_calibrated"
+  "peak_ac_kw": 27663.863694811076,
+  "solar_profile_source": "pvwatts_v8_cached_south_himawari_calibrated_70gwh",
+  "native_annual_gwh": 92.5125839333147,
+  "resource_note": "PySAM PVWatts v8 on the cached southern-Vietnam Himawari 2019 resource (Khanh Hoa site, not Tay Ninh-specific); hourly shape scaled to the disclosed 70 GWh."
 }

@@ -10,6 +10,8 @@ undisclosed/triangulated → every headline number flagged `directional`.
 Per-phase workflow: TDD red→green → `/report <phase>` → git commit → git push origin main.
 Resolved decisions: Q1 synthetic megafactory load (~1,000 GWh, 70 GWh ≈ 7% RE share);
 Q2 voltage default 110 kV (no public disclosure); Q3 Python-only lane (shortest runtime, no Julia).
+ENV: PySAM 7.1.0 is in repo `.venv` (Python 3.12) — use `.venv\Scripts\python.exe` for PySAM/PVWatts work.
+System Python 3.14 has no PySAM wheel (graceful synthetic fallback). Full `.venv` regression: 161 passed, 1 skipped.
 
 ### PHASE-01 — Case Definition, Data Extract, Fixed-Sizing Scenario ✅
 - [x] TASK-01-01: `dppa_samsung_ttc.py` — `build_samsung_ttc_definition` (disclosed facts + directional flag)
@@ -22,12 +24,12 @@ Q2 voltage default 110 kV (no public disclosure); Q3 Python-only lane (shortest 
 - [x] report `reports/2026-06-04-samsung-ttc-phase-01.html` + commit + push
 
 ### PHASE-02 — Southern Solar 8760 + Buyer Settlement + EVN Benchmark ✅
-- [x] TASK-02-01: `generate_samsung_ttc_solar_8760` — deterministic representative southern profile (half-sine arc × seasonal, AC-clipped), calibrated to 70 GWh (PySAM unavailable → RISK-02-02 fallback, flagged `synthetic_clear_sky_south_calibrated`)
+- [x] TASK-02-01: solar 8760 via `build_samsung_ttc_solar_profile` — **PySAM PVWatts v8** (cached southern Himawari resource, 49 MWp native 92.5 GWh) scaled to disclosed 70 GWh; deterministic synthetic fallback retained for envs without PySAM. PySAM 7.1.0 lives in repo `.venv` (Py 3.12); system Py 3.14 has no wheel → fallback there.
 - [x] TASK-02-02: `build_samsung_ttc_results` — packs solar into REopt result shape (load≫solar → full match, no export, utility residual)
 - [x] TASK-02-03: `analyze_samsung_ttc_settlement` — reuses Case-2 settlement/benchmark/physical; overrides strike to Samsung ceiling (1,012); adds contracted-slice + directional quality block
 - [x] TASK-02-04: `scripts/python/integration/analyze_samsung_ttc_dppa.py` runner → 5 artifacts in `artifacts/reports/samsung_ttc/`
 - [x] TASK-02-05: `test_dppa_samsung_ttc_phase_02.py` — 5 tests, red→green
-- [x] Exit: solar 70.00 GWh @ 19.3% AC CF (peak 29.8 MW, no clip); matched 70.0 GWh; buyer effective cost 1,552.52 vs EVN avoided 1,915.96 VND/kWh → directional saving ~25.44 B VND/yr (~$0.96M); market ref `proxy_cfmp_or_fmp`. Regression: 161 passed, 1 skipped
+- [x] Exit (PVWatts): solar 70.00 GWh @ 19.3% AC CF (peak 27.7 MW, no clip); matched 70.0 GWh; buyer effective cost 1,552.49 vs EVN avoided 1,912.55 VND/kWh → directional saving ~25.20 B VND/yr (~$0.95M); market ref `proxy_cfmp_or_fmp`. Result robust to solar shape (synthetic 25.44 → PVWatts 25.20, <1%). 12 Samsung tests pass under BOTH .venv (PVWatts) and Py 3.14 (synthetic).
 - [x] report `reports/2026-06-04-samsung-ttc-phase-02.html` + commit + push
 - KEY LEVER: DPPA grid-service adder (523.34) + KPP (1.0273) inherited from Case-2 default — dominate buyer effective cost; deal-calibrate in PHASE-03/04.
 

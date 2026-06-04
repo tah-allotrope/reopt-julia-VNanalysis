@@ -75,7 +75,12 @@ def test_benchmark_is_directional_and_evn_based():
     assert out["quality"]["basis"] == "directional"
     assert out["quality"]["strike_vnd_per_kwh"] == pytest.approx(1012.0)
     assert out["quality"]["market_reference_price_type"] == "proxy_cfmp_or_fmp"
-    assert out["quality"]["solar_profile_source"].startswith("synthetic")
+    # Solar source is either real PVWatts (when PySAM is available) or the
+    # deterministic synthetic fallback — both are valid, non-site-specific proxies.
+    assert any(
+        out["quality"]["solar_profile_source"].startswith(prefix)
+        for prefix in ("pvwatts", "synthetic")
+    )
 
 
 def test_buyer_saves_on_contracted_slice_at_base_strike():

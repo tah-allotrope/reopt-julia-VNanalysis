@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
@@ -73,11 +74,13 @@ WHOLESALE_RATE_VND_PER_KWH = 671.0
 WHOLESALE_RATE_USD_PER_KWH = 0.0254
 DATA_YEAR = 2024
 
-# PySAM is not available in this environment, and the deal plant is fixed, so the
-# 49 MWp southern-Vietnam solar 8760 is a deterministic representative profile
-# (half-sine daylight arc x dry/wet seasonal shaping, AC-clipped, calibrated to
-# the disclosed ~70 GWh/yr). Flagged as a proxy on every artifact.
+# Solar 8760 sources for the fixed 49 MWp plant. Preferred path is PySAM PVWatts
+# v8 driven by the cached southern-Vietnam Himawari resource (real irradiance
+# shape), scaled to the disclosed ~70 GWh. When PySAM/resource is unavailable, a
+# deterministic representative profile (half-sine arc x seasonal) is used instead.
+# Both are non-site-specific (resource is Khanh Hoa, not Tay Ninh) and flagged.
 SAMSUNG_TTC_SOLAR_PROFILE_SOURCE = "synthetic_clear_sky_south_calibrated"
+SAMSUNG_TTC_PVWATTS_PROFILE_SOURCE = "pvwatts_v8_cached_south_himawari_calibrated_70gwh"
 
 
 def _is_leap_year(year: int) -> bool:
@@ -388,53 +391,151 @@ def build_scenario_samsung_ttc(extracted: dict) -> dict:
 
 
 # --- PHASE-02: solar generation, REopt-shaped results, buyer settlement -------
-def generate_samsung_ttc_solar_8760(
-    extracted: dict | None = None,
-    *,
-    annual_target_kwh: float = SAMSUNG_TTC_ANNUAL_SOLAR_GWH * 1e6,
-    reference_year: int = DATA_YEAR,
+def _calibrate_to_target(
+    series: list[float], annual_target_kwh: float, cap_kw: float
 ) -> list[float]:
-    """Deterministic representative southern-Vietnam solar 8760 (kW AC).
+    """Scale a shape to the annual target, AC-clip, and redistribute clip loss."""
+    total = sum(series)
+    scale = annual_target_kwh / total if total else 0.0
+    out = [min(value * scale, cap_kw) for value in series]
+    deficit = annual_target_kwh - sum(out)
+    if deficit > 1.0:
+        headroom = [cap_kw - value for value in out]
+        head_total = sum(headroom)
+        if head_total > 0.0:
+            out = [
+                value + deficit * (room / head_total)
+                for value, room in zip(out, headroom)
+            ]
+    return out
 
-    Half-sine daylight arc (06:00-18:00) shaped by a dry/wet seasonal factor,
-    AC-clipped at the 41.4 MWac inverter nameplate, and calibrated so the annual
-    energy equals the disclosed ~70 GWh. Used because PySAM PVWatts is not
-    available in this environment; the deal plant is already built and fixed, so
-    no optimization is needed. Flagged as a proxy on downstream artifacts.
-    """
-    cap_kw = SAMSUNG_TTC_SOLAR_MWAC * 1000.0
+
+def _synthetic_south_solar_8760(
+    annual_target_kwh: float, cap_kw: float, reference_year: int
+) -> list[float]:
+    """Deterministic representative southern profile (half-sine arc x seasonal)."""
     start = datetime(reference_year, 1, 1)
     weights: list[float] = []
     for hour_index in range(8760):
         ts = start + timedelta(hours=hour_index)
         hour = ts.hour
-        if 6 <= hour < 18:
-            arc = math.sin(math.pi * (hour - 6) / 12.0)
-        else:
-            arc = 0.0
+        arc = math.sin(math.pi * (hour - 6) / 12.0) if 6 <= hour < 18 else 0.0
         day_of_year = ts.timetuple().tm_yday
         # Southern Vietnam: dry season (~Jan) sunnier, wet season (~Jul) cloudier.
         seasonal = 1.0 + 0.18 * math.cos(2.0 * math.pi * (day_of_year - 15) / 365.0)
         weights.append(max(0.0, arc * seasonal))
-
-    total_weight = sum(weights)
-    scale = annual_target_kwh / total_weight if total_weight else 0.0
-    production = [min(scale * weight, cap_kw) for weight in weights]
-
-    # Recover any energy lost to AC clipping by redistributing onto unclipped hours.
-    deficit = annual_target_kwh - sum(production)
-    if deficit > 1.0:
-        headroom = [cap_kw - value for value in production]
-        head_total = sum(headroom)
-        if head_total > 0.0:
-            production = [
-                value + deficit * (room / head_total)
-                for value, room in zip(production, headroom)
-            ]
-    return production
+    return _calibrate_to_target(weights, annual_target_kwh, cap_kw)
 
 
-def build_samsung_ttc_results(solar_kw: list[float], extracted: dict) -> dict:
+def _pvwatts_south_solar_8760(
+    system_capacity_kw_dc: float,
+    dc_ac_ratio: float,
+    *,
+    losses_pct: float = 14.0,
+    inv_eff_pct: float = 96.0,
+    resource_file: str | None = None,
+) -> list[float] | None:
+    """Run PySAM PVWatts v8 on the cached southern resource. None if unavailable."""
+    try:
+        import PySAM.Pvwattsv8 as pv
+    except Exception:
+        return None
+    try:
+        from reopt_pysam_vn.pysam.pvwatts_battery import DEFAULT_SOLAR_RESOURCE_FILE
+    except Exception:
+        DEFAULT_SOLAR_RESOURCE_FILE = None
+    resource = Path(resource_file) if resource_file else DEFAULT_SOLAR_RESOURCE_FILE
+    if resource is None or not Path(resource).is_file():
+        return None
+    try:
+        model = pv.default("PVWattsSingleOwner")
+        model.SolarResource.solar_resource_file = str(resource)
+        model.SystemDesign.system_capacity = float(system_capacity_kw_dc)
+        model.SystemDesign.dc_ac_ratio = float(dc_ac_ratio)
+        model.SystemDesign.inv_eff = float(inv_eff_pct)
+        model.SystemDesign.losses = float(losses_pct)
+        model.execute(0)
+        gen = list(model.Outputs.gen)
+    except Exception:
+        return None
+    series = [max(0.0, float(value)) for value in gen[:8760]]
+    if len(series) < 8760:
+        series.extend([0.0] * (8760 - len(series)))
+    return series
+
+
+def build_samsung_ttc_solar_profile(
+    extracted: dict | None = None,
+    *,
+    annual_target_kwh: float = SAMSUNG_TTC_ANNUAL_SOLAR_GWH * 1e6,
+    use_pysam: bool = True,
+    reference_year: int = DATA_YEAR,
+) -> dict:
+    """Build the fixed 49 MWp solar 8760 with provenance.
+
+    Prefers PySAM PVWatts v8 (cached southern Himawari resource) for a real
+    irradiance shape, scaled to the disclosed ~70 GWh; falls back to the
+    deterministic synthetic profile when PySAM/resource is unavailable.
+    """
+    cap_kw = SAMSUNG_TTC_SOLAR_MWAC * 1000.0
+    dc_kw = SAMSUNG_TTC_SOLAR_MWP * 1000.0
+    dc_ac_ratio = SAMSUNG_TTC_SOLAR_MWP / SAMSUNG_TTC_SOLAR_MWAC
+
+    pvwatts = (
+        _pvwatts_south_solar_8760(dc_kw, dc_ac_ratio) if use_pysam else None
+    )
+    if pvwatts is not None and sum(pvwatts) > 0.0:
+        native_annual_gwh = sum(pvwatts) / 1e6
+        series = _calibrate_to_target(pvwatts, annual_target_kwh, cap_kw)
+        source = SAMSUNG_TTC_PVWATTS_PROFILE_SOURCE
+        resource_note = (
+            "PySAM PVWatts v8 on the cached southern-Vietnam Himawari 2019 resource "
+            "(Khanh Hoa site, not Tay Ninh-specific); hourly shape scaled to the "
+            "disclosed 70 GWh."
+        )
+    else:
+        native_annual_gwh = None
+        series = _synthetic_south_solar_8760(annual_target_kwh, cap_kw, reference_year)
+        source = SAMSUNG_TTC_SOLAR_PROFILE_SOURCE
+        resource_note = (
+            "PySAM unavailable; deterministic representative southern profile "
+            "calibrated to the disclosed 70 GWh."
+        )
+    return {
+        "series_kw": series,
+        "source": source,
+        "native_annual_gwh": native_annual_gwh,
+        "calibrated_to_gwh": annual_target_kwh / 1e6,
+        "resource_note": resource_note,
+    }
+
+
+def generate_samsung_ttc_solar_8760(
+    extracted: dict | None = None,
+    *,
+    annual_target_kwh: float = SAMSUNG_TTC_ANNUAL_SOLAR_GWH * 1e6,
+    use_pysam: bool = True,
+    reference_year: int = DATA_YEAR,
+) -> list[float]:
+    """Fixed 49 MWp solar 8760 (kW AC) — PVWatts when available, else synthetic.
+
+    The deal plant is built and fixed, so no optimization is needed; this only
+    supplies the hourly generation shape, calibrated to the disclosed ~70 GWh.
+    """
+    return build_samsung_ttc_solar_profile(
+        extracted,
+        annual_target_kwh=annual_target_kwh,
+        use_pysam=use_pysam,
+        reference_year=reference_year,
+    )["series_kw"]
+
+
+def build_samsung_ttc_results(
+    solar_kw: list[float],
+    extracted: dict,
+    *,
+    solar_profile_source: str = SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+) -> dict:
     """Pack the fixed solar 8760 into the REopt ``results`` shape the Case-2
     settlement and physical-summary helpers consume (no Julia solve).
 
@@ -482,7 +583,7 @@ def build_samsung_ttc_results(solar_kw: list[float], extracted: dict) -> dict:
             "elec_cost_escalation_rate_fraction": 0.05,
         },
         "_meta": {
-            "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+            "solar_profile_source": solar_profile_source,
             "plant_capacity_mwp": SAMSUNG_TTC_SOLAR_MWP,
             "plant_capacity_mwac": SAMSUNG_TTC_SOLAR_MWAC,
             "ac_capacity_factor": annual_kwh
@@ -503,8 +604,11 @@ def analyze_samsung_ttc_settlement(
     mandatory ``directional`` quality block (CON-001).
     """
     scenario = build_scenario_samsung_ttc(extracted)
-    solar_kw = generate_samsung_ttc_solar_8760(extracted)
-    results = build_samsung_ttc_results(solar_kw, extracted)
+    profile = build_samsung_ttc_solar_profile(extracted)
+    solar_kw = profile["series_kw"]
+    results = build_samsung_ttc_results(
+        solar_kw, extracted, solar_profile_source=profile["source"]
+    )
 
     physical = build_dppa_case_2_physical_summary(results, extracted, scenario)
     settlement_inputs = build_dppa_case_2_settlement_inputs(
@@ -553,7 +657,9 @@ def analyze_samsung_ttc_settlement(
         "annual_solar_gwh": sum(solar_kw) / 1e6,
         "ac_capacity_factor": results["_meta"]["ac_capacity_factor"],
         "peak_ac_kw": max(solar_kw),
-        "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+        "solar_profile_source": profile["source"],
+        "native_annual_gwh": profile["native_annual_gwh"],
+        "resource_note": profile["resource_note"],
     }
 
     quality = {
@@ -561,7 +667,7 @@ def analyze_samsung_ttc_settlement(
         "strike_vnd_per_kwh": strike,
         "strike_basis": extracted["strike_basis"]["anchor"],
         "market_reference_price_type": settlement["market_reference_price_type"],
-        "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+        "solar_profile_source": profile["source"],
         "caveat": (
             "Directional only: strike anchored to the Southern ground-mount ceiling, "
             "CfD settled against a proxy CFMP series, solar from a representative "

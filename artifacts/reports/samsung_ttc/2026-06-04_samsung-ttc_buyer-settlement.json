@@ -11,19 +11,19 @@
     "exchange_rate_vnd_per_usd": 26400.0
   },
   "summary": {
-    "matched_quantity_kwh": 70000000.00000022,
-    "shortfall_quantity_kwh": 929999999.9999943,
+    "matched_quantity_kwh": 69999999.99999991,
+    "shortfall_quantity_kwh": 929999999.9999965,
     "excess_quantity_kwh": 0.0,
-    "buyer_evn_matched_payment_vnd": 45306925843.31175,
-    "buyer_dppa_charge_vnd": 36633800000.00004,
-    "buyer_shortfall_payment_vnd": 1906328415477.7632,
-    "buyer_cfd_payment_vnd": 26735495269.164883,
-    "buyer_total_payment_vnd": 2015004636590.2388,
-    "buyer_total_payment_usd": 76325933.20417571,
-    "buyer_blended_cost_vnd_per_kwh": 2015.0046365902388,
-    "buyer_blended_cost_usd_per_kwh": 0.07632593320417572,
+    "buyer_evn_matched_payment_vnd": 45226162138.64793,
+    "buyer_dppa_charge_vnd": 36633799999.99991,
+    "buyer_shortfall_payment_vnd": 1906567492125.8909,
+    "buyer_cfd_payment_vnd": 26814115549.13608,
+    "buyer_total_payment_vnd": 2015241569813.6733,
+    "buyer_total_payment_usd": 76334907.94748762,
+    "buyer_blended_cost_vnd_per_kwh": 2015.2415698136733,
+    "buyer_blended_cost_usd_per_kwh": 0.07633490794748762,
     "total_consumed_load_kwh": 1000000000.0,
-    "hours_with_negative_cfd_credit": 313
+    "hours_with_negative_cfd_credit": 320
   },
   "notes": [
     "Proxy uses the repo wholesale benchmark divided by the weighted EVN tariff and scales the hourly EVN retail series by that ratio.",
