@@ -34,6 +34,13 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_tou_series,
     scale_load_to_annual_kwh,
 )
+from reopt_pysam_vn.integration.dppa_samsung_ttc import (
+    build_samsung_synthetic_load_8760,
+    build_samsung_ttc_definition,
+    build_samsung_ttc_extracted_inputs,
+    build_scenario_samsung_ttc,
+    samsung_strike_vnd_per_kwh,
+)
 from reopt_pysam_vn.integration.bridge import build_dppa_case_2_single_owner_inputs
 from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
     build_combined_decision_artifact,
@@ -64,6 +71,11 @@ __all__ = [
     "build_dppa_case_2_strike_sensitivity",
     "build_scenario_dppa_case_2",
     "run_dppa_case_2_buyer_settlement",
+    "build_samsung_synthetic_load_8760",
+    "build_samsung_ttc_definition",
+    "build_samsung_ttc_extracted_inputs",
+    "build_scenario_samsung_ttc",
+    "samsung_strike_vnd_per_kwh",
     "build_dppa_case_3_assumptions_register",
     "build_dppa_case_3_edge_case_matrix",
     "build_dppa_case_3_gap_register",

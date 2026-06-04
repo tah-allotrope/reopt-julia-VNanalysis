@@ -1,5 +1,30 @@
 # Active Context — Saigon18 REopt Integration
 
+## Samsung–TTC Duc Hue 2 DPPA Economics — 2026-06-04
+
+Plan: `plans/active/2026-06-04-samsung-ttc-dppa-economics-plan.md`
+Research: `research/2026-06-04_samsung-ttc-dppa.md`
+Goal: model the economics of Vietnam's first grid-connected DPPA (Samsung SEVT ↔ TTC Duc Hue 2,
+49 MWp/70 GWh, financial CfD) by reusing the Case-2 synthetic-DPPA engine. All commercial terms
+undisclosed/triangulated → every headline number flagged `directional`.
+Per-phase workflow: TDD red→green → `/report <phase>` → git commit → git push origin main.
+Resolved decisions: Q1 synthetic megafactory load (~1,000 GWh, 70 GWh ≈ 7% RE share);
+Q2 voltage default 110 kV (no public disclosure); Q3 Python-only lane (shortest runtime, no Julia).
+
+### PHASE-01 — Case Definition, Data Extract, Fixed-Sizing Scenario ✅
+- [x] TASK-01-01: `dppa_samsung_ttc.py` — `build_samsung_ttc_definition` (disclosed facts + directional flag)
+- [x] TASK-01-02: `build_samsung_ttc_extracted_inputs` (synthetic 8760 load + SEVT EVN tariff + benchmark + strike basis); materialized via `build_samsung_ttc_inputs.py` → `data/interim/samsung_ttc/`, `scenarios/case_studies/samsung_ttc/`, `artifacts/reports/samsung_ttc/`
+- [x] TASK-01-03: `build_scenario_samsung_ttc` — PV pinned 49 MWdc (dc/ac 1.184), BESS+wind disabled, southern Duc Hue site
+- [x] TASK-01-04: `samsung_strike_vnd_per_kwh` — anchored to Southern ground-mount ceiling (1,012 VND/kWh), sweepable to EVN avoided cost (1,873)
+- [x] TASK-01-05: exports in `integration/__init__.py`
+- [x] TASK-01-06: `test_dppa_samsung_ttc_phase_01.py` — 7 tests, red→green
+- [x] Exit: 7 Samsung tests PASS; regression green (151 passed, 1 skipped across reopt + case-2 suites); buyer load 1,000 GWh / 7% RE share; weighted EVN 2,040.45, standard 1,873.46, strike 1,012; PV fixed 49 MWdc, storage off
+- [x] report `reports/2026-06-04-samsung-ttc-phase-01.html` + commit + push
+
+Note: two PRE-EXISTING integration tests (`test_case_study_ranking.py`, north_thuan loader) abort pytest
+collection because they import scripts that call `argparse.parse_args()` at import — unrelated to this work
+(committed in `19df5bd`). Ran regression with those collectors excluded.
+
 ## GAP-05: Interactive Regulatory Scenario Toggle — 2026-05-30
 
 Plan: `plans/active/2026-05-22-gap05-regime-toggle-plan.md`
