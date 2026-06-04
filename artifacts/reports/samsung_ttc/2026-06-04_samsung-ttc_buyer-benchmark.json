@@ -1,0 +1,36 @@
+{
+  "model": "Ninhsim DPPA Case 2 Buyer Benchmark",
+  "status": "ok",
+  "case_identity": {
+    "scenario_family": "DPPA Case 2",
+    "contract_structure": "synthetic_financial_dppa",
+    "settlement_quantity_rule": "min_load_and_contracted_generation",
+    "excess_generation_treatment": "excluded_from_buyer_settlement"
+  },
+  "site_load_basis": {
+    "annual_load_gwh": 1000.0,
+    "customer_type": "industrial",
+    "voltage_level": "high_voltage_above_35kv_below_220kv",
+    "region": "south"
+  },
+  "year_one_costs": {
+    "buyer_total_payment_vnd": 2015004636590.2388,
+    "benchmark_evn_total_cost_vnd": 2040445937861.3918,
+    "buyer_savings_vs_evn_vnd": 25441301271.153076,
+    "buyer_premium_vs_evn_vnd": 0.0,
+    "buyer_minus_benchmark_vnd": -25441301271.153076,
+    "buyer_blended_cost_vnd_per_kwh": 2015.0046365902388,
+    "benchmark_blended_cost_vnd_per_kwh": 2040.445937861392
+  },
+  "risk_summary": {
+    "matched_quantity_kwh": 70000000.00000022,
+    "shortfall_quantity_kwh": 929999999.9999943,
+    "excess_quantity_kwh": 0.0,
+    "hours_with_negative_cfd_credit": 313
+  },
+  "decision": {
+    "buyer_savings_positive": true,
+    "customer_premium_present": false,
+    "recommended_position": "buyer_savings_vs_evn"
+  }
+}

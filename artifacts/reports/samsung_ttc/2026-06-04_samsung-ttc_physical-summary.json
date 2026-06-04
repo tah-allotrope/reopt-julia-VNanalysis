@@ -1,0 +1,52 @@
+{
+  "model": "Ninhsim DPPA Case 2 Physical Summary",
+  "status": "synthetic_fixed_plant_no_solve",
+  "case_identity": {
+    "scenario_family": "DPPA Case 2",
+    "contract_structure": "synthetic_financial_dppa",
+    "settlement_quantity_rule": "min_load_and_contracted_generation",
+    "excess_generation_treatment": "excluded_from_buyer_settlement"
+  },
+  "site_load_basis": {
+    "annual_load_gwh": 1000.0,
+    "customer_type": "industrial",
+    "voltage_level": "high_voltage_above_35kv_below_220kv",
+    "region": "south"
+  },
+  "optimal_mix": {
+    "pv_size_mw": 49.0,
+    "wind_size_mw": 0.0,
+    "bess_mw": 0.0,
+    "bess_mwh": 0.0,
+    "bess_duration_hours": 0.0
+  },
+  "energy_summary": {
+    "pv_gwh": 70.0,
+    "wind_gwh": 0.0,
+    "matched_delivery_kwh": 70000000.0,
+    "contracted_generation_kwh": 70000000.0,
+    "grid_supplied_kwh": 930000000.0,
+    "exported_generation_kwh": 0.0,
+    "curtailed_generation_kwh": 0.0,
+    "renewable_charged_to_battery_kwh": 0.0,
+    "total_load_kwh": 1000000000.0,
+    "matched_fraction_of_load": 0.07,
+    "contracted_fraction_of_load": 0.07
+  },
+  "design_checks": {
+    "wind_disabled": true,
+    "storage_is_optional": false,
+    "battery_grid_charging_requested": false
+  },
+  "financial": {
+    "reopt_npv_usd": 0.0,
+    "analysis_years": 20,
+    "owner_discount_rate_fraction": 0.08,
+    "offtaker_discount_rate_fraction": 0.1,
+    "elec_cost_escalation_rate_fraction": 0.05
+  },
+  "notes": [
+    "Physical summary keeps REopt sizing and hourly energy flows separate from buyer-side synthetic DPPA settlement.",
+    "Contracted generation is limited to renewable generator output before the matched-load cap is applied in settlement; storage discharge is tracked separately inside physical delivery."
+  ]
+}

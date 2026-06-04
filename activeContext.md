@@ -21,6 +21,16 @@ Q2 voltage default 110 kV (no public disclosure); Q3 Python-only lane (shortest 
 - [x] Exit: 7 Samsung tests PASS; regression green (151 passed, 1 skipped across reopt + case-2 suites); buyer load 1,000 GWh / 7% RE share; weighted EVN 2,040.45, standard 1,873.46, strike 1,012; PV fixed 49 MWdc, storage off
 - [x] report `reports/2026-06-04-samsung-ttc-phase-01.html` + commit + push
 
+### PHASE-02 — Southern Solar 8760 + Buyer Settlement + EVN Benchmark ✅
+- [x] TASK-02-01: `generate_samsung_ttc_solar_8760` — deterministic representative southern profile (half-sine arc × seasonal, AC-clipped), calibrated to 70 GWh (PySAM unavailable → RISK-02-02 fallback, flagged `synthetic_clear_sky_south_calibrated`)
+- [x] TASK-02-02: `build_samsung_ttc_results` — packs solar into REopt result shape (load≫solar → full match, no export, utility residual)
+- [x] TASK-02-03: `analyze_samsung_ttc_settlement` — reuses Case-2 settlement/benchmark/physical; overrides strike to Samsung ceiling (1,012); adds contracted-slice + directional quality block
+- [x] TASK-02-04: `scripts/python/integration/analyze_samsung_ttc_dppa.py` runner → 5 artifacts in `artifacts/reports/samsung_ttc/`
+- [x] TASK-02-05: `test_dppa_samsung_ttc_phase_02.py` — 5 tests, red→green
+- [x] Exit: solar 70.00 GWh @ 19.3% AC CF (peak 29.8 MW, no clip); matched 70.0 GWh; buyer effective cost 1,552.52 vs EVN avoided 1,915.96 VND/kWh → directional saving ~25.44 B VND/yr (~$0.96M); market ref `proxy_cfmp_or_fmp`. Regression: 161 passed, 1 skipped
+- [x] report `reports/2026-06-04-samsung-ttc-phase-02.html` + commit + push
+- KEY LEVER: DPPA grid-service adder (523.34) + KPP (1.0273) inherited from Case-2 default — dominate buyer effective cost; deal-calibrate in PHASE-03/04.
+
 Note: two PRE-EXISTING integration tests (`test_case_study_ranking.py`, north_thuan loader) abort pytest
 collection because they import scripts that call `argparse.parse_args()` at import — unrelated to this work
 (committed in `19df5bd`). Ran regression with those collectors excluded.

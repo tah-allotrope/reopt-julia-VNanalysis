@@ -1,0 +1,6 @@
+{
+  "annual_solar_gwh": 70.0,
+  "ac_capacity_factor": 0.19301612511856706,
+  "peak_ac_kw": 29793.140549914784,
+  "solar_profile_source": "synthetic_clear_sky_south_calibrated"
+}

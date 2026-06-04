@@ -23,6 +23,12 @@ from __future__ import annotations
 import math
 from datetime import datetime, timedelta
 
+from reopt_pysam_vn.integration.dppa_case_2 import (
+    build_dppa_case_2_buyer_benchmark,
+    build_dppa_case_2_physical_summary,
+    build_dppa_case_2_settlement_inputs,
+    run_dppa_case_2_buyer_settlement,
+)
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 # --- Disclosed deal facts (multi-source; see research brief) ------------------
@@ -66,6 +72,12 @@ EXCHANGE_RATE_VND_PER_USD = 26_400.0
 WHOLESALE_RATE_VND_PER_KWH = 671.0
 WHOLESALE_RATE_USD_PER_KWH = 0.0254
 DATA_YEAR = 2024
+
+# PySAM is not available in this environment, and the deal plant is fixed, so the
+# 49 MWp southern-Vietnam solar 8760 is a deterministic representative profile
+# (half-sine daylight arc x dry/wet seasonal shaping, AC-clipped, calibrated to
+# the disclosed ~70 GWh/yr). Flagged as a proxy on every artifact.
+SAMSUNG_TTC_SOLAR_PROFILE_SOURCE = "synthetic_clear_sky_south_calibrated"
 
 
 def _is_leap_year(year: int) -> bool:
@@ -373,3 +385,197 @@ def build_scenario_samsung_ttc(extracted: dict) -> dict:
     )
     scenario["ElectricTariff"].pop("tou_energy_rates_vnd_per_kwh", None)
     return scenario
+
+
+# --- PHASE-02: solar generation, REopt-shaped results, buyer settlement -------
+def generate_samsung_ttc_solar_8760(
+    extracted: dict | None = None,
+    *,
+    annual_target_kwh: float = SAMSUNG_TTC_ANNUAL_SOLAR_GWH * 1e6,
+    reference_year: int = DATA_YEAR,
+) -> list[float]:
+    """Deterministic representative southern-Vietnam solar 8760 (kW AC).
+
+    Half-sine daylight arc (06:00-18:00) shaped by a dry/wet seasonal factor,
+    AC-clipped at the 41.4 MWac inverter nameplate, and calibrated so the annual
+    energy equals the disclosed ~70 GWh. Used because PySAM PVWatts is not
+    available in this environment; the deal plant is already built and fixed, so
+    no optimization is needed. Flagged as a proxy on downstream artifacts.
+    """
+    cap_kw = SAMSUNG_TTC_SOLAR_MWAC * 1000.0
+    start = datetime(reference_year, 1, 1)
+    weights: list[float] = []
+    for hour_index in range(8760):
+        ts = start + timedelta(hours=hour_index)
+        hour = ts.hour
+        if 6 <= hour < 18:
+            arc = math.sin(math.pi * (hour - 6) / 12.0)
+        else:
+            arc = 0.0
+        day_of_year = ts.timetuple().tm_yday
+        # Southern Vietnam: dry season (~Jan) sunnier, wet season (~Jul) cloudier.
+        seasonal = 1.0 + 0.18 * math.cos(2.0 * math.pi * (day_of_year - 15) / 365.0)
+        weights.append(max(0.0, arc * seasonal))
+
+    total_weight = sum(weights)
+    scale = annual_target_kwh / total_weight if total_weight else 0.0
+    production = [min(scale * weight, cap_kw) for weight in weights]
+
+    # Recover any energy lost to AC clipping by redistributing onto unclipped hours.
+    deficit = annual_target_kwh - sum(production)
+    if deficit > 1.0:
+        headroom = [cap_kw - value for value in production]
+        head_total = sum(headroom)
+        if head_total > 0.0:
+            production = [
+                value + deficit * (room / head_total)
+                for value, room in zip(production, headroom)
+            ]
+    return production
+
+
+def build_samsung_ttc_results(solar_kw: list[float], extracted: dict) -> dict:
+    """Pack the fixed solar 8760 into the REopt ``results`` shape the Case-2
+    settlement and physical-summary helpers consume (no Julia solve).
+
+    The buyer load dwarfs solar at every hour, so all generation serves load
+    (no export); the grid supplies the residual.
+    """
+    load = [float(value) for value in extracted["loads_kw"]]
+    horizon = len(solar_kw)
+    to_load: list[float] = []
+    to_grid: list[float] = []
+    grid_supply: list[float] = []
+    for index in range(horizon):
+        generation = float(solar_kw[index])
+        demand = load[index] if index < len(load) else 0.0
+        matched = min(generation, demand)
+        to_load.append(matched)
+        to_grid.append(max(0.0, generation - matched))
+        grid_supply.append(max(0.0, demand - matched))
+    annual_kwh = sum(solar_kw)
+    zeros = [0.0] * horizon
+
+    return {
+        "status": "synthetic_fixed_plant_no_solve",
+        "PV": {
+            "size_kw": SAMSUNG_TTC_SOLAR_MWP * 1000.0,
+            "size_kw_ac": SAMSUNG_TTC_SOLAR_MWAC * 1000.0,
+            "year_one_energy_produced_kwh": annual_kwh,
+            "electric_to_load_series_kw": to_load,
+            "electric_to_grid_series_kw": to_grid,
+            "electric_to_storage_series_kw": zeros,
+            "electric_curtailed_series_kw": zeros,
+        },
+        "Wind": {
+            "size_kw": 0.0,
+            "electric_to_load_series_kw": [],
+            "electric_to_grid_series_kw": [],
+        },
+        "ElectricStorage": {"size_kw": 0.0, "size_kwh": 0.0},
+        "ElectricUtility": {"electric_to_load_series_kw": grid_supply},
+        "Financial": {
+            "npv": None,
+            "analysis_years": 20,
+            "owner_discount_rate_fraction": 0.08,
+            "offtaker_discount_rate_fraction": 0.10,
+            "elec_cost_escalation_rate_fraction": 0.05,
+        },
+        "_meta": {
+            "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+            "plant_capacity_mwp": SAMSUNG_TTC_SOLAR_MWP,
+            "plant_capacity_mwac": SAMSUNG_TTC_SOLAR_MWAC,
+            "ac_capacity_factor": annual_kwh
+            / (SAMSUNG_TTC_SOLAR_MWAC * 1000.0 * 8760.0),
+        },
+    }
+
+
+def analyze_samsung_ttc_settlement(
+    extracted: dict,
+    *,
+    sweep_fraction: float = 0.0,
+) -> dict:
+    """Run the full PHASE-02 settlement: fixed solar -> Case-2 CfD ledger.
+
+    Reuses the tested Case-2 settlement engine but overrides the strike with the
+    Samsung Southern-ceiling anchor and adds a contracted-slice summary plus the
+    mandatory ``directional`` quality block (CON-001).
+    """
+    scenario = build_scenario_samsung_ttc(extracted)
+    solar_kw = generate_samsung_ttc_solar_8760(extracted)
+    results = build_samsung_ttc_results(solar_kw, extracted)
+
+    physical = build_dppa_case_2_physical_summary(results, extracted, scenario)
+    settlement_inputs = build_dppa_case_2_settlement_inputs(
+        results, extracted, scenario
+    )
+    strike = samsung_strike_vnd_per_kwh(extracted, sweep_fraction)
+    settlement_inputs["strike_price_vnd_per_kwh"] = strike
+    settlement = run_dppa_case_2_buyer_settlement(settlement_inputs)
+    benchmark = build_dppa_case_2_buyer_benchmark(physical, settlement)
+
+    # Contracted-slice economics: isolate the matched (solar) volume so the deal
+    # signal is not diluted by the 930 GWh of non-solar residual load.
+    ledger = settlement["hourly_ledger"]
+    matched_kwh = float(settlement["summary"]["matched_quantity_kwh"])
+    evn_on_matched = sum(
+        float(entry["matched_quantity_kwh"])
+        * float(entry["evn_retail_rate_vnd_per_kwh"])
+        for entry in ledger
+    )
+    buyer_on_matched = sum(
+        float(entry["buyer_evn_matched_payment_vnd"])
+        + float(entry["buyer_dppa_charge_vnd"])
+        + float(entry["buyer_cfd_payment_vnd"])
+        for entry in ledger
+    )
+    contracted_slice = {
+        "matched_quantity_gwh": matched_kwh / 1e6,
+        "buyer_cost_on_matched_vnd": buyer_on_matched,
+        "evn_avoided_cost_on_matched_vnd": evn_on_matched,
+        "buyer_savings_vnd": evn_on_matched - buyer_on_matched,
+        "buyer_savings_usd": (evn_on_matched - buyer_on_matched)
+        / EXCHANGE_RATE_VND_PER_USD,
+        "buyer_effective_cost_vnd_per_kwh": (
+            buyer_on_matched / matched_kwh if matched_kwh else 0.0
+        ),
+        "evn_avoided_cost_vnd_per_kwh": (
+            evn_on_matched / matched_kwh if matched_kwh else 0.0
+        ),
+        "dppa_adder_vnd_per_kwh": float(
+            settlement["parameters"]["dppa_adder_vnd_per_kwh"]
+        ),
+        "kpp_factor": float(settlement["parameters"]["kpp_factor"]),
+    }
+
+    solar_summary = {
+        "annual_solar_gwh": sum(solar_kw) / 1e6,
+        "ac_capacity_factor": results["_meta"]["ac_capacity_factor"],
+        "peak_ac_kw": max(solar_kw),
+        "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+    }
+
+    quality = {
+        "basis": "directional",
+        "strike_vnd_per_kwh": strike,
+        "strike_basis": extracted["strike_basis"]["anchor"],
+        "market_reference_price_type": settlement["market_reference_price_type"],
+        "solar_profile_source": SAMSUNG_TTC_SOLAR_PROFILE_SOURCE,
+        "caveat": (
+            "Directional only: strike anchored to the Southern ground-mount ceiling, "
+            "CfD settled against a proxy CFMP series, solar from a representative "
+            "(non-site-specific) southern profile, and the DPPA grid-service adder "
+            "inherited from the Case-2 default. Not bankable."
+        ),
+    }
+
+    return {
+        "case": "DPPA_SAMSUNG_TTC",
+        "solar_summary": solar_summary,
+        "physical": physical,
+        "settlement": settlement,
+        "benchmark": benchmark,
+        "contracted_slice": contracted_slice,
+        "quality": quality,
+    }

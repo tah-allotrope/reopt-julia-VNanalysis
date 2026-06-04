@@ -35,10 +35,13 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     scale_load_to_annual_kwh,
 )
 from reopt_pysam_vn.integration.dppa_samsung_ttc import (
+    analyze_samsung_ttc_settlement,
     build_samsung_synthetic_load_8760,
     build_samsung_ttc_definition,
     build_samsung_ttc_extracted_inputs,
+    build_samsung_ttc_results,
     build_scenario_samsung_ttc,
+    generate_samsung_ttc_solar_8760,
     samsung_strike_vnd_per_kwh,
 )
 from reopt_pysam_vn.integration.bridge import build_dppa_case_2_single_owner_inputs
@@ -71,10 +74,13 @@ __all__ = [
     "build_dppa_case_2_strike_sensitivity",
     "build_scenario_dppa_case_2",
     "run_dppa_case_2_buyer_settlement",
+    "analyze_samsung_ttc_settlement",
     "build_samsung_synthetic_load_8760",
     "build_samsung_ttc_definition",
     "build_samsung_ttc_extracted_inputs",
+    "build_samsung_ttc_results",
     "build_scenario_samsung_ttc",
+    "generate_samsung_ttc_solar_8760",
     "samsung_strike_vnd_per_kwh",
     "build_dppa_case_3_assumptions_register",
     "build_dppa_case_3_edge_case_matrix",
