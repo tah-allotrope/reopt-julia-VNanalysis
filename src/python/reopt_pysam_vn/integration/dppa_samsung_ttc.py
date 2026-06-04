@@ -21,11 +21,13 @@ See research/2026-06-04_samsung-ttc-dppa.md.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
+    build_dppa_case_2_contract_risk_sensitivity,
     build_dppa_case_2_physical_summary,
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
@@ -68,6 +70,12 @@ SAMSUNG_TTC_BUYER_LOAD_SOURCE = "synthetic_megafactory_high_load_factor"
 # repo tariff value decree_57_dppa.solar_ceiling_tariffs.ground_mounted_no_storage
 # .range_min (South). Used as the directional base strike.
 SOUTHERN_GROUND_MOUNT_CEILING_VND_PER_KWH = 1012.0
+
+# Developer (TTC) finance assumptions for the directional Single Owner screen.
+# Vietnam utility ground-mount solar capex ~ $700-900/kW; use the scenario's
+# $750/kW. Revenue is taken on the contracted (calibrated 70 GWh) volume, which
+# is conservative vs the plant's full physical yield. All directional.
+SAMSUNG_TTC_INSTALLED_COST_USD_PER_KW = 750.0
 
 EXCHANGE_RATE_VND_PER_USD = 26_400.0
 WHOLESALE_RATE_VND_PER_KWH = 671.0
@@ -581,6 +589,10 @@ def build_samsung_ttc_results(
             "owner_discount_rate_fraction": 0.08,
             "offtaker_discount_rate_fraction": 0.10,
             "elec_cost_escalation_rate_fraction": 0.05,
+            # Directional capex for the developer Single Owner screen (PHASE-03).
+            "initial_capital_costs": SAMSUNG_TTC_SOLAR_MWP
+            * 1000.0
+            * SAMSUNG_TTC_INSTALLED_COST_USD_PER_KW,
         },
         "_meta": {
             "solar_profile_source": solar_profile_source,
@@ -685,3 +697,211 @@ def analyze_samsung_ttc_settlement(
         "contracted_slice": contracted_slice,
         "quality": quality,
     }
+
+
+# --- PHASE-03: strike sweep, developer screen, DPPA-adder lever ---------------
+def _samsung_ttc_physical_and_settlement_inputs(extracted: dict):
+    """Shared setup: fixed-plant scenario, solar profile, REopt-shaped results,
+    physical summary, and base Case-2 settlement inputs (CFMP proxy)."""
+    scenario = build_scenario_samsung_ttc(extracted)
+    profile = build_samsung_ttc_solar_profile(extracted)
+    results = build_samsung_ttc_results(
+        profile["series_kw"], extracted, solar_profile_source=profile["source"]
+    )
+    physical = build_dppa_case_2_physical_summary(results, extracted, scenario)
+    settlement_inputs = build_dppa_case_2_settlement_inputs(
+        results, extracted, scenario
+    )
+    return scenario, profile, results, physical, settlement_inputs
+
+
+def build_samsung_ttc_strike_sweep(
+    extracted: dict,
+    *,
+    sweep_fractions: tuple[float, ...] = (0.0, 0.25, 0.5, 0.75, 1.0),
+    run_developer: bool = True,
+    developer_runner=None,
+    target_irr_fraction: float | None = None,
+) -> dict:
+    """Buyer-premium surface across the strike band + PySAM developer IRR/NPV.
+
+    Strike sweeps from the Southern ground-mount ceiling (floor) to the EVN
+    standard-hour avoided cost (top). The buyer side is pure tariff math; the
+    developer side runs the PySAM Single Owner model at the fixed 49 MWp, varying
+    only the PPA price (= strike). All outputs directional.
+    """
+    from reopt_pysam_vn.integration.assumptions import (
+        DEFAULT_TARGET_DEVELOPER_IRR_FRACTION,
+    )
+    from reopt_pysam_vn.integration.bridge import (
+        build_dppa_case_2_single_owner_inputs,
+    )
+
+    target_irr = float(
+        target_irr_fraction
+        if target_irr_fraction is not None
+        else DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
+    )
+    scenario, profile, results, physical, base_inputs = (
+        _samsung_ttc_physical_and_settlement_inputs(extracted)
+    )
+    exchange_rate = float(
+        base_inputs.get("exchange_rate_vnd_per_usd") or EXCHANGE_RATE_VND_PER_USD
+    )
+
+    developer_base = None
+    runner = developer_runner
+    if run_developer:
+        developer_base = build_dppa_case_2_single_owner_inputs(
+            results, scenario, base_inputs
+        )
+        if runner is None:
+            try:
+                from reopt_pysam_vn.pysam.single_owner import run_single_owner_model
+
+                runner = run_single_owner_model
+            except Exception:
+                runner = None
+
+    sweep: list[dict] = []
+    for fraction in sweep_fractions:
+        strike = samsung_strike_vnd_per_kwh(extracted, fraction)
+        candidate = dict(base_inputs)
+        candidate["strike_price_vnd_per_kwh"] = strike
+        settlement = run_dppa_case_2_buyer_settlement(candidate)
+        benchmark = build_dppa_case_2_buyer_benchmark(physical, settlement)
+        costs = benchmark["year_one_costs"]
+        buyer_savings = float(costs["buyer_savings_vs_evn_vnd"])
+        buyer_delta = float(costs["buyer_minus_benchmark_vnd"])
+        buyer_passes = buyer_savings > 0.0
+
+        dev_irr = dev_npv = None
+        dev_passes = False
+        dev_status = "not_run"
+        if developer_base is not None and runner is not None:
+            try:
+                dev_inputs = replace(
+                    developer_base,
+                    ppa_price_input_usd_per_kwh=float(strike) / exchange_rate,
+                    metadata={
+                        **dict(developer_base.metadata),
+                        "year_one_ppa_price_vnd_per_kwh": float(strike),
+                    },
+                )
+                dev_result = runner(dev_inputs)
+                outputs = dev_result.get("outputs", {})
+                dev_irr = outputs.get("project_return_aftertax_irr_fraction")
+                dev_npv = outputs.get("project_return_aftertax_npv_usd")
+                dev_status = dev_result.get("status", "ok")
+                dev_passes = dev_irr is not None and float(dev_irr) >= target_irr
+            except Exception as exc:  # pragma: no cover - PySAM runtime guard
+                dev_status = f"error: {exc}"
+
+        sweep.append(
+            {
+                "sweep_fraction": float(fraction),
+                "strike_vnd_per_kwh": float(strike),
+                "strike_usd_per_kwh": float(strike) / exchange_rate,
+                "buyer_savings_vs_evn_vnd": buyer_savings,
+                "buyer_minus_benchmark_vnd": buyer_delta,
+                "buyer_blended_cost_vnd_per_kwh": float(
+                    costs["buyer_blended_cost_vnd_per_kwh"]
+                ),
+                "buyer_passes": buyer_passes,
+                "developer_status": dev_status,
+                "developer_irr_fraction": (None if dev_irr is None else float(dev_irr)),
+                "developer_npv_usd": (None if dev_npv is None else float(dev_npv)),
+                "developer_passes": dev_passes,
+                "overlap": bool(buyer_passes and dev_passes),
+            }
+        )
+
+    overlap = [row for row in sweep if row["overlap"]]
+    buyer_saves = [row for row in sweep if row["buyer_passes"]]
+    if overlap:
+        recommended = "buyer_and_developer_overlap"
+    elif buyer_saves and developer_base is not None and runner is not None:
+        recommended = "buyer_saves_developer_subeconomic"
+    elif buyer_saves:
+        recommended = "buyer_saves_developer_not_screened"
+    else:
+        recommended = "no_viable_strike_found"
+
+    return {
+        "case": "DPPA_SAMSUNG_TTC",
+        "model": "Samsung-TTC DPPA Strike Sweep",
+        "strike_band": {
+            "floor_vnd_per_kwh": samsung_strike_vnd_per_kwh(extracted, 0.0),
+            "ceiling_vnd_per_kwh": samsung_strike_vnd_per_kwh(extracted, 1.0),
+            "floor_basis": "southern_ground_mount_no_storage_ceiling",
+            "ceiling_basis": "evn_standard_hour_avoided_cost",
+            "regulatory_note": (
+                "Decree 57 caps the grid-DPPA forward price at the Southern ceiling "
+                "(~1,012); strikes above it are sensitivity-only."
+            ),
+        },
+        "developer_screen": {
+            "included": developer_base is not None,
+            "ran": developer_base is not None and runner is not None,
+            "target_irr_fraction": target_irr,
+            "system_capacity_kw": (
+                None if developer_base is None else float(developer_base.system_capacity_kw)
+            ),
+            "installed_cost_usd": (
+                None if developer_base is None else float(developer_base.installed_cost_usd)
+            ),
+            "revenue_basis": "contracted_70gwh_conservative",
+        },
+        "sweep": sweep,
+        "negotiation_summary": {
+            "overlap_found": bool(overlap),
+            "overlap_candidates": overlap,
+            "buyer_saves_candidates": buyer_saves,
+            "recommended_position": recommended,
+        },
+        "quality": {
+            "basis": "directional",
+            "strike_basis": "southern_ceiling_to_evn_avoided_sweep",
+            "market_reference_price_type": base_inputs["market_reference_price_type"],
+            "solar_profile_source": profile["source"],
+            "caveat": (
+                "Directional: strike band, proxy CFMP series, non-site-specific solar, "
+                "inherited DPPA grid-service adder, and assumed $750/kW developer capex "
+                "on the contracted 70 GWh. Not bankable."
+            ),
+        },
+    }
+
+
+def build_samsung_ttc_adder_sensitivity(
+    extracted: dict,
+    *,
+    adder_multipliers: tuple[float, ...] = (0.0, 0.5, 1.0, 1.5, 2.0),
+) -> dict:
+    """DPPA grid-service adder sensitivity at the base (Southern-ceiling) strike.
+
+    The inherited Case-2 adder (523.34 VND/kWh) is the dominant lever on buyer
+    cost; this sweep shows where the buyer flips from saving to premium. Reuses
+    build_dppa_case_2_contract_risk_sensitivity. Directional.
+    """
+    _, profile, _, physical, base_inputs = (
+        _samsung_ttc_physical_and_settlement_inputs(extracted)
+    )
+    base_inputs["strike_price_vnd_per_kwh"] = samsung_strike_vnd_per_kwh(extracted, 0.0)
+    risk = build_dppa_case_2_contract_risk_sensitivity(
+        base_inputs, physical, dppa_adder_multipliers=adder_multipliers
+    )
+    risk["case"] = "DPPA_SAMSUNG_TTC"
+    risk["model"] = "Samsung-TTC DPPA Contract-Risk Sensitivity"
+    risk["quality"] = {
+        "basis": "directional",
+        "strike_vnd_per_kwh": samsung_strike_vnd_per_kwh(extracted, 0.0),
+        "market_reference_price_type": base_inputs["market_reference_price_type"],
+        "solar_profile_source": profile["source"],
+        "caveat": (
+            "Directional: the DPPA grid-service adder is inherited from the Case-2 "
+            "default (523.34 VND/kWh) and is the single biggest lever on buyer cost; "
+            "deal-calibrate before relying on the sign of the buyer result."
+        ),
+    }
+    return risk

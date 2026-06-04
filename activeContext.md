@@ -33,6 +33,15 @@ System Python 3.14 has no PySAM wheel (graceful synthetic fallback). Full `.venv
 - [x] report `reports/2026-06-04-samsung-ttc-phase-02.html` + commit + push
 - KEY LEVER: DPPA grid-service adder (523.34) + KPP (1.0273) inherited from Case-2 default — dominate buyer effective cost; deal-calibrate in PHASE-03/04.
 
+### PHASE-03 — Strike Sweep + Developer Screen + Adder Lever ✅
+- [x] TASK-03-01/02: `build_samsung_ttc_strike_sweep` — buyer-premium surface across strike band (Southern ceiling 1,012 → EVN avoided 1,873) + PySAM Single Owner developer IRR/NPV at fixed 49 MWp (PPA price = strike). Added `initial_capital_costs` to results ($750/kW → $36.8M) for the developer bridge.
+- [x] TASK-03-03: `build_samsung_ttc_adder_sensitivity` — wraps `build_dppa_case_2_contract_risk_sensitivity`, DPPA adder swept 0–2×.
+- [x] TASK-03-04: `analyze_samsung_ttc_strike_developer.py` (run under .venv) → `samsung_ttc_strike-sensitivity.json`, `samsung_ttc_contract-risk.json`.
+- [x] TASK-03-05: `test_dppa_samsung_ttc_phase_03.py` — 5 tests (endpoints, buyer monotonicity, developer wiring via injected fake runner, adder flip, directional flags), red→green.
+- [x] Exit (directional): buyer saves at strike ≤ ~1,440 (−25.2 B VND at 1,012), premium above; developer NPV −$79.7M→−$57.3M (IRR null) sub-economic across whole band → **no overlap**, recommended `buyer_saves_developer_subeconomic`. Adder lever: buyer −61.8 B (adder 0) → +11.4 B (adder 2×), break-even ~0.9×. Regression 166 passed, 1 skipped under .venv.
+- [x] report `reports/2026-06-04-samsung-ttc-phase-03.html` + commit + push
+- CAVEAT: developer revenue taken on contracted 70 GWh (conservative); real plant ~92.5 GWh + merchant tail would lift NPV. Null IRR is documented Single Owner behavior (cashflow never crosses positive).
+
 Note: two PRE-EXISTING integration tests (`test_case_study_ranking.py`, north_thuan loader) abort pytest
 collection because they import scripts that call `argparse.parse_args()` at import — unrelated to this work
 (committed in `19df5bd`). Ran regression with those collectors excluded.
