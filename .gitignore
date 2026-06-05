@@ -53,3 +53,9 @@ artifacts/sysimage/
 # npm (used ad-hoc for pptx generation; not project code)
 node_modules/
 package-lock.json
+
+# Samsung-TTC local /present run: build intermediates + local-only template backup
+present/assets_local/
+present/*original template*.pptx
+# Stray test scratch temp (untracked from git, kept on disk)
+tests/.stderr.tmp
