@@ -1,0 +1,152 @@
+{
+  "source_reopt": "artifacts\\results\\tou_comparison\\2026-03-20-scenario-a-fixed-sizing-evntou\\699155b878151af0\\reopt-results.json",
+  "bess_power_kw": 20000.0,
+  "bess_capacity_kwh": 66000.0,
+  "regime_id": "decision_963_2026_current",
+  "peak_hours": [
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "offpeak_hours": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "round_trip_efficiency": 0.92,
+  "exchange_rate_vnd_per_usd": 26400,
+  "tariff_rates_vnd_per_kwh": {
+    "peak": 3460.3828,
+    "standard": 1895.4963,
+    "offpeak": 1234.2767
+  },
+  "bess_capex_usd": 25220000.0,
+  "bess_capex_vnd": 665808000000.0,
+  "cycles_per_day": 0.63,
+  "bess_capex_source": "data\\vietnam\\vn_tech_costs_2025.json",
+  "reopt_free_optimization": {
+    "peak_discharge_mwh": 11136.0,
+    "standard_discharge_mwh": 5857.3,
+    "offpeak_discharge_mwh": 0.0,
+    "total_discharge_mwh": 16993.3,
+    "annual_value_vnd": 49637379616.0,
+    "annual_value_usd": 1880203.77,
+    "net_arbitrage": {
+      "revenue_vnd": 49637379616.0,
+      "cost_vnd": 0.0,
+      "net_vnd": 49637379616.0,
+      "revenue_usd": 1880203.77,
+      "cost_usd": 0.0,
+      "net_usd": 1880203.77,
+      "net_per_kwh_usd": 0.0,
+      "net_per_kwh_vnd": 0.0
+    }
+  },
+  "excel_option_b_fixed_window": {
+    "peak_discharge_mwh": 7364.0,
+    "standard_discharge_mwh": 1227.0,
+    "offpeak_discharge_mwh": 0.0,
+    "total_discharge_mwh": 8591.0,
+    "annual_value_vnd": 27808033196.0,
+    "annual_value_usd": 1053334.59
+  },
+  "simulated_option_b": {
+    "peak_discharge_mwh": 14044.2,
+    "standard_discharge_mwh": 0.0,
+    "offpeak_discharge_mwh": 0.0,
+    "total_discharge_mwh": 14044.2,
+    "total_charge_mwh": 15265.4,
+    "annual_value_vnd": 48598308616.0,
+    "annual_value_usd": 1840845.02,
+    "net_arbitrage": {
+      "revenue_vnd": 44219662036.0,
+      "cost_vnd": 18841782169.0,
+      "net_vnd": 25377879867.0,
+      "revenue_usd": 1674987.2,
+      "cost_usd": 713703.87,
+      "net_usd": 961283.33,
+      "net_per_kwh_usd": 0.0684,
+      "net_per_kwh_vnd": 1807.0
+    },
+    "simple_payback_years": 26.2,
+    "cycles_per_day": 0.63
+  },
+  "lifetime_analysis": {
+    "bess_lifetime_years": 10,
+    "degradation_rate": 0.02,
+    "discount_rate": 0.08,
+    "degradation_schedule": [
+      {
+        "year": 1,
+        "capacity_fraction": 1.0,
+        "net_revenue_vnd": 25377879867.0,
+        "cumulative_revenue_vnd": 25377879867.0
+      },
+      {
+        "year": 2,
+        "capacity_fraction": 0.98,
+        "net_revenue_vnd": 24870322270.0,
+        "cumulative_revenue_vnd": 50248202137.0
+      },
+      {
+        "year": 3,
+        "capacity_fraction": 0.96,
+        "net_revenue_vnd": 24362764672.0,
+        "cumulative_revenue_vnd": 74610966809.0
+      },
+      {
+        "year": 4,
+        "capacity_fraction": 0.94,
+        "net_revenue_vnd": 23855207075.0,
+        "cumulative_revenue_vnd": 98466173884.0
+      },
+      {
+        "year": 5,
+        "capacity_fraction": 0.92,
+        "net_revenue_vnd": 23347649478.0,
+        "cumulative_revenue_vnd": 121813823362.0
+      },
+      {
+        "year": 6,
+        "capacity_fraction": 0.9,
+        "net_revenue_vnd": 22840091880.0,
+        "cumulative_revenue_vnd": 144653915242.0
+      },
+      {
+        "year": 7,
+        "capacity_fraction": 0.88,
+        "net_revenue_vnd": 22332534283.0,
+        "cumulative_revenue_vnd": 166986449525.0
+      },
+      {
+        "year": 8,
+        "capacity_fraction": 0.86,
+        "net_revenue_vnd": 21824976686.0,
+        "cumulative_revenue_vnd": 188811426210.0
+      },
+      {
+        "year": 9,
+        "capacity_fraction": 0.84,
+        "net_revenue_vnd": 21317419088.0,
+        "cumulative_revenue_vnd": 210128845299.0
+      },
+      {
+        "year": 10,
+        "capacity_fraction": 0.82,
+        "net_revenue_vnd": 20809861491.0,
+        "cumulative_revenue_vnd": 230938706790.0
+      }
+    ],
+    "npv_usd": -19269133.0,
+    "cumulative_lifetime_revenue_vnd": 230938706790.0
+  },
+  "reopt_vs_excel_delta_usd": 826869.18,
+  "reopt_vs_excel_delta_pct": 78.5,
+  "finding": "REopt free-optimization concentrates dispatch into peak hours (value maximising). The Excel fixed-window strategy (Option B) dispatches less total throughput but is constrained by available charge from PV during off-peak windows. Net arbitrage yields $961,283/yr with 26.2-year simple payback."
+}

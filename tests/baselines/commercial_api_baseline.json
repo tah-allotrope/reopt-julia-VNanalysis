@@ -1,0 +1,9 @@
+{
+  "pv_size_kw": 50.0,
+  "storage_size_kw": 0,
+  "storage_size_kwh": 0,
+  "lcc": 584970.1071,
+  "npv": 41512.07,
+  "initial_capital_costs": 30000.0,
+  "initial_capital_costs_after_incentives": 30000.0
+}

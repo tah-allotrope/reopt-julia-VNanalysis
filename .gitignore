@@ -59,3 +59,6 @@ present/assets_local/
 present/*original template*.pptx
 # Stray test scratch temp (untracked from git, kept on disk)
 tests/.stderr.tmp
+
+# Large REopt solve outputs (regenerable; never tracked — only input/resolved_regime are)
+**/reopt-results.json
