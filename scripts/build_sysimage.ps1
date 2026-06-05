@@ -21,8 +21,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-$SysimageScript = Join-Path $RepoRoot "scripts" "julia" "build_sysimage.jl"
-$SysimageDir = Join-Path $RepoRoot "artifacts" "sysimage"
+$SysimageScript = Join-Path (Join-Path (Join-Path $RepoRoot "scripts") "julia") "build_sysimage.jl"
+$SysimageDir = Join-Path (Join-Path $RepoRoot "artifacts") "sysimage"
 
 if (-not (Test-Path $SysimageDir)) {
     New-Item -ItemType Directory -Path $SysimageDir -Force | Out-Null
