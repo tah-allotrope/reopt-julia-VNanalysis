@@ -178,6 +178,26 @@ python -m pip install -e .
 - A small set of frozen **golden reference runs** is tracked under `examples/` so a fresh clone keeps representative results (see `examples/README.md`).
 - Historical path changes are documented in `docs/legacy-path-map.md`.
 
+## Script Paths (canonical)
+
+The top-level `scripts/python/*.py` shim layer was removed (2026-06-12). Call scripts at their canonical subdir path instead — `scripts/python/{reopt,pysam,integration}/<name>.py`.
+
+**Redirect rule for removed shims:** a former `scripts/python/<name>.py` now lives at `scripts/python/integration/<name>.py`, **except**:
+
+| Former flat path | Canonical path |
+|---|---|
+| `scripts/python/extract_excel_inputs.py` | `scripts/python/reopt/extract_excel_inputs.py` |
+| `scripts/python/build_saigon18_reopt_input.py` | `scripts/python/reopt/build_saigon18_reopt_input.py` |
+| `scripts/python/dppa_settlement.py` | `scripts/python/reopt/dppa_settlement.py` |
+| `scripts/python/equity_irr.py` | `scripts/python/reopt/equity_irr.py` |
+| `scripts/python/compare_regimes.py` | `scripts/python/reopt/compare_regimes.py` |
+| `scripts/python/compare_reopt_vs_excel.py` | `scripts/python/reopt/compare_reopt_vs_excel.py` |
+| `scripts/python/bess_dispatch_analysis.py` | `scripts/python/reopt/bess_dispatch_analysis.py` |
+| `scripts/python/two_part_tariff_sensitivity.py` | `scripts/python/reopt/two_part_tariff_sensitivity.py` |
+| `scripts/python/strike_price_discovery.py` | `scripts/python/pysam/strike_price_discovery.py` |
+
+**Relocated real scripts** (these were not shims — full implementations moved from the flat level into `integration/`): `generate_deck_2.py`, `generate_deck_3.py`, `generate_final_report.py`, `generate_phase3_report.py`, `generate_phase4_report.py`, `generate_phase5_report.py`, `generate_tou_migration_final_report.py` → all now under `scripts/python/integration/`. They write to cwd-relative paths, so run them from the repo root as before.
+
 ## Vietnam-Specific Notes
 
 - The preprocessing tool automatically handles all Vietnam overrides: US incentive zeroing, grid emissions, EVN tariff, tech costs, and Decree 57 export rules.

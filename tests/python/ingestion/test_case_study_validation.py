@@ -162,7 +162,7 @@ class TestCLIEntrypoint:
             result = subprocess.run(
                 [
                     sys.executable,
-                    str(REPO_ROOT / "scripts" / "python" / "ingest_factory_load.py"),
+                    str(REPO_ROOT / "scripts" / "python" / "integration" / "ingest_factory_load.py"),
                     "--input", str(input_path),
                     "--output", str(output_path),
                     "--year", "2024",
