@@ -173,9 +173,10 @@ python -m pip install -e .
 
 ## Generated Outputs
 
-- Canonical solve outputs live under `artifacts/results/`
-- Canonical comparison and summary reports live under `artifacts/reports/`
-- Historical path changes are documented in `legacy/README.md`
+- Solve outputs live under `artifacts/results/` and comparison/summary reports under `artifacts/reports/` — these are **local-only and git-ignored** (regenerable from tracked source + `data/` + `scenarios/`). Scripts still write here; git does not track them.
+- Generated HTML reports (`reports/*.html`) and decks (`present/`, `reports/decks/`) are likewise local-only. Markdown deliverables (`reports/*.md`) stay tracked.
+- A small set of frozen **golden reference runs** is tracked under `examples/` so a fresh clone keeps representative results (see `examples/README.md`).
+- Historical path changes are documented in `docs/legacy-path-map.md`.
 
 ## Vietnam-Specific Notes
 

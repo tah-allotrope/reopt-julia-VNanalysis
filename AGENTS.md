@@ -52,6 +52,7 @@ Detailed instructions have been organized into the `docs/` folder for progressiv
 - US federal incentives (30% ITC, 100% MACRS bonus) apply by default even for non-US sites — zeroed by preprocessing.
 - Vietnam data files use `_meta` envelope for versioning; code reads only `"data"` block. Update policy data by creating new versioned file + changing `manifest.json`.
 - Pass `voltage_level` explicitly to preprocessing when reliable site voltage info is available.
+- **Generated outputs are local-only (git-ignored):** `artifacts/`, `reports/*.html`, `present/`, `reports/decks/`, `scenarios/generated/`. Scripts still write there; git does not track them. Tracked references live in `examples/` (golden runs), `reports/*.md`, and `tests/baselines/`. (2026-06-12 de-bloat.)
 
 ## 6. Real Project Data Notes
 A dedicated branch `real-project-data` was created to test the `REoptVietnam.jl` logic against actual project parameters from an Excel-based feasibility study.
