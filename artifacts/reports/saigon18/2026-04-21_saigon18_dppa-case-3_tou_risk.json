@@ -1,9 +1,0 @@
-{
-  "tariff_branch": "legacy_tou_one_component",
-  "matched_quantity_kwh": 6843120.0,
-  "shortfall_quantity_kwh": 177419155.62,
-  "excess_quantity_kwh": 0.0,
-  "cfd_per_kwh_vnd": 1808.148548,
-  "strike_above_market": true,
-  "hours_with_negative_cfd_credit": 0
-}

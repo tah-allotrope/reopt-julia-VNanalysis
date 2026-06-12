@@ -62,3 +62,17 @@ tests/.stderr.tmp
 
 # Large REopt solve outputs (regenerable; never tracked — only input/resolved_regime are)
 **/reopt-results.json
+
+# === Sprint 1 de-bloat (2026-06-12): regenerable pipeline outputs — local only ===
+# All solve outputs, generated case reports, dashboards, and decks are reproducible
+# from tracked source + data/ + scenarios/. Kept on disk, dropped from git tracking.
+artifacts/
+reports/*.html
+reports/*.html.txt
+reports/decks/
+scenarios/generated/
+# Keep golden references and Markdown deliverables tracked:
+!examples/
+# Keep Sprint 1 repo-trim execution reports tracked (deliverables tied to commits):
+!reports/*sprint-1*.html
+!reports/2026-06-12-final-sprint-1-*.html

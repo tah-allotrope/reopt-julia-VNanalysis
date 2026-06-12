@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: sprint-1-phase-02-untrack-artifacts</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff', lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
+  </script>
+  <style>
+    :root { --bg:#0d0d0d; --panel:rgba(13,13,13,0.88); --panel-strong:rgba(19,19,19,0.96); --line:rgba(0,245,255,0.26); --text:#e9f6ff; --muted:#8ea3ad; --accent-blue:#00f5ff; --accent-green:#39ff14; --glow-blue:0 0 18px rgba(0,245,255,0.42); --glow-green:0 0 18px rgba(57,255,20,0.28); --shadow:0 14px 40px rgba(0,0,0,0.32); --radius-lg:22px; --radius-md:16px; --radius-sm:12px; --narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif; --technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at top left, rgba(0,245,255,0.12), transparent 28%), radial-gradient(circle at 85% 12%, rgba(57,255,20,0.08), transparent 24%), linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%); color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content:""; position:absolute; inset:0; pointer-events:none; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size:32px 32px; opacity:0.16; }
+    a { color: var(--accent-blue); }
+    code, pre, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg, rgba(0,245,255,0.08), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--panel-strong); box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.02); }
+    .hero::after { content:""; position:absolute; inset:auto -10% -55% 42%; height:280px; background:radial-gradient(circle, rgba(0,245,255,0.18), transparent 64%); filter:blur(12px); pointer-events:none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(260px,0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 16ch; font-size: clamp(2.1rem,4vw,3.4rem); line-height: 0.96; letter-spacing: -0.04em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57,255,20,0.2); border-radius: 18px; background: rgba(255,255,255,0.025); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0,245,255,0.24); border-radius: 999px; background: rgba(0,245,255,0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content:""; position:absolute; left:24px; right:24px; top:0; height:1px; background: linear-gradient(90deg, transparent, rgba(0,245,255,0.9), rgba(57,255,20,0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem,2vw,1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content:""; width:44px; height:1px; background: linear-gradient(90deg, rgba(57,255,20,0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state { border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), rgba(7,7,7,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.012); }
+    .column-card { padding: 18px; min-height: 180px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow: auto; overscroll-behavior: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    code { color: #d9ffd0; }
+    .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0,245,255,0.18); border-radius: var(--radius-sm); background: rgba(0,245,255,0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57,255,20,0.22); border-radius: 999px; background: rgba(57,255,20,0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142,163,173,0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } }
+    @media print { body { background:#fff; color:#111; } body::before, .hero::after { display:none; } .section, .hero { box-shadow:none; border-color:#bbb; break-inside:avoid; } a { color:#06c; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Repo Trim — Sprint 1</p>
+          <h1 class="phase-title">Phase 02 — Untrack Regenerable Outputs</h1>
+          <p class="hero-summary">
+            Remove ~246 regenerable solve outputs, generated reports, and decks from git tracking
+            using <code>git rm --cached</code> — they stay on disk and scripts keep writing to them,
+            but they no longer pollute the tree or produce diff noise. Tracked files fell from 640 to 394.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: REopt PySAM VN</span>
+            <span class="pill">date :: 2026-06-12</span>
+            <span class="pill">status :: complete</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Plan</div><div class="meta-chip">sprint-1-mechanical-debloat</div></div>
+          <div class="meta-card"><div class="meta-label">Phase</div><div class="meta-chip">PHASE-02 / 04</div></div>
+          <div class="meta-card"><div class="meta-label">Behavior change</div><div class="meta-chip">None (cached-only)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Input — tracked before</p>
+          <div class="splitter"></div>
+          <ul>
+            <li>640 tracked files, including 246 regenerable outputs:</li>
+            <li><code>artifacts/</code> — 152+ solve results, report JSON, dashboards</li>
+            <li><code>reports/*.html</code> — 76 generated phase/final HTML</li>
+            <li><code>reports/*.html.txt</code>, <code>reports/decks/</code> — text dumps + pptx</li>
+            <li><code>scenarios/generated/</code> — regime/TOU solver inputs</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Output — tracked after</p>
+          <div class="splitter"></div>
+          <ul>
+            <li>394 tracked files (−246). Explicitly <strong>kept</strong>:</li>
+            <li><code>tests/baselines/</code> (3) — regression baselines</li>
+            <li><code>reports/*.md</code> (5) — review notes + gap analysis</li>
+            <li><code>examples/</code> (4) — golden references from Phase 01</li>
+            <li>Sprint execution reports (negation rule in <code>.gitignore</code>)</li>
+            <li>All untracked files <strong>remain on disk</strong> (artifacts/ = 154 files)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Tracked before</div><div class="metric-value">640</div></div>
+        <div class="metric"><div class="metric-label">Tracked after</div><div class="metric-value">394</div></div>
+        <div class="metric"><div class="metric-label">Untracked (index)</div><div class="metric-value">246</div></div>
+        <div class="metric"><div class="metric-label">Deleted from disk</div><div class="metric-value">0</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+  A[Extend .gitignore: ignore artifacts/, reports/*.html, decks, generated] --> B[Add negations: keep examples/ + *sprint-1* reports]
+  B --> C[git rm -r --cached artifacts scenarios/generated reports/decks]
+  C --> D[git rm --cached reports/*.html reports/*.html.txt]
+  D --> E[git add sprint-1 phase report -> negation re-tracks it]
+  E --> F{Verify}
+  F --> G[baselines kept? md kept? examples kept?]
+  F --> H[files still on disk?]
+  G --> I[394 tracked, 246 untracked, 0 deleted]
+  H --> I
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <div class="empty-state"><strong>No math in this phase</strong>
+          Pure git index manipulation. The only rule of note is gitignore precedence: a later
+          negation (<code>!reports/*sprint-1*.html</code>) re-includes files an earlier glob
+          (<code>reports/*.html</code>) excluded, because the parent <code>reports/</code> dir is not itself ignored.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>git rm -r --cached artifacts scenarios/generated reports/decks</code></td><td>Drop directory trees from index; keep on disk</td></tr>
+            <tr><td><code>git rm --cached reports/*.html reports/*.html.txt</code></td><td>Drop generated HTML; keep on disk</td></tr>
+            <tr><td><code>.gitignore</code> ignore + <code>!</code> negation</td><td>Ignore future outputs; preserve examples/ + sprint reports</td></tr>
+            <tr><td><code>git ls-files</code> spot checks</td><td>Confirm baselines / md / examples survived; artifacts/ now 0 tracked</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame"><canvas id="trackedChart" aria-label="Tracked file count before vs after"></canvas></div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Limitation:</strong> Git <em>history</em> still carries every large blob, so <code>git clone</code> size is unchanged until/unless history is rewritten (out of scope; noted for a future <code>filter-repo</code> pass).</li>
+          <li><strong>Effect realized now:</strong> future growth stops, the working tree is clean, and diffs no longer churn on generated output.</li>
+          <li><strong>Second-best alternative:</strong> delete <code>artifacts/</code> from disk entirely. Rejected — ~50 report scripts write there and some read prior outputs; deletion would break them.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>Flag (handled):</strong> <code>reports/*.html</code> in <code>.gitignore</code> would have untracked the Sprint 1 phase reports too. Resolved with naming-based negations <code>!reports/*sprint-1*.html</code> and <code>!reports/2026-06-12-final-sprint-1-*.html</code>.</li>
+          <li><strong>Verified:</strong> <code>tests/baselines/</code> (3), <code>reports/*.md</code> (5), <code>examples/</code> (4) all still tracked; <code>artifacts/</code> = 0 tracked / 154 on disk.</li>
+          <li><strong>No errors.</strong> All <code>git rm</code> operations used <code>--cached</code>; working tree intact.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Next phase (03):</strong> delete dead/foreign dirs — <code>git rm -r archive/</code> (drop outright, per decision), <code>git rm --cached -r present/</code> (untrack only, per decision), remove <code>.opencode/</code>, <code>.opencode_http.log</code>, root png, <code>tests/.stdout.tmp</code>, <code>legacy/</code>.</li>
+          <li><strong>Then phase 04:</strong> run the test suite + one report script to prove the pipeline still works against the now-untracked (still-on-disk) outputs.</li>
+          <li><strong>Open question:</strong> a future history-rewrite to actually shrink clone size — worth it, or leave history intact? Deferred.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      document.querySelectorAll('canvas').forEach((c) => c.classList.add('report-chart'));
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      const ctx = document.getElementById('trackedChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Tracked before (post Phase 01)', 'Untracked this phase', 'Tracked after'],
+            datasets: [{
+              label: 'Files',
+              data: [640, 246, 394],
+              backgroundColor: ['rgba(0,245,255,0.5)', 'rgba(255,90,90,0.5)', 'rgba(57,255,20,0.55)'],
+              borderColor: ['#00f5ff', '#ff5a5a', '#39ff14'], borderWidth: 1
+            }]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.06)' }, title: { display: true, text: 'tracked files', color: '#8ea3ad' } }, x: { ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.04)' } } },
+            plugins: { legend: { labels: { color: '#e9f6ff' } } }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
