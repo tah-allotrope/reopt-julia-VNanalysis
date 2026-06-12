@@ -22,7 +22,7 @@ from reopt_pysam_vn.integration.matching import (
 from reopt_pysam_vn.integration.project_catalog import load_project_catalog
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-CLI = REPO_ROOT / "scripts" / "python" / "match_factory_to_projects.py"
+CLI = REPO_ROOT / "scripts" / "python" / "integration" / "match_factory_to_projects.py"
 CASE_DIR = REPO_ROOT / "scenarios" / "case_studies"
 
 CASE_FILES = {

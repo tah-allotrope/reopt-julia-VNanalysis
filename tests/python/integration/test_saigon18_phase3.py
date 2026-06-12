@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "python"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
 
 from compare_reopt_vs_excel import apply_dppa_adjustments, load_reopt_metrics  # noqa: E402
 from dppa_settlement import (  # noqa: E402

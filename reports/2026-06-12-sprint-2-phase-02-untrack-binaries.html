@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: sprint-2-phase-02-untrack-binaries</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff', lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
+  </script>
+  <style>
+    :root { --line:rgba(0,245,255,0.26); --text:#e9f6ff; --muted:#8ea3ad; --accent-blue:#00f5ff; --accent-green:#39ff14; --glow-blue:0 0 18px rgba(0,245,255,0.42); --glow-green:0 0 18px rgba(57,255,20,0.28); --shadow:0 14px 40px rgba(0,0,0,0.32); --panel:rgba(13,13,13,0.88); --panel-strong:rgba(19,19,19,0.96); --radius-lg:22px; --radius-md:16px; --radius-sm:12px; --narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif; --technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at top left, rgba(0,245,255,0.12), transparent 28%), radial-gradient(circle at 85% 12%, rgba(57,255,20,0.08), transparent 24%), linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%); color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content:""; position:absolute; inset:0; pointer-events:none; background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px); background-size:32px 32px; opacity:0.16; }
+    a { color: var(--accent-blue); }
+    code, pre, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg, rgba(0,245,255,0.08), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--panel-strong); box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.02); }
+    .hero::after { content:""; position:absolute; inset:auto -10% -55% 42%; height:280px; background:radial-gradient(circle, rgba(0,245,255,0.18), transparent 64%); filter:blur(12px); pointer-events:none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(260px,0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 16ch; font-size: clamp(2.1rem,4vw,3.4rem); line-height: 0.96; letter-spacing: -0.04em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 62ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57,255,20,0.2); border-radius: 18px; background: rgba(255,255,255,0.025); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0,245,255,0.24); border-radius: 999px; background: rgba(0,245,255,0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content:""; position:absolute; left:24px; right:24px; top:0; height:1px; background: linear-gradient(90deg, transparent, rgba(0,245,255,0.9), rgba(57,255,20,0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem,2vw,1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content:""; width:44px; height:1px; background: linear-gradient(90deg, rgba(57,255,20,0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state { border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), rgba(7,7,7,0.82); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.012); }
+    .column-card { padding: 18px; min-height: 180px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow: auto; overscroll-behavior: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    code { color: #d9ffd0; }
+    .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0,245,255,0.18); border-radius: var(--radius-sm); background: rgba(0,245,255,0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57,255,20,0.22); border-radius: 999px; background: rgba(57,255,20,0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .pill.warn { border-color: rgba(255,180,60,0.4); background: rgba(255,180,60,0.08); color: #ffd9a0; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142,163,173,0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } }
+    @media print { body { background:#fff; color:#111; } body::before, .hero::after { display:none; } .section, .hero { box-shadow:none; border-color:#bbb; break-inside:avoid; } a { color:#06c; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Repo Trim — Sprint 2</p>
+          <h1 class="phase-title">Phase 02 — Untrack Heavy Binaries</h1>
+          <p class="hero-summary">
+            Remove ~35 MB of reference binaries (a TOU PDF, an FMP CSV, and the Saigon18 source
+            workbook) from git tracking — kept on disk with provenance manifests, no history rewrite.
+            The full 217-test integration run also surfaced (and confirmed fixed) the deeper shim
+            breakage from Phase 01.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: REopt PySAM VN</span>
+            <span class="pill">date :: 2026-06-12</span>
+            <span class="pill">status :: complete</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Plan</div><div class="meta-chip">sprint-2-binary-relocation</div></div>
+          <div class="meta-card"><div class="meta-label">Phase</div><div class="meta-chip">PHASE-02 / 03</div></div>
+          <div class="meta-card"><div class="meta-label">Decision</div><div class="meta-chip">untrack + external (no LFS)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Untracked (kept on disk)</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><code>research/TOU-Analysis_SolarBESS-ENG.pdf</code> (14 MB)</li>
+            <li><code>research/fmp_modeling.csv</code> (12 MB)</li>
+            <li><code>data/raw/saigon18/…_excel_model_v2.xlsm</code> (9.4 MB)</li>
+            <li>~35 MB total, all referenced by zero tracked code</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Added / preserved</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><code>research/SOURCES.md</code> — provenance + history-recovery for PDF/CSV</li>
+            <li><code>data/raw/saigon18/SOURCE.md</code> — workbook origin + re-extract command</li>
+            <li>Saigon18 analysis path proven independent: it reads the distilled <code>extracted_inputs.json</code>, not the <code>.xlsm</code></li>
+            <li>Other <code>research/*.md/.txt</code> stay tracked</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Binaries untracked</div><div class="metric-value">3 (~35 MB)</div></div>
+        <div class="metric"><div class="metric-label">Deleted from disk</div><div class="metric-value">0</div></div>
+        <div class="metric"><div class="metric-label">Integration tests</div><div class="metric-value">215 / 217 pass</div></div>
+        <div class="metric"><div class="metric-label">Regressions from us</div><div class="metric-value">0</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+  A[Grep: any code read the 3 binaries by path?] --> B{Referenced?}
+  B -- no --> C[git rm --cached 3 binaries + .gitignore]
+  C --> D[Write SOURCES.md + SOURCE.md manifests]
+  D --> E[Run FULL 217-test integration suite]
+  E --> F{All green?}
+  F -- 6 import failures --> G[Shims were load-bearing: tests imported moved modules via flat path]
+  G --> H[Repoint 6 tests to reopt/ or integration/]
+  H --> E
+  F -- 2 numeric failures --> I[Run same 2 at pre-sprint-2 commit in worktree]
+  I --> J[Identical failure -> PRE-EXISTING, not ours]
+  F -- 215 pass --> K[Phase 02 complete]
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <div class="empty-state"><strong>Regression attribution, not math</strong>
+          A failure is "ours" only if Sprint 2 changed a code path the test exercises. Proof used: <code>git diff 5297f89 HEAD -- src/python/ data/ &lt;test&gt;</code> empty AND identical failure when the 2 tests run at the pre-Sprint-2 commit → pre-existing.</div>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Step</th><th>Method / Result</th></tr></thead>
+          <tbody>
+            <tr><td>Safety grep</td><td>No tracked test/script references the 3 binaries by path (only a generic <code>.xlsm</code> suffix check in <code>loader.py</code>)</td></tr>
+            <tr><td>Untrack</td><td><code>git rm --cached</code> + specific <code>.gitignore</code> entries (research <code>.md/.txt</code> stay tracked)</td></tr>
+            <tr><td>Full suite</td><td><code>pytest tests/python/integration</code> → 217 collected, 215 passed (30 min)</td></tr>
+            <tr><td>Pre-existing proof</td><td><code>git worktree add --detach 5297f89</code> → ran the 2 failures there → identical</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame"><canvas id="suiteChart" aria-label="Integration suite result breakdown"></canvas></div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>2 pre-existing failures remain red</strong> (<code>test_pvwatts_capacity_factor_binh_thuan</code>, <code>test_build_extracted_inputs…weighted_evn_benchmark</code>). They are benchmark/tolerance drift, out of scope for the de-bloat; flagged for a separate fix.</li>
+          <li><strong>Second-best alternative (Q-001):</strong> Git LFS would shrink future clones the most but rewrites history (force-push, re-clone). Rejected in favor of untrack+manifest — no disruption; the distilled <code>extracted_inputs.json</code> already covers the analysis path.</li>
+          <li><strong>Limitation:</strong> history still carries the 35 MB; only future growth is stopped.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
+      <div class="question-frame technical">
+        <div class="pill-row"><span class="pill warn">PHASE-01 SHIM BREAKAGE (caught here, fixed)</span></div>
+        <ul>
+          <li><strong>The shims were load-bearing for tests.</strong> Six integration tests inserted the flat <code>scripts/python</code> on <code>sys.path</code> and imported the now-moved modules as top-level names. Repointed each to its real subdir: <code>test_saigon18_data/compare/phase3</code> → <code>reopt/</code>; <code>test_case_study_ranking</code> → <code>integration/</code>; <code>test_north_thuan_reopt</code> → both <code>reopt/</code> + <code>integration/</code>; <code>test_matching_e2e</code> CLI path → <code>integration/</code>.</li>
+          <li><strong>Result:</strong> the 6 now pass (43), all 217 integration tests collect cleanly, 215 pass.</li>
+          <li><strong>2 numeric failures verified pre-existing</strong> via a pre-Sprint-2 worktree run (identical assertion values). Not caused by this work.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Next phase (03):</strong> slim <code>activeContext.md</code> (2,117 lines) into <code>docs/worklog/</code>, leaving a short current-state pointer.</li>
+          <li><strong>Backlog (separate from de-bloat):</strong> fix the 2 pre-existing benchmark failures (PVWatts capacity factor; ninhsim weighted-EVN benchmark).</li>
+          <li><strong>Lesson reinforced:</strong> "remove a shim" is never purely cosmetic when tests import through it — always run the FULL suite, not a subset, after a structural move.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() { document.querySelectorAll('canvas').forEach((c) => c.classList.add('report-chart')); })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      const ctx = document.getElementById('suiteChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Passed (215)', 'Pre-existing fail (2)'],
+            datasets: [{ data: [215, 2], backgroundColor: ['rgba(57,255,20,0.55)', 'rgba(255,180,60,0.6)'], borderColor: ['#39ff14', '#ffb43c'], borderWidth: 1 }]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            plugins: { legend: { position: 'right', labels: { color: '#e9f6ff' } }, title: { display: true, text: 'Integration suite — 217 tests', color: '#8ea3ad' } }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

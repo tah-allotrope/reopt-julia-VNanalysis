@@ -87,3 +87,9 @@ present/
 .opencode_http.log
 # Test scratch temp
 tests/.stdout.tmp
+
+# === Sprint 2 PHASE-02: heavy reference binaries (~35MB) — untracked, kept on disk ===
+# Provenance + retrieval documented in research/SOURCES.md and data/raw/saigon18/SOURCE.md.
+research/TOU-Analysis_SolarBESS-ENG.pdf
+research/fmp_modeling.csv
+data/raw/saigon18/2026-01-29_saigon18_excel_model_v2.xlsm

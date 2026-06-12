@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts" / "python"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
 
 from build_north_thuan_load_profile import (  # noqa: E402
     NORTH_THUAN_INPUTS,
