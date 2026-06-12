@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Sprint 1 — Repo Trim</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'base', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#f3ead9', primaryTextColor: '#1f1912', primaryBorderColor: '#9d6b37', lineColor: '#3b6f76', secondaryColor: '#efe4d0', tertiaryColor: '#ffffff', background: '#fbf7f1', mainBkg: '#fbf7f1', nodeBorder: '#9d6b37', clusterBkg: '#f7efdf', clusterBorder: '#3b6f76', edgeLabelBackground: '#fbf7f1' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
+  </script>
+  <style>
+    :root { --paper:#fbf7f1; --paper-strong:#fffdf9; --ink:#1f1912; --ink-soft:#5f564c; --line:#dccdb6; --line-strong:#bfa37d; --accent:#9d6b37; --accent-soft:#efe4d0; --accent-2:#3b6f76; --shadow:0 18px 40px rgba(49,33,16,0.08); --radius-lg:24px; --radius-md:18px; --radius-sm:12px; --page-width:1040px; --display-font:Georgia,"Times New Roman",serif; --body-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif; --mono-font:"Cascadia Code",Consolas,monospace; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; overflow-x: hidden; color: var(--ink); background: radial-gradient(circle at top left, rgba(157,107,55,0.09), transparent 26%), radial-gradient(circle at 88% 10%, rgba(59,111,118,0.08), transparent 22%), linear-gradient(180deg,#f7f1e7 0%,#fbf7f1 28%,#f6efe5 100%); font-family: var(--body-font); line-height: 1.65; letter-spacing: 0.01em; }
+    a { color: var(--accent-2); }
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid { font-family: var(--mono-font); }
+    .page-shell { width: min(var(--page-width), calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+    .hero { padding: 34px; border: 1px solid rgba(159,123,79,0.28); border-radius: 30px; background: linear-gradient(135deg, rgba(157,107,55,0.1), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.86)), var(--paper-strong); box-shadow: var(--shadow); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(260px,0.85fr); gap: 24px; align-items: end; }
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+    .title { margin: 0; max-width: 14ch; font-family: var(--display-font); font-size: clamp(2.6rem,5vw,4.4rem); line-height: 0.95; letter-spacing: -0.04em; text-wrap: balance; }
+    .lede { margin: 18px 0 0; max-width: 60ch; color: var(--ink-soft); font-size: 1rem; }
+    .takeaway { margin-top: 22px; padding: 18px 20px; border-left: 4px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: rgba(59,111,118,0.08); color: #20373a; font-size: 1.02rem; }
+    .meta-grid { display: grid; gap: 12px; }
+    .meta-card, .section, .subcard, .empty-state { border: 1px solid rgba(95,72,46,0.12); background: rgba(255,253,249,0.88); box-shadow: var(--shadow); }
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+    .meta-label { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .meta-chip { margin-top: 8px; color: var(--accent); font-size: 1rem; font-weight: 700; word-break: break-word; }
+    .section { margin-top: 22px; padding: 24px; border-radius: var(--radius-lg); break-inside: avoid; page-break-inside: avoid; }
+    .section-header { display: flex; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .section-index { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+    .section-title { margin: 0; font-family: var(--display-font); font-size: clamp(1.45rem,2vw,2rem); line-height: 1.05; }
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { display: grid; gap: 16px; }
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .subcard { padding: 18px; border-radius: var(--radius-md); break-inside: avoid; page-break-inside: avoid; }
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .stat-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 16px; }
+    .stat { padding: 14px 16px; border: 1px solid rgba(59,111,118,0.16); border-radius: var(--radius-sm); background: rgba(59,111,118,0.06); break-inside: avoid; page-break-inside: avoid; }
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255,255,255,0.54); break-inside: avoid; page-break-inside: avoid; }
+    .diagram-frame { overflow: auto; overscroll-behavior: contain; max-height: min(70vh, 720px); }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px; }
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .empty-state { padding: 20px; border-radius: var(--radius-md); text-align: center; color: var(--ink-soft); }
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; font-family:var(--mono-font); border:1px solid var(--line-strong); }
+    .tag.green { background:rgba(59,111,118,0.1); color:#20575c; border-color:rgba(59,111,118,0.3); }
+    .tag.amber { background:rgba(157,107,55,0.12); color:#7a4f22; border-color:rgba(157,107,55,0.35); }
+    .footer-note { margin-top: 18px; color: rgba(95,86,76,0.74); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+    @media (max-width: 920px) { .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; } .title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; } .hero, .section { padding: 18px; border-radius: 20px; } .title { font-size: clamp(2.1rem,12vw,3.2rem); } }
+    @media print { :root { --paper:#fff; --paper-strong:#fff; --ink:#111; --ink-soft:#444; --line:#d6d1c8; } @page { size: A4; margin: 14mm; } body { background:#fff; } .page-shell { width:100%; max-width:none; padding:0; } .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat { background:#fff; box-shadow:none; } .hero, .section { margin-top:0; margin-bottom:10mm; } .diagram-frame { overflow:visible; max-height:none; } a { color:inherit; text-decoration:none; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Repo Trim — Sprint 1</p>
+          <h1 class="title">Sprint 1 — Repo Trim</h1>
+          <p class="lede">
+            A four-phase de-bloat of the ReOpt + PySAM Vietnam toolkit: strip ~250 regenerable
+            outputs and dead/foreign directories out of git tracking while leaving the working
+            pipeline — onsite REopt optimization and offsite/DPPA PySAM finance — completely untouched.
+          </p>
+          <div class="takeaway"><strong>Tracked files cut 635 → 371 (−42%)</strong> with zero pipeline behavior change. Untracking kept every regenerable output on disk; verification caught and fixed one self-inflicted test regression before it shipped.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">REopt PySAM VN</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-12</div></div>
+          <div class="meta-card"><div class="meta-label">Status</div><div class="meta-chip">Complete · 4/4 phases</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header"><div><div class="section-index">01 / Executive Summary</div><h2 class="section-title">Executive Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>The repository carried a working analysis engine buried under regenerable output. Sprint 1 removed that weight in four committed, individually-verified phases: preserve golden references, untrack generated artifacts, delete dead/foreign directories, then verify and document. Every phase was committed and pushed to <code>main</code> with its own HTML report.</p>
+        </div>
+        <div class="subcard">
+          <h3>Why it matters</h3>
+          <p>The de-bloat is purely mechanical and reversible — nothing in the REopt (onsite/BTM optimization) or PySAM (offsite/DPPA finance) code changed. The payoff is a tree where the ~370 tracked files are actual source, data, tests, and deliverables, so the upcoming structural work (Sprints 2–3) lands on a clean surface.</p>
+        </div>
+        <div class="subcard">
+          <h3>Headline result</h3>
+          <p>Tracked files fell <strong>635 → 371 (−42%)</strong>. The 62 MB of regenerable <code>artifacts/</code> still sit on disk (git-ignored) and a report script was confirmed to still write there. Three golden runs are frozen in <code>examples/</code>.</p>
+        </div>
+        <div class="subcard">
+          <h3>The one catch</h3>
+          <p>Deleting <code>archive/</code> broke a test that loaded a function from it via path segments — invisible to the initial grep. It was caught in the verification phase, root-caused, and fixed by relocating the function to canonical source. No broken test shipped.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header"><div><div class="section-index">02 / Background &amp; Objective</div><h2 class="section-title">Background &amp; Objective</h2></div></div>
+      <div class="narrative">
+        <p>A gap analysis on 2026-06-12 found the repo's key function — using NREL REopt and PySAM to analyze future onsite and offsite/DPPA clean-energy projects in Vietnam — healthy but obscured. Of 635 tracked files, well over half were regenerable output or cruft: 62 MB of <code>artifacts/</code>, 76 generated HTML reports, decks, a 19 MB dead Google-Colab <code>archive/</code>, and foreign tooling. The analysis sequenced the cleanup into three sprints; this report covers <strong>Sprint 1 — the mechanical de-bloat</strong> (gaps GAP-02 generated artifacts, GAP-04 dead/foreign dirs, GAP-09 stray files).</p>
+        <p>The objective was deliberately narrow: shrink the tracked tree and remove noise <em>without changing a single line of pipeline behavior</em>. Untrack, don't delete; preserve golden references; prove the pipeline still runs.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header"><div><div class="section-index">03 / Inputs &amp; Scope</div><h2 class="section-title">Inputs &amp; Scope</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Inputs</h3>
+          <ul>
+            <li>Plan: <code>plans/active/2026-06-12-sprint-1-mechanical-debloat-plan.md</code></li>
+            <li>Gap analysis: <code>reports/2026-06-12-reopt-pysam-vietnam-repo-trim-gap-analysis.md</code></li>
+            <li>Two user decisions: untrack-only for <code>present/</code> decks; drop <code>archive/</code> outright</li>
+            <li>Existing <code>.gitignore</code> patterns to extend; repo <code>.venv</code> (Python 3.12) for tests</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>In scope / Out of scope</h3>
+          <ul>
+            <li><span class="tag green">in</span> Untrack <code>artifacts/</code>, <code>reports/*.html</code>, decks, <code>scenarios/generated/</code></li>
+            <li><span class="tag green">in</span> Remove <code>archive/</code>, <code>.opencode/</code>, strays; preserve golden runs</li>
+            <li><span class="tag amber">out</span> Shim-layer removal &amp; binary relocation (Sprint 2)</li>
+            <li><span class="tag amber">out</span> Onsite/offsite pipeline generalization (Sprint 3)</li>
+            <li><span class="tag amber">out</span> Any git history rewrite to shrink clone size</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header"><div><div class="section-index">04 / Assumptions &amp; Constraints</div><h2 class="section-title">Assumptions &amp; Constraints</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions</h3>
+          <ul>
+            <li>Everything under <code>artifacts/</code>, <code>reports/*.html</code>, decks, and <code>scenarios/generated/</code> is regenerable from tracked source + <code>data/</code> + <code>scenarios/</code>.</li>
+            <li><code>tests/baselines/</code> are intentionally versioned and must stay tracked.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints</h3>
+          <ul>
+            <li>Untracking must use <code>git rm --cached</code> — ~50 report scripts write into <code>artifacts/</code>; a real delete would break them.</li>
+            <li>Sprint reports live under <code>reports/</code>, which the new ignore covers — kept tracked via naming-based <code>.gitignore</code> negations.</li>
+            <li>Commit + push to <code>main</code> after every phase (explicit user request).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header"><div><div class="section-index">05 / Methodology</div><h2 class="section-title">Methodology</h2></div></div>
+      <div class="narrative">
+        <p>Each phase followed the same loop: <strong>implement → generate a phase HTML report → commit → push to main</strong>. Removals favored the least destructive operation that achieved the goal — <code>git rm --cached</code> (untrack, keep on disk) over <code>git rm</code> (delete) wherever any script or future run might still need the file. A safety grep preceded every deletion, and the final phase ran the test suite as the gate, treating a "pure deletion" as unproven until tests passed.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">Phases</div><div class="stat-value">4 committed</div></div>
+        <div class="stat"><div class="stat-label">Default op</div><div class="stat-value">untrack, not delete</div></div>
+        <div class="stat"><div class="stat-label">Gate</div><div class="stat-value">tests must pass</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header"><div><div class="section-index">06 / Phase-by-Phase Analysis</div><h2 class="section-title">Phase-by-Phase Analysis</h2></div></div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Phase 01 — Preserve golden examples <span class="tag green">b8f1e3d</span></h3>
+          <p>Before touching tracking, froze three representative runs (a Saigon18 REopt solve, a Samsung-TTC DPPA decision, a final HTML) into a new tracked <code>examples/</code> with a regeneration manifest. The solve result was renamed to dodge the <code>**/reopt-results.json</code> ignore. Additive only.</p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 02 — Untrack regenerable outputs <span class="tag green">e947904</span></h3>
+          <p>Extended <code>.gitignore</code> and <code>git rm --cached</code>'d <code>artifacts/</code>, <code>reports/*.html(.txt)</code>, <code>reports/decks/</code>, and <code>scenarios/generated/</code> — 246 files dropped from the index, all kept on disk. Baselines, Markdown deliverables, and examples were explicitly preserved. Tracked: 640 → 394.</p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 03 — Remove dead/foreign dirs <span class="tag green">f1e76a3</span></h3>
+          <p>Dropped the 19 MB <code>archive/</code> outright; untracked <code>present/</code> (a deck-script write target) and <code>.opencode/</code> (user tooling, treated like <code>.claude/</code>) while keeping them on disk; deleted strays; moved <code>legacy/README.md</code> → <code>docs/legacy-path-map.md</code>. Tracked: 395 → 368.</p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 04 — Verify &amp; document <span class="tag amber">938cb4b</span></h3>
+          <p>Ran the Python suites (reopt 137, ingestion+pysam 121 passed), caught one regression from the <code>archive/</code> deletion, fixed it at root cause, smoke-tested a report script against the now-ignored <code>artifacts/</code>, and updated README / AGENTS / lessons.md.</p>
+        </div>
+      </div>
+      <div class="diagram-frame" style="margin-top:16px;">
+        <div class="mermaid">
+flowchart LR
+  P1[01 Preserve golden -> examples/] --> P2[02 Untrack artifacts/reports/decks]
+  P2 --> P3[03 Drop archive/ + untrack present/.opencode]
+  P3 --> P4[04 Verify]
+  P4 --> R{Tests green?}
+  R -- no: archive test --> F[Relocate fn -> reopt/sanitize.py]
+  F --> R
+  R -- yes --> D[Document + push: 635 -> 371 tracked]
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header"><div><div class="section-index">07 / Findings &amp; Recommendation</div><h2 class="section-title">Findings &amp; Recommendation</h2></div></div>
+      <div class="narrative">
+        <p><strong>Finding 1 — The bloat was real and removable without risk.</strong> 264 net tracked files were regenerable output or dead material. Untracking (not deleting) removed them from git while a smoke run proved scripts still write to <code>artifacts/</code> on disk.</p>
+        <p><strong>Finding 2 — "Dead" directories can hide live dependencies.</strong> <code>archive/</code> looked dead, but a test imported a sanitizer from it via path segments (<code>REPO_ROOT / "archive" / …</code>) that a <code>grep "archive/"</code> never matched. The fix relocated <code>redact_sensitive_fields</code> into <code>src/python/reopt_pysam_vn/reopt/sanitize.py</code> — a better home than the archive ever was.</p>
+        <p><strong>Recommendation.</strong> Proceed to Sprint 2 (remove the two shadow shim layers, relocate heavy binaries) — it is the same pattern proven here: relocate tested code to canonical source, then delete. The history-rewrite question (to actually shrink clone size) can stay deferred; untracking already stopped the growth.</p>
+      </div>
+      <div class="chart-frame" style="margin-top:16px;">
+        <canvas id="trackedTrajectory" aria-label="Tracked file count across Sprint 1 phases"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header"><div><div class="section-index">08 / Implementation Path</div><h2 class="section-title">Implementation Path</h2></div></div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Now — Sprint 1 (done)</h3>
+          <p>Merged to <code>main</code> across 4 commits. Repo is de-bloated and verified. No follow-up required to keep the pipeline working.</p>
+        </div>
+        <div class="subcard">
+          <h3>Next — Sprint 2</h3>
+          <p>Remove the 3 <code>src/</code> shims + ~37 flat <code>scripts/python/*.py</code> redirects, relocate ~35 MB of reference binaries, slim <code>activeContext.md</code>. Plan already written: <code>plans/active/2026-06-12-sprint-2-…-plan.md</code>. Decision needed: LFS vs untrack-external for binaries.</p>
+        </div>
+        <div class="subcard">
+          <h3>Then — Sprint 3</h3>
+          <p>Generalize per-deal modules into <code>analysis/onsite.py</code> + <code>analysis/offsite_dppa.py</code>, migrate Samsung-TTC behind a parity gate, make the two modes first-class. The only sprint that touches tested logic.</p>
+        </div>
+        <div class="subcard">
+          <h3>Optional hardening</h3>
+          <p>Run the full Julia L1–L3 + Layer-4 smoke via <code>tests/run_all_tests.ps1</code> before Sprint 2 for extra confidence, and decide whether a one-time <code>git filter-repo</code> pass is worth the clone-size reduction.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header"><div><div class="section-index">09 / Risks / Open Questions</div><h2 class="section-title">Risks / Open Questions</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Residual risks</h3>
+          <ul>
+            <li><strong>History still heavy.</strong> Clone size is unchanged until/unless history is rewritten; only future growth is stopped.</li>
+            <li><strong>Verification not exhaustive.</strong> Solver/API Layer-4 integration tests and Julia L1–L3 were not run (slow, some pre-existing API failures). Changes touched no solver/API code; import-level collection found no further breakage.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions</h3>
+          <ul>
+            <li>Refresh <code>docs/legacy-path-map.md</code> to describe the new <code>examples/</code> convention, or keep it purely historical?</li>
+            <li>Should more case studies (ninhsim, north_thuan) get frozen golden copies for regression, or is one onsite + one offsite enough?</li>
+            <li>Binary strategy for Sprint 2: Git LFS (history rewrite) vs untrack-external?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header"><div><div class="section-index">10 / Appendices / Evidence Notes</div><h2 class="section-title">Appendices / Evidence Notes</h2></div></div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h3>Commit trail (pushed to main)</h3>
+          <table>
+            <thead><tr><th>Phase</th><th>Commit</th><th>Net tracked</th></tr></thead>
+            <tbody>
+              <tr><td>01 Golden examples</td><td><code>b8f1e3d</code></td><td>640</td></tr>
+              <tr><td>02 Untrack artifacts</td><td><code>e947904</code></td><td>394</td></tr>
+              <tr><td>03 Remove dead dirs</td><td><code>f1e76a3</code></td><td>368</td></tr>
+              <tr><td>04 Verify + fix + docs</td><td><code>938cb4b</code></td><td>371</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard technical-frame">
+          <h3>Verification evidence</h3>
+          <table>
+            <thead><tr><th>Check</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>pytest reopt</td><td>137 passed, 1 skipped</td></tr>
+              <tr><td>pytest ingestion + pysam</td><td>121 passed</td></tr>
+              <tr><td>dashboard script → artifacts/</td><td>wrote 18.3 KB; git clean</td></tr>
+              <tr><td>artifacts/ on disk</td><td>62 MB / 154 files</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard">
+          <h3>Glossary</h3>
+          <ul>
+            <li><strong>Untrack vs delete:</strong> <code>git rm --cached</code> removes a file from git's index but leaves it on disk; <code>git rm</code> removes both.</li>
+            <li><strong>Onsite:</strong> behind-the-meter REopt PV+BESS optimization vs EVN time-of-use tariff.</li>
+            <li><strong>Offsite/DPPA:</strong> Direct Power Purchase Agreement — PySAM developer finance + settlement.</li>
+            <li><strong>Golden run:</strong> a frozen reference output kept for documentation/regression.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Lesson recorded</h3>
+          <p>Before deleting a directory, grep the <em>bare</em> name (<code>archive</code>), not the path form (<code>archive/</code>) — code builds paths from segments that the slashed form never matches. A directory with a live test dependency is not dead: relocate the depended-on code to canonical <code>src/</code>. Always run the suite in the verify phase. (See <code>lessons.md</code>, 2026-06-12.)</p>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() { document.querySelectorAll('canvas').forEach((c) => c.classList.add('report-chart')); })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      const ctx = document.getElementById('trackedTrajectory');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Sprint start', 'P01 golden', 'P02 untrack', 'P03 dead dirs', 'P04 end'],
+            datasets: [{
+              label: 'Tracked files',
+              data: [635, 640, 394, 368, 371],
+              borderColor: '#9d6b37', backgroundColor: 'rgba(157,107,55,0.14)', fill: true, tension: 0.25,
+              pointBackgroundColor: '#3b6f76', pointRadius: 4
+            }]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            scales: { y: { beginAtZero: false, ticks: { color: '#5f564c' }, grid: { color: 'rgba(95,72,46,0.12)' }, title: { display: true, text: 'tracked files', color: '#5f564c' } }, x: { ticks: { color: '#5f564c' }, grid: { color: 'rgba(95,72,46,0.07)' } } },
+            plugins: { legend: { labels: { color: '#1f1912' } } }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

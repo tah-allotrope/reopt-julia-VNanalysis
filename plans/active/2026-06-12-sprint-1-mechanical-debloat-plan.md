@@ -1,7 +1,7 @@
 ---
 title: "Sprint 1 — Mechanical De-bloat (untrack generated artifacts, remove dead/foreign dirs, stray files)"
 date: "2026-06-12"
-status: "draft"
+status: "complete"
 request: "Plan Sprint 1 from the repo-trim gap analysis: GAP-02 untrack ~250 generated artifacts, GAP-04 remove foreign/dead dirs, GAP-09 stray files."
 plan_type: "multi-phase"
 research_inputs:
@@ -155,3 +155,26 @@ Prove the pipeline is unaffected and record the new conventions.
 
 ## Suggested Next Step
 Answer the two Grill Me questions, then execute PHASE-01 → PHASE-04. Commit as a single "chore: untrack generated artifacts + remove dead/foreign dirs" change and push to `main`.
+
+---
+
+## Review / Results (completed 2026-06-12)
+
+**Outcome:** Executed across 4 phases, each committed + pushed to `main` with its own HTML report. Grill Me answers: Q-001 untrack-only for `present/`; Q-002 drop `archive/` outright.
+
+| Phase | Commit | Tracked after | Notes |
+|---|---|---|---|
+| 01 Preserve golden examples | `b8f1e3d` | 640 | `examples/` + 3 golden runs + README |
+| 02 Untrack regenerable outputs | `e947904` | 394 | 246 files `git rm --cached`; `.gitignore` extended with negations |
+| 03 Remove dead/foreign dirs | `f1e76a3` | 368 | `archive/` dropped; `present/`+`.opencode/` untracked-on-disk; `legacy/README.md`→`docs/legacy-path-map.md` |
+| 04 Verify + document | `938cb4b` | 371 | tests run; 1 regression fixed; README/AGENTS/lessons updated |
+
+**Result:** Tracked files **635 → 371 (−42%)**; `artifacts/` (62 MB) regenerable and on disk. Pipeline behavior unchanged (verified: reopt 137 + ingestion/pysam 121 tests pass; dashboard script still writes to `artifacts/`).
+
+**Deviations from plan (intentional):**
+- `.opencode/` was untracked + git-ignored rather than deleted — it's the user's OpenCode skill bundle, treated like `.claude/`.
+- Sprint reports under `reports/` kept tracked via naming-based `.gitignore` negations (plan assumed all `reports/*.html` ignored).
+
+**Regression caught + fixed:** Deleting `archive/` broke `tests/python/reopt/test_api_result_sanitization.py`, which loaded `redact_sensitive_fields` from it via path segments (missed by a `grep "archive/"`). Fixed by relocating the function to `src/python/reopt_pysam_vn/reopt/sanitize.py` and repointing the test. Lesson recorded in `lessons.md`.
+
+**Final synthesis:** `reports/2026-06-12-final-sprint-1-repo-trim.html`. **Next:** Sprint 2 (`plans/active/2026-06-12-sprint-2-shim-removal-binary-relocation-plan.md`).
