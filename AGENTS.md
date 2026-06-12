@@ -53,6 +53,8 @@ Detailed instructions have been organized into the `docs/` folder for progressiv
 - Vietnam data files use `_meta` envelope for versioning; code reads only `"data"` block. Update policy data by creating new versioned file + changing `manifest.json`.
 - Pass `voltage_level` explicitly to preprocessing when reliable site voltage info is available.
 - **Generated outputs are local-only (git-ignored):** `artifacts/`, `reports/*.html`, `present/`, `reports/decks/`, `scenarios/generated/`. Scripts still write there; git does not track them. Tracked references live in `examples/` (golden runs), `reports/*.md`, and `tests/baselines/`. (2026-06-12 de-bloat.)
+- **`activeContext.md` stays slim** (current state only, target < ~150 lines). Rotate finished-work history into `docs/worklog/` rather than appending indefinitely. (2026-06-12.)
+- **Scripts are canonical-only:** call them at `scripts/python/{reopt,pysam,integration}/<name>.py`. The flat `scripts/python/*.py` shim layer was removed 2026-06-12 — see the "Script Paths (canonical)" table in `README.md` for redirects.
 
 ## 6. Real Project Data Notes
 A dedicated branch `real-project-data` was created to test the `REoptVietnam.jl` logic against actual project parameters from an Excel-based feasibility study.
