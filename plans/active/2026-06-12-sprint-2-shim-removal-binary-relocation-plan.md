@@ -1,7 +1,7 @@
 ---
 title: "Sprint 2 — Remove shadow shim layers, relocate heavy binaries, trim activeContext"
 date: "2026-06-12"
-status: "draft"
+status: "complete"
 request: "Plan Sprint 2 from the repo-trim gap analysis: GAP-03 remove the two shadow shim layers, GAP-05 relocate heavy binaries, GAP-07 trim activeContext.md."
 plan_type: "multi-phase"
 research_inputs:
@@ -139,3 +139,25 @@ Reduce the 2,117-line root log to a concise current-state file and preserve hist
 
 ## Suggested Next Step
 Answer Grill Me Q-001 (binary mechanism), then execute PHASE-01 → PHASE-03. Commit as "refactor: remove shim layers + relocate heavy binaries + slim activeContext" and push to `main`.
+
+---
+
+## Review / Results (completed 2026-06-12)
+
+**Grill Me answers:** Q-001 untrack + external + manifest (no LFS/history rewrite); Q-002 add README mapping table.
+
+| Phase | Commit | Result |
+|---|---|---|
+| 01 Remove shim layers | `d38020b` (+ `17b83a1` gitignore fix) | 44 shims deleted, **7 real scripts relocated** to `integration/`, 3 `src/` shims deleted; README mapping table |
+| 02 Untrack heavy binaries | `4a2a615` | 3 binaries (~35 MB) `git rm --cached` + `SOURCES.md`/`SOURCE.md`; **6 load-bearing-shim test regressions fixed** |
+| 03 Slim activeContext | `edd1b31` | `activeContext.md` 2,117 → 55 lines; full history in `docs/worklog/` |
+
+**Plan premise corrections (caught before damage):**
+- The flat layer was **not** uniformly shims — 7 of 51 were real 115–404-line scripts with no twin. Classified by twin-existence; relocated rather than deleted.
+- The shims were **load-bearing for tests** — 7 tests imported the moved modules via the flat path or a flat subprocess. Repointed each to its canonical subdir (`reopt/`/`integration/`); `test_north_thuan_reopt` needed both.
+
+**Verification:** full 217-test integration suite — 215 passed; the 2 failures (`test_pvwatts_capacity_factor_binh_thuan`, `test_..._weighted_evn_benchmark`) proven **pre-existing** by running them at commit `5297f89` in a throwaway worktree (identical assertion values). reopt 137 + ingestion 106 + pysam also green.
+
+**Deviation:** `.gitignore` negation generalization in PHASE-01 over-matched and re-tracked 4 unrelated validation-sprint reports; corrected in `17b83a1` (narrowed to `!reports/2026-06-12-sprint-*.html`).
+
+**Final synthesis:** `reports/2026-06-12-final-sprint-2-repo-trim.html`. **Next:** Sprint 3 (onsite/offsite pipeline generalization) — has open Grill Me decisions. **Backlog:** the 2 pre-existing benchmark failures.
