@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://allotrope/reopt-pysam-vn/deal_config.schema.json",
+  "title": "Vietnam project deal config",
+  "description": "Higher-level descriptor for a future Vietnam clean-energy project, consumed by reopt_pysam_vn.analysis.{onsite,offsite_dppa}. The pipelines map this onto the underlying input layers (REopt Scenario dict for onsite; *_extracted_inputs.json for offsite/DPPA). Validated structurally (no jsonschema dependency required at runtime).",
+  "type": "object",
+  "required": ["case", "mode"],
+  "additionalProperties": true,
+  "properties": {
+    "case": {
+      "type": "string",
+      "description": "Stable upper-snake case id, e.g. DPPA_SAMSUNG_TTC."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["onsite", "offsite_dppa", "both"],
+      "description": "Which analysis pipeline(s) to run."
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable deal title."
+    },
+    "site": {
+      "type": "object",
+      "description": "Location and grid-connection context.",
+      "properties": {
+        "region": { "type": "string", "enum": ["north", "central", "south"] },
+        "province": { "type": "string" },
+        "voltage_level": { "type": "string" },
+        "customer_type": { "type": "string", "enum": ["commercial", "industrial", "hospital"] }
+      }
+    },
+    "plant": {
+      "type": "object",
+      "description": "Generation/storage asset under analysis.",
+      "properties": {
+        "capacity_mwp": { "type": "number" },
+        "capacity_mwac": { "type": "number" },
+        "technology": { "type": "string" },
+        "bess_power_mw": { "type": "number" },
+        "bess_energy_mwh": { "type": "number" },
+        "cod_date": { "type": "string" }
+      }
+    },
+    "load": {
+      "type": "object",
+      "description": "Buyer/site demand. Either an annual total (synthesized) or a reference to an 8760 series.",
+      "properties": {
+        "annual_kwh": { "type": "number" },
+        "loads_kw_source": { "type": "string" },
+        "profile_shape": { "type": "string" }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "description": "DPPA / PPA commercial terms (offsite mode).",
+      "properties": {
+        "annual_solar_gwh": { "type": "number" },
+        "strike_vnd_per_kwh": { "type": "number" },
+        "strike_basis": { "type": "string" },
+        "settlement_mechanism": { "type": "string", "enum": ["financial_cfd", "physical", "virtual"] },
+        "tenor_years": { "type": "integer" },
+        "dppa_adder_vnd_per_kwh": { "type": "number" }
+      }
+    },
+    "finance": {
+      "type": "object",
+      "description": "Developer-side finance inputs (PySAM Single Owner).",
+      "properties": {
+        "installed_cost_usd_per_kw": { "type": "number" },
+        "target_irr_fraction": { "type": "number" },
+        "discount_rate_fraction": { "type": "number" },
+        "cit_fraction": { "type": "number" },
+        "ppa_discount_fraction": { "type": "number" }
+      }
+    }
+  }
+}

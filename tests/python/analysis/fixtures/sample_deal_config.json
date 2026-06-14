@@ -1,0 +1,33 @@
+{
+  "case": "SAMPLE_OFFSITE_DPPA",
+  "mode": "offsite_dppa",
+  "title": "Sample southern ground-mount solar DPPA (fixture)",
+  "site": {
+    "region": "south",
+    "province": "Tay Ninh",
+    "voltage_level": "high_voltage_above_35kv_below_220kv",
+    "customer_type": "industrial"
+  },
+  "plant": {
+    "capacity_mwp": 49.0,
+    "capacity_mwac": 41.4,
+    "technology": "ground_mounted_solar_no_storage",
+    "cod_date": "2026-05-19"
+  },
+  "load": {
+    "annual_kwh": 1000000000.0,
+    "profile_shape": "industrial_south"
+  },
+  "contract": {
+    "annual_solar_gwh": 70.0,
+    "strike_vnd_per_kwh": 1012.0,
+    "strike_basis": "southern_ground_mount_no_storage_ceiling",
+    "settlement_mechanism": "financial_cfd",
+    "tenor_years": 20,
+    "dppa_adder_vnd_per_kwh": 523.34
+  },
+  "finance": {
+    "installed_cost_usd_per_kw": 750.0,
+    "target_irr_fraction": 0.15
+  }
+}
