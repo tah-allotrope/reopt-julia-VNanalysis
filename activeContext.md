@@ -20,9 +20,9 @@ gap analysis and three sprint plans.
 |---|---|---|
 | 1 — Mechanical de-bloat | Untrack generated artifacts, remove dead/foreign dirs, golden `examples/` | ✅ complete (635 → 371 tracked files) |
 | 2 — Shim removal + binaries | Remove 2 shim layers, untrack ~35MB binaries, slim this file | ✅ complete |
-| 3 — Onsite/offsite pipelines | Generalize per-deal modules into `analysis/onsite.py` + `analysis/offsite_dppa.py` | ⬜ planned (not started) |
+| 3 — Onsite/offsite pipelines | Generalize per-deal modules into `analysis/{onsite,offsite_dppa}.py` + CLI | ✅ complete (5 phases) |
 
-Final reports: `reports/2026-06-12-final-sprint-1-repo-trim.html` (+ Sprint 2 final to follow).
+Final reports: `reports/2026-06-12-final-sprint-1-repo-trim.html`, `...final-sprint-2-repo-trim.html` (+ Sprint 3 final).
 
 ### Sprint 1 result (✅ 2026-06-12)
 Tracked files 635 → 371. Generated `artifacts/`, `reports/*.html`, `present/`, `scenarios/generated/`
@@ -37,11 +37,15 @@ binaries (TOU PDF, FMP CSV, Saigon18 `.xlsm`) with `SOURCES.md`/`SOURCE.md` mani
 "Script Paths (canonical)" mapping table added. The shims were load-bearing for tests — repointed
 7 tests (CLI subprocess + 6 flat-import tests) to canonical subdirs.
 
-### Sprint 3 — next (planned)
-`plans/active/2026-06-12-sprint-3-onsite-offsite-pipeline-plan.md`. Generalize the bespoke per-deal
-modules (`dppa_case_1/2/3`, `dppa_samsung_ttc`, `ninhsim_solar_storage_60pct`) into reusable
-`reopt_pysam_vn/analysis/{onsite,offsite_dppa}.py`, migrate Samsung-TTC behind a parity gate, make
-the two modes first-class. **Has open Grill Me decisions** (parity tolerance; retire vs wrap; CLI now/later).
+### Sprint 3 result (✅ 2026-06-14)
+New first-class `reopt_pysam_vn.analysis` package: `DealConfig`/`OnsiteResult`/`OffsiteDppaResult`/
+`CombinedDecision` contract, `run_onsite` (deterministic coverage, exact parity vs ninhsim, no implicit
+solve), `run_offsite_dppa` (injectable + registry-resolved orchestrator), and a
+`python -m reopt_pysam_vn.analysis {onsite,offsite_dppa}` CLI. Samsung-TTC parity-gated **bit-for-bit**
+(136 numeric fields, max rel diff 0.0). 24 analysis tests. Decisions: DEC-002 exact+0.5% bar,
+DEC-003 deprecated wrappers, DEC-004 CLI now.
+**Follow-up (next cycle):** invert delegation — move case-module orchestration into `analysis/`, reduce
+case modules to thin `DeprecationWarning` wrappers, then remove; add parity gates for the other cases.
 
 ## Environment
 - PySAM 7.1.0 lives in the repo **`.venv` (Python 3.12)** — use `.venv\Scripts\python.exe` for PySAM/PVWatts

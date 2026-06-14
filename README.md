@@ -2,6 +2,21 @@
 
 Techno-economic optimization and finance modeling for solar, wind, storage, and corporate PPA workflows in Vietnam using [NREL REopt.jl](https://github.com/NREL/REopt.jl) plus PySAM.
 
+## Analysis Modes — onsite & offsite/DPPA
+
+The key function is analyzing future Vietnam projects in two modes from one descriptor (`DealConfig`), via the first-class `reopt_pysam_vn.analysis` package — see **[docs/onsite_vs_offsite.md](docs/onsite_vs_offsite.md)**.
+
+| Mode | What | Entry point | CLI |
+|---|---|---|---|
+| **Onsite (BTM)** | REopt PV+BESS sizing/dispatch vs EVN TOU | `run_onsite(deal_config)` → `OnsiteResult` | `python -m reopt_pysam_vn.analysis onsite ...` |
+| **Offsite / DPPA** | PySAM developer finance + CfD settlement + strike search | `run_offsite_dppa(deal_config)` → `OffsiteDppaResult` | `python -m reopt_pysam_vn.analysis offsite_dppa ...` |
+
+```python
+from reopt_pysam_vn.analysis import DealConfig, run_onsite, run_offsite_dppa
+```
+
+The bespoke per-deal modules under `integration/` (`dppa_case_1/2/3`, `dppa_samsung_ttc`, `ninhsim_solar_storage_60pct`) remain the orchestration engines behind a registry and are **deprecated as direct entry points** — new work should call `reopt_pysam_vn.analysis`. Samsung-TTC is parity-gated bit-for-bit (`tests/python/analysis/test_samsung_ttc_parity.py`).
+
 ## Tech Stack
 
 - **Julia 1.10+** with REopt.jl v0.56.4, JuMP, HiGHS

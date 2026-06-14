@@ -1,5 +1,14 @@
 """Samsung SEVT - TTC Duc Hue 2 grid-connected DPPA economics case.
 
+.. deprecated:: 2026-06-14 (Sprint 3)
+    Prefer the generalized front door ``reopt_pysam_vn.analysis.run_offsite_dppa``
+    (and the ``python -m reopt_pysam_vn.analysis offsite_dppa`` CLI), which reproduces
+    this module's combined-decision bit-for-bit (``test_samsung_ttc_parity``) and is the
+    first-class entry point for offsite/DPPA analysis. This module remains the registered
+    orchestration engine behind ``run_offsite_dppa`` and keeps its own tests; a future
+    cycle will invert the delegation and reduce it to a thin wrapper. See
+    ``docs/onsite_vs_offsite.md``.
+
 Vietnam's first grid-connected DPPA (live 2026-06-01): Samsung Electronics
 Vietnam Thai Nguyen (SEVT, buyer, north) takes ~70 GWh/yr of solar from the
 TTC Duc Hue 2 plant (49 MWp / ~41.4 MWac ground-mount, Tay Ninh, south) under

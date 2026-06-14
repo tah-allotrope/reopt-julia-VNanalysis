@@ -13,6 +13,8 @@ Public surface (built across Sprint 3 phases):
 - ``__main__``     — ``python -m reopt_pysam_vn.analysis {onsite,offsite_dppa}`` CLI.
 """
 
+from reopt_pysam_vn.analysis.offsite_dppa import register_orchestrator, run_offsite_dppa
+from reopt_pysam_vn.analysis.onsite import run_onsite
 from reopt_pysam_vn.analysis.types import (
     CombinedDecision,
     DealConfig,
@@ -21,8 +23,13 @@ from reopt_pysam_vn.analysis.types import (
 )
 
 __all__ = [
+    # contract
     "DealConfig",
     "OnsiteResult",
     "OffsiteDppaResult",
     "CombinedDecision",
+    # pipelines (first-class entry points)
+    "run_onsite",
+    "run_offsite_dppa",
+    "register_orchestrator",
 ]
