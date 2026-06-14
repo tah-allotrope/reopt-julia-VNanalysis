@@ -1,7 +1,7 @@
 ---
 title: "Sprint 3 — Generalize onsite + offsite/DPPA pipelines and make them first-class"
 date: "2026-06-12"
-status: "ready"
+status: "complete"
 request: "Plan Sprint 3 from the repo-trim gap analysis: GAP-01 generalize onsite + offsite/DPPA pipelines, GAP-06 make onsite/offsite first-class in docs/structure."
 plan_type: "multi-phase"
 research_inputs:
@@ -188,3 +188,26 @@ No open clarification questions remain — the plan is execution-ready.
 
 ## Suggested Next Step
 Decisions resolved (DEC-002/003/004). Execute PHASE-01 → PHASE-05 with strict red→green TDD and the per-phase `/report` + commit + push flow. Land each migrated case behind its own parity gate (DEC-002) before wrapping the bespoke module (DEC-003); build the CLI incrementally across PHASE-02/03 (DEC-004).
+
+---
+
+## Review / Results (completed 2026-06-14)
+
+New first-class `reopt_pysam_vn.analysis` package. **24 analysis tests + 17 Samsung case tests green; 0 tests repointed.** Per-phase report + commit + push.
+
+| Phase | Commit | Result |
+|---|---|---|
+| 01 Analysis contract | `c7894ff` | `DealConfig`/`OnsiteResult`/`OffsiteDppaResult`/`CombinedDecision` + schema + reuse map; offsite round-trips golden exactly (6 tests) |
+| 02 Onsite pipeline | `c74e707` | `run_onsite` + `onsite` CLI; coverage reproduces ninhsim **exactly**; refuses implicit Julia solve; BOM-tolerant CLI (5 tests) |
+| 03 Offsite pipeline | `e63eebe` | `run_offsite_dppa` + registry + `offsite_dppa` CLI; CLI ran the real Samsung orchestration end-to-end (7 tests) |
+| 04 Samsung parity gate | `d897fab` | **bit-for-bit** parity vs golden (136 numeric fields, max rel diff 0.0); 3-tier gate (3 tests) |
+| 05 First-class modes | `02c7e66` | package exports run fns; `docs/onsite_vs_offsite.md`; README leads with modes; case modules deprecated as direct entry points |
+
+**Decisions applied:** DEC-002 exact+0.5% (actual: exact); DEC-003 deprecated wrappers; DEC-004 CLI shipped.
+
+**Honest scope / follow-up backlog:**
+- DEC-003 is partial: case modules are deprecated *as direct entry points* (docs/docstrings) but not yet reduced to runtime-warning wrappers — a runtime `DeprecationWarning` would fire during the registry's own delegation. Inverting the delegation (move orchestration into `analysis/`, reduce case modules to thin wrappers, then remove) is staged to preserve the bit-exact parity + the `test_dppa_*` suites.
+- A from-scratch generic offsite orchestrator for an *unregistered* deal needs a REopt/PySAM solve; `run_offsite_dppa` raises a clear error for unknown deals rather than faking one.
+- Only Samsung is parity-gated; ninhsim + dppa_case_1/2/3 are registry-wrapped but not yet diff-pinned.
+
+**Final synthesis:** `reports/2026-06-14-final-sprint-3-repo-trim.html`. **Repo trim/restructure (Sprints 1–3) complete.**

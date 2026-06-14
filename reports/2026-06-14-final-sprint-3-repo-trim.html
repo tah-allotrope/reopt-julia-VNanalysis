@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Sprint 3 — Onsite + Offsite/DPPA Pipelines</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'base', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#f3ead9', primaryTextColor: '#1f1912', primaryBorderColor: '#9d6b37', lineColor: '#3b6f76', secondaryColor: '#efe4d0', tertiaryColor: '#ffffff', background: '#fbf7f1', mainBkg: '#fbf7f1', nodeBorder: '#9d6b37', clusterBkg: '#f7efdf', clusterBorder: '#3b6f76', edgeLabelBackground: '#fbf7f1' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true }); else run();
+  </script>
+  <style>
+    :root { --paper:#fbf7f1; --paper-strong:#fffdf9; --ink:#1f1912; --ink-soft:#5f564c; --line:#dccdb6; --line-strong:#bfa37d; --accent:#9d6b37; --accent-soft:#efe4d0; --accent-2:#3b6f76; --shadow:0 18px 40px rgba(49,33,16,0.08); --radius-lg:24px; --radius-md:18px; --radius-sm:12px; --page-width:1040px; --display-font:Georgia,"Times New Roman",serif; --body-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif; --mono-font:"Cascadia Code",Consolas,monospace; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; overflow-x: hidden; color: var(--ink); background: radial-gradient(circle at top left, rgba(157,107,55,0.09), transparent 26%), radial-gradient(circle at 88% 10%, rgba(59,111,118,0.08), transparent 22%), linear-gradient(180deg,#f7f1e7 0%,#fbf7f1 28%,#f6efe5 100%); font-family: var(--body-font); line-height: 1.65; letter-spacing: 0.01em; }
+    a { color: var(--accent-2); }
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid { font-family: var(--mono-font); }
+    .page-shell { width: min(var(--page-width), calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+    .hero { padding: 34px; border: 1px solid rgba(159,123,79,0.28); border-radius: 30px; background: linear-gradient(135deg, rgba(157,107,55,0.1), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.86)), var(--paper-strong); box-shadow: var(--shadow); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(260px,0.85fr); gap: 24px; align-items: end; }
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+    .title { margin: 0; max-width: 16ch; font-family: var(--display-font); font-size: clamp(2.3rem,5vw,3.9rem); line-height: 0.95; letter-spacing: -0.04em; text-wrap: balance; }
+    .lede { margin: 18px 0 0; max-width: 60ch; color: var(--ink-soft); font-size: 1rem; }
+    .takeaway { margin-top: 22px; padding: 18px 20px; border-left: 4px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: rgba(59,111,118,0.08); color: #20373a; font-size: 1.02rem; }
+    .meta-grid { display: grid; gap: 12px; }
+    .meta-card, .section, .subcard, .empty-state { border: 1px solid rgba(95,72,46,0.12); background: rgba(255,253,249,0.88); box-shadow: var(--shadow); }
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+    .meta-label { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .meta-chip { margin-top: 8px; color: var(--accent); font-size: 1rem; font-weight: 700; word-break: break-word; }
+    .section { margin-top: 22px; padding: 24px; border-radius: var(--radius-lg); break-inside: avoid; page-break-inside: avoid; }
+    .section-header { display: flex; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .section-index { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+    .section-title { margin: 0; font-family: var(--display-font); font-size: clamp(1.45rem,2vw,2rem); line-height: 1.05; }
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { display: grid; gap: 16px; }
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .subcard { padding: 18px; border-radius: var(--radius-md); break-inside: avoid; page-break-inside: avoid; }
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .stat-grid { grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 16px; }
+    .stat { padding: 14px 16px; border: 1px solid rgba(59,111,118,0.16); border-radius: var(--radius-sm); background: rgba(59,111,118,0.06); break-inside: avoid; page-break-inside: avoid; }
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255,255,255,0.54); break-inside: avoid; page-break-inside: avoid; }
+    .diagram-frame { overflow: auto; overscroll-behavior: contain; max-height: min(70vh, 720px); }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px; }
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .empty-state { padding: 20px; border-radius: var(--radius-md); text-align: center; color: var(--ink-soft); }
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; font-family:var(--mono-font); border:1px solid var(--line-strong); }
+    .tag.green { background:rgba(59,111,118,0.1); color:#20575c; border-color:rgba(59,111,118,0.3); }
+    .tag.amber { background:rgba(157,107,55,0.12); color:#7a4f22; border-color:rgba(157,107,55,0.35); }
+    .footer-note { margin-top: 18px; color: rgba(95,86,76,0.74); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+    @media (max-width: 920px) { .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; } .title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; } .hero, .section { padding: 18px; border-radius: 20px; } .title { font-size: clamp(2rem,12vw,3rem); } }
+    @media print { :root { --paper:#fff; --paper-strong:#fff; --ink:#111; --ink-soft:#444; --line:#d6d1c8; } @page { size: A4; margin: 14mm; } body { background:#fff; } .page-shell { width:100%; max-width:none; padding:0; } .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat { background:#fff; box-shadow:none; } .hero, .section { margin-top:0; margin-bottom:10mm; } .diagram-frame { overflow:visible; max-height:none; } a { color:inherit; text-decoration:none; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Repo Trim — Sprint 3</p>
+          <h1 class="title">Onsite + Offsite/DPPA Pipelines</h1>
+          <p class="lede">
+            Turn the repo's stated purpose into an actual API: one descriptor (<code>DealConfig</code>)
+            through a first-class <code>reopt_pysam_vn.analysis</code> package — <code>run_onsite</code>
+            (behind-the-meter REopt) and <code>run_offsite_dppa</code> (PySAM finance + DPPA settlement) —
+            plus a CLI, replacing copy-pasted per-deal modules.
+          </p>
+          <div class="takeaway"><strong>The generalized offsite pipeline reproduces the bespoke Samsung-TTC decision bit-for-bit</strong> (136 numeric fields, max relative diff 0.0). Five phases shipped with 24 new tests; the existing case-module tests stay green, zero repointed.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">REopt PySAM VN</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-14</div></div>
+          <div class="meta-card"><div class="meta-label">Status</div><div class="meta-chip">Complete · 5/5 phases</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header"><div><div class="section-index">01 / Executive Summary</div><h2 class="section-title">Executive Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>A new <code>reopt_pysam_vn.analysis</code> package gives the repo one front door: a shared <code>DealConfig</code> input and result contract, <code>run_onsite</code> / <code>run_offsite_dppa</code> pipelines, and a <code>python -m reopt_pysam_vn.analysis</code> CLI. Five committed phases, each with its own report.</p>
+        </div>
+        <div class="subcard">
+          <h3>Why it matters</h3>
+          <p>Before, analyzing a new Vietnam project meant cloning a 200–1,000-line case module. Now it means writing a config and calling a pipeline. The offsite economics were the same engine all along; Sprint 3 made it reusable and addressable.</p>
+        </div>
+        <div class="subcard">
+          <h3>The proof</h3>
+          <p>The generalized <code>run_offsite_dppa</code> reproduces the bespoke Samsung-TTC combined-decision <strong>bit-for-bit</strong>. The onsite coverage matches the bespoke ninhsim summary <strong>exactly</strong>. The CLI ran the real Samsung pipeline end-to-end.</p>
+        </div>
+        <div class="subcard">
+          <h3>Honest edges</h3>
+          <p>Case modules are deprecated <em>as direct entry points</em> (docs) but not yet reduced to thin wrappers — that inversion is staged to protect the proven parity and existing tests. Only Samsung is parity-gated so far.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header"><div><div class="section-index">02 / Background &amp; Objective</div><h2 class="section-title">Background &amp; Objective</h2></div></div>
+      <div class="narrative">
+        <p>The 2026-06-12 gap analysis flagged GAP-01/06: the repo's key function — using REopt and PySAM to analyze onsite and offsite/DPPA Vietnam projects — existed only as bespoke per-deal modules (<code>dppa_case_1/2/3</code>, <code>dppa_samsung_ttc</code>, <code>ninhsim_solar_storage_60pct</code>), each with its own analyze script and tests. Adding a future project meant cloning one. Sprints 1–2 de-bloated and de-duplicated the repo; Sprint 3 is the one that touches tested logic.</p>
+        <p>The objective: a generalized, first-class onsite pipeline and offsite/DPPA pipeline, each driven by one config, with a CLI — and a parity gate proving the generalization didn't change any published numbers before any bespoke module was retired.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header"><div><div class="section-index">03 / Inputs &amp; Scope</div><h2 class="section-title">Inputs &amp; Scope</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Inputs</h3>
+          <ul>
+            <li>Plan: <code>plans/active/2026-06-12-sprint-3-onsite-offsite-pipeline-plan.md</code></li>
+            <li>Reuse map of the 5 case modules + shared primitives (<code>dppa_case_2</code> engine, <code>bridge.py</code> PySAM hub)</li>
+            <li>Golden <code>examples/samsung-ttc_combined-decision.example.json</code> (parity target)</li>
+            <li>Three resolved decisions: parity bar, wrapper strategy, CLI-now</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>In scope / Out of scope</h3>
+          <ul>
+            <li><span class="tag green">in</span> <code>analysis/</code> contract, onsite + offsite pipelines, CLI</li>
+            <li><span class="tag green">in</span> Samsung parity gate; first-class docs/README</li>
+            <li><span class="tag amber">out</span> Full code-inversion of case modules → thin wrappers</li>
+            <li><span class="tag amber">out</span> Parity gates for ninhsim + dppa_case_1/2/3</li>
+            <li><span class="tag amber">out</span> Re-modeling settlement/finance (extraction only)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header"><div><div class="section-index">04 / Assumptions &amp; Constraints</div><h2 class="section-title">Assumptions &amp; Constraints</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions</h3>
+          <ul>
+            <li>The case modules are orchestration glue over tested primitives — confirmed by the reuse map.</li>
+            <li>PVWatts on the cached Himawari resource is deterministic — confirmed (bit-exact parity).</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints (DEC-002/003/004)</h3>
+          <ul>
+            <li>Parity: exact on deterministic post-processing; ≤0.5% on solver-driven sizing.</li>
+            <li>Case modules become deprecated wrappers preserving signatures (no test repointing).</li>
+            <li>Ship a CLI this sprint. Red→green TDD; per-phase report + commit + push.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header"><div><div class="section-index">05 / Methodology</div><h2 class="section-title">Methodology</h2></div></div>
+      <div class="narrative">
+        <p>Each pipeline reused the proven primitives rather than re-deriving them, and pinned its output to the bespoke logic with an exact equality test. The decisive method for the parity gate was to run an <strong>exploratory diff first</strong> — measure the real deviation (it was 0.0) before writing assertions — so the gate matched reality instead of a guessed tolerance. The offsite pipeline routes through an extensible registry to the proven Samsung builder, which the CLI exercised end-to-end; a from-scratch generic orchestrator (which needs a solve) was declined rather than faked.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">New tests</div><div class="stat-value">24, red→green</div></div>
+        <div class="stat"><div class="stat-label">Parity method</div><div class="stat-value">exploratory diff first</div></div>
+        <div class="stat"><div class="stat-label">Reuse over rewrite</div><div class="stat-value">primitives, not re-derivation</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header"><div><div class="section-index">06 / Phase-by-Phase Analysis</div><h2 class="section-title">Phase-by-Phase Analysis</h2></div></div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>P01 — Analysis contract <span class="tag green">c7894ff</span></h3>
+          <p>New <code>analysis</code> package: <code>DealConfig</code> + <code>OnsiteResult</code>/<code>OffsiteDppaResult</code>/<code>CombinedDecision</code>, deal-config schema, reuse map. The offsite type round-trips the golden exactly — the parity gate's foundation.</p>
+        </div>
+        <div class="subcard">
+          <h3>P02 — Onsite pipeline <span class="tag green">c74e707</span></h3>
+          <p><code>run_onsite</code> + <code>onsite</code> CLI. Dispatch coverage reproduces the ninhsim summary exactly; refuses to invoke Julia implicitly. A smoke test caught a UTF-8 BOM → CLI now reads <code>utf-8-sig</code>.</p>
+        </div>
+        <div class="subcard">
+          <h3>P03 — Offsite pipeline <span class="tag green">e63eebe</span></h3>
+          <p><code>run_offsite_dppa</code> + registry + <code>offsite_dppa</code> CLI. The CLI ran the real Samsung orchestration end-to-end (~4 s, valid combined-decision). Clear errors for missing inputs / unregistered deals.</p>
+        </div>
+        <div class="subcard">
+          <h3>P04 — Parity gate <span class="tag green">d897fab</span></h3>
+          <p>Bit-for-bit parity vs the golden: 136 numeric fields, max relative diff 0.0. Three-tier gate (≤0.5% bar, headline exact, bit-exact). Makes wrapping the case module provably safe.</p>
+        </div>
+        <div class="subcard">
+          <h3>P05 — First-class modes <span class="tag green">02c7e66</span></h3>
+          <p>Package exports the run functions; <code>docs/onsite_vs_offsite.md</code>; README leads with the two modes; the Samsung module is marked deprecated. 17 case tests stay green, zero repointed.</p>
+        </div>
+        <div class="subcard">
+          <h3>Through-line</h3>
+          <p>Generalize by <em>reuse + exact parity</em>, not rewrite. Every claim is backed by a test; every honest limit (the staged inversion, single parity gate) is named rather than smoothed over.</p>
+        </div>
+      </div>
+      <div class="diagram-frame" style="margin-top:16px;">
+        <div class="mermaid">
+flowchart LR
+  A[DealConfig] --> B[analysis package]
+  B --> C[run_onsite -> OnsiteResult]
+  B --> D[run_offsite_dppa -> OffsiteDppaResult]
+  B --> E[CLI: python -m ...analysis]
+  C --> F{onsite == ninhsim coverage?}
+  D --> G[registry -> Samsung builder]
+  G --> H{offsite == golden?}
+  F -- exact --> I[Sprint 3 complete]
+  H -- bit-exact 0.0 --> I
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header"><div><div class="section-index">07 / Findings &amp; Recommendation</div><h2 class="section-title">Findings &amp; Recommendation</h2></div></div>
+      <div class="narrative">
+        <p><strong>Finding 1 — Generalization changed nothing numeric.</strong> The offsite pipeline reproduced the Samsung golden bit-for-bit and the onsite coverage matched ninhsim exactly. The gap analysis was right: these were one engine wearing five costumes.</p>
+        <p><strong>Finding 2 — "Wrapping" hit a real direction problem.</strong> The new front door delegates to the case builder via a registry, so making that builder wrap the front door would be circular. The honest move was to ship the front door + deprecate via docs, and stage the code-inversion — rather than force a risky 1,000-line move that could break proven parity.</p>
+        <p><strong>Recommendation.</strong> Adopt <code>reopt_pysam_vn.analysis</code> as the entry point for all new onsite/offsite work now. Schedule the follow-up cycle to invert the delegation (move orchestration into <code>analysis/</code>, reduce case modules to warning-wrappers, then remove) and to parity-gate the remaining four cases.</p>
+      </div>
+      <div class="chart-frame" style="margin-top:16px;">
+        <canvas id="sprint3Chart" aria-label="Sprint 3 tests and parity"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header"><div><div class="section-index">08 / Implementation Path</div><h2 class="section-title">Implementation Path</h2></div></div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Now — Sprints 1–3 (done)</h3>
+          <p>Repo de-bloated, structurally canonical, and the key function is a first-class API + CLI with a bit-exact parity gate. The repo trim/restructure is complete.</p>
+        </div>
+        <div class="subcard">
+          <h3>Next — delegation inversion</h3>
+          <p>Move each case orchestration into <code>analysis/</code>; reduce <code>dppa_*</code>/<code>ninhsim_*</code> to thin <code>DeprecationWarning</code> wrappers; remove next cycle. Gated by re-running the bit-exact parity.</p>
+        </div>
+        <div class="subcard">
+          <h3>Then — widen parity</h3>
+          <p>Add parity gates + deal configs for ninhsim and dppa_case_1/2/3 so every case is diff-pinned to the generalized pipeline.</p>
+        </div>
+        <div class="subcard">
+          <h3>Backlog (from Sprint 2)</h3>
+          <p>Fix the 2 pre-existing benchmark test failures (PVWatts capacity factor; ninhsim weighted-EVN). Independent of this work.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header"><div><div class="section-index">09 / Risks / Open Questions</div><h2 class="section-title">Risks / Open Questions</h2></div></div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Residual risks</h3>
+          <ul>
+            <li><strong>Two front doors temporarily.</strong> Until the inversion lands, both the case modules and <code>analysis</code> are callable; docs steer to <code>analysis</code>, but discipline is required.</li>
+            <li><strong>Single parity gate.</strong> Only Samsung is diff-pinned; a change to the shared engine could drift the other cases undetected by the new tests (their own tests still guard them).</li>
+            <li><strong>Generic offsite path unbuilt.</strong> A brand-new deal with no registered orchestrator errors out by design until the solve-backed generic builder lands.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions</h3>
+          <ul>
+            <li>Schedule the delegation inversion next cycle or batch with the wider parity gating?</li>
+            <li>Should the generic orchestrator drive a real REopt/PySAM solve, or accept injected results only?</li>
+            <li>When to delete the case modules entirely (post-wrapper cycle)?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header"><div><div class="section-index">10 / Appendices / Evidence Notes</div><h2 class="section-title">Appendices / Evidence Notes</h2></div></div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h3>Commit trail (pushed to main)</h3>
+          <table>
+            <thead><tr><th>Phase</th><th>Commit</th></tr></thead>
+            <tbody>
+              <tr><td>01 Contract</td><td><code>c7894ff</code></td></tr>
+              <tr><td>02 Onsite</td><td><code>c74e707</code></td></tr>
+              <tr><td>03 Offsite</td><td><code>e63eebe</code></td></tr>
+              <tr><td>04 Parity</td><td><code>d897fab</code></td></tr>
+              <tr><td>05 First-class</td><td><code>02c7e66</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard technical-frame">
+          <h3>Verification evidence</h3>
+          <table>
+            <thead><tr><th>Check</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>analysis tests</td><td>24 passed</td></tr>
+              <tr><td>Samsung parity</td><td>bit-exact (max rel diff 0.0)</td></tr>
+              <tr><td>onsite coverage</td><td>exact vs ninhsim</td></tr>
+              <tr><td>Samsung case tests</td><td>17 passed, 0 repointed</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard">
+          <h3>Glossary</h3>
+          <ul>
+            <li><strong>Onsite:</strong> behind-the-meter REopt PV+BESS vs EVN time-of-use.</li>
+            <li><strong>Offsite/DPPA:</strong> Direct PPA — PySAM developer finance + CfD settlement.</li>
+            <li><strong>Parity gate:</strong> a test asserting the new pipeline reproduces a bespoke golden.</li>
+            <li><strong>Orchestrator registry:</strong> maps a deal id to its combined-decision builder.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Lessons recorded (lessons.md)</h3>
+          <p>(1) Exploratory-diff before writing parity assertions; guard <code>bool</code> before <code>int</code> in numeric comparators. (2) Watch for circular delegation when "wrapping"; deprecate via docs until the call path no longer routes through the deprecated function.</p>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() { document.querySelectorAll('canvas').forEach((c) => c.classList.add('report-chart')); })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      const ctx = document.getElementById('sprint3Chart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['P01', 'P02', 'P03', 'P04', 'P05'],
+            datasets: [{
+              label: 'analysis tests added (24 total)',
+              data: [6, 5, 7, 3, 3],
+              backgroundColor: 'rgba(59,111,118,0.5)', borderColor: '#3b6f76', borderWidth: 1
+            }]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { color: '#5f564c' }, grid: { color: 'rgba(95,72,46,0.12)' }, title: { display: true, text: 'tests added per phase', color: '#5f564c' } }, x: { ticks: { color: '#5f564c' }, grid: { color: 'rgba(95,72,46,0.07)' } } },
+            plugins: { legend: { display: false }, title: { display: true, text: 'Samsung offsite parity: bit-exact (max rel diff 0.0)', color: '#5f564c' } }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
