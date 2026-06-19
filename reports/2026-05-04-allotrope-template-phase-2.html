@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: allotrope-template-phase-2</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111',
+          primaryTextColor: '#e8f6ff',
+          primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14',
+          secondaryColor: '#121a1a',
+          tertiaryColor: '#111111',
+          background: '#0d0d0d',
+          mainBkg: '#0d0d0d',
+          nodeBorder: '#00f5ff',
+          clusterBkg: '#111111',
+          clusterBorder: '#39ff14',
+          edgeLabelBackground: '#0d0d0d'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88);
+      --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26);
+      --line-strong: rgba(57, 255, 20, 0.38);
+      --text: #e9f6ff;
+      --muted: #8ea3ad;
+      --accent-blue: #00f5ff;
+      --accent-green: #39ff14;
+      --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42);
+      --glow-green: 0 0 18px rgba(57, 255, 20, 0.28);
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text);
+      font-family: var(--narrative-font);
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.16;
+    }
+
+    a { color: var(--accent-blue); }
+
+    code, pre, .technical, .meta-chip, .section-kicker, .pill,
+    .metric-label, .metric-value, .repo-tag, .mermaid {
+      font-family: var(--technical-font);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      position: relative;
+      padding: 28px;
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+        var(--panel-strong);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -55% 42%;
+      height: 280px;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+      gap: 22px;
+      align-items: end;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      text-shadow: var(--glow-green);
+    }
+
+    .phase-title {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.5rem, 5vw, 4.7rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      color: #f5feff;
+      text-transform: uppercase;
+      text-wrap: balance;
+      text-shadow: 0 0 24px rgba(0, 245, 255, 0.2);
+    }
+
+    .hero-summary {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .meta-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .meta-chip {
+      color: var(--accent-blue);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-shadow: var(--glow-blue);
+      word-break: break-word;
+    }
+
+    .repo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 245, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(0, 245, 255, 0.08);
+      color: var(--accent-blue);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+
+    .section {
+      position: relative;
+      margin-top: 22px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .section::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent);
+      transform: translateY(-1px);
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      line-height: 1.1;
+      color: #f0feff;
+    }
+
+    .section-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-green);
+    }
+
+    .section-index::after {
+      content: "";
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .column-card, .diagram-frame, .technical-frame, .viz-frame,
+    .question-frame, .empty-state {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)), rgba(7, 7, 7, 0.82);
+    }
+
+    .column-card { padding: 18px; min-height: 200px; }
+
+    .column-label {
+      margin: 0 0 12px;
+      color: var(--accent-blue);
+      font-size: 0.83rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      text-shadow: var(--glow-blue);
+    }
+
+    .splitter {
+      width: 100%;
+      height: 1px;
+      margin: 8px 0 16px;
+      background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent);
+    }
+
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: top;
+    }
+    .technical-frame th {
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      text-align: left;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 280px !important;
+      min-height: 280px;
+      max-height: 280px;
+    }
+
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent-blue);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-blue);
+    }
+
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .metric {
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 245, 255, 0.18);
+      border-radius: var(--radius-sm);
+      background: rgba(0, 245, 255, 0.04);
+    }
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    .metric-value {
+      margin-top: 8px;
+      color: var(--accent-green);
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-shadow: var(--glow-green);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(57, 255, 20, 0.22);
+      border-radius: 999px;
+      background: rgba(57, 255, 20, 0.06);
+      color: #d9ffd0;
+      font-size: 0.8rem;
+    }
+
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: right;
+      color: rgba(142, 163, 173, 0.72);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .score-green { color: #39ff14; font-weight: 700; text-shadow: var(--glow-green); }
+    .score-yellow { color: #f0ff14; font-weight: 700; }
+    .score-red { color: #ff5e5e; font-weight: 700; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; }
+      .phase-title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .section::before { left: 18px; right: 18px; }
+      .phase-title { font-size: clamp(2rem, 12vw, 3rem); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">allotrope-template-phase-2</h1>
+          <p class="hero-summary">
+            Deck 1 generation from dppa-case-1 final report, slide-by-slide python-pptx conformance inspection,
+            and 12-dimension rubric scoring (46/60) with prescriptive lessons carried forward to Deck 2.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: reopt-pysam</span>
+            <span class="pill">date :: 2026-05-04</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-05-04</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Input -&gt; Output</div>
+          <h2 class="section-title">Input -&gt; Output Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <div class="column-label">Inputs</div>
+          <ul>
+            <li><strong>12-dimension conformance rubric</strong> &mdash; <code>reports/decks/conformance/allotrope-template-rubric.md</code> from Phase 1</li>
+            <li><strong>Source report</strong> &mdash; <code>reports/2026-04-09-dppa-case-1-final.html</code> (case-1 DPPA analysis)</li>
+            <li><strong>pptxgenjs</strong> &mdash; Node.js library for programmatic PPTX generation</li>
+            <li><strong>python-pptx</strong> 1.0.2 &mdash; Python library for slide inspection and scoring</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <div class="column-label">Outputs</div>
+          <ul>
+            <li><strong>Deck 1</strong> &mdash; <code>reports/decks/2026-04-09-dppa-case-1.pptx</code> (9 slides: Cover, Exec Summary, Section Divider, Key Findings, Energy Table, Financial Summary, Tools &amp; Methodology, Next Steps, Contact/Closing)</li>
+            <li><strong>Conformance report</strong> &mdash; <code>reports/decks/conformance/2026-04-09-dppa-case-1-conformance.md</code> with per-dimension scores, top 5 deviations, and 7 lessons carried forward</li>
+            <li><strong>Total conformance score</strong> &mdash; <strong class="score-yellow">46/60</strong> (76.7%)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric">
+          <div class="metric-label">Deck Slides</div>
+          <div class="metric-value">9</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Conformance Score</div>
+          <div class="metric-value">46/60</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Lessons Forward</div>
+          <div class="metric-value">7</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Logic Flow</div>
+          <h2 class="section-title">Logic Flow</h2>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram technical">
+        <div class="mermaid">
+flowchart LR
+    A["12-Dimension\nConformance Rubric\nfrom Phase 1"] --> B["pptxgenjs generates\nDeck 1 from\ndppa-case-1 report"]
+    B --> C["python-pptx inspects\nslide-by-slide:\nshapes, fonts, colors"]
+    C --> D{"Score each\nrubric dimension\n0 - 5"}
+    D -->|"46 / 60 total"| E["Write conformance\nfile with scores,\ndeviations, lessons"]
+    E --> F["7 lessons carried\nforward to Deck 2\n(Phase 3)"]
+    F -.-> G["Phase 3: Generate\nDeck 2 applying\ncumulative lessons"]
+
+    style A stroke:#00f5ff,stroke-width:2px,color:#e8f6ff
+    style B stroke:#00f5ff,color:#e8f6ff
+    style C stroke:#00f5ff,color:#e8f6ff
+    style D stroke:#39ff14,color:#e8f6ff
+    style E stroke:#00f5ff,color:#e8f6ff
+    style F stroke:#39ff14,stroke-width:2px,color:#e8f6ff
+    style G stroke:#39ff14,stroke-dasharray:6 4,color:#8ea3ad
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Math / Algorithm Used</div>
+          <h2 class="section-title">Conformance Scoring Formula</h2>
+        </div>
+      </div>
+      <div class="technical-frame">
+        <p>Each of the 12 rubric dimensions (D01&ndash;D12) is scored <strong>0&ndash;5</strong> via slide-by-slide inspection:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>5</strong></td><td>Exact match &mdash; indistinguishable from template</td></tr>
+            <tr><td><strong>4</strong></td><td>Close match &mdash; minor deviation, immediately fixable</td></tr>
+            <tr><td><strong>3</strong></td><td>Acceptable &mdash; conforms in spirit, visible difference</td></tr>
+            <tr><td><strong>2</strong></td><td>Partial &mdash; some elements present, key aspects missing</td></tr>
+            <tr><td><strong>1</strong></td><td>Poor &mdash; attempted but largely non-conforming</td></tr>
+            <tr><td><strong>0</strong></td><td>Absent &mdash; not attempted or completely wrong</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px;">
+          <strong>Aggregate score</strong> = &Sigma;(D01&ndash;D12), max <strong>60</strong>. &nbsp;
+          Per-dimension score = median across all applicable slides in the deck.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Tools / Formulas / Methods</div>
+          <h2 class="section-title">Tools / Formulas / Methods</h2>
+        </div>
+      </div>
+      <div class="technical-frame technical">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool / Method</th>
+              <th>Purpose</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pptxgenjs</code> (Node.js)</td>
+              <td>Programmatic PPTX generation from report data using template-inspired layouts</td>
+              <td>9-slide deck at <code>reports/decks/2026-04-09-dppa-case-1.pptx</code></td>
+            </tr>
+            <tr>
+              <td><code>python-pptx</code> 1.0.2</td>
+              <td>Slide-by-slide structural inspection: shapes, text frames, fonts, colors, dimensions</td>
+              <td>Verified all 9 slides; extracted font sizes, hex colors, layout geometry</td>
+            </tr>
+            <tr>
+              <td><code>npm</code></td>
+              <td>Package management for pptxgenjs dependency</td>
+              <td>Installed and ran generation script</td>
+            </tr>
+            <tr>
+              <td>12-dimension rubric (0&ndash;5 scale)</td>
+              <td>Score each slide against template anchors; compute aggregate</td>
+              <td>46/60 total conformance score</td>
+            </tr>
+            <tr>
+              <td>Conformance delta tracking</td>
+              <td>Document deviations &amp; carry-forward lessons for next iteration</td>
+              <td>7 prescriptive items in <code>*-conformance.md</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Results &amp; Visualizations</div>
+          <h2 class="section-title">Results &amp; Visualizations</h2>
+        </div>
+      </div>
+      <div class="viz-frame">
+        <canvas id="scoreChart" width="800" height="280"></canvas>
+      </div>
+      <div class="technical-frame technical" style="margin-top:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Score</th>
+              <th>Key Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>D01 &mdash; Cover Slide Layout</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Logo is text placeholder, not actual image</td>
+            </tr>
+            <tr>
+              <td>D02 &mdash; Executive Summary</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Bullet-based, not table format like template</td>
+            </tr>
+            <tr>
+              <td>D03 &mdash; Section Dividers</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Only one section divider (Conclusions)</td>
+            </tr>
+            <tr>
+              <td>D04 &mdash; Color Palette</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Close approximations, not pixel-perfect hex</td>
+            </tr>
+            <tr>
+              <td>D05 &mdash; Typography</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Cabin throughout, sizes within 2pt of template</td>
+            </tr>
+            <tr>
+              <td>D06 &mdash; Slide Sequence</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Good arc; Exec Summary &amp; Overview merged</td>
+            </tr>
+            <tr>
+              <td>D07 &mdash; Chart / Table Styling</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Clean tables with teal headers; no charts</td>
+            </tr>
+            <tr>
+              <td>D08 &mdash; Footer / Page Numbers</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Footer on all content slides; no slide numbers</td>
+            </tr>
+            <tr>
+              <td>D09 &mdash; Logo / Branding</td>
+              <td><span class="score-red">2/5</span></td>
+              <td>Text placeholder only &mdash; largest gap</td>
+            </tr>
+            <tr>
+              <td>D10 &mdash; Content Hierarchy</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>5-card layout matches template pattern</td>
+            </tr>
+            <tr>
+              <td>D11 &mdash; Closing Slide</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Contact info present; no logo</td>
+            </tr>
+            <tr>
+              <td>D12 &mdash; Visual Consistency</td>
+              <td><span class="score-yellow">4/5</span></td>
+              <td>Cohesive look across all slides</td>
+            </tr>
+            <tr style="border-top: 2px solid rgba(57,255,20,0.4);">
+              <td><strong>Total</strong></td>
+              <td><strong class="score-yellow">46/60</strong></td>
+              <td><strong>76.7% conformance</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Limitations / Second-Best Alternative</div>
+          <h2 class="section-title">Limitations &amp; Second-Best Alternatives</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>No logo images available.</strong> The Allotrope logo was not bundled as a distributable image file. Deck 1 uses a text placeholder. Second-best: source a low-res logo from the Google Slides template export and embed it directly.</li>
+          <li><strong>pptxgenjs has limited rendering fidelity.</strong> It does not support slide masters or theme inheritance from a reference .pptx. Second-best: use python-pptx to post-process the deck after generation for deterministic fixes (colors, fonts, footers).</li>
+          <li><strong>python-pptx inspection is XML-level, not visual.</strong> It reads OOXML properties but cannot detect visual issues like text overflow, clipping, or anti-aliasing differences. These require manual visual review.</li>
+          <li><strong>No slide numbers in pptxgenjs output.</strong> The library lacks a built-in slide number feature. Second-best: add slide numbers via python-pptx post-processing script.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Errors / Warnings / Flags</div>
+          <h2 class="section-title">Errors / Warnings / Flags Encountered</h2>
+        </div>
+      </div>
+      <div class="question-frame technical">
+        <div class="empty-state">
+          <strong>No Errors Encountered</strong>
+          <p>pptxgenjs generation completed without errors. python-pptx inspection passed on all 9 slides. All conformance files written cleanly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="lessons-carried-forward">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Lessons Carried Forward</div>
+          <h2 class="section-title">7 Prescriptive Lessons for Deck 2</h2>
+        </div>
+      </div>
+      <div class="technical-frame technical">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Lesson</th>
+              <th>Target Dimension</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Embed actual logo images on cover and closing slides</td>
+              <td>D09 Logo</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Add slide numbers (Cabin 8pt, bottom-right) on all content slides</td>
+              <td>D08 Footer</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Replace bullet-text exec summary with structured table matching Slide 2 pattern</td>
+              <td>D02 Exec Summary</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Add section dividers before each major section (Context, Analysis, Next Steps)</td>
+              <td>D03 Dividers</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Lock exact hex colors: <code>#D9D9D9</code>, <code>#666666</code>, <code>#B5D8D0</code>, <code>#D7ECE8</code></td>
+              <td>D04 Color</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Increase card body font size to 11&ndash;12pt (was 9pt)</td>
+              <td>D05 Typography</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Lock green rule line accent to <code>#38761D</code> on every content slide</td>
+              <td>D04 Color</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Open Questions / Next Phase Seeds</div>
+          <h2 class="section-title">Open Questions / Next Phase Seeds</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Phase 3 (next):</strong> Generate Deck 2 from <code>2026-04-16-dppa-case-2-final.html</code> applying the 7 carry-forward lessons. Target: D09 score improves from 2&rarr;4, D08 from 4&rarr;5, aggregate &ge;48/60.</li>
+          <li><strong>Phase 4:</strong> Generate Deck 3 from <code>2026-04-21-dppa-case-3-final.html</code> with cumulative lessons from both prior iterations. Target: aggregate &ge;52/60, at least one dimension at 5/5.</li>
+          <li><strong>Phase 5:</strong> Conformance trajectory synthesis showing measurable convergence across all three decks.</li>
+          <li><strong>Open:</strong> Should logo images be extracted from the cached template PPTX or sourced from an external brand asset repo?</li>
+          <li><strong>Open:</strong> Should the generation switch from pptxgenjs to python-pptx for better template-master inheritance?</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['D01\nCover', 'D02\nExec Sum', 'D03\nDividers', 'D04\nColor', 'D05\nTypography', 'D06\nSequence', 'D07\nTables', 'D08\nFooter', 'D09\nLogo', 'D10\nHierarchy', 'D11\nClosing', 'D12\nConsistency'],
+          datasets: [{
+            label: 'Score (0-5)',
+            data: [4, 4, 4, 4, 4, 4, 4, 4, 2, 4, 4, 4],
+            backgroundColor: [
+              '#00f5ff', '#00f5ff', '#00f5ff', '#00f5ff', '#00f5ff',
+              '#00f5ff', '#00f5ff', '#00f5ff', '#ff5e5e', '#00f5ff',
+              '#00f5ff', '#00f5ff'
+            ],
+            borderColor: [
+              '#00f5ff', '#00f5ff', '#00f5ff', '#00f5ff', '#00f5ff',
+              '#00f5ff', '#00f5ff', '#00f5ff', '#ff5e5e', '#00f5ff',
+              '#00f5ff', '#00f5ff'
+            ],
+            borderWidth: 1,
+            borderRadius: 4,
+            barPercentage: 0.65
+          }, {
+            label: 'Target (5)',
+            data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            backgroundColor: 'rgba(57, 255, 20, 0.15)',
+            borderColor: 'rgba(57, 255, 20, 0.4)',
+            borderWidth: 1,
+            borderRadius: 4,
+            barPercentage: 0.65
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+              ticks: { stepSize: 1, color: '#8ea3ad', font: { size: 11 } },
+              grid: { color: 'rgba(255,255,255,0.06)' }
+            },
+            x: {
+              ticks: { color: '#8ea3ad', font: { size: 10 } },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#e9f6ff', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

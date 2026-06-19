@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase Report :: Decision 963 TOU Promotion</title>
+<meta name="color-scheme" content="dark">
+<style>
+:root { --bg: #0d0d0d; --card: #111818; --border: #1e3a3a; --text: #e0efe8; --accent: #00f5ff; --accent2: #39ff14; --muted: #6b8a80; --warn: #ff6b35; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+h1 { color: var(--accent); font-size: 1.75rem; margin-bottom: 0.25rem; }
+h2 { color: var(--accent2); font-size: 1.25rem; margin: 2rem 0 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+h3 { color: var(--accent); font-size: 1rem; margin: 1.5rem 0 0.5rem; }
+.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+th { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+td { font-size: 0.9rem; }
+.tag { display: inline-block; background: rgba(0,245,255,0.12); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.tag-ok { background: rgba(57,255,20,0.12); color: var(--accent2); }
+.tag-warn { background: rgba(255,107,53,0.12); color: var(--warn); }
+.code { font-family: 'JetBrains Mono', monospace; background: rgba(0,245,255,0.06); padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.85rem; }
+ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+li { margin: 0.25rem 0; }
+.pass { color: var(--accent2); }
+.fail { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<h1>Decision 963 TOU Regime Promotion</h1>
+<p class="subtitle">Phase 01 Report | 2026-05-07 | reopt-pysam</p>
+
+<h2>1. Phase Header</h2>
+<div class="card">
+<p><strong>Phase:</strong> PHASE-01 — Promote Decision 963 to Active Default<br>
+<strong>Status:</strong> <span class="tag tag-ok">COMPLETE</span><br>
+<strong>Objective:</strong> Make <code class="code">decision_963_2026_current</code> the new <code class="code">DEFAULT_REGIME_ID</code> across all codepaths. Preserve Decision 14 as <code class="code">decision_14_2025_legacy</code>. Ensure all existing unit tests pass.</p>
+</div>
+
+<h2>2. Input → Output Summary</h2>
+<div class="card">
+<table>
+<tr><th>Input</th><th>Output</th></tr>
+<tr><td>Decision 14 TOU schedule in base tariff file</td><td>Decision 963 TOU schedule (peak 17-22, standard 6-16+23, offpeak 0-5)</td></tr>
+<tr><td><code class="code">decision_963_2026_windows_only</code> (status: preview)</td><td><code class="code">decision_963_2026_current</code> (status: active, no overrides needed)</td></tr>
+<tr><td><code class="code">decision_14_2025_current</code> (status: active)</td><td><code class="code">decision_14_2025_legacy</code> (status: legacy) + <code class="code">decision_14_2025_current</code> alias → legacy</td></tr>
+<tr><td>Python <code class="code">DEFAULT_REGIME_ID = "decision_14_2025_current"</code></td><td>Python <code class="code">DEFAULT_REGIME_ID = "decision_963_2026_current"</code></td></tr>
+<tr><td>Julia <code class="code">const DEFAULT_REGIME_ID = "decision_14_2025_current"</code></td><td>Julia <code class="code">const DEFAULT_REGIME_ID = "decision_963_2026_current"</code></td></tr>
+</table>
+</div>
+
+<h2>3. Logic Flow</h2>
+<div class="card">
+<pre style="color:var(--text);font-size:0.85rem;">
+vn_tariff_2025.json (TOU schedule update)
+    ↓
+vn_regime_registry_2026.json (rename/promote/add alias)
+    ↓
+DEFAULT_REGIME_ID change (Python + Julia)
+    ↓
+resolve_vietnam_regime() alias_of handling (Python + Julia)
+    ↓
+Unit test updates (7 test files)
+    ↓
+pytest → 99 passed, 0 failed
+    ↓
+git commit + push
+</pre>
+</div>
+
+<h2>4. Math / Algorithm</h2>
+<div class="card">
+<p>No novel math. The key algorithmic addition is <strong>alias resolution</strong> in <code class="code">resolve_vietnam_regime()</code>: when a regime entry contains <code class="code">"alias_of"</code>, the function follows the redirect transparently, loading the target bundle's data while preserving the originally-requested ID for metadata tracking.</p>
+</div>
+
+<h2>5. Tools / Formulas / Methods</h2>
+<div class="card">
+<ul>
+<li><strong>Data files:</strong> <code class="code">vn_tariff_2025.json</code> (version 2025.2 → 2026.1), <code class="code">vn_regime_registry_2026.json</code> (version 2026.1 → 2026.2)</li>
+<li><strong>Code files:</strong> <code class="code">preprocess.py</code> (Python), <code class="code">REoptVietnam.jl</code> (Julia)</li>
+<li><strong>Test files:</strong> <code class="code">test_unit.py</code>, <code class="code">test_data_validation.py</code>, <code class="code">cross_validate.py</code>, <code class="code">test_unit.jl</code>, <code class="code">test_data_validation.jl</code>, <code class="code">export_processed_dict.jl</code>, <code class="code">test_regime_engine_smoke.py</code></li>
+<li><strong>Verification:</strong> <code class="code">pytest tests/python/reopt/ -v</code> — 99 passed, 0 failed</li>
+</ul>
+</div>
+
+<h2>6. Results & Visualizations</h2>
+<div class="card">
+<table>
+<tr><th>Verification</th><th>Result</th></tr>
+<tr><td>Default regime produces peak at hours 17-22</td><td class="pass">PASS</td></tr>
+<tr><td>Hours 9,10 are standard (not peak) under default</td><td class="pass">PASS</td></tr>
+<tr><td><code class="code">decision_14_2025_legacy</code> produces old pattern (hours 9,10,17,18,19 = peak)</td><td class="pass">PASS</td></tr>
+<tr><td><code class="code">decision_14_2025_current</code> alias resolves to legacy data</td><td class="pass">PASS</td></tr>
+<tr><td>Sunday pattern: no peak, max = standard</td><td class="pass">PASS</td></tr>
+<tr><td>Hour 22 = peak under Decision 963 (was off-peak under Decision 14)</td><td class="pass">PASS</td></tr>
+<tr><td>Hour 5 = off-peak under Decision 963 (was standard under Decision 14)</td><td class="pass">PASS</td></tr>
+<tr><td>All 99 unit + data validation tests pass</td><td class="pass">PASS</td></tr>
+<tr><td><code class="code">grep DEFAULT_REGIME_ID</code> returns only <code class="code">decision_963_2026_current</code></td><td class="pass">PASS</td></tr>
+</table>
+</div>
+
+<h2>7. Limitations / Second-Best Alternative</h2>
+<div class="card">
+<ul>
+<li><strong>Hourly discretization approximation:</strong> Decision 963 peak starts at 17:30 but maps to hour [17], causing ~2.8% peak-energy overcount. 30-minute timestep support is out of scope.</li>
+<li><strong>Multiplier assumption (ASM-001):</strong> Decision 14 rate multipliers carry forward under Decision 963 windows. MOIT has not issued replacement multipliers.</li>
+<li><strong>Alternative rejected:</strong> Keeping Decision 14 in the base file and only overriding via regime was rejected because it creates confusing divergence between base data and system behavior.</li>
+</ul>
+</div>
+
+<h2>8. Errors / Warnings / Flags</h2>
+<div class="card">
+<ul>
+<li><span class="tag tag-warn">FIXED</span> <code class="code">test_unit.py</code> had indentation breakage from multi-line test edits — fixed via targeted line-by-line corrections.</li>
+<li><span class="tag tag-warn">FIXED</span> <code class="code">test_legacy_decision_14_still_works</code> initially referenced <code class="code">tariff["rate_multipliers"]</code> (not returned by <code class="code">build_vietnam_tariff</code>) — fixed to use <code class="code">vn.tariff["rate_multipliers"]</code>.</li>
+<li>No remaining errors or warnings.</li>
+</ul>
+</div>
+
+<h2>9. Open Questions / Next Phase Seeds</h2>
+<div class="card">
+<ul>
+<li><strong>PHASE-02:</strong> Build the comparison workflow scripts (<code class="code">run_tou_comparison.py</code>, <code class="code">tou_financial_delta.py</code>, <code class="code">tou_comparison_report.py</code>).</li>
+<li><strong>PHASE-03:</strong> Execute comparison runs on existing case studies (saigon18, ninhsim, north_thuan). Julia REopt environment required for solve mode.</li>
+<li><strong>PHASE-04:</strong> Generate financial delta CSV and HTML comparison report.</li>
+<li><strong>Open risk:</strong> MOIT may publish Decision 963-specific multipliers before PHASE-03 execution, requiring regime registry update.</li>
+</ul>
+</div>
+
+</body>
+</html>

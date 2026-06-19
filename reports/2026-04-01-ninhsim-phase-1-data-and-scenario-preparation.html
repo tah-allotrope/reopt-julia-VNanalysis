@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: Ninhsim Phase 1 Data And Scenario Preparation</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#111111',
+        primaryTextColor: '#e8f6ff',
+        primaryBorderColor: '#00f5ff',
+        lineColor: '#39ff14',
+        secondaryColor: '#121a1a',
+        tertiaryColor: '#111111',
+        background: '#0d0d0d',
+        mainBkg: '#0d0d0d',
+        nodeBorder: '#00f5ff',
+        clusterBkg: '#111111',
+        clusterBorder: '#39ff14',
+        edgeLabelBackground: '#0d0d0d'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88);
+      --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26);
+      --text: #e9f6ff;
+      --muted: #8ea3ad;
+      --accent-blue: #00f5ff;
+      --accent-green: #39ff14;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text);
+      font-family: var(--narrative-font);
+      line-height: 1.6;
+    }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; }
+    .hero, .section {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel-strong);
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+    .hero-grid, .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .section-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .section-index { color: var(--accent-green); font: 700 0.8rem var(--technical-font); letter-spacing: 0.16em; text-transform: uppercase; }
+    .phase-title { margin: 8px 0 14px; font-size: clamp(2.2rem, 5vw, 4.2rem); line-height: 0.95; text-transform: uppercase; }
+    .repo-tag, .pill { display: inline-flex; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(0,245,255,0.24); background: rgba(0,245,255,0.08); color: var(--accent-blue); font: 0.82rem var(--technical-font); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .meta-card, .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      background: rgba(7,7,7,0.82);
+      padding: 18px;
+    }
+    .column-label, .meta-label { color: var(--accent-blue); font: 700 0.78rem var(--technical-font); text-transform: uppercase; letter-spacing: 0.14em; }
+    .meta-chip { margin-top: 8px; color: var(--accent-green); font: 700 1rem var(--technical-font); }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font: 700 0.76rem var(--technical-font); text-transform: uppercase; }
+    .mermaid { min-width: 640px; }
+    .empty-state { text-align: center; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142,163,173,0.72); font-size: 0.78rem; text-transform: uppercase; }
+    @media (max-width: 900px) {
+      .hero-grid, .summary-grid { grid-template-columns: 1fr; }
+      .mermaid { min-width: 520px; }
+    }
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; }
+      .hero, .section { padding: 18px; }
+      .mermaid { min-width: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <div class="section-index">Phase Report / Personal Technical Artifact</div>
+          <h1 class="phase-title">Ninhsim Phase 1 Data And Scenario Preparation</h1>
+          <p>A compact artifact of the initial Ninhsim workflow build: cleaned raw load data, benchmark EVN price derivation, and scenario scaffolding for the bundled CPPA study.</p>
+          <div class="pill-row">
+            <span class="pill">project :: Ninhsim CPPA Optimization</span>
+            <span class="pill">date :: 2026-04-01</span>
+          </div>
+          <div class="pill-row"><span class="repo-tag">repo :: reopt-julia-VNanalysis</span></div>
+        </div>
+        <div>
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">Ninhsim CPPA Optimization</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-julia-VNanalysis</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-04-01</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="input-output-summary">
+      <div class="section-header"><div class="section-index">01 / Input -> Output</div><h2>Input -> Output Summary</h2></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <div class="column-label">Input</div>
+          <ul>
+            <li>User requested phased implementation for Ninhsim using bundled CPPA logic, with resource coordinates fixed at `12.525729252783036, 109.02003383567742`.</li>
+            <li>Raw hourly load came from `scenarios/case_studies/ninhsim/NinhsimSample.csv`, which contains one `-` placeholder that must be cleaned without losing 8760-hour shape.</li>
+            <li>Capex should follow Saigon18 assumptions for PV and BESS, while local Vietnam tariff and wind assumptions should come from `data/vietnam/`.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <div class="column-label">Output</div>
+          <ul>
+            <li>Created `data/interim/ninhsim/ninhsim_extracted_inputs.json` with cleaned load, tariff benchmark, and site metadata.</li>
+            <li>Created `scripts/python/build_ninhsim_extracted_inputs.py`, `scripts/python/build_ninhsim_reopt_input.py`, `scripts/python/analyze_ninhsim_cppa.py`, and `scripts/python/run_ninhsim_cppa.py`.</li>
+            <li>Generated `scenarios/case_studies/ninhsim/2026-04-01_ninhsim_scenario-a_baseline-evn.json` and `scenarios/case_studies/ninhsim/2026-04-01_ninhsim_scenario-b_optimized-cppa.json`.</li>
+            <li>Added regression coverage in `tests/python/test_ninhsim_cppa.py` and passed the focused Ninhsim test file.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div class="section-index">02 / Logic Flow</div><h2>Logic Flow</h2></div>
+      <div class="diagram-frame"><div class="mermaid">flowchart TD
+A[User requests phased Ninhsim CPPA workflow] --> B[Read Saigon18, North Thuan, tariff, and wind patterns]
+B --> C{Raw Ninhsim load clean?}
+C -- No --> D[Interpolate one placeholder and preserve 8760 hours]
+D --> E[Compute weighted EVN benchmark at 22kV-110kV]
+E --> F[Build extracted inputs JSON]
+F --> G[Build baseline EVN and optimized solar plus BESS plus wind scenarios]
+G --> H[Add customer-equivalent bundled strike post-processing]
+H --> I[Run focused regression tests]
+I --> J[Capture Phase 1 report before Julia validation]</div></div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div class="section-index">03 / Tools / Formulas / Methods</div><h2>Tools / Formulas / Methods</h2></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Tool / Method</th><th>Purpose</th><th>Outcome</th></tr></thead>
+          <tbody>
+            <tr><td><code>build_ninhsim_extracted_inputs.py</code></td><td>Normalize the raw Ninhsim CSV and compute the EVN benchmark tariff.</td><td>Produced the canonical extracted-inputs JSON with load cleaning metadata and weighted-price benchmark.</td></tr>
+            <tr><td><code>build_ninhsim_reopt_input.py</code></td><td>Translate extracted inputs into REopt-ready baseline and optimization scenarios.</td><td>Created EVN-only benchmark and optimized solar+BESS+wind scenario JSONs with Saigon18 PV/BESS capex and Vietnam wind defaults.</td></tr>
+            <tr><td><code>analyze_ninhsim_cppa.py</code></td><td>Convert REopt dispatch into a maximum bundled CPPA strike that preserves customer weighted-price parity.</td><td>Implemented the key formula: <code>max strike = (benchmark customer cost - residual EVN cost) / renewable delivered kWh</code>.</td></tr>
+            <tr><td><code>pytest tests/python/test_ninhsim_cppa.py</code></td><td>Lock extracted-input, scenario-builder, and bundled-price math behavior.</td><td>Focused Ninhsim regression suite passed after implementation.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div class="section-index">04 / Results &amp; Visualizations</div><h2>Results &amp; Visualizations</h2></div>
+      <div class="viz-frame">
+        <canvas id="benchmarkChart"></canvas>
+        <script>
+          new Chart(document.getElementById('benchmarkChart'), {
+            type: 'bar',
+            data: {
+              labels: ['Off-peak', 'Standard', 'Peak', 'Weighted Ninhsim EVN'],
+              datasets: [{
+                label: 'VND/kWh',
+                data: [1234.2767, 1895.4963, 3460.3828, 2018.8785],
+                backgroundColor: ['#00f5ff', '#39ff14', '#ffb100', '#5fb9ff']
+              }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        </script>
+      </div>
+    </section>
+
+    <section class="section" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div class="section-index">05 / Open Questions / Next Phase Seeds</div><h2>Open Questions / Next Phase Seeds</h2></div>
+      <div class="question-frame">
+        <ul>
+          <li>Run `--no-solve` Julia validation on the optimized Ninhsim scenario to confirm the new scenario shape passes `Scenario()` cleanly.</li>
+          <li>Run the full optimized solve and persist the Ninhsim result artifact in `artifacts/results/ninhsim/`.</li>
+          <li>Once the solve exists, generate the CPPA pricing analysis JSON and a second phase report covering the actual optimal mix and maximum bundled strike.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+</body>
+</html>

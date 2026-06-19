@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DPPA Case 2 Phase C — 2026-04-14</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d0d;
+      --bg-surface:  #111111;
+      --bg-raised:   #161616;
+      --bg-card:     #1a1a1a;
+      --border:      #222222;
+      --border-glow: #00f5ff33;
+
+      --neon-blue:   #00f5ff;
+      --neon-green:  #39ff14;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-orange: #ff6b35;
+      --neon-purple: #bf5fff;
+
+      --text:        #d4d4d4;
+      --text-dim:    #666666;
+      --text-bright: #f0f0f0;
+
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+      --radius: 6px;
+      --glow-blue:  0 0 12px #00f5ff44, 0 0 24px #00f5ff22;
+      --glow-green: 0 0 12px #39ff1444, 0 0 24px #39ff1422;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Scanline overlay ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* ── Report header ────────────────────────────────────────────── */
+    .report-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--neon-blue), transparent);
+    }
+
+    .phase-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon-green);
+      margin-bottom: 0.6rem;
+    }
+
+    .phase-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+
+    .phase-title span {
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .meta-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--neon-green);
+    }
+
+    /* ── Section base ─────────────────────────────────────────────── */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      min-width: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-body {
+      padding: 1.5rem;
+    }
+
+    /* Section accent colors */
+    .section--io    .section-title { color: var(--neon-blue); }
+    .section--flow  .section-title { color: var(--neon-green); }
+    .section--tools .section-title { color: var(--neon-gold); }
+    .section--math  .section-title { color: var(--neon-purple); }
+    .section--limits .section-title { color: var(--neon-pink); }
+    .section--errors .section-title { color: var(--neon-orange); }
+    .section--viz   .section-title { color: var(--neon-pink); }
+    .section--open  .section-title { color: var(--neon-blue); }
+
+    .section--io    { border-left: 2px solid var(--neon-blue); }
+    .section--flow  { border-left: 2px solid var(--neon-green); }
+    .section--tools { border-left: 2px solid var(--neon-gold); }
+    .section--math  { border-left: 2px solid var(--neon-purple); }
+    .section--limits { border-left: 2px solid var(--neon-pink); }
+    .section--errors { border-left: 2px solid var(--neon-orange); }
+    .section--viz   { border-left: 2px solid var(--neon-pink); }
+    .section--open  { border-left: 2px solid var(--neon-blue); }
+
+    /* ── §2 Input → Output ────────────────────────────────────────── */
+    .narrative {
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      max-width: 72ch;
+    }
+
+    .io-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .io-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .io-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .io-col--in  .io-col-label { color: var(--neon-blue); }
+    .io-col--out .io-col-label { color: var(--neon-green); }
+
+    .io-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .io-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .io-col--in  li::before { content: '→'; position: absolute; left: 0; color: var(--neon-blue); }
+    .io-col--out li::before { content: '✓'; position: absolute; left: 0; color: var(--neon-green); }
+
+    /* ── §3 Mermaid diagram ───────────────────────────────────────── */
+    .mermaid-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid {
+      max-width: 100%;
+    }
+
+    /* ── §4 Tools & Methods ───────────────────────────────────────── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .tool-tag {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.75rem;
+      color: var(--neon-gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tool-tag::before {
+      content: '⬡';
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* fallback if skill outputs plain text list */
+    .section--tools .section-body ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .section--tools .section-body li {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.75rem;
+      color: var(--neon-gold);
+    }
+
+    /* ── §5 Math / Algorithm ──────────────────────────────────────── */
+    .math-content {
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .math-content p { margin-bottom: 0.8rem; max-width: 72ch; }
+
+    .math-formula {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--neon-purple);
+      border-radius: var(--radius);
+      padding: 0.9rem 1.2rem;
+      margin: 1rem 0;
+      color: var(--neon-purple);
+      overflow-x: auto;
+    }
+
+    /* ── §6 Limitations & 2nd-Best Alternative ───────────────────── */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .limits-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .limits-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .limits-col--current .limits-col-label { color: var(--neon-pink); }
+    .limits-col--alt     .limits-col-label { color: var(--neon-gold); }
+
+    .limits-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .limits-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .limits-col--current li::before { content: '⚠'; position: absolute; left: 0; color: var(--neon-pink); font-size: 10px; top: 3px; }
+    .limits-col--alt     li::before { content: '◈'; position: absolute; left: 0; color: var(--neon-gold); font-size: 10px; top: 3px; }
+
+    /* ── §7 Errors / Warnings / Flags ────────────────────────────── */
+    .errors-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .errors-list li {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .badge--error { background: #ff2d7822; color: var(--neon-pink);   border: 1px solid #ff2d7844; }
+    .badge--warn  { background: #ff6b3522; color: var(--neon-orange); border: 1px solid #ff6b3544; }
+    .badge--flag  { background: #ffd70022; color: var(--neon-gold);   border: 1px solid #ffd70044; }
+
+    /* ── §5 Charts ────────────────────────────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .chart-card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 240px;
+    }
+
+    .no-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── §6 Open Questions ────────────────────────────────────────── */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .questions-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .questions-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .questions-col--questions .questions-col-label { color: var(--neon-pink); }
+    .questions-col--next      .questions-col-label { color: var(--neon-blue); }
+
+    .questions-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .questions-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .questions-col--questions li::before { content: '?'; position: absolute; left: 0; color: var(--neon-pink); font-family: var(--mono); font-size: 11px; top: 3px; }
+    .questions-col--next      li::before { content: '▸'; position: absolute; left: 0; color: var(--neon-blue); font-size: 10px; top: 4px; }
+
+    /* ── Inline code ──────────────────────────────────────────────── */
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--bg-surface);
+      color: var(--neon-blue);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.1em 0.35em;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    .report-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-sig {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer-sig span { color: var(--neon-green); }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .io-grid, .questions-grid, .limits-grid { grid-template-columns: 1fr; }
+      .phase-title { font-size: 1.7rem; }
+      .meta-row { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- ① Phase Header -->
+    <header class="report-header">
+      <div class="phase-eyebrow">Phase Report</div>
+      <h1 class="phase-title"><span>DPPA Case 2 Phase C</span></h1>
+      <div class="meta-row">
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">2026-04-14</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Project</span>
+          <span class="meta-value">reopt-pysam-vn</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repo</span>
+          <span class="meta-value">C:\Users\tukum\Downloads\reopt-pysam-vn</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ② Input → Output Summary -->
+    <section class="section section--io">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <span class="section-title">Input → Output Summary</span>
+      </div>
+      <div class="section-body">
+        <p class="narrative">Phase C turned the frozen Case 2 assumptions into a runnable REopt scenario shape and a canonical physical-summary artifact so the synthetic DPPA settlement layer now has a stable hourly energy-flow basis to consume.</p><div class="io-grid"><div class="io-col io-col--in"><div class="io-col-label">Inputs</div><ul><li>Frozen Phase A/B Case 2 design artifacts and Ninhsim extracted inputs.</li><li>Existing Ninhsim REopt scenario patterns from Case 1 and the 60% solar-storage workflow.</li><li>Requirement to remove private-wire shortcuts while keeping storage optional.</li></ul></div><div class="io-col io-col--out"><div class="io-col-label">Outputs</div><ul><li>Published `artifacts/reports/ninhsim/2026-04-14_ninhsim_dppa-case-2_physical-summary.json`.</li><li>Added the canonical scenario builder and executable runner for `DPPA Case 2`.</li><li>Locked the physical output surface around `28.16%` matched load and `30.16%` contracted generation share for the solved case.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ③ Logic Flow -->
+    <section class="section section--flow">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <span class="section-title">Logic Flow</span>
+      </div>
+      <div class="section-body">
+        <div class="mermaid-wrap">
+          <div class="mermaid">
+flowchart TD
+    A[Read frozen Case 2 assumptions] --> B[Build synthetic DPPA scenario JSON]
+    B --> C{Wind or private-wire shortcuts?}
+    C -->|No| D[Keep PV plus optional storage only]
+    D --> E[Read REopt results and compute physical summary]
+    E --> F[Publish Phase C physical artifact]
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ Tools / Formulas / Methods -->
+    <section class="section section--tools">
+      <div class="section-header">
+        <span class="section-number">04</span>
+        <span class="section-title">Tools · Formulas · Methods</span>
+      </div>
+      <div class="section-body">
+        <ul><li>`apply_patch` - added the Case 2 physical scenario, runner, analyzer, and report generator surfaces.</li><li>`pytest` - locked the Phase C scenario and physical-summary contracts before implementation settled.</li><li>`build_ninhsim_reopt_input.py` - now emits the new `dppa_case_2` scenario family.</li><li>Report skill template - reused the repo-standard 9-section HTML report shape.</li></ul>
+      </div>
+    </section>
+
+    <!-- ⑤ Math / Algorithm Used -->
+    <section class="section section--math">
+      <div class="section-header">
+        <span class="section-number">05</span>
+        <span class="section-title">Math · Algorithm Used</span>
+      </div>
+      <div class="section-body">
+        <div class="math-content"><ul><li>Contracted generation series = renewable-to-load + renewable-to-grid, while storage discharge stays in physical delivery only so buyer settlement remains capped to renewable generator output.</li><li>Matched fraction of load = `51895105.45 / 184286088.50` = `28.16%`.</li><li>Contracted fraction of load = `55576852.36 / 184286088.50` = `30.16%`.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- ⑥ Limitations & 2nd-Best Alternative -->
+    <section class="section section--limits">
+      <div class="section-header">
+        <span class="section-number">06</span>
+        <span class="section-title">Limitations · 2nd-Best Alternative</span>
+      </div>
+      <div class="section-body">
+        <div class="limits-grid"><div class="limits-col limits-col--current"><div class="limits-col-label">Limitations</div><ul><li>Phase C trusts the existing REopt objective surface and records buyer-cost intent in metadata rather than encoding a true custom multi-objective solve inside REopt.</li><li>The physical artifact is only as strong as the upstream solved REopt result, so a no-solve validation alone does not prove buyer economics.</li></ul></div><div class="limits-col limits-col--alt"><div class="limits-col-label">2nd-Best Alternative</div><ul><li>A second-best path was to clone the 60% solar-storage scenario builder and specialize it inline for Case 2.</li><li>The chosen path won because a dedicated Case 2 builder keeps the commercial identity explicit and avoids leaking target-fraction logic into the synthetic DPPA workflow.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ⑦ Errors / Warnings / Flags -->
+    <section class="section section--errors">
+      <div class="section-header">
+        <span class="section-number">07</span>
+        <span class="section-title">Errors · Warnings · Flags</span>
+      </div>
+      <div class="section-body">
+        <ul class="errors-list"><li><span class="badge badge--flag">[FLAG]</span><span>Storage remains optional by design, so Case 2 can still collapse to PV-only under some solve outcomes even though the buyer-settlement workflow itself is storage-aware.</span></li><li><span class="badge badge--flag">[FLAG]</span><span>The physical summary preserves exports and curtailment for auditability, but those quantities still require policy interpretation in later developer-side finance work.</span></li></ul>
+      </div>
+    </section>
+
+    <!-- ⑧ Results & Visualizations -->
+    <section class="section section--viz">
+      <div class="section-header">
+        <span class="section-number">08</span>
+        <span class="section-title">Results &amp; Visualizations</span>
+      </div>
+      <div class="section-body">
+        <div class="charts-grid"><div class="chart-card"><div class="chart-card-title">Phase C Physical Mix</div><div class="chart-wrap"><canvas id="phaseCChart"></canvas></div><script>new Chart(document.getElementById('phaseCChart'), {"type": "bar", "data": {"labels": ["PV MW", "BESS MW", "BESS MWh", "Matched %", "Contracted %"], "datasets": [{"label": "Value", "data": [41.7248202, 0.0, 0.0, 28.16007756005956, 30.157920659323125], "backgroundColor": ["#00f5ff", "#39ff14", "#ffd700", "#ff2d78", "#bf5fff"]}]}, "options": {"responsive": true, "maintainAspectRatio": false, "plugins": {"legend": {"display": false}}}});</script></div></div>
+      </div>
+    </section>
+
+    <!-- ⑨ Open Questions / Next Phase Seeds -->
+    <section class="section section--open">
+      <div class="section-header">
+        <span class="section-number">09</span>
+        <span class="section-title">Open Questions · Next Phase Seeds</span>
+      </div>
+      <div class="section-body">
+        <div class="questions-grid"><div class="questions-col questions-col--questions"><div class="questions-col-label">Open Questions</div><ul><li>Should a later Case 2 branch constrain exports or curtailment if buyer contract-shape risk turns out to dominate the commercial outcome?</li><li>Does the future PySAM pass need plant-side generation decomposed into more categories than the current physical summary publishes?</li></ul></div><div class="questions-col questions-col--next"><div class="questions-col-label">Next Phase Seeds</div><ul><li>Carry the physical summary directly into the buyer settlement engine so field names stay frozen.</li><li>Use the solved Case 2 result to test developer-side finance only after the buyer benchmark is trusted.</li></ul></div></div>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <span class="footer-sig">generated by <span>claude code</span> · /report</span>
+      <span class="footer-sig">2026-04-14</span>
+    </footer>
+
+  </div><!-- .page-wrap -->
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background:     '#111111',
+        mainBkg:        '#1a1a1a',
+        nodeBorder:     '#222222',
+        clusterBkg:     '#161616',
+        titleColor:     '#d4d4d4',
+        edgeLabelBackground: '#1a1a1a',
+        primaryColor:   '#1a1a1a',
+        primaryBorderColor: '#00f5ff',
+        primaryTextColor:   '#d4d4d4',
+        lineColor:      '#444444',
+        secondaryColor: '#161616',
+        tertiaryColor:  '#111111',
+      },
+      flowchart: { curve: 'basis', htmlLabels: true }
+    });
+
+    // Default Chart.js palette that matches the neon theme
+    Chart.defaults.color           = '#666666';
+    Chart.defaults.borderColor     = '#222222';
+    Chart.defaults.backgroundColor = '#1a1a1a';
+    Chart.defaults.font.family     = "'JetBrains Mono', 'Fira Code', 'Consolas', monospace";
+    Chart.defaults.font.size       = 12;
+  </script>
+</body>
+</html>

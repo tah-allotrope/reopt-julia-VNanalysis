@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DPPA Case 2 Phase F — 2026-04-15</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d0d;
+      --bg-surface:  #111111;
+      --bg-raised:   #161616;
+      --bg-card:     #1a1a1a;
+      --border:      #222222;
+      --border-glow: #00f5ff33;
+
+      --neon-blue:   #00f5ff;
+      --neon-green:  #39ff14;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-orange: #ff6b35;
+      --neon-purple: #bf5fff;
+
+      --text:        #d4d4d4;
+      --text-dim:    #666666;
+      --text-bright: #f0f0f0;
+
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+      --radius: 6px;
+      --glow-blue:  0 0 12px #00f5ff44, 0 0 24px #00f5ff22;
+      --glow-green: 0 0 12px #39ff1444, 0 0 24px #39ff1422;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Scanline overlay ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* ── Report header ────────────────────────────────────────────── */
+    .report-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--neon-blue), transparent);
+    }
+
+    .phase-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon-green);
+      margin-bottom: 0.6rem;
+    }
+
+    .phase-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+
+    .phase-title span {
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .meta-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--neon-green);
+    }
+
+    /* ── Section base ─────────────────────────────────────────────── */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      min-width: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-body {
+      padding: 1.5rem;
+    }
+
+    /* Section accent colors */
+    .section--io    .section-title { color: var(--neon-blue); }
+    .section--flow  .section-title { color: var(--neon-green); }
+    .section--tools .section-title { color: var(--neon-gold); }
+    .section--math  .section-title { color: var(--neon-purple); }
+    .section--limits .section-title { color: var(--neon-pink); }
+    .section--errors .section-title { color: var(--neon-orange); }
+    .section--viz   .section-title { color: var(--neon-pink); }
+    .section--open  .section-title { color: var(--neon-blue); }
+
+    .section--io    { border-left: 2px solid var(--neon-blue); }
+    .section--flow  { border-left: 2px solid var(--neon-green); }
+    .section--tools { border-left: 2px solid var(--neon-gold); }
+    .section--math  { border-left: 2px solid var(--neon-purple); }
+    .section--limits { border-left: 2px solid var(--neon-pink); }
+    .section--errors { border-left: 2px solid var(--neon-orange); }
+    .section--viz   { border-left: 2px solid var(--neon-pink); }
+    .section--open  { border-left: 2px solid var(--neon-blue); }
+
+    /* ── §2 Input → Output ────────────────────────────────────────── */
+    .narrative {
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      max-width: 72ch;
+    }
+
+    .io-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .io-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .io-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .io-col--in  .io-col-label { color: var(--neon-blue); }
+    .io-col--out .io-col-label { color: var(--neon-green); }
+
+    .io-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .io-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .io-col--in  li::before { content: '→'; position: absolute; left: 0; color: var(--neon-blue); }
+    .io-col--out li::before { content: '✓'; position: absolute; left: 0; color: var(--neon-green); }
+
+    /* ── §3 Mermaid diagram ───────────────────────────────────────── */
+    .mermaid-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid {
+      max-width: 100%;
+    }
+
+    /* ── §4 Tools & Methods ───────────────────────────────────────── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .tool-tag {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.75rem;
+      color: var(--neon-gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tool-tag::before {
+      content: '⬡';
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* fallback if skill outputs plain text list */
+    .section--tools .section-body ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .section--tools .section-body li {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.75rem;
+      color: var(--neon-gold);
+    }
+
+    /* ── §5 Math / Algorithm ──────────────────────────────────────── */
+    .math-content {
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .math-content p { margin-bottom: 0.8rem; max-width: 72ch; }
+
+    .math-formula {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--neon-purple);
+      border-radius: var(--radius);
+      padding: 0.9rem 1.2rem;
+      margin: 1rem 0;
+      color: var(--neon-purple);
+      overflow-x: auto;
+    }
+
+    /* ── §6 Limitations & 2nd-Best Alternative ───────────────────── */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .limits-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .limits-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .limits-col--current .limits-col-label { color: var(--neon-pink); }
+    .limits-col--alt     .limits-col-label { color: var(--neon-gold); }
+
+    .limits-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .limits-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .limits-col--current li::before { content: '⚠'; position: absolute; left: 0; color: var(--neon-pink); font-size: 10px; top: 3px; }
+    .limits-col--alt     li::before { content: '◈'; position: absolute; left: 0; color: var(--neon-gold); font-size: 10px; top: 3px; }
+
+    /* ── §7 Errors / Warnings / Flags ────────────────────────────── */
+    .errors-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .errors-list li {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .badge--error { background: #ff2d7822; color: var(--neon-pink);   border: 1px solid #ff2d7844; }
+    .badge--warn  { background: #ff6b3522; color: var(--neon-orange); border: 1px solid #ff6b3544; }
+    .badge--flag  { background: #ffd70022; color: var(--neon-gold);   border: 1px solid #ffd70044; }
+
+    /* ── §5 Charts ────────────────────────────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .chart-card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 240px;
+    }
+
+    .no-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── §6 Open Questions ────────────────────────────────────────── */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .questions-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .questions-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .questions-col--questions .questions-col-label { color: var(--neon-pink); }
+    .questions-col--next      .questions-col-label { color: var(--neon-blue); }
+
+    .questions-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .questions-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .questions-col--questions li::before { content: '?'; position: absolute; left: 0; color: var(--neon-pink); font-family: var(--mono); font-size: 11px; top: 3px; }
+    .questions-col--next      li::before { content: '▸'; position: absolute; left: 0; color: var(--neon-blue); font-size: 10px; top: 4px; }
+
+    /* ── Inline code ──────────────────────────────────────────────── */
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--bg-surface);
+      color: var(--neon-blue);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.1em 0.35em;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    .report-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-sig {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer-sig span { color: var(--neon-green); }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .io-grid, .questions-grid, .limits-grid { grid-template-columns: 1fr; }
+      .phase-title { font-size: 1.7rem; }
+      .meta-row { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- ① Phase Header -->
+    <header class="report-header">
+      <div class="phase-eyebrow">Phase Report</div>
+      <h1 class="phase-title"><span>DPPA Case 2 Phase F</span></h1>
+      <div class="meta-row">
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">2026-04-15</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Project</span>
+          <span class="meta-value">reopt-pysam-vn</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repo</span>
+          <span class="meta-value">C:\Users\tukum\Downloads\reopt-pysam-vn</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ② Input → Output Summary -->
+    <section class="section section--io">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <span class="section-title">Input → Output Summary</span>
+      </div>
+      <div class="section-body">
+        <p class="narrative">Phase F replaced the retail-scaled market proxy with the best repo-local hourly market series available, reran the buyer settlement against that source, and then executed the Case 2 PySAM developer screen so the current no-overlap story is validated with separate buyer and developer artifacts.</p><div class="io-grid"><div class="io-col io-col--in"><div class="io-col-label">Inputs</div><ul><li>Phase E strike and contract-risk artifacts showing no viable overlap under the proxy market series.</li><li>Repo-local Saigon18 extracted hourly CFMP/FMP series as the strongest available local market reference candidate.</li><li>Existing Case 2 PySAM bridge and Single Owner runtime from the earlier PySAM phases.</li></ul></div><div class="io-col io-col--out"><div class="io-col-label">Outputs</div><ul><li>Published `artifacts/reports/ninhsim/2026-04-15_ninhsim_dppa-case-2_market-reference.json`.</li><li>Published actual-market buyer, PySAM, comparison, and screening artifacts for Phase F.</li><li>Final screening now reports `reject_current_case` with combined pass `False`.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ③ Logic Flow -->
+    <section class="section section--flow">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <span class="section-title">Logic Flow</span>
+      </div>
+      <div class="section-body">
+        <div class="mermaid-wrap">
+          <div class="mermaid">
+flowchart TD
+    A[Read Phase E outputs and Case 2 physical result] --> B[Load repo-local hourly CFMP series]
+    B --> C[Normalize to VND per kWh and rebuild buyer settlement]
+    C --> D[Map Case 2 physical result into PySAM Single Owner]
+    D --> E{Buyer and developer both pass?}
+    E -->|Yes| F[Advance current case]
+    E -->|No| G[Reject or revise current case]
+    F --> H[Publish comparison and screening artifacts]
+    G --> H
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ Tools / Formulas / Methods -->
+    <section class="section section--tools">
+      <div class="section-header">
+        <span class="section-number">04</span>
+        <span class="section-title">Tools · Formulas · Methods</span>
+      </div>
+      <div class="section-body">
+        <ul><li>`build_dppa_case_2_market_reference_artifact()` - selects and normalizes the repo-local hourly CFMP/FMP transfer series.</li><li>`run_dppa_case_2_buyer_settlement()` - recomputes the buyer view against the replaced hourly market series.</li><li>`build_dppa_case_2_single_owner_inputs()` + `run_single_owner_model()` - execute the developer-side PySAM validation on the same Case 2 physical result.</li><li>`build_dppa_case_2_reopt_pysam_comparison()` and `build_dppa_case_2_developer_screening()` - keep buyer, developer, and alignment results explicit.</li></ul>
+      </div>
+    </section>
+
+    <!-- ⑤ Math / Algorithm Used -->
+    <section class="section section--math">
+      <div class="section-header">
+        <span class="section-number">05</span>
+        <span class="section-title">Math · Algorithm Used</span>
+      </div>
+      <div class="section-body">
+        <div class="math-content"><ul><li>Market replacement prefers hourly `CFMP` over `FMP` when both exist, then normalizes VND/MWh-like values to VND/kWh before settlement use.</li><li>Buyer pass = savings versus EVN remains positive under the replaced hourly market series; developer pass = after-tax IRR clears the target hurdle.</li><li>Phase F decision = advance only if both buyer and developer pass, otherwise classify the current case as revise or reject without blending the metrics.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- ⑥ Limitations & 2nd-Best Alternative -->
+    <section class="section section--limits">
+      <div class="section-header">
+        <span class="section-number">06</span>
+        <span class="section-title">Limitations · 2nd-Best Alternative</span>
+      </div>
+      <div class="section-body">
+        <div class="limits-grid"><div class="limits-col limits-col--current"><div class="limits-col-label">Limitations</div><ul><li>The replaced market reference is stronger than the prior proxy but is still transferred from another Vietnam project, so it remains a documented quasi-actual series rather than a site-certified Ninhsim dataset.</li><li>PySAM still runs the simplified Single Owner finance stack, so the developer view is a screening result rather than a lender-ready model.</li></ul></div><div class="limits-col limits-col--alt"><div class="limits-col-label">2nd-Best Alternative</div><ul><li>A second-best alternative was to keep the retail-scaled proxy and run only the PySAM developer check.</li><li>The chosen path won because Phase F specifically needed both proxy replacement and developer validation, and the repo already held a better local hourly CFMP source.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ⑦ Errors / Warnings / Flags -->
+    <section class="section section--errors">
+      <div class="section-header">
+        <span class="section-number">07</span>
+        <span class="section-title">Errors · Warnings · Flags</span>
+      </div>
+      <div class="section-body">
+        <ul class="errors-list"><li><span class="badge badge--warn">[WARN]</span><span>The selected hourly market series is transferred from `saigon18`, not extracted directly for Ninhsim, so Phase F improves credibility but does not fully eliminate market-basis risk.</span></li><li><span class="badge badge--flag">[FLAG]</span><span>If the current case still fails both buyer and developer screens after market replacement, the likely next move is to revise core assumptions rather than continue widening the same strike band.</span></li></ul>
+      </div>
+    </section>
+
+    <!-- ⑧ Results & Visualizations -->
+    <section class="section section--viz">
+      <div class="section-header">
+        <span class="section-number">08</span>
+        <span class="section-title">Results &amp; Visualizations</span>
+      </div>
+      <div class="section-body">
+        <div class="charts-grid"><div class="chart-card"><div class="chart-card-title">Phase F Buyer vs Developer</div><div class="chart-wrap"><canvas id="phaseFDecisionChart"></canvas></div><script>new Chart(document.getElementById('phaseFDecisionChart'), {"type": "bar", "data": {"labels": ["Buyer delta kVND", "IRR %", "NPV kUSD", "Min DSCR"], "datasets": [{"label": "Value", "data": [12812356.040989624, 0.0, -47278.699344453635, -0.4667527808782992], "backgroundColor": ["#00f5ff", "#ff2d78", "#ffd700", "#39ff14"]}]}, "options": {"responsive": true, "maintainAspectRatio": false}});</script></div><div class="chart-card"><div class="chart-card-title">Market Reference Sample</div><div class="chart-wrap"><canvas id="phaseFMarketChart"></canvas></div><script>new Chart(document.getElementById('phaseFMarketChart'), {"type": "line", "data": {"labels": ["1", "2", "3", "4", "5", "6"], "datasets": [{"label": "Market VND/kWh", "data": [1429.65005699999, 1371.316523, 1422.2603375, 1472.2761, 1475.8659065, 1484.0065755], "borderColor": "#00f5ff", "backgroundColor": "#00f5ff", "fill": false}]}, "options": {"responsive": true, "maintainAspectRatio": false}});</script></div></div>
+      </div>
+    </section>
+
+    <!-- ⑨ Open Questions / Next Phase Seeds -->
+    <section class="section section--open">
+      <div class="section-header">
+        <span class="section-number">09</span>
+        <span class="section-title">Open Questions · Next Phase Seeds</span>
+      </div>
+      <div class="section-body">
+        <div class="questions-grid"><div class="questions-col questions-col--questions"><div class="questions-col-label">Open Questions</div><ul><li>Can a true Ninhsim-specific hourly CFMP/FMP dataset be sourced to replace the transferred Saigon18 market series?</li><li>Should the next screening gate require non-negative NPV or minimum DSCR in addition to the IRR hurdle?</li></ul></div><div class="questions-col questions-col--next"><div class="questions-col-label">Next Phase Seeds</div><ul><li>Move into Phase G with the new buyer, market, PySAM, and comparison artifacts consolidated into one final decision package.</li><li>If the case remains non-viable, use Phase G to document whether the right action is reject, revise strike, or revisit physical design assumptions.</li></ul></div></div>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <span class="footer-sig">generated by <span>claude code</span> · /report</span>
+      <span class="footer-sig">2026-04-15</span>
+    </footer>
+
+  </div><!-- .page-wrap -->
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background:     '#111111',
+        mainBkg:        '#1a1a1a',
+        nodeBorder:     '#222222',
+        clusterBkg:     '#161616',
+        titleColor:     '#d4d4d4',
+        edgeLabelBackground: '#1a1a1a',
+        primaryColor:   '#1a1a1a',
+        primaryBorderColor: '#00f5ff',
+        primaryTextColor:   '#d4d4d4',
+        lineColor:      '#444444',
+        secondaryColor: '#161616',
+        tertiaryColor:  '#111111',
+      },
+      flowchart: { curve: 'basis', htmlLabels: true }
+    });
+
+    // Default Chart.js palette that matches the neon theme
+    Chart.defaults.color           = '#666666';
+    Chart.defaults.borderColor     = '#222222';
+    Chart.defaults.backgroundColor = '#1a1a1a';
+    Chart.defaults.font.family     = "'JetBrains Mono', 'Fira Code', 'Consolas', monospace";
+    Chart.defaults.font.size       = 12;
+  </script>
+</body>
+</html>

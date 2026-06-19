@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: GAP-02-PHASE-04</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d',
+          mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' }});
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', run, { once: true }); } else { run(); }
+  </script>
+  <style>
+    :root { --bg: #0d0d0d; --bg-soft: #111111; --panel: rgba(13,13,13,0.88); --panel-strong: rgba(19,19,19,0.96);
+      --line: rgba(0,245,255,0.26); --line-strong: rgba(57,255,20,0.38); --text: #e9f6ff; --muted: #8ea3ad;
+      --accent-blue: #00f5ff; --accent-green: #39ff14; --glow-blue: 0 0 18px rgba(0,245,255,0.42);
+      --glow-green: 0 0 18px rgba(57,255,20,0.28); --shadow: 0 14px 40px rgba(0,0,0,0.32);
+      --radius-lg: 22px; --radius-md: 16px; --radius-sm: 12px;
+      --narrative-font: "Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+      --technical-font: "Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden;
+      background: radial-gradient(circle at top left,rgba(0,245,255,0.12),transparent 28%),
+      radial-gradient(circle at 85% 12%,rgba(57,255,20,0.08),transparent 24%),
+      linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%);
+      color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+      background-size: 32px 32px; opacity: 0.16; }
+    a { color: var(--accent-blue); }
+    code,pre,.technical,.meta-chip,.section-kicker,.pill,.metric-label,.metric-value,.repo-tag,.mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px,calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px;
+      background: linear-gradient(145deg,rgba(0,245,255,0.08),transparent 28%),
+      linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0)),var(--panel-strong);
+      box-shadow: var(--shadow),inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(260px,0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 12ch; font-size: clamp(2.5rem,5vw,4.7rem); line-height: 0.94;
+      letter-spacing: -0.05em; color: #f5feff; text-transform: uppercase; text-wrap: balance;
+      text-shadow: 0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57,255,20,0.2); border-radius: 18px;
+      background: rgba(255,255,255,0.025); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em;
+      text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px;
+      border: 1px solid rgba(0,245,255,0.24); border-radius: 999px; background: rgba(0,245,255,0.08);
+      color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line);
+      border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px;
+      background: linear-gradient(90deg,transparent,rgba(0,245,255,0.9),rgba(57,255,20,0.9),transparent);
+      transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px;
+      align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem,2vw,1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green);
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content: ""; width: 44px; height: 1px;
+      background: linear-gradient(90deg,rgba(57,255,20,0.9),transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .column-card,.diagram-frame,.technical-frame,.viz-frame,.question-frame,.empty-state {
+      border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md);
+      background: linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),rgba(7,7,7,0.82);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.012); }
+    .column-card { padding: 18px; min-height: 200px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px;
+      background: linear-gradient(90deg,rgba(0,245,255,0.4),transparent); }
+    .diagram-frame,.chart-frame,.technical-frame,.viz-frame,.question-frame { padding: 18px; }
+    .diagram-frame { overflow-x: auto; overflow-y: auto; max-height: min(70vh,720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th,.technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    .chart-frame canvas,.technical-frame > canvas,.viz-frame canvas,canvas.report-chart {
+      display: block; width: 100% !important; max-width: 100%; height: 280px !important; min-height: 280px; max-height: 280px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem;
+      letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0,245,255,0.18); border-radius: var(--radius-sm);
+      background: rgba(0,245,255,0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px;
+      border: 1px solid rgba(57,255,20,0.22); border-radius: 999px; background: rgba(57,255,20,0.06);
+      color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul,.technical-frame ul,.column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li,.technical-frame li,.column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142,163,173,0.72);
+      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid,.summary-grid,.metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px,1180px); padding-top: 16px; padding-bottom: 42px; }
+      .hero,.section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; }
+      .phase-title { font-size: clamp(2rem,12vw,3rem); } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">GAP-02 Phase Report / Procurement Comparison</p>
+          <h1 class="phase-title">GAP-02</h1>
+          <p class="hero-summary">
+            Onsite vs offsite procurement comparison engine complete. 4 phases delivered: procurement.py module with evaluate_onsite/evaluate_offsite/compare_procurement_options, 12 tests PASS, CLI entrypoint, HTML report with Chart.js visualization.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: REopt Vietnam</span>
+            <span class="pill">date :: 2026-05-25</span>
+            <span class="pill">tests :: 12 passed</span>
+            <span class="pill">status :: COMPLETE</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam-vn</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">GAP Plan</div><div class="meta-chip">GAP-02: Procurement Comparison</div></div>
+          <div class="meta-card"><div class="meta-label">Phases</div><div class="meta-chip">PHASE-01 through PHASE-04</div></div>
+          <div class="meta-card"><div class="meta-label">Status</div><div class="meta-chip">COMPLETE</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header">
+        <div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div>
+      </div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p>
+          <ul>
+            <li>Factory load: <code>data/interim/saigon18/2026-03-20_saigon18_extracted_inputs.json</code> (8760 hourly kW)</li>
+            <li>EVN tariff: <code>data/vietnam/vn_tariff_2025.json</code> (Decision 963 TOU windows)</li>
+            <li>Onsite project: 40 MWp solar + 66 MWh BESS, private-wire, strike 1,012 VND/kWh</li>
+            <li>Offsite project: 54 MW solar+wind, virtual CfD, strike 1,800 VND/kWh</li>
+            <li>Generalized settlement engine from GAP-04 (<code>settlement.py</code>)</li>
+          </ul>
+          <div class="splitter"></div>
+          <p class="column-label">Outputs</p>
+          <ul>
+            <li><code>src/python/reopt_pysam_vn/integration/procurement.py</code> — Procurement evaluation module (260 lines)</li>
+            <li><code>tests/python/integration/test_procurement.py</code> — 12 tests (3 onsite + 3 offsite + 6 comparison)</li>
+            <li><code>scripts/python/integration/compare_procurement.py</code> — CLI entrypoint</li>
+            <li><code>artifacts/reports/procurement_comparison.json</code> — Comparison artifact</li>
+            <li><code>reports/2026-05-25-gap02-phase-04.html</code> — HTML report with Chart.js</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Key Results</p>
+          <ul>
+            <li><strong>Onsite:</strong> Buyer cost 298B VND/yr, savings 70.3B VND vs EVN, RE penetration 38.6%</li>
+            <li><strong>Offsite:</strong> Buyer cost 411B VND/yr, <em>premium</em> 42.8B VND vs EVN, RE penetration 71.8%</li>
+            <li><strong>Recommendation:</strong> Onsite — only option producing buyer savings</li>
+            <li><strong>Regulatory flag:</strong> Onsite export subject to Decree 57 surplus purchase rate (671 VND/kWh)</li>
+          </ul>
+          <div class="splitter"></div>
+          <p class="column-label">Test Execution</p>
+          <ul>
+            <li>Command: <code>.venv\Scripts\python.exe -m pytest tests/python/integration/test_procurement.py -v</code></li>
+            <li>Result: <strong>12 passed in 1.22s</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header">
+        <div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div>
+      </div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+    A[Factory Load 8760] --> B[evaluate_onsite]
+    A --> C[evaluate_offsite]
+    D[Project Config Onsite] --> B
+    E[Project Config Offsite] --> C
+    F[EVN Tariff 8760] --> B
+    F --> C
+    G[FMP 8760] --> C
+    B --> H[OnsiteEvaluation]
+    C --> I[OffsiteEvaluation]
+    H --> J[compare_procurement_options]
+    I --> J
+    J --> K[ProcurementComparison]
+    K --> L[Recommendation]
+    K --> M[Regulatory Flags]
+    K --> N[Delta Metrics]
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header">
+        <div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div>
+      </div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Concept</th><th>Formula / Method</th></tr></thead>
+          <tbody>
+            <tr><td>Buyer Savings vs EVN</td><td><code>evn_only_cost - procurement_buyer_cost</code> — positive = savings, negative = premium</td></tr>
+            <tr><td>RE Penetration</td><td><code>matched_kwh / total_load_kwh * 100</code></td></tr>
+            <tr><td>Export Exposure</td><td><code>exported_kwh / total_generation_kwh * 100</code> — onsite only</td></tr>
+            <tr><td>FMP Risk Score</td><td><code>min(100, negative_cfd_hours / 8760 * 200)</code> — offsite only</td></tr>
+            <tr><td>Recommendation Logic</td><td>Prefer option with buyer savings > 0 and lower buyer cost. Flag "neither" if both produce premium.</td></tr>
+            <tr><td>Cost Delta</td><td><code>onsite_buyer_cost - offsite_buyer_cost</code> — negative means onsite cheaper</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header">
+        <div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div>
+      </div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool / Module</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>procurement.py</code></td><td>Procurement engine — <code>evaluate_onsite()</code>, <code>evaluate_offsite()</code>, <code>compare_procurement_options()</code></td></tr>
+            <tr><td><code>settlement.py</code> (GAP-04)</td><td>Generalized settlement — <code>compute_hourly_settlement()</code>, <code>compute_buyer_benchmark()</code></td></tr>
+            <tr><td><code>test_procurement.py</code></td><td>12 tests: 3 onsite + 3 offsite + 6 comparison</td></tr>
+            <tr><td><code>compare_procurement.py</code></td><td>CLI entrypoint with HTML report generation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header">
+        <div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Total Tests</div><div class="metric-value">12</div></div>
+        <div class="metric"><div class="metric-label">Passed</div><div class="metric-value">12</div></div>
+        <div class="metric"><div class="metric-label">Recommendation</div><div class="metric-value">Onsite</div></div>
+      </div>
+      <div class="technical-frame" style="margin-top: 18px;">
+        <table>
+          <thead><tr><th>Metric</th><th>Onsite</th><th>Offsite</th><th>Delta</th></tr></thead>
+          <tbody>
+            <tr><td>Buyer Cost (VND/yr)</td><td>298.3B</td><td>411.3B</td><td>-113.1B (onsite cheaper)</td></tr>
+            <tr><td>Buyer Savings vs EVN</td><td>+70.3B</td><td>-42.8B (premium)</td><td>+113.1B</td></tr>
+            <tr><td>Developer Revenue</td><td>64.5B</td><td>107.0B</td><td>-42.5B</td></tr>
+            <tr><td>RE Penetration</td><td>38.6%</td><td>71.8%</td><td>-33.2pp</td></tr>
+            <tr><td>Matched Energy</td><td>71,100 MWh</td><td>132,300 MWh</td><td>-61,200 MWh</td></tr>
+            <tr><td>Export Exposure</td><td>100%</td><td>N/A</td><td>—</td></tr>
+            <tr><td>FMP Risk Score</td><td>N/A</td><td>0/100</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header">
+        <div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Synthetic generation profiles:</strong> Both evaluations use flat synthetic generation profiles (constant hourly output) rather than realistic 8760 solar/wind profiles. This overestimates matched energy and understates curtailment. Future: use GAP-01 ingestion or REopt-solved profiles.</li>
+          <li><strong>No PySAM developer finance:</strong> Developer IRR/NPV fields are null — the procurement engine does not yet call the PySAM bridge. This is a planned extension.</li>
+          <li><strong>Single strike point:</strong> Comparison uses a single strike per option. No sensitivity sweep is built into the comparison (though <code>run_strike_sweep()</code> from GAP-04 is available).</li>
+          <li><strong>Second-best alternative:</strong> Hardcode saigon18-vs-ninhsim comparison without generalization. Not chosen because it doesn't scale for client demos with arbitrary factories.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header">
+        <div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div>
+      </div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>F-string format error (fixed):</strong> Initial report generation failed with <code>ValueError: Invalid format specifier</code> due to conditional expressions inside f-string format specifiers. Fixed by pre-computing formatted values before the f-string.</li>
+          <li><strong>No test failures:</strong> All 12 tests passed on first run.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header">
+        <div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Integrate PySAM developer finance:</strong> Wire the <code>bridge.py</code> Single Owner runner into <code>evaluate_onsite()</code> and <code>evaluate_offsite()</code> to populate developer IRR/NPV fields.</li>
+          <li><strong>Use real generation profiles:</strong> Replace synthetic flat profiles with REopt-solved or GAP-01 ingested 8760 generation profiles.</li>
+          <li><strong>Strike sensitivity in comparison:</strong> Add multi-strike comparison mode that evaluates both options at multiple strike points and produces a strike-vs-savings surface.</li>
+          <li><strong>Proceed to GAP-03:</strong> Developer project catalog and matching engine has no dependencies.</li>
+          <li><strong>Proceed to GAP-05:</strong> Regulatory scenario toggle has no dependencies.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => { canvas.classList.add('report-chart'); });
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+    }
+  </script>
+</body>
+</html>

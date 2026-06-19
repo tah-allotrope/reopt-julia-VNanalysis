@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: allotrope-template-phase-1</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111',
+          primaryTextColor: '#e8f6ff',
+          primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14',
+          secondaryColor: '#121a1a',
+          tertiaryColor: '#111111',
+          background: '#0d0d0d',
+          mainBkg: '#0d0d0d',
+          nodeBorder: '#00f5ff',
+          clusterBkg: '#111111',
+          clusterBorder: '#39ff14',
+          edgeLabelBackground: '#0d0d0d'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88);
+      --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26);
+      --line-strong: rgba(57, 255, 20, 0.38);
+      --text: #e9f6ff;
+      --muted: #8ea3ad;
+      --accent-blue: #00f5ff;
+      --accent-green: #39ff14;
+      --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42);
+      --glow-green: 0 0 18px rgba(57, 255, 20, 0.28);
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text);
+      font-family: var(--narrative-font);
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.16;
+    }
+
+    a {
+      color: var(--accent-blue);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-kicker,
+    .pill,
+    .metric-label,
+    .metric-value,
+    .repo-tag,
+    .mermaid {
+      font-family: var(--technical-font);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      position: relative;
+      padding: 28px;
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+        var(--panel-strong);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -55% 42%;
+      height: 280px;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+      gap: 22px;
+      align-items: end;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      text-shadow: var(--glow-green);
+    }
+
+    .phase-title {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.5rem, 5vw, 4.7rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      color: #f5feff;
+      text-transform: uppercase;
+      text-wrap: balance;
+      text-shadow: 0 0 24px rgba(0, 245, 255, 0.2);
+    }
+
+    .hero-summary {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.025);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+    }
+
+    .meta-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .meta-chip {
+      color: var(--accent-blue);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-shadow: var(--glow-blue);
+      word-break: break-word;
+    }
+
+    .repo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 245, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(0, 245, 255, 0.08);
+      color: var(--accent-blue);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+
+    .section {
+      position: relative;
+      margin-top: 22px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .section::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent);
+      transform: translateY(-1px);
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      line-height: 1.1;
+      color: #f0feff;
+    }
+
+    .section-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-green);
+    }
+
+    .section-index::after {
+      content: "";
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .column-card,
+    .diagram-frame,
+    .technical-frame,
+    .viz-frame,
+    .question-frame,
+    .empty-state {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        rgba(7, 7, 7, 0.82);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012);
+    }
+
+    .column-card {
+      padding: 18px;
+      min-height: 200px;
+    }
+
+    .column-label {
+      margin: 0 0 12px;
+      color: var(--accent-blue);
+      font-size: 0.83rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      text-shadow: var(--glow-blue);
+    }
+
+    .splitter {
+      width: 100%;
+      height: 1px;
+      margin: 8px 0 16px;
+      background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent);
+    }
+
+    .diagram-frame,
+    .chart-frame,
+    .technical-frame,
+    .viz-frame,
+    .question-frame {
+      padding: 18px;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--text);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram {
+      padding: 12px;
+      max-height: min(62vh, 560px);
+    }
+
+    .diagram-frame.compact-diagram .mermaid {
+      min-width: 900px;
+    }
+
+    .chart-frame,
+    .viz-frame {
+      overflow: hidden;
+    }
+
+    .technical-frame {
+      color: #d6f6ff;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: top;
+    }
+
+    .technical-frame th {
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      text-align: left;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .chart-frame canvas,
+    .technical-frame > canvas,
+    .viz-frame canvas,
+    canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 280px !important;
+      min-height: 280px;
+      max-height: 280px;
+    }
+
+    .empty-state {
+      padding: 22px;
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent-blue);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-blue);
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 245, 255, 0.18);
+      border-radius: var(--radius-sm);
+      background: rgba(0, 245, 255, 0.04);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      color: var(--accent-green);
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-shadow: var(--glow-green);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(57, 255, 20, 0.22);
+      border-radius: 999px;
+      background: rgba(57, 255, 20, 0.06);
+      color: #d9ffd0;
+      font-size: 0.8rem;
+    }
+
+    .question-frame ul,
+    .technical-frame ul,
+    .column-card ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .question-frame li,
+    .technical-frame li,
+    .column-card li {
+      margin-bottom: 8px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: right;
+      color: rgba(142, 163, 173, 0.72);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .summary-grid,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .phase-title {
+        max-width: none;
+      }
+
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, 1180px);
+        padding-top: 16px;
+        padding-bottom: 42px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .section::before {
+        left: 18px;
+        right: 18px;
+      }
+
+      .phase-title {
+        font-size: clamp(2rem, 12vw, 3rem);
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">allotrope-template-phase-1</h1>
+          <p class="hero-summary">
+            Template acquisition, structural analysis, and conformance rubric definition for the Allotrope-branded PPTX generation pipeline.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: reopt-pysam</span>
+            <span class="pill">date :: 2026-05-04</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+
+        <div class="hero-meta">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-05-04</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Input -> Output</div>
+          <h2 class="section-title">Input -> Output Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <div class="column-label">Inputs</div>
+          <ul>
+            <li><strong>Allotrope Google Slides deck</strong> &mdash; presentation template at <code>1E0HTpklTMu8fjiZCVi_7Ka41WcKqfAMgt6PSN8Qcrtw</code></li>
+            <li><strong>Three target HTML reports</strong> identified for conversion: <code>dppa-case-1</code>, <code>dppa-case-2</code>, <code>dppa-case-3</code> (excluded <code>2026-04-15</code> as superseded)</li>
+            <li><strong>Five-phase plan</strong> at <code>plans/2026-05-03-allotrope-template-iterative-ppt-plan.md</code></li>
+            <li><strong>gws CLI</strong> authenticated for Google Workspace access</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <div class="column-label">Outputs</div>
+          <ul>
+            <li><strong>Downloaded template</strong> &mdash; <code>reports/decks/conformance/_template/allotrope-template.pptx</code> (5.4 MB, 12 slides)</li>
+            <li><strong>python-pptx analysis</strong> &mdash; full structural extraction: 12 slide layouts, color palette, typography (Cabin font family), slide sequence</li>
+            <li><strong>Conformance rubric</strong> &mdash; <code>reports/decks/conformance/allotrope-template-rubric.md</code> covering 12 dimensions (D01&ndash;D12) with 0&ndash;5 scoring anchors</li>
+            <li><strong>Directory structure</strong> created at <code>reports/decks/</code> and <code>reports/decks/conformance/</code></li>
+            <li><strong>.gitignore</strong> updated to exclude <code>_template/</code> cache artifacts</li>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric">
+          <div class="metric-label">Template Slides</div>
+          <div class="metric-value">12</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Rubric Dimensions</div>
+          <div class="metric-value">12</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Plan Phases</div>
+          <div class="metric-value">5</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Logic Flow</div>
+          <h2 class="section-title">Logic Flow</h2>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram technical">
+        <div class="mermaid">
+flowchart LR
+    subgraph P1["Phase 1 (this report)"]
+        A["Download Google\nSlides template\nexport as PPTX"] --> B["Analyze with\npython-pptx\n12 slides / layouts"]
+        B --> C["Extract color palette\nprimary: #155B55\naccents, typography"]
+        C --> D["Write 12-dimension\nconformance rubric\n0-5 scoring anchors"]
+    end
+    D --> E["Phase 2: Adapt report\nHTML to match\nAllotrope template"]
+    E --> F["Phase 3: Generate PPTX\nfrom adapted reports\npython-pptx pipeline"]
+    F --> G["Phase 4: Conformance\nscoring &amp; refinement\nrubric-driven iteration"]
+    G --> H["Phase 5: Client delivery\n&amp; handoff\ndocumentation"]
+
+    style P1 stroke:#00f5ff,stroke-width:2px,color:#e8f6ff
+    style A stroke:#00f5ff,color:#e8f6ff
+    style B stroke:#00f5ff,color:#e8f6ff
+    style C stroke:#00f5ff,color:#e8f6ff
+    style D stroke:#39ff14,color:#e8f6ff
+    style E stroke:#39ff14,stroke-dasharray:6 4,color:#8ea3ad
+    style F stroke:#39ff14,stroke-dasharray:6 4,color:#8ea3ad
+    style G stroke:#39ff14,stroke-dasharray:6 4,color:#8ea3ad
+    style H stroke:#39ff14,stroke-dasharray:6 4,color:#8ea3ad
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Math / Algorithm Used</div>
+          <h2 class="section-title">Math / Algorithm Used</h2>
+        </div>
+      </div>
+      <div class="technical-frame">
+        <div class="empty-state">
+          <strong>No Quantitative Algorithm</strong>
+          <p>This was a planning and template-definition phase. No mathematical models, scoring algorithms, or optimization routines were executed. The conformance rubric defines <em>qualitative</em> 0&ndash;5 scoring anchors across 12 dimensions; quantitative scoring begins in Phase 4.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Tools / Formulas / Methods</div>
+          <h2 class="section-title">Tools / Formulas / Methods</h2>
+        </div>
+      </div>
+      <div class="technical-frame technical">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool / Method</th>
+              <th>Purpose</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>gws</code> (Google Workspace CLI)</td>
+              <td>Verify Drive authentication and list accessible files</td>
+              <td>Confirmed auth OK; located target Slides deck</td>
+            </tr>
+            <tr>
+              <td>Browser export (Google Slides UI)</td>
+              <td>Download deck as <code>.pptx</code> via File &gt; Download</td>
+              <td>5.4 MB file saved to <code>_template/</code> directory</td>
+            </tr>
+            <tr>
+              <td><code>python-pptx</code> 1.0.2</td>
+              <td>Structural analysis: slides, layouts, colors, fonts, dimensions</td>
+              <td>Extracted 12-slide structure, Cabin typography, full color palette</td>
+            </tr>
+            <tr>
+              <td>Rubric framework (0&ndash;5 scale)</td>
+              <td>Define conformance scoring anchors across 12 quality dimensions</td>
+              <td>D01&ndash;D12 rubric with per-dimension scoring criteria</td>
+            </tr>
+            <tr>
+              <td>Git / <code>.gitignore</code></td>
+              <td>Repository hygiene for binary template artifacts</td>
+              <td><code>_template/</code> excluded from version control</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Results &amp; Visualizations</div>
+          <h2 class="section-title">Results &amp; Visualizations</h2>
+        </div>
+      </div>
+      <div class="viz-frame">
+        <div class="empty-state">
+          <strong>No Quantitative Results</strong>
+          <p>This phase produced structural definitions, not numerical outputs. Quantitative conformance scoring and charting begins in Phase 4 when the first generated PPTX is measured against the rubric.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Limitations / Second-Best Alternative</div>
+          <h2 class="section-title">Limitations / Second-Best Alternative</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Template analysis is static.</strong> The python-pptx extraction reads XML structure but does not visually render slides. Subtle visual defects (misaligned elements, font rendering on non-standard systems) will only surface in Phase 4 review.</li>
+          <li><strong>Manual download step.</strong> The template was downloaded via browser rather than automated API. This is acceptable for a one-time setup but would need automation for template versioning.</li>
+          <li><strong>Second-best alternative:</strong> Using <code>gws</code> export feature directly (<code>gws drive export</code>) instead of browser manual download. The browser route was chosen because Google Slides export options are more reliably controlled via the UI.</li>
+          <li><strong>2026-04-15 report excluded.</strong> Confirmed as superseded by later versions; no risk of missing unique content.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Errors / Warnings / Flags</div>
+          <h2 class="section-title">Errors / Warnings / Flags Encountered</h2>
+        </div>
+      </div>
+      <div class="question-frame technical">
+        <div class="empty-state">
+          <strong>No Errors Encountered</strong>
+          <p>The phase completed without errors, warnings, or blocking flags. All operations &mdash; Drive auth check, browser download, python-pptx analysis, rubric writing, and git hygiene &mdash; succeeded on first attempt.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Open Questions / Next Phase Seeds</div>
+          <h2 class="section-title">Open Questions / Next Phase Seeds</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Phase 2 (next):</strong> Adapt the three existing HTML reports to match the Allotrope template structure &mdash; slide-by-slide mapping of report sections onto the 12-slide deck.</li>
+          <li><strong>Phase 3:</strong> Build a python-pptx generation script that converts adapted HTML into .pptx files using the template as a base.</li>
+          <li><strong>Phase 4:</strong> Run conformance scoring against the rubric; iterate until all 12 dimensions score 4+.</li>
+          <li><strong>Phase 5:</strong> Package deliverables and write handoff documentation for the client.</li>
+          <li><strong>Open:</strong> Should the python-pptx pipeline use the template file directly (preserving layouts) or construct slides programmatically from the extracted structural spec?</li>
+          <li><strong>Open:</strong> How should the Cover Slide and Closing Slide logos be sourced &mdash; extracted from template or provided separately?</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+  </script>
+</body>
+</html>

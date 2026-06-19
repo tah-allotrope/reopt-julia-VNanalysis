@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DPPA Case 2 Phase G — 2026-04-15</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d0d;
+      --bg-surface:  #111111;
+      --bg-raised:   #161616;
+      --bg-card:     #1a1a1a;
+      --border:      #222222;
+      --border-glow: #00f5ff33;
+
+      --neon-blue:   #00f5ff;
+      --neon-green:  #39ff14;
+      --neon-pink:   #ff2d78;
+      --neon-gold:   #ffd700;
+      --neon-orange: #ff6b35;
+      --neon-purple: #bf5fff;
+
+      --text:        #d4d4d4;
+      --text-dim:    #666666;
+      --text-bright: #f0f0f0;
+
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+      --radius: 6px;
+      --glow-blue:  0 0 12px #00f5ff44, 0 0 24px #00f5ff22;
+      --glow-green: 0 0 12px #39ff1444, 0 0 24px #39ff1422;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Scanline overlay ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* ── Report header ────────────────────────────────────────────── */
+    .report-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--neon-blue), transparent);
+    }
+
+    .phase-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon-green);
+      margin-bottom: 0.6rem;
+    }
+
+    .phase-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+
+    .phase-title span {
+      color: var(--neon-blue);
+      text-shadow: var(--glow-blue);
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .meta-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--neon-green);
+    }
+
+    /* ── Section base ─────────────────────────────────────────────── */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      min-width: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-body {
+      padding: 1.5rem;
+    }
+
+    /* Section accent colors */
+    .section--io    .section-title { color: var(--neon-blue); }
+    .section--flow  .section-title { color: var(--neon-green); }
+    .section--tools .section-title { color: var(--neon-gold); }
+    .section--math  .section-title { color: var(--neon-purple); }
+    .section--limits .section-title { color: var(--neon-pink); }
+    .section--errors .section-title { color: var(--neon-orange); }
+    .section--viz   .section-title { color: var(--neon-pink); }
+    .section--open  .section-title { color: var(--neon-blue); }
+
+    .section--io    { border-left: 2px solid var(--neon-blue); }
+    .section--flow  { border-left: 2px solid var(--neon-green); }
+    .section--tools { border-left: 2px solid var(--neon-gold); }
+    .section--math  { border-left: 2px solid var(--neon-purple); }
+    .section--limits { border-left: 2px solid var(--neon-pink); }
+    .section--errors { border-left: 2px solid var(--neon-orange); }
+    .section--viz   { border-left: 2px solid var(--neon-pink); }
+    .section--open  { border-left: 2px solid var(--neon-blue); }
+
+    /* ── §2 Input → Output ────────────────────────────────────────── */
+    .narrative {
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      max-width: 72ch;
+    }
+
+    .io-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .io-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .io-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .io-col--in  .io-col-label { color: var(--neon-blue); }
+    .io-col--out .io-col-label { color: var(--neon-green); }
+
+    .io-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .io-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .io-col--in  li::before { content: '→'; position: absolute; left: 0; color: var(--neon-blue); }
+    .io-col--out li::before { content: '✓'; position: absolute; left: 0; color: var(--neon-green); }
+
+    /* ── §3 Mermaid diagram ───────────────────────────────────────── */
+    .mermaid-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid {
+      max-width: 100%;
+    }
+
+    /* ── §4 Tools & Methods ───────────────────────────────────────── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .tool-tag {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 0.75rem;
+      color: var(--neon-gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tool-tag::before {
+      content: '⬡';
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* fallback if skill outputs plain text list */
+    .section--tools .section-body ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .section--tools .section-body li {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.45rem 0.75rem;
+      color: var(--neon-gold);
+    }
+
+    /* ── §5 Math / Algorithm ──────────────────────────────────────── */
+    .math-content {
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .math-content p { margin-bottom: 0.8rem; max-width: 72ch; }
+
+    .math-formula {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--neon-purple);
+      border-radius: var(--radius);
+      padding: 0.9rem 1.2rem;
+      margin: 1rem 0;
+      color: var(--neon-purple);
+      overflow-x: auto;
+    }
+
+    /* ── §6 Limitations & 2nd-Best Alternative ───────────────────── */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .limits-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .limits-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .limits-col--current .limits-col-label { color: var(--neon-pink); }
+    .limits-col--alt     .limits-col-label { color: var(--neon-gold); }
+
+    .limits-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .limits-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .limits-col--current li::before { content: '⚠'; position: absolute; left: 0; color: var(--neon-pink); font-size: 10px; top: 3px; }
+    .limits-col--alt     li::before { content: '◈'; position: absolute; left: 0; color: var(--neon-gold); font-size: 10px; top: 3px; }
+
+    /* ── §7 Errors / Warnings / Flags ────────────────────────────── */
+    .errors-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .errors-list li {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .badge--error { background: #ff2d7822; color: var(--neon-pink);   border: 1px solid #ff2d7844; }
+    .badge--warn  { background: #ff6b3522; color: var(--neon-orange); border: 1px solid #ff6b3544; }
+    .badge--flag  { background: #ffd70022; color: var(--neon-gold);   border: 1px solid #ffd70044; }
+
+    /* ── §5 Charts ────────────────────────────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .chart-card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 240px;
+    }
+
+    .no-data {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 120px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── §6 Open Questions ────────────────────────────────────────── */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .questions-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    .questions-col-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .questions-col--questions .questions-col-label { color: var(--neon-pink); }
+    .questions-col--next      .questions-col-label { color: var(--neon-blue); }
+
+    .questions-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .questions-col li {
+      font-size: 13.5px;
+      color: var(--text);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .questions-col--questions li::before { content: '?'; position: absolute; left: 0; color: var(--neon-pink); font-family: var(--mono); font-size: 11px; top: 3px; }
+    .questions-col--next      li::before { content: '▸'; position: absolute; left: 0; color: var(--neon-blue); font-size: 10px; top: 4px; }
+
+    /* ── Inline code ──────────────────────────────────────────────── */
+    code {
+      font-family: var(--mono);
+      font-size: 0.88em;
+      background: var(--bg-surface);
+      color: var(--neon-blue);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.1em 0.35em;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    .report-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-sig {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer-sig span { color: var(--neon-green); }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .io-grid, .questions-grid, .limits-grid { grid-template-columns: 1fr; }
+      .phase-title { font-size: 1.7rem; }
+      .meta-row { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- ① Phase Header -->
+    <header class="report-header">
+      <div class="phase-eyebrow">Phase Report</div>
+      <h1 class="phase-title"><span>DPPA Case 2 Phase G</span></h1>
+      <div class="meta-row">
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">2026-04-15</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Project</span>
+          <span class="meta-value">reopt-pysam-vn</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repo</span>
+          <span class="meta-value">C:\Users\tukum\Downloads\reopt-pysam-vn</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ② Input → Output Summary -->
+    <section class="section section--io">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <span class="section-title">Input → Output Summary</span>
+      </div>
+      <div class="section-body">
+        <p class="narrative">Phase G assembled the published Phase C-F artifacts into one explicit Case 2 decision package, then added a final closeout summary because the workflow now spans multiple phases and ends with a clear reject-or-revise recommendation.</p><div class="io-grid"><div class="io-col io-col--in"><div class="io-col-label">Inputs</div><ul><li>Published Phase C physical summary, Phase E sensitivities, and Phase F developer screening artifacts.</li><li>Existing combined-decision and final-report patterns from earlier Ninhsim workflows.</li><li>Requirement to make the final recommendation explicit instead of leaving it spread across separate phase outputs.</li></ul></div><div class="io-col io-col--out"><div class="io-col-label">Outputs</div><ul><li>Published `artifacts/reports/ninhsim/2026-04-15_ninhsim_dppa-case-2_combined-decision.json`.</li><li>Published `artifacts/reports/ninhsim/2026-04-15_ninhsim_dppa-case-2_final-summary.json`.</li><li>Phase G now records the final decision as `reject_current_case` with decision class `reject`.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ③ Logic Flow -->
+    <section class="section section--flow">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <span class="section-title">Logic Flow</span>
+      </div>
+      <div class="section-body">
+        <div class="mermaid-wrap">
+          <div class="mermaid">
+flowchart TD
+    A[Read published Phase C-F artifacts] --> B[Assemble physical buyer contract-risk and developer views]
+    B --> C[Compute critical findings and market-quality classification]
+    C --> D{Advance revise or reject?}
+    D -->|Reject| E[Publish combined decision artifact]
+    D -->|Revise| E
+    D -->|Advance| E
+    E --> F[Publish final closeout summary and reports]
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ Tools / Formulas / Methods -->
+    <section class="section section--tools">
+      <div class="section-header">
+        <span class="section-number">04</span>
+        <span class="section-title">Tools · Formulas · Methods</span>
+      </div>
+      <div class="section-body">
+        <ul><li>`build_dppa_case_2_combined_decision_artifact()` - consolidates the Phase C-F outputs into one machine-readable recommendation surface.</li><li>`build_dppa_case_2_final_summary_artifact()` - creates a closeout artifact that captures the full Case 2 phase history and final recommendation.</li><li>`scripts/python/integration/analyze_ninhsim_dppa_case_2_phase_g.py` - regenerates the final decision package from canonical artifact paths.</li><li>Report skill template - reused for both the implementation-phase report and the optional final closeout report because the workflow now justifies both.</li></ul>
+      </div>
+    </section>
+
+    <!-- ⑤ Math / Algorithm Used -->
+    <section class="section section--math">
+      <div class="section-header">
+        <span class="section-number">05</span>
+        <span class="section-title">Math · Algorithm Used</span>
+      </div>
+      <div class="section-body">
+        <div class="math-content"><ul><li>Decision class is derived from the published screening recommendation: `advance*` -> advance, `reject*` -> reject, and everything else -> revise.</li><li>Critical finding rollup keeps the highest-value contract-risk and commercial stressors visible: buyer premium, best tested developer NPV, and excess-generation CfD stress.</li><li>Market-reference quality is downgraded to `transferred_repo_local` when the selected series comes from another case rather than a site-specific Ninhsim dataset.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- ⑥ Limitations & 2nd-Best Alternative -->
+    <section class="section section--limits">
+      <div class="section-header">
+        <span class="section-number">06</span>
+        <span class="section-title">Limitations · 2nd-Best Alternative</span>
+      </div>
+      <div class="section-body">
+        <div class="limits-grid"><div class="limits-col limits-col--current"><div class="limits-col-label">Limitations</div><ul><li>Phase G does not improve the underlying economics; it only makes the existing Phase C-F conclusions explicit and reviewable in one place.</li><li>The final package still inherits the transferred-market-series limitation from Phase F and the simplified Single Owner finance screen.</li></ul></div><div class="limits-col limits-col--alt"><div class="limits-col-label">2nd-Best Alternative</div><ul><li>A second-best alternative was to stop at the Phase F report and let reviewers infer the overall outcome from separate artifacts.</li><li>The chosen path won because the user asked for Phase G, and the repo plan explicitly called for one combined decision package plus final reporting when warranted.</li></ul></div></div>
+      </div>
+    </section>
+
+    <!-- ⑦ Errors / Warnings / Flags -->
+    <section class="section section--errors">
+      <div class="section-header">
+        <span class="section-number">07</span>
+        <span class="section-title">Errors · Warnings · Flags</span>
+      </div>
+      <div class="section-body">
+        <ul class="errors-list"><li><span class="badge badge--warn">[WARN]</span><span>The final recommendation remains constrained by the transferred `saigon18` market series and should not be interpreted as a site-certified bankability result.</span></li><li><span class="badge badge--flag">[FLAG]</span><span>Phase G confirms a reject-or-revise outcome rather than uncovering a hidden viable band, so further work should change assumptions instead of only repackaging the same case again.</span></li></ul>
+      </div>
+    </section>
+
+    <!-- ⑧ Results & Visualizations -->
+    <section class="section section--viz">
+      <div class="section-header">
+        <span class="section-number">08</span>
+        <span class="section-title">Results &amp; Visualizations</span>
+      </div>
+      <div class="section-body">
+        <div class="charts-grid"><div class="chart-card"><div class="chart-card-title">Phase G Critical Findings</div><div class="chart-wrap"><canvas id="phaseGDecisionChart"></canvas></div><script>new Chart(document.getElementById('phaseGDecisionChart'), {"type": "bar", "data": {"labels": ["Buyer premium kVND", "Best dev NPV kUSD", "Excess stress kVND"], "datasets": [{"label": "Value", "data": [12812356.040989624, -45190.84572995666, 4228974.857597463], "backgroundColor": ["#ff2d78", "#ffd700", "#00f5ff"]}]}, "options": {"responsive": true, "maintainAspectRatio": false}});</script></div></div>
+      </div>
+    </section>
+
+    <!-- ⑨ Open Questions / Next Phase Seeds -->
+    <section class="section section--open">
+      <div class="section-header">
+        <span class="section-number">09</span>
+        <span class="section-title">Open Questions · Next Phase Seeds</span>
+      </div>
+      <div class="section-body">
+        <div class="questions-grid"><div class="questions-col questions-col--questions"><div class="questions-col-label">Open Questions</div><ul><li>Can a true Ninhsim hourly CFMP/FMP series be sourced before any future Case 2 revival?</li><li>If the case is revised, should the first knob be strike basis, DPPA adder, or physical design scope?</li></ul></div><div class="questions-col questions-col--next"><div class="questions-col-label">Next Phase Seeds</div><ul><li>Use the new final summary to brief stakeholders on whether Case 2 should be rejected outright or reopened only with materially different assumptions.</li><li>If a future restart happens, begin from the combined decision artifact instead of replaying the full Phase C-F history from scratch.</li></ul></div></div>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <span class="footer-sig">generated by <span>claude code</span> · /report</span>
+      <span class="footer-sig">2026-04-15</span>
+    </footer>
+
+  </div><!-- .page-wrap -->
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background:     '#111111',
+        mainBkg:        '#1a1a1a',
+        nodeBorder:     '#222222',
+        clusterBkg:     '#161616',
+        titleColor:     '#d4d4d4',
+        edgeLabelBackground: '#1a1a1a',
+        primaryColor:   '#1a1a1a',
+        primaryBorderColor: '#00f5ff',
+        primaryTextColor:   '#d4d4d4',
+        lineColor:      '#444444',
+        secondaryColor: '#161616',
+        tertiaryColor:  '#111111',
+      },
+      flowchart: { curve: 'basis', htmlLabels: true }
+    });
+
+    // Default Chart.js palette that matches the neon theme
+    Chart.defaults.color           = '#666666';
+    Chart.defaults.borderColor     = '#222222';
+    Chart.defaults.backgroundColor = '#1a1a1a';
+    Chart.defaults.font.family     = "'JetBrains Mono', 'Fira Code', 'Consolas', monospace";
+    Chart.defaults.font.size       = 12;
+  </script>
+</body>
+</html>

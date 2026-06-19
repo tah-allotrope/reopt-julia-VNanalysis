@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: Ninhsim Customer-First Annual Path</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#111111',
+        primaryTextColor: '#e8f6ff',
+        primaryBorderColor: '#00f5ff',
+        lineColor: '#39ff14',
+        secondaryColor: '#121a1a',
+        tertiaryColor: '#111111',
+        background: '#0d0d0d',
+        mainBkg: '#0d0d0d',
+        nodeBorder: '#00f5ff',
+        clusterBkg: '#111111',
+        clusterBorder: '#39ff14',
+        edgeLabelBackground: '#0d0d0d'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88);
+      --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26);
+      --line-strong: rgba(57, 255, 20, 0.38);
+      --text: #e9f6ff;
+      --muted: #8ea3ad;
+      --accent-blue: #00f5ff;
+      --accent-green: #39ff14;
+      --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42);
+      --glow-green: 0 0 18px rgba(57, 255, 20, 0.28);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text);
+      font-family: var(--narrative-font);
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(circle at center, black 45%, transparent 92%);
+      opacity: 0.4;
+    }
+
+    a {
+      color: var(--accent-blue);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-kicker,
+    .pill,
+    .metric-label,
+    .metric-value,
+    .repo-tag,
+    .mermaid {
+      font-family: var(--technical-font);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+        var(--panel-strong);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -55% 42%;
+      height: 280px;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+      gap: 22px;
+      align-items: end;
+    }
+
+    .section-kicker {
+      margin: 0 0 12px;
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      text-shadow: var(--glow-green);
+    }
+
+    .phase-title {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.5rem, 5vw, 4.7rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      color: #f5feff;
+      text-transform: uppercase;
+      text-wrap: balance;
+      text-shadow: 0 0 24px rgba(0, 245, 255, 0.2);
+    }
+
+    .hero-summary {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.025);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+    }
+
+    .meta-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .meta-chip {
+      color: var(--accent-blue);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-shadow: var(--glow-blue);
+      word-break: break-word;
+    }
+
+    .repo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 245, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(0, 245, 255, 0.08);
+      color: var(--accent-blue);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+
+    .section {
+      position: relative;
+      margin-top: 22px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .section::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent);
+      transform: translateY(-1px);
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      line-height: 1.1;
+      color: #f0feff;
+    }
+
+    .section-index {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--accent-green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-green);
+    }
+
+    .section-index::after {
+      content: "";
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .column-card,
+    .diagram-frame,
+    .technical-frame,
+    .viz-frame,
+    .question-frame,
+    .empty-state {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        rgba(7, 7, 7, 0.82);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012);
+    }
+
+    .column-card {
+      padding: 18px;
+      min-height: 200px;
+    }
+
+    .column-label {
+      margin: 0 0 12px;
+      color: var(--accent-blue);
+      font-size: 0.83rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      text-shadow: var(--glow-blue);
+    }
+
+    .splitter {
+      width: 100%;
+      height: 1px;
+      margin: 8px 0 16px;
+      background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent);
+    }
+
+    .diagram-frame,
+    .technical-frame,
+    .viz-frame,
+    .question-frame {
+      padding: 18px;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      min-width: 640px;
+      color: var(--text);
+    }
+
+    .technical-frame {
+      color: #d6f6ff;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: top;
+    }
+
+    .technical-frame th {
+      color: var(--accent-green);
+      font-size: 0.76rem;
+      text-align: left;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .viz-frame canvas {
+      width: 100%;
+      max-width: 100%;
+      min-height: 240px;
+    }
+
+    .empty-state {
+      padding: 22px;
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent-blue);
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow: var(--glow-blue);
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 245, 255, 0.18);
+      border-radius: var(--radius-sm);
+      background: rgba(0, 245, 255, 0.04);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      color: var(--accent-green);
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-shadow: var(--glow-green);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(57, 255, 20, 0.22);
+      border-radius: 999px;
+      background: rgba(57, 255, 20, 0.06);
+      color: #d9ffd0;
+      font-size: 0.8rem;
+    }
+
+    .question-frame ul,
+    .technical-frame ul,
+    .column-card ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .question-frame li,
+    .technical-frame li,
+    .column-card li {
+      margin-bottom: 8px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: right;
+      color: rgba(142, 163, 173, 0.72);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .summary-grid,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .phase-title {
+        max-width: none;
+      }
+
+      .mermaid {
+        min-width: 560px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, 1180px);
+        padding-top: 16px;
+        padding-bottom: 42px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .section::before {
+        left: 18px;
+        right: 18px;
+      }
+
+      .phase-title {
+        font-size: clamp(2rem, 12vw, 3rem);
+      }
+
+      .mermaid {
+        min-width: 480px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">Ninhsim Customer-First Annual Path</h1>
+          <p class="hero-summary">
+            A compact artifact of work completed, decisions made, and follow-on paths worth exploring.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: Saigon18 REopt Integration</span>
+            <span class="pill">date :: 2026-04-02</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-julia-VNanalysis</div>
+        </div>
+
+        <div class="hero-meta">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">Saigon18 REopt Integration</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-julia-VNanalysis</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-04-02</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Input -> Output</div>
+          <h2 class="section-title">Input -> Output Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="column-card"><h3 class="column-label">Input</h3><div class="splitter"></div><ul><li>Started from the Phase 12 shortlist and deliberately chose the customer-first recommendation rule: keep the highest-revenue shortlist band that still leaves customer savings positive.</li><li>Applied explicit finance-grade annual defaults of 0.5%/yr renewable degradation, 1.0%/yr load growth, and unmatched-energy monetization at 33.2% of the EVN benchmark.</li><li>Reused the solved Ninhsim delivery/export shape so unmatched renewable energy is handled outside the customer bill instead of being silently ignored.</li></ul></div><div class="column-card"><h3 class="column-label">Output</h3><div class="splitter"></div><ul><li>Published the machine-readable Phase 13 artifact to `artifacts/reports/ninhsim/2026-04-02_ninhsim-customer-first-annual-path.json`.</li><li>The recommended customer-first band remains `5% below ceiling` at 1934.50 VND/kWh.</li><li>Under the richer annual path, customer savings NPV remains positive at $6.47M with no customer premium.</li></ul></div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Logic Flow</div>
+          <h2 class="section-title">Logic Flow</h2>
+        </div>
+      </div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">flowchart TD
+A[Phase 12 shortlist] --> B[Choose customer-first rule]
+B --> C[Write failing annual-path regressions]
+C --> D[Replay solved delivery plus export shapes]
+D --> E[Apply degradation load growth and merchant handling]
+E --> F{Customer savings still positive?}
+F -- Yes --> G[Keep 5% below ceiling as recommended band]
+F -- No --> H[Fall back to lower-risk band]
+G --> I[Regenerate machine-readable annual-path artifact]
+H --> I
+I --> J[Publish synced HTML report for self-review]</div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Math / Algorithm Used</div>
+          <h2 class="section-title">Math / Algorithm Used</h2>
+        </div>
+      </div>
+      <div class="technical-frame">
+        <ul><li>Select the customer-first band from the Phase 12 shortlist by maximizing developer revenue subject to customer savings staying positive in the screening view.</li><li>For each year, scale renewable availability by <code>(1 - degradation)</code> and site load by <code>(1 + load_growth)</code> before recomputing matched, residual-grid, and unmatched renewable volumes.</li><li>Keep unmatched renewable energy off the customer bill and value it separately at a merchant-price proxy tied to a fraction of the EVN benchmark.</li><li>Discount the customer and developer cash views with the existing REopt discount rates so the customer-first recommendation can be compared on an NPV basis.</li></ul>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Tools / Formulas / Methods</div>
+          <h2 class="section-title">Tools / Formulas / Methods</h2>
+        </div>
+      </div>
+      <div class="technical-frame technical">
+        <table><thead><tr><th>Tool / Method</th><th>Purpose</th><th>Outcome</th></tr></thead><tbody><tr><td><code>tests/python/test_ninhsim_cppa.py</code></td><td>Lock the new annual-path contract before implementation</td><td>Added regressions for degradation, load drift, unmatched-energy handling, and the customer-first recommendation hook.</td></tr><tr><td><code>scripts/python/analyze_ninhsim_cppa.py</code></td><td>Keep the finance-grade annual replay inside the existing Ninhsim analysis workflow</td><td>Now emits customer_first_recommendation and customer_first_annual_path alongside the strike-band screen.</td></tr><tr><td><code>Solved delivery + export shapes</code></td><td>Reuse real REopt output series instead of annual-total guesswork</td><td>Preserved a customer-protective treatment where unmatched renewable energy is monetized separately rather than billed to the customer.</td></tr><tr><td><code>report-template.html</code></td><td>Publish the annual-path result in the standard browser-safe report shell</td><td>Generated the synced Phase 13 HTML artifact with fixed-height Chart.js containers.</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Results &amp; Visualizations</div>
+          <h2 class="section-title">Results &amp; Visualizations</h2>
+        </div>
+      </div>
+      <div class="viz-frame">
+        <div style="position: relative; height: 320px; margin-bottom: 24px;"><canvas id="ninhsimAnnualSavingsChart"></canvas></div><script>new Chart(document.getElementById('ninhsimAnnualSavingsChart'), {"type": "line", "data": {"labels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "datasets": [{"label": "Customer savings vs EVN (USD millions)", "data": [0.533, 0.561, 0.59, 0.62, 0.652, 0.685, 0.72, 0.755, 0.793, 0.832, 0.873, 0.915, 0.959, 1.005, 1.053, 1.103, 1.155, 1.209, 1.264, 1.322], "borderColor": "#39ff14", "backgroundColor": "rgba(57, 255, 20, 0.18)", "tension": 0.25}, {"label": "Developer revenue (USD millions)", "data": [10.224, 10.695, 11.188, 11.703, 12.24, 12.801, 13.387, 13.998, 14.637, 15.304, 15.999, 16.726, 17.485, 18.277, 19.104, 19.968, 20.869, 21.81, 22.791, 23.816], "borderColor": "#00f5ff", "backgroundColor": "rgba(0, 245, 255, 0.18)", "tension": 0.25}]}, "options": {"responsive": true, "maintainAspectRatio": false, "plugins": {"legend": {"position": "bottom"}}, "scales": {"y": {"title": {"display": true, "text": "USD millions"}}}}});</script><div style="position: relative; height: 320px; margin-bottom: 24px;"><canvas id="ninhsimVolumePathChart"></canvas></div><script>new Chart(document.getElementById('ninhsimVolumePathChart'), {"type": "line", "data": {"labels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "datasets": [{"label": "Renewable delivered (GWh)", "data": [138.178, 137.794, 137.392, 136.974, 136.539, 136.089, 135.622, 135.143, 134.653, 134.15, 133.632, 133.103, 132.566, 132.021, 131.467, 130.903, 130.328, 129.745, 129.149, 128.546], "borderColor": "#39ff14", "backgroundColor": "rgba(57, 255, 20, 0.18)", "tension": 0.25}, {"label": "Unmatched renewable (GWh)", "data": [3.419, 3.095, 2.792, 2.509, 2.248, 2.003, 1.78, 1.572, 1.378, 1.201, 1.042, 0.897, 0.765, 0.643, 0.534, 0.438, 0.356, 0.286, 0.232, 0.188], "borderColor": "#ffb100", "backgroundColor": "rgba(255, 177, 0, 0.18)", "tension": 0.25}, {"label": "Total load (GWh)", "data": [184.286, 186.129, 187.99, 189.87, 191.769, 193.687, 195.623, 197.58, 199.555, 201.551, 203.566, 205.602, 207.658, 209.735, 211.832, 213.95, 216.09, 218.251, 220.433, 222.638], "borderColor": "#ff7a00", "backgroundColor": "rgba(255, 122, 0, 0.18)", "tension": 0.25}]}, "options": {"responsive": true, "maintainAspectRatio": false, "plugins": {"legend": {"position": "bottom"}}, "scales": {"y": {"title": {"display": true, "text": "GWh"}}}}});</script>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Limitations / Second-Best Alternative</div>
+          <h2 class="section-title">Limitations / Second-Best Alternative</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul><li>This is more finance-grade than Phase 12, but it is still a post-processed replay rather than a fresh optimization under degraded production and drifting load conditions.</li><li>The customer-first path won over a developer-maximizing path because the request explicitly prioritized customer best interest, so the recommendation rule refuses shortlist bands that create customer premium in the screening view.</li><li>Second-best alternative: hold the annual path at exact parity (`ceiling`) to minimize negotiation complexity; it lost because the `5% below ceiling` band preserves positive customer savings while still keeping strong developer revenue.</li></ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Errors / Warnings / Flags</div>
+          <h2 class="section-title">Errors / Warnings / Flags Encountered</h2>
+        </div>
+      </div>
+      <div class="question-frame technical">
+        <ul><li>Unmatched renewable pricing still uses a proxy tied to the EVN benchmark rather than a project-specific merchant forecast, so merchant-value results should be treated as directional.</li><li>No new Julia solve was run in this phase, so the annual path inherits the original optimized design and dispatch shape from the solved year-one scenario.</li><li>Chart canvases are again wrapped in explicit-height containers to preserve browser rendering stability.</li></ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Open Questions / Next Phase Seeds</div>
+          <h2 class="section-title">Open Questions / Next Phase Seeds</h2>
+        </div>
+      </div>
+      <div class="question-frame">
+        <ul><li>Does the customer-first recommended band still protect the customer once degradation, load drift, and merchant handling are included?</li><li>Recommended band: 5% below ceiling at 1934.50 VND/kWh.</li><li>Finance-grade customer savings NPV: $6.47M; customer premium NPV: $0.00M.</li><li>Year-1 unmatched renewable energy is 3.42 GWh and declines to 0.19 GWh by year 20 as load growth absorbs more output.</li><li>If the customer-first band still looks acceptable, the next phase should package it into a concise advance / hold / discard candidate memo for commercial review.</li></ul><p><strong>Decision artifact:</strong> Review customer_first_recommendation and customer_first_annual_path, then compare finance_grade_customer_savings_npv_usd against finance_grade_customer_premium_npv_usd.</p>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+</body>
+</html>

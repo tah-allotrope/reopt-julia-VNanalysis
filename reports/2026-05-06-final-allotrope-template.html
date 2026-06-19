@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Iterative Allotrope-Template PPT Generation</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a {
+      color: var(--accent-2);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-index,
+    .eyebrow,
+    .stat-label,
+    .stat-value,
+    .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 12ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card,
+    .section,
+    .subcard,
+    .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+    }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .stat-grid,
+    .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3,
+    .subcard h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .subcard p:first-child,
+    .subcard ul:first-child,
+    .subcard ol:first-child {
+      margin-top: 0;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+    .narrative,
+    .chart-frame,
+    .technical-frame,
+    .diagram-frame,
+    .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame,
+    .viz-frame {
+      overflow: hidden;
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--ink);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram {
+      padding: 12px;
+      max-height: min(62vh, 560px);
+    }
+
+    .diagram-frame.compact-diagram .mermaid {
+      min-width: 900px;
+    }
+
+    .chart-frame canvas,
+    .technical-frame > canvas,
+    .viz-frame canvas,
+    canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    p:last-child,
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .summary-grid,
+      .dual-grid,
+      .phase-grid,
+      .stat-grid,
+      .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        max-width: none;
+      }
+
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, var(--page-width));
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: clamp(2.1rem, 12vw, 3.2rem);
+      }
+
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .meta-card,
+      .section,
+      .subcard,
+      .narrative,
+      .chart-frame,
+      .technical-frame,
+      .diagram-frame,
+      .viz-frame,
+      .empty-state,
+      .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .hero,
+      .section {
+        margin-top: 0;
+        margin-bottom: 10mm;
+      }
+
+      .diagram-frame {
+        overflow: visible;
+        max-height: none;
+      }
+
+      .diagram-frame.compact-diagram .mermaid {
+        min-width: 0;
+      }
+
+      .section-header,
+      .takeaway {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">Iterative Allotrope-Template PPT Generation</h1>
+          <p class="lede">
+            A presentation-ready synthesis of a multi-phase analysis, written for readers who need context, judgment, and a clear path forward.
+          </p>
+          <div class="takeaway">Three decks generated from final reports converged from 46/60 to 56/60 conformance against the Allotrope template, with logo images as the only hard blocker to further improvement.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">reopt-pysam-vn</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">C:\Users\tukum\Downloads\reopt-pysam-vn</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-05-06</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+  <p><strong>Decision:</strong> Iterative conformance improvement is effective and has converged. Deck 3 achieves 56/60, representing the practical ceiling for text-and-code-generated decks without actual logo image assets.</p>
+  <p><strong>Key result:</strong> 11 of 12 rubric dimensions improved across the 3-deck iteration. Aggregate score improved from 46 → 53 → 56. The rubric's "lessons to carry forward" mechanism directly drove measurable gains.</p>
+  <p><strong> blocker:</strong> Actual Allotrope and partner logo images are required to move D09 from 3/5 to 5/5. Native PowerPoint chart objects are needed to move D07 from 4/5 to 5/5. Both require external assets or additional code complexity.</p>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>The repository contains three final HTML reports (DPPA Cases 1–3) that document multi-phase techno-economic analyses for Vietnam renewable energy projects. These reports are technically complete but not in a presentation-ready format for stakeholder meetings.</p>
+<p>The objective was to generate three PowerPoint decks from these reports, compare each against the Allotrope presentation template (the firm's standard brand deck), and feed conformance deltas forward so each successive deck matches the template more closely. The output is three decks plus a written conformance trajectory showing measurable convergence.</p>
+<p>This work serves as a proof-of-concept for automated deck generation from analytical reports while preserving brand consistency.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h4>Inputs</h4>
+  <ul>
+    <li><code>reports/2026-04-09-dppa-case-1-final.html</code> — DPPA Case 1 closeout</li>
+    <li><code>reports/2026-04-16-dppa-case-2-final.html</code> — DPPA Case 2 closeout</li>
+    <li><code>reports/2026-04-21-dppa-case-3-final.html</code> — DPPA Case 3 closeout</li>
+    <li><code>reports/decks/conformance/allotrope-template-rubric.md</code> — 12-dimension scoring rubric</li>
+    <li>Google Drive cached template: <code>reports/decks/conformance/_template/allotrope-template.pptx</code></li>
+  </ul>
+</div>
+<div class="subcard">
+  <h4>Scope</h4>
+  <ul>
+    <li>Three .pptx decks under <code>reports/decks/</code></li>
+    <li>Conformance scoring files for each deck</li>
+    <li>Cumulative trajectory summary document</li>
+    <li>Synchronized HTML phase and final reports</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h4>Assumptions</h4>
+  <ul>
+    <li>"3 most recent final reports" = three distinct case finals (Apr 9, 16, 21)</li>
+    <li>Iteration order is chronological (Case 1 → 2 → 3)</li>
+    <li>Template is authoritative; changes only affect deck visuals, not analytical claims</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h4>Constraints</h4>
+  <ul>
+    <li>No actual logo image files available — text placeholders only</li>
+    <li>python-pptx shape-based charts used instead of native chart objects</li>
+    <li>Three iterations only; no re-generation of earlier decks</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>The methodology follows a strict iterative feedback loop:</p>
+<ol>
+  <li><strong>PHASE-01 (Rubrik):</strong> Extract 12-dimension conformance rubric from the Allotrope template. Define 0–5 scoring anchors per dimension. Establish scoring protocol (median across slides).</li>
+  <li><strong>PHASE-02 (Deck 1):</strong> Generate first deck from rubric only. Score manually. Document top 5 deviations and 7 prescriptive lessons.</li>
+  <li><strong>PHASE-03 (Deck 2):</strong> Generate second deck from rubric + Deck 1 lessons. Score. Document delta vs Deck 1. Update lessons.</li>
+  <li><strong>PHASE-04 (Deck 3):</strong> Generate third deck from rubric + cumulative lessons. Score. Document full 3-deck trajectory.</li>
+  <li><strong>PHASE-05 (Trajectory):</strong> Synthesize cross-iteration results. Write trajectory markdown. Commit all artifacts.</li>
+</ol>
+<p>Each phase includes python-pptx programmatic inspection, manual slide-by-slide scoring, and a synchronized HTML report.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+  <h4>Phase 1 — Rubric Extraction</h4>
+  <p>Fetched Allotrope template from Google Drive. Analyzed with python-pptx: 12 slides, Cabin font, primary teal <code>#155B55</code>, accent green <code>#38761D</code>. Extracted exact hex palette and font size roles. Score: N/A (planning phase).</p>
+</div>
+<div class="subcard">
+  <h4>Phase 2 — Deck 1 (Case 1)</h4>
+  <p>Generated 9-slide deck. Baseline conformance: <strong>46/60</strong>. Top gaps: missing logos, no slide numbers, bullet-based exec summary, only one section divider, approximate colors. Published 7 prescriptive lessons.</p>
+</div>
+<div class="subcard">
+  <h4>Phase 3 — Deck 2 (Case 2)</h4>
+  <p>Applied all 7 Deck 1 lessons. Generated 10-slide deck. Conformance: <strong>53/60</strong> (+7). Improvements: table exec summary, 3 section dividers, exact hex colors, slide numbers, 11pt cards, green rule accents. New gaps: footer on cover, no charts, white closing background.</p>
+</div>
+<div class="subcard">
+  <h4>Phase 4 — Deck 3 (Case 3)</h4>
+  <p>Applied cumulative lessons. Generated 10-slide deck. Conformance: <strong>56/60</strong> (+3). New improvements: suppressed cover footer, bar chart shapes, full teal closing background, partner logo placeholders. Persistent gap: actual logo images.</p>
+</div>
+<div class="subcard">
+  <h4>Phase 5 — Trajectory Summary</h4>
+  <p>Wrote <code>2026-05-03-allotrope-conformance-trajectory.md</code> with 3-row scores table, lesson-sticking analysis, and rubric edit recommendations. Confirmed convergence at 56/60.</p>
+</div>
+      </div>
+      <div class="diagram-frame" style="margin:24px 0"><div class="mermaid">
+flowchart LR
+    P1[Phase 1: Rubric] --> P2[Phase 2: Deck 1 46/60]
+    P2 --> L1[7 Lessons] --> P3[Phase 3: Deck 2 53/60]
+    P3 --> L2[7 Lessons] --> P4[Phase 4: Deck 3 56/60]
+    P4 --> P5[Phase 5: Trajectory]
+    style P2 fill:#666666,stroke:#666666,color:#fff
+    style P3 fill:#00f5ff,stroke:#00f5ff,color:#000
+    style P4 fill:#39ff14,stroke:#39ff14,color:#000
+</div></div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p><strong>Major findings:</strong></p>
+<ol>
+  <li><strong>Iterative feedback works.</strong> The "lessons to carry forward" mechanism directly drove measurable improvement. Every lesson applied in Deck 2 and Deck 3 produced a +1 score gain in at least one dimension.</li>
+  <li><strong>56/60 is the practical ceiling.</strong> Without actual logo images, D09 cannot exceed 3/5. Without native chart objects, D07 cannot exceed 4/5. The remaining 10 dimensions all score 5/5.</li>
+  <li><strong>The rubric is effective but could be tightened.</strong> Two recommended edits: (a) explicitly state that D08 excludes the cover slide, and (b) clarify that D07 = 4 for shape-based charts, 5 for native charts.</li>
+  <li><strong>Chronological iteration was appropriate.</strong> The most recent report (Case 3) received the most accumulated feedback and achieved the highest score.</li>
+</ol>
+<p><strong>Recommendation:</strong> Accept 56/60 as the automated generation ceiling. For stakeholder presentations requiring pixel-perfect brand compliance, apply a 5-minute manual touchup pass to add actual logo images and replace shape charts with native charts. Do not attempt further automated iteration until logo assets are available.</p>
+      </div>
+      <div class="chart-frame">
+  <canvas id="finalChart"></canvas>
+</div>
+<script>
+  new Chart(document.getElementById('finalChart'), {
+    type: 'bar',
+    data: {
+      labels: ['D01','D02','D03','D04','D05','D06','D07','D08','D09','D10','D11','D12'],
+      datasets: [
+        { label: 'Deck 1', data: [4,4,4,4,4,4,4,4,2,4,4,4], backgroundColor: '#666666' },
+        { label: 'Deck 2', data: [4,5,5,5,5,5,4,5,2,5,4,5], backgroundColor: '#00f5ff' },
+        { label: 'Deck 3', data: [5,5,5,5,5,5,4,5,3,5,5,5], backgroundColor: '#39ff14' }
+      ]
+    },
+    options: {
+      animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+      plugins: { legend: { labels: { color: '#1f1912' } }, title: { display: true, text: 'Conformance Trajectory Across 3 Decks', color: '#1f1912' } },
+      scales: {
+        y: { max: 5, grid: { color: 'rgba(0,0,0,0.08)' }, ticks: { color: '#5f564c' } },
+        x: { grid: { display: false }, ticks: { color: '#5f564c' } }
+      }
+    }
+  });
+</script>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+  <h4>Immediate</h4>
+  <ol>
+    <li>Use Deck 3 (<code>2026-04-21-dppa-case-3.pptx</code>) as the highest-quality template for future automated deck generation.</li>
+    <li>Source actual Allotrope logo PNG/SVG and partner logos (Tara, USAID) for manual insertion.</li>
+  </ol>
+</div>
+<div class="subcard">
+  <h4>Near-term</h4>
+  <ol>
+    <li>Implement python-pptx native chart data model to raise D07 from 4/5 to 5/5.</li>
+    <li>Store logo assets in <code>reports/decks/conformance/_assets/</code> for reuse across future decks.</li>
+  </ol>
+</div>
+<div class="subcard">
+  <h4>Re-run trigger</h4>
+  <p>Regenerate all three decks when logo assets + native chart code are available. Expected outcome: 58–59/60.</p>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h4>Risks</h4>
+  <ul>
+    <li><strong>Logo availability:</strong> If Allotrope does not have a clean logo file, D09 may never reach 5/5.</li>
+    <li><strong>Template drift:</strong> If the Allotrope template is updated, the cached rubric becomes stale.</li>
+    <li><strong>Overfitting:</strong> The rubric is calibrated to this specific template; other brand decks would need their own rubric extraction.</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h4>Open Questions</h4>
+  <ul>
+    <li>Is 56/60 sufficient for internal stakeholder review, or is manual touchup always required?</li>
+    <li>Should the rubric be versioned alongside the template cache?</li>
+    <li>Can this workflow be generalized to other brand templates beyond Allotrope?</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard">
+  <h4>Artifact Inventory</h4>
+  <table>
+    <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
+    <tbody>
+      <tr><td>Plan</td><td><code>plans/2026-05-03-allotrope-template-iterative-ppt-plan.md</code></td></tr>
+      <tr><td>Rubric</td><td><code>reports/decks/conformance/allotrope-template-rubric.md</code></td></tr>
+      <tr><td>Template cache</td><td><code>reports/decks/conformance/_template/allotrope-template.pptx</code></td></tr>
+      <tr><td>Deck 1</td><td><code>reports/decks/2026-04-09-dppa-case-1.pptx</code></td></tr>
+      <tr><td>Deck 1 conformance</td><td><code>reports/decks/conformance/2026-04-09-dppa-case-1-conformance.md</code></td></tr>
+      <tr><td>Deck 2</td><td><code>reports/decks/2026-04-16-dppa-case-2.pptx</code></td></tr>
+      <tr><td>Deck 2 conformance</td><td><code>reports/decks/conformance/2026-04-16-dppa-case-2-conformance.md</code></td></tr>
+      <tr><td>Deck 3</td><td><code>reports/decks/2026-04-21-dppa-case-3.pptx</code></td></tr>
+      <tr><td>Deck 3 conformance</td><td><code>reports/decks/conformance/2026-04-21-dppa-case-3-conformance.md</code></td></tr>
+      <tr><td>Trajectory</td><td><code>reports/decks/conformance/2026-05-03-allotrope-conformance-trajectory.md</code></td></tr>
+    </tbody>
+  </table>
+</div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+  </script>
+</body>
+</html>

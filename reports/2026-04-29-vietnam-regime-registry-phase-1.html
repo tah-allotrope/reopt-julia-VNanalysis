@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: vietnam-regime-registry-phase-1</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    Chart.defaults.devicePixelRatio = 1;
+    Chart.defaults.animation = false;
+    Chart.defaults.resizeDelay = 150;
+    Chart.defaults.normalized = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    function initChart() {
+      const canvas = document.getElementById('validation-chart');
+      if (!canvas) return;
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['Python L1/L2', 'Julia L1', 'Julia L2'],
+          datasets: [{
+            label: 'Passing tests',
+            data: [89, 268, 151],
+            backgroundColor: ['#00f5ff', '#39ff14', '#8bff7a'],
+            borderColor: ['#00f5ff', '#39ff14', '#8bff7a'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#e9f6ff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+            y: { ticks: { color: '#e9f6ff' }, grid: { color: 'rgba(255,255,255,0.08)' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+      await mermaid.run({ nodes: blocks });
+    }
+
+    function boot() {
+      initChart();
+      initMermaid().catch((error) => console.error('Mermaid render failed', error));
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+      boot();
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --panel: #141414;
+      --panel-2: #1b1b1b;
+      --line: rgba(0, 245, 255, 0.22);
+      --text: #e9f6ff;
+      --muted: #9ab0ba;
+      --cyan: #00f5ff;
+      --green: #39ff14;
+      --yellow: #ffd166;
+      --red: #ff6b6b;
+      --radius: 18px;
+      --shadow: 0 10px 28px rgba(0,0,0,0.35);
+      --mono: "Cascadia Code", Consolas, monospace;
+      --sans: "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #050505 0%, #0d0d0d 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.6;
+    }
+    .page {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+    .hero, .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 28px;
+      margin-bottom: 22px;
+      background: linear-gradient(135deg, rgba(0,245,255,0.08), transparent 30%), var(--panel);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 0.9fr;
+      gap: 20px;
+    }
+    .kicker, .chip, code, .repo, .section h2 { font-family: var(--mono); }
+    .kicker {
+      color: var(--green);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+    .summary {
+      color: var(--muted);
+      max-width: 60ch;
+      margin-top: 16px;
+    }
+    .meta {
+      display: grid;
+      gap: 12px;
+    }
+    .meta-card {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid rgba(57,255,20,0.16);
+    }
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .chip {
+      color: var(--cyan);
+      word-break: break-word;
+    }
+    .repo {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,245,255,0.24);
+      color: var(--cyan);
+      background: rgba(0,245,255,0.08);
+    }
+    .section {
+      margin-top: 20px;
+      padding: 24px;
+    }
+    .section h2 {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .card {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    ul { margin: 0; padding-left: 20px; }
+    .metric-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .metric {
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid rgba(0,245,255,0.14);
+    }
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+    }
+    .metric-value {
+      font-size: 30px;
+      color: var(--cyan);
+      font-family: var(--mono);
+    }
+    .viz-frame {
+      height: 320px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel-2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    th {
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    tr:last-child td { border-bottom: none; }
+    .ok { color: var(--green); }
+    .warn { color: var(--yellow); }
+    .flag { color: var(--red); }
+    .mermaid-wrap {
+      overflow: auto;
+      max-height: 420px;
+      padding: 8px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    @media (max-width: 900px) {
+      .hero-grid, .grid-2, .metric-list { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: white; color: black; }
+      .hero, .section, .card, .metric, table, .viz-frame, .mermaid-wrap { box-shadow: none; background: white; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <p class="kicker">Phase Report</p>
+          <h1>vietnam-regime-registry-phase-1</h1>
+          <p class="summary">Phase 1 established the repo-level data contract for named Vietnam regulatory regimes by adding a versioned registry file, extending the manifest and both loaders, and proving the new surface with targeted Python and Julia validation.</p>
+          <div class="repo">REopt PySAM VN / reopt-pysam</div>
+        </div>
+        <div class="meta">
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="chip">2026-04-29</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="chip">Vietnam Regulatory Scenario Engine</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repo</div>
+            <div class="chip">reopt-pysam</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1. Phase Header</h2>
+      <div class="grid-2">
+        <div class="card">
+          <strong>Goal</strong>
+          <p>Add the Phase 1 foundation from `plans/2026-04-29-vietnam-regulatory-scenario-engine-plan.md`: a versioned regime registry plus loader and validation support.</p>
+        </div>
+        <div class="card">
+          <strong>Outcome</strong>
+          <p>Named regimes now exist as first-class data under `data/vietnam/`, and both Julia and Python loaders expose that payload through `VNData`.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2. Input -&gt; Output Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Input</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Commercial Idea 2 and Phase 1 plan scope</td><td>Concrete repo data contract for named regulatory regimes</td></tr>
+          <tr><td>Existing manifest with 5 active Vietnam data files</td><td>`manifest.json` extended with `regimes`</td></tr>
+          <tr><td>Single tariff/export baseline in loaders</td><td>`VNData` now carries `regimes` in both Python and Julia</td></tr>
+          <tr><td>No Layer 1 or Layer 2 awareness of regime metadata</td><td>Targeted validation coverage for registry schema and loader contract</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>3. Logic Flow</h2>
+      <div class="mermaid-wrap">
+        <div class="mermaid">
+flowchart LR
+    A[Read Phase 1 scope] --> B[Write failing data and loader tests]
+    B --> C[Confirm red phase on missing regimes key]
+    C --> D[Add vn_regime_registry_2026.json]
+    D --> E[Extend manifest.json]
+    E --> F[Extend Python and Julia VNData loaders]
+    F --> G[Re-run targeted Python and Julia tests]
+    G --> H[Record results and publish phase report]
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>4. Math / Algorithm Used</h2>
+      <div class="card">
+        <p>No numerical algorithm was introduced in this phase. The main logic was schema-based:</p>
+        <ul>
+          <li>Require `regimes` as a sixth manifest key alongside the existing five Vietnam data surfaces.</li>
+          <li>Enforce complete 24-hour TOU coverage for any regime that overrides `tou_schedule`.</li>
+          <li>Enforce `0 <= max_export_fraction <= 1` for any regime that overrides rooftop export caps.</li>
+          <li>Preserve current behavior by representing the existing repo baseline as `decision_14_2025_current`.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5. Tools / Formulas / Methods</h2>
+      <div class="grid-2">
+        <div class="card">
+          <strong>Method</strong>
+          <ul>
+            <li>Red/green TDD on the data contract</li>
+            <li>Minimal invasive loader changes</li>
+            <li>Mirror Python and Julia changes to protect parity</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Primary files</strong>
+          <ul>
+            <li>`data/vietnam/vn_regime_registry_2026.json`</li>
+            <li>`data/vietnam/manifest.json`</li>
+            <li>`src/python/reopt_pysam_vn/reopt/preprocess.py`</li>
+            <li>`src/julia/REoptVietnam.jl`</li>
+            <li>`tests/python/reopt/test_data_validation.py`</li>
+            <li>`tests/julia/test_data_validation.jl`</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>6. Results &amp; Visualizations</h2>
+      <div class="metric-list">
+        <div class="metric"><div class="metric-label">New data files</div><div class="metric-value">1</div></div>
+        <div class="metric"><div class="metric-label">Initial regimes</div><div class="metric-value">5</div></div>
+        <div class="metric"><div class="metric-label">Core loaders updated</div><div class="metric-value">2</div></div>
+      </div>
+      <div class="viz-frame" style="margin-top:16px;">
+        <canvas id="validation-chart"></canvas>
+      </div>
+      <table style="margin-top:16px;">
+        <thead>
+          <tr><th>Validation</th><th>Result</th><th>Evidence</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Python Layer 1 + 2 targeted run</td><td class="ok">PASS</td><td>`89 passed in 5.82s`</td></tr>
+          <tr><td>Julia Layer 1</td><td class="ok">PASS</td><td>`268 / 268`</td></tr>
+          <tr><td>Julia Layer 2</td><td class="ok">PASS</td><td>`151 / 151`</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>7. Limitations / Second-Best Alternative</h2>
+      <div class="grid-2">
+        <div class="card">
+          <strong>Current limitation</strong>
+          <p>Phase 1 only adds the registry surface. No `regime_id` resolution or scenario execution changes exist yet, so the new data is not consumed by preprocessing behavior.</p>
+        </div>
+        <div class="card">
+          <strong>Second-best alternative</strong>
+          <p>Add only a `tou_regime` switch to the tariff builder and defer a full registry. That would be smaller short-term, but it would immediately underfit the broader Idea 2 scope across export caps and demand-charge regimes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>8. Errors / Warnings / Flags Encountered</h2>
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Detail</th><th>Outcome</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="warn">Expected red phase</td><td>Targeted tests initially failed because `manifest.json` lacked `regimes` and `VNData` had no `regimes` field.</td><td>Resolved by adding the registry file and loader support.</td></tr>
+          <tr><td class="warn">Julia environment warning</td><td>`ArchGDAL` emitted method-overwrite precompile warnings during the unit-test run.</td><td>The test suite still completed successfully with `151 / 151` passes; no phase change was required.</td></tr>
+          <tr><td class="flag">Worktree flag</td><td>There were unrelated untracked files in the repository before the phase started.</td><td>Left untouched; Phase 1 changes are isolated for the commit.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>9. Open Questions / Next Phase Seeds</h2>
+      <ul>
+        <li>Phase 2 should add `regime_id` resolution helpers in Python and Julia and keep the default behavior pinned to `decision_14_2025_current`.</li>
+        <li>Phase 2 should decide how regime overrides merge into tariff and export-rule payloads without duplicating the full data layer.</li>
+        <li>Phase 3 will need deterministic scenario hashing and an explicit output directory path for `scripts/julia/run_vietnam_scenario.jl`.</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>

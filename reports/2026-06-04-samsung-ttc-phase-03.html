@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: samsung-ttc-phase-03</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111',
+          background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff',
+          clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d'
+        }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root {
+      --bg:#0d0d0d; --panel:rgba(13,13,13,0.88); --panel-strong:rgba(19,19,19,0.96);
+      --line:rgba(0,245,255,0.26); --text:#e9f6ff; --muted:#8ea3ad;
+      --accent-blue:#00f5ff; --accent-green:#39ff14;
+      --glow-blue:0 0 18px rgba(0,245,255,0.42); --glow-green:0 0 18px rgba(57,255,20,0.28);
+      --shadow:0 14px 40px rgba(0,0,0,0.32);
+      --radius-lg:22px; --radius-md:16px; --radius-sm:12px;
+      --narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+      --technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace;
+    }
+    * { box-sizing:border-box; }
+    body {
+      position:relative; margin:0; min-height:100vh; overflow-x:hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0,245,255,0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57,255,20,0.08), transparent 24%),
+        linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%);
+      color:var(--text); font-family:var(--narrative-font); line-height:1.6; letter-spacing:0.01em;
+    }
+    body::before {
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size:32px 32px; opacity:0.16;
+    }
+    a { color:var(--accent-blue); }
+    code, pre, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family:var(--technical-font); }
+    .page-shell { width:min(1180px, calc(100vw - 32px)); margin:0 auto; padding:32px 0 72px; position:relative; z-index:1; }
+    .hero {
+      position:relative; padding:28px; margin-bottom:24px; border:1px solid var(--line); border-radius:28px;
+      background:
+        linear-gradient(145deg, rgba(0,245,255,0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--panel-strong);
+      box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .hero::after { content:""; position:absolute; inset:auto -10% -55% 42%; height:280px; background:radial-gradient(circle, rgba(0,245,255,0.18), transparent 64%); filter:blur(12px); pointer-events:none; }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(260px,0.85fr); gap:22px; align-items:end; }
+    .section-kicker { margin:0 0 12px; color:var(--accent-green); font-size:0.76rem; font-weight:700; text-transform:uppercase; letter-spacing:0.22em; text-shadow:var(--glow-green); }
+    .phase-title { margin:0; max-width:16ch; font-size:clamp(2.1rem,4.2vw,3.8rem); line-height:0.94; letter-spacing:-0.05em; color:#f5feff; text-transform:uppercase; text-wrap:balance; text-shadow:0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin:18px 0 0; max-width:62ch; color:var(--muted); font-size:0.98rem; }
+    .hero-meta { display:grid; gap:12px; }
+    .meta-card { padding:16px 18px; border:1px solid rgba(57,255,20,0.2); border-radius:18px; background:rgba(255,255,255,0.025); box-shadow:inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom:6px; color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .meta-chip { color:var(--accent-blue); font-size:1rem; font-weight:700; letter-spacing:0.02em; text-shadow:var(--glow-blue); word-break:break-word; }
+    .repo-tag { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; border:1px solid rgba(0,245,255,0.24); border-radius:999px; background:rgba(0,245,255,0.08); color:var(--accent-blue); font-size:0.82rem; letter-spacing:0.04em; }
+    .section { position:relative; margin-top:22px; padding:24px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--panel); box-shadow:var(--shadow); }
+    .section::before { content:""; position:absolute; left:24px; right:24px; top:0; height:1px; background:linear-gradient(90deg, transparent, rgba(0,245,255,0.9), rgba(57,255,20,0.9), transparent); transform:translateY(-1px); }
+    .section-header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 18px; align-items:end; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .section-title { margin:0; font-size:clamp(1.2rem,2vw,1.7rem); line-height:1.1; color:#f0feff; }
+    .section-index { display:inline-flex; align-items:center; gap:10px; color:var(--accent-green); font-size:0.78rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; text-shadow:var(--glow-green); }
+    .section-index::after { content:""; width:44px; height:1px; background:linear-gradient(90deg, rgba(57,255,20,0.9), transparent); }
+    .summary-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state {
+      border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), rgba(7,7,7,0.82);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.012);
+    }
+    .column-card { padding:18px; min-height:200px; }
+    .column-label { margin:0 0 12px; color:var(--accent-blue); font-size:0.83rem; font-weight:700; text-transform:uppercase; letter-spacing:0.16em; text-shadow:var(--glow-blue); }
+    .splitter { width:100%; height:1px; margin:8px 0 16px; background:linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding:18px; }
+    .diagram-frame { overflow:auto; overscroll-behavior:contain; max-height:min(70vh,720px); }
+    .mermaid { width:100%; max-width:100%; min-width:0; color:var(--text); }
+    .mermaid svg { display:block; width:auto !important; min-width:100%; max-width:none !important; height:auto !important; }
+    .chart-frame, .viz-frame { overflow:hidden; }
+    .technical-frame { color:#d6f6ff; }
+    .technical-frame table { width:100%; border-collapse:collapse; }
+    .technical-frame th, .technical-frame td { padding:11px 10px; border-bottom:1px solid rgba(255,255,255,0.08); vertical-align:top; }
+    .technical-frame th { color:var(--accent-green); font-size:0.76rem; text-align:left; letter-spacing:0.12em; text-transform:uppercase; }
+    .chart-frame canvas, .viz-frame canvas, canvas.report-chart { display:block; width:100% !important; max-width:100%; height:320px !important; min-height:320px; max-height:320px; }
+    .metric-strip { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .metric { padding:14px 16px; border:1px solid rgba(0,245,255,0.18); border-radius:var(--radius-sm); background:rgba(0,245,255,0.04); }
+    .metric-label { color:var(--muted); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .metric-value { margin-top:8px; color:var(--accent-green); font-size:1.2rem; font-weight:700; text-shadow:var(--glow-green); }
+    .pill-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid rgba(57,255,20,0.22); border-radius:999px; background:rgba(57,255,20,0.06); color:#d9ffd0; font-size:0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin:0; padding-left:20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom:8px; }
+    .flag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+    .flag-ok { color:#062; background:rgba(57,255,20,0.16); border:1px solid rgba(57,255,20,0.4); }
+    .flag-warn { color:#ffd27a; background:rgba(255,200,80,0.12); border:1px solid rgba(255,200,80,0.4); }
+    .footer-note { margin-top:18px; text-align:right; color:rgba(142,163,173,0.72); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; }
+    @media (max-width:900px){ .hero-grid,.summary-grid,.metric-strip{ grid-template-columns:1fr; } .phase-title{ max-width:none; } }
+    @media (max-width:640px){ .page-shell{ width:min(100vw - 20px,1180px); padding-top:16px; padding-bottom:42px; } .hero,.section{ padding:18px; border-radius:20px; } .section::before{ left:18px; right:18px; } }
+    @media print { body{ background:#fff; color:#111; } body::before,.hero::after{ display:none; } .section,.hero{ box-shadow:none; border-color:#bbb; break-inside:avoid; } .metric-value,.section-kicker,.meta-chip{ text-shadow:none; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Directional Deal Model</p>
+          <h1 class="phase-title">Samsung-TTC DPPA / Phase 03</h1>
+          <p class="hero-summary">
+            Swept the strike from the Southern ceiling (1,012) to the EVN avoided cost (1,873 VND/kWh) and ran the
+            <strong>PySAM Single Owner</strong> developer screen at each point. The buyer saves only at low strikes
+            (flipping to a premium above ~1,440); the developer is <strong>sub-economic across the entire regulated
+            band</strong> (NPV &minus;$80M&rarr;&minus;$57M, IRR null) under conservative assumptions &mdash; so
+            there is <strong>no negotiable overlap</strong>. The DPPA grid-service adder is the dominant buyer lever.
+            All figures <code>directional</code>.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: Samsung-TTC DPPA Economics</span>
+            <span class="pill">date :: 2026-06-04</span>
+            <span class="pill">TDD :: 5 tests red&rarr;green</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Negotiation result</div><div class="meta-chip">buyer saves / developer sub-economic</div></div>
+          <div class="meta-card"><div class="meta-label">Overlap band</div><div class="meta-chip">none found</div></div>
+          <div class="meta-card"><div class="meta-label">Phase Status</div><div class="meta-chip">PHASE-03 COMPLETE</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p><div class="splitter"></div>
+          <ul>
+            <li>PHASE-02 fixed-plant settlement (49 MWp / 70 GWh, PVWatts solar, CFMP proxy).</li>
+            <li>Strike band: Southern ceiling 1,012 &rarr; EVN standard-hour avoided cost 1,873 VND/kWh (5 points).</li>
+            <li>Developer finance: PySAM Single Owner, $750/kW capex ($36.8M), 20 yr, 70% debt, 15% target IRR, revenue on the contracted 70 GWh (conservative).</li>
+            <li>DPPA grid-service adder: inherited Case-2 default 523.34 VND/kWh, swept 0&ndash;2&times;.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p><div class="splitter"></div>
+          <ul>
+            <li><code>build_samsung_ttc_strike_sweep</code> + <code>build_samsung_ttc_adder_sensitivity</code> (+ exports).</li>
+            <li><code>analyze_samsung_ttc_strike_developer.py</code> (run under .venv) &rarr; <code>samsung_ttc_strike-sensitivity.json</code>, <code>samsung_ttc_contract-risk.json</code>.</li>
+            <li><code>test_dppa_samsung_ttc_phase_03.py</code> &mdash; 5 tests (endpoints, buyer monotonicity, developer wiring via injected runner, adder flip, directional flags).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Buyer saves up to strike</div><div class="metric-value">~1,440 VND/kWh</div></div>
+        <div class="metric"><div class="metric-label">Developer NPV @ best strike</div><div class="metric-value">&minus;$57.3M</div></div>
+        <div class="metric"><div class="metric-label">Adder break-even</div><div class="metric-value">~0.9&times; (≈470 VND)</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+  A[fixed-plant settlement\nPHASE-02] --> B[strike sweep\n1012 -> 1873 VND/kWh]
+  B --> C[buyer side\nrun settlement + benchmark]
+  B --> D[developer side\nPySAM Single Owner IRR/NPV]
+  C --> E[buyer saves at low strike\npremium above ~1440]
+  D --> F[NPV negative across band\nIRR null -> sub-economic]
+  E --> G{overlap?}
+  F --> G
+  G -->|none| H[recommended:\nbuyer_saves_developer_subeconomic]
+  A --> I[adder sensitivity 0-2x\ndominant buyer lever]
+  H --> J[PHASE-04 seed\nregime stress + final report]
+  I --> J
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Strike (VND/kWh)</th><th>Buyer vs EVN (B VND/yr)</th><th>Developer NPV ($M)</th><th>Developer IRR</th><th>Overlap</th></tr></thead>
+          <tbody>
+            <tr><td>1,012 (ceiling)</td><td style="color:#39ff14">&minus;25.20 (saves)</td><td>&minus;79.7</td><td>null</td><td>no</td></tr>
+            <tr><td>1,227</td><td style="color:#39ff14">&minus;10.13 (saves)</td><td>&minus;74.1</td><td>null</td><td>no</td></tr>
+            <tr><td>1,443</td><td style="color:#ff8a8a">+4.95 (premium)</td><td>&minus;68.5</td><td>null</td><td>no</td></tr>
+            <tr><td>1,658</td><td style="color:#ff8a8a">+20.02 (premium)</td><td>&minus;62.9</td><td>null</td><td>no</td></tr>
+            <tr><td>1,873 (avoided)</td><td style="color:#ff8a8a">+35.10 (premium)</td><td>&minus;57.3</td><td>null</td><td>no</td></tr>
+          </tbody>
+        </table>
+        <p style="color:var(--muted); font-size:0.9rem; margin:12px 2px 0">
+          Buyer-vs-EVN = buyer total &minus; EVN benchmark on the matched 70 GWh (negative = saving). Developer NPV/IRR
+          from PySAM Single Owner at $750/kW capex; IRR is null because the cashflow never crosses positive under these
+          conservative assumptions (revenue taken on the contracted 70 GWh, not the plant's full ~92.5 GWh yield).
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool / Method</th><th>Role in Phase 03</th></tr></thead>
+          <tbody>
+            <tr><td>Reused Case-2 engine</td><td>Buyer settlement + benchmark per strike; <code>build_dppa_case_2_contract_risk_sensitivity</code> for the adder sweep.</td></tr>
+            <tr><td>PySAM Single Owner</td><td><code>build_dppa_case_2_single_owner_inputs</code> + <code>run_single_owner_model</code> at the fixed 49 MWp; PPA price = strike, varied per sweep point.</td></tr>
+            <tr><td>Injected-runner tests</td><td>Developer wiring tested with a deterministic fake runner so the suite passes with or without PySAM; the real run happens under .venv.</td></tr>
+            <tr><td>TDD / pytest</td><td>5 phase tests red&rarr;green; full reopt + Case-2 regression re-run under .venv.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame"><canvas id="sweepChart" aria-label="Buyer saving and developer NPV vs strike"></canvas></div>
+      <div class="viz-frame" style="margin-top:16px"><canvas id="adderChart" aria-label="Buyer position vs DPPA adder"></canvas></div>
+      <p class="hero-summary" style="margin-top:14px">
+        Top: buyer position (bars, left axis) crosses from saving to premium near 1,440 VND/kWh, while developer NPV
+        (line, right axis) rises with strike but never reaches zero &mdash; the two never overlap. Bottom: the inherited
+        DPPA grid-service adder moves the buyer from a 61.8 B VND saving (adder 0) to an 11.4 B VND premium (adder 2&times;),
+        breaking even near 0.9&times;. <strong>All directional.</strong>
+      </p>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Developer revenue is conservative.</strong> It is taken on the contracted 70 GWh, but the real 49 MWp plant generates ~92.5 GWh (sunny South); counting full output + merchant tail would lift developer NPV materially. The "sub-economic" finding is therefore a floor, not a verdict.</li>
+          <li><strong>Null IRR is expected.</strong> The repo's Single Owner setup returns null IRR when the cashflow never crosses positive (same as Case-2 Phase F); NPV is the usable developer metric here.</li>
+          <li><strong>Inherited adder dominates.</strong> The DPPA grid-service adder (523.34) is a Case-2 default, not deal-calibrated, yet it sets the sign of the buyer result &mdash; the single most important number to source for real.</li>
+          <li><strong>Capex assumed.</strong> $750/kW is a market estimate; lower capex (utility solar is falling) would improve developer NPV.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><span class="flag flag-ok">ran</span> PySAM Single Owner developer screen ran under .venv at all 5 strikes (capex $36.8M, 49 MWdc).</li>
+          <li><span class="flag flag-warn">expected</span> Developer IRR null across the band (cashflow never positive) &mdash; documented Single Owner behavior; NPV used instead.</li>
+          <li><span class="flag flag-ok">fixed</span> Console UnicodeEncodeError on a Greek delta in the runner print &mdash; switched to ASCII.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>PHASE-04:</strong> GAP-05 regime stress (Decision 963 vs Decree 146 two-part trial) on the buyer benchmark + combined-decision artifact + final client HTML report.</li>
+          <li><strong>Open:</strong> Counting the plant's full ~92.5 GWh output (with a merchant tail on the uncontracted ~22 GWh) would likely move the developer from sub-economic toward viable &mdash; worth a follow-on developer variant.</li>
+          <li><strong>Open:</strong> A deal-calibrated DPPA adder and a Tay Ninh-specific CFMP series are the two inputs that would move this from directional toward bankable.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function(){ document.querySelectorAll('canvas').forEach((c)=>{ c.classList.add('report-chart'); }); })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+    }
+    (function(){
+      if (!window.Chart) return;
+      const ctx = document.getElementById('sweepChart');
+      if (!ctx) return;
+      new Chart(ctx, {
+        data: {
+          labels: ['1012','1227','1443','1658','1873'],
+          datasets: [
+            { type:'bar', label:'Buyer vs EVN (B VND/yr)', yAxisID:'y',
+              data:[-25.20,-10.13,4.95,20.02,35.10],
+              backgroundColor:[ 'rgba(57,255,20,0.55)','rgba(57,255,20,0.45)','rgba(255,138,138,0.45)','rgba(255,138,138,0.55)','rgba(255,138,138,0.65)' ],
+              borderColor:'rgba(255,255,255,0.3)', borderWidth:1 },
+            { type:'line', label:'Developer NPV ($M)', yAxisID:'y1',
+              data:[-79.7,-74.1,-68.5,-62.9,-57.3],
+              borderColor:'rgba(0,245,255,0.95)', backgroundColor:'rgba(0,245,255,0.12)', tension:0.2, pointRadius:4, fill:false }
+          ]
+        },
+        options: {
+          animation:false, resizeDelay:150, normalized:true, maintainAspectRatio:false, responsive:true,
+          plugins:{ legend:{ labels:{ color:'#cfe9f2' } } },
+          scales:{
+            x:{ title:{display:true,text:'Strike (VND/kWh)',color:'#8ea3ad'}, ticks:{ color:'#9fb3bd' }, grid:{ color:'rgba(255,255,255,0.05)' } },
+            y:{ position:'left', title:{display:true,text:'Buyer vs EVN (B VND/yr)',color:'#8ea3ad'}, ticks:{ color:'#9fb3bd' }, grid:{ color:'rgba(255,255,255,0.06)' } },
+            y1:{ position:'right', title:{display:true,text:'Developer NPV ($M)',color:'#8ea3ad'}, ticks:{ color:'#9fb3bd' }, grid:{ drawOnChartArea:false } }
+          }
+        }
+      });
+    })();
+    (function(){
+      if (!window.Chart) return;
+      const ctx = document.getElementById('adderChart');
+      if (!ctx) return;
+      new Chart(ctx, {
+        type:'bar',
+        data: {
+          labels: ['0','261.7','523.3 (base)','785.0','1046.7'],
+          datasets: [{ label:'Buyer vs EVN (B VND/yr) by DPPA adder (VND/kWh)',
+            data:[-61.84,-43.52,-25.20,-6.89,11.43],
+            backgroundColor:[ 'rgba(57,255,20,0.6)','rgba(57,255,20,0.5)','rgba(57,255,20,0.4)','rgba(255,200,80,0.45)','rgba(255,138,138,0.6)' ],
+            borderColor:'rgba(255,255,255,0.3)', borderWidth:1 }]
+        },
+        options: {
+          animation:false, resizeDelay:150, normalized:true, maintainAspectRatio:false, responsive:true,
+          plugins:{ legend:{ labels:{ color:'#cfe9f2' } } },
+          scales:{
+            x:{ title:{display:true,text:'DPPA grid-service adder (VND/kWh)',color:'#8ea3ad'}, ticks:{ color:'#9fb3bd' }, grid:{ color:'rgba(255,255,255,0.05)' } },
+            y:{ title:{display:true,text:'Buyer vs EVN (B VND/yr)',color:'#8ea3ad'}, ticks:{ color:'#9fb3bd' }, grid:{ color:'rgba(255,255,255,0.06)' } }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

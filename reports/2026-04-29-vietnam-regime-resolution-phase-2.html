@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: Vietnam Regime Resolution Phase 2</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    const run = async () => {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+      await mermaid.run({ nodes: blocks });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => run().catch(console.error), { once: true });
+    } else {
+      run().catch(console.error);
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121922;
+      --panel-soft: #0f151d;
+      --line: #243447;
+      --text: #e8f1f8;
+      --muted: #93a4b5;
+      --accent: #4dd0e1;
+      --accent-2: #8bc34a;
+      --warn: #ffca28;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #081018 0%, #0b0f14 100%);
+      color: var(--text);
+      font: 15px/1.6 "Segoe UI", Arial, sans-serif;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 24px 0 56px; }
+    section {
+      margin-top: 20px;
+      background: rgba(18, 25, 34, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+    .hero { margin-top: 0; }
+    .kicker { color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; font-weight: 700; }
+    h1 { margin: 8px 0 10px; font-size: clamp(2rem, 5vw, 4rem); line-height: 0.95; text-transform: uppercase; }
+    h2 { margin: 0; font-size: 1.35rem; }
+    .summary { color: var(--muted); max-width: 70ch; }
+    .chips, .metrics { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .chip, .metric {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--panel-soft);
+    }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 16px;
+      min-height: 160px;
+    }
+    .card h3 { margin-top: 0; color: var(--accent); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 14px; }
+    .index { color: var(--accent-2); font: 700 12px/1.2 Consolas, monospace; letter-spacing: 0.14em; text-transform: uppercase; }
+    .technical, code, pre { font-family: Consolas, monospace; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    .diagram, .chart-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-soft);
+      padding: 16px;
+      overflow: auto;
+    }
+    canvas { width: 100% !important; height: 300px !important; max-height: 300px; }
+    .note { color: var(--muted); }
+    .warn { color: var(--warn); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { color: var(--accent-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+    @media print {
+      body { background: white; color: black; }
+      section, .card, .diagram, .chart-wrap { box-shadow: none; background: white; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="kicker">Phase Report / Personal Technical Artifact</div>
+      <h1>Vietnam Regime Resolution Phase 2</h1>
+      <p class="summary">Phase 2 turned the new regime registry into active preprocessing behavior. Both Python and Julia now resolve named regulatory bundles into tariff and export-rule inputs, preserve backward-compatible default behavior, and expose regime provenance in scenario metadata.</p>
+      <div class="chips">
+        <span class="chip">project :: Saigon18 REopt Integration</span>
+        <span class="chip">repo :: tah-allotrope/reopt-pysam</span>
+        <span class="chip">date :: 2026-04-29</span>
+      </div>
+      <div class="metrics">
+        <span class="metric">python unit: 62 passed</span>
+        <span class="metric">julia unit: 168 passed</span>
+        <span class="metric">parity regimes: 4 / 4 green</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">01 / Input -> Output</div>
+          <h2>Input -> Output Summary</h2>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Inputs</h3>
+          <ul>
+            <li>Phase 1 regime registry in <code>data/vietnam/vn_regime_registry_2026.json</code></li>
+            <li>Existing Python and Julia preprocessing lanes in <code>preprocess.py</code> and <code>REoptVietnam.jl</code></li>
+            <li>Phase 2 plan requirement: make <code>regime_id</code> drive TOU and export behavior without breaking baseline callers</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Outputs</h3>
+          <ul>
+            <li>Mirrored <code>resolve_vietnam_regime</code> helpers in Python and Julia</li>
+            <li><code>build_vietnam_tariff</code>, <code>apply_decree57_export</code>, and master defaults wired to <code>regime_id</code></li>
+            <li>Metadata propagation: <code>resolved_regime_id</code>, registry version, and postprocess preview fields</li>
+            <li>Expanded Layer 2 and Layer 3 coverage across four named regimes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">02 / Logic Flow</div>
+          <h2>Logic Flow</h2>
+        </div>
+      </div>
+      <div class="diagram"><div class="mermaid">flowchart LR
+        A[Load VNData manifest payloads] --> B[Resolve regime bundle by regime_id]
+        B --> C[Deep-merge tariff overrides onto base tariff]
+        B --> D[Deep-merge export overrides onto base export rules]
+        C --> E[Build 8760 tariff and demand-charge series]
+        D --> F[Apply export behavior and export fraction metadata]
+        E --> G[Apply master Vietnam defaults]
+        F --> G
+        G --> H[Write resolved_regime_id and registry_version into _meta]
+        H --> I[Run mirrored Python and Julia unit tests]
+        I --> J[Run multi-regime parity across 4 bundles]</div></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">03 / Math / Algorithm Used</div>
+          <h2>Math / Algorithm Used</h2>
+        </div>
+      </div>
+      <div class="card technical">
+        <ul>
+          <li><strong>Recursive overlay:</strong> regime resolution uses deep dictionary merge so only changed policy fragments override the baseline payload. Unspecified fields continue to inherit current repo behavior.</li>
+          <li><strong>Tariff synthesis:</strong> the resolved tariff payload still maps TOU windows and multiplier blocks into the existing 8760 hourly series and monthly demand-rate vector.</li>
+          <li><strong>Export cap selection:</strong> <code>max_export_fraction</code> now defaults from the resolved export-rule payload, unless a caller explicitly overrides it.</li>
+          <li><strong>Parity gate:</strong> identical scenario inputs are processed in Python and Julia for four named regimes and compared recursively with tolerance <code>1e-10</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">04 / Tools / Formulas / Methods</div>
+          <h2>Tools / Formulas / Methods</h2>
+        </div>
+      </div>
+      <div class="card technical">
+        <table>
+          <thead>
+            <tr><th>Surface</th><th>Role</th><th>Method</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>src/python/reopt_pysam_vn/reopt/preprocess.py</code></td><td>Python regime resolution</td><td>Added deep-merge resolver and threaded <code>regime_id</code> through tariff/export/defaults.</td></tr>
+            <tr><td><code>src/julia/REoptVietnam.jl</code></td><td>Julia mirror</td><td>Implemented the same helper structure and metadata propagation to preserve Layer 3 parity.</td></tr>
+            <tr><td><code>tests/python/reopt/test_unit.py</code></td><td>Layer 2 Python</td><td>Added checks for Decision 963 TOU shift, 50% rooftop export draft, two-part tariff trial, and default baseline compatibility.</td></tr>
+            <tr><td><code>tests/julia/test_unit.jl</code></td><td>Layer 2 Julia</td><td>Mirrored the new Phase 2 assertions.</td></tr>
+            <tr><td><code>tests/cross_language/cross_validate.py</code><br><code>tests/julia/export_processed_dict.jl</code></td><td>Layer 3 multi-regime parity</td><td>Parameterized parity checks across four named bundles instead of only the baseline case.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">05 / Results &amp; Visualizations</div>
+          <h2>Results &amp; Visualizations</h2>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="validationChart"></canvas>
+        <p class="note">The chart summarizes the targeted validation surface for Phase 2: one Python lane, one Julia lane, and four named multi-regime parity cases.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">06 / Limitations / Second-Best Alternative</div>
+          <h2>Limitations / Second-Best Alternative</h2>
+        </div>
+      </div>
+      <div class="card">
+        <ul>
+          <li>The regime system now changes preprocessing outputs, but it still does not run multi-regime matrix execution or delta reporting. Those are Phase 3 and Phase 4 surfaces.</li>
+          <li>The repriced-multiplier Decision 963 bundle remains mostly a structural placeholder because no published replacement multiplier table has been encoded yet.</li>
+          <li>Hourly discretization still approximates half-hour tariff boundaries, so Decision 963 timing deltas remain directional rather than invoice-accurate.</li>
+          <li>Second-best alternative rejected this phase: separate code branches for each regime. The data-driven overlay was better because it keeps both languages aligned and makes future registry updates cheaper.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">07 / Errors / Warnings / Flags</div>
+          <h2>Errors / Warnings / Flags Encountered</h2>
+        </div>
+      </div>
+      <div class="card technical">
+        <ul>
+          <li><span class="warn">Expected warning:</span> the 50% rooftop export draft regime emits the existing warning that custom export fractions are metadata for Vietnam solve wrappers, not plain <code>REopt.run_reopt(...)</code> enforcement.</li>
+          <li><span class="warn">Environment warning:</span> Julia emitted the same non-blocking <code>ArchGDAL</code> precompile overwrite warning already seen in this environment, but the unit lane still passed <code>168 / 168</code>.</li>
+          <li>No parity drift was found across the four tested regimes.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="index">08 / Open Questions / Next Phase Seeds</div>
+          <h2>Open Questions / Next Phase Seeds</h2>
+        </div>
+      </div>
+      <div class="card">
+        <ul>
+          <li>Build Phase 3 matrix execution so one base scenario can materialize and run across <code>N regimes x M assumption sets</code>.</li>
+          <li>Add deterministic result-store manifests so the resolved regime payload and scenario hash are always cached together.</li>
+          <li>Keep the baseline branch locked to <code>decision_14_2025_current</code> in all future entrypoints unless the caller opts in explicitly.</li>
+          <li>When published multiplier revisions arrive, fill the <code>decision_963_2026_repriced_multipliers</code> bundle with real tariff data instead of placeholder notes.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <script>
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      new Chart(document.getElementById('validationChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Python unit tests', 'Julia unit tests', 'Parity regimes'],
+          datasets: [{
+            label: 'Validation count',
+            data: [62, 168, 4],
+            backgroundColor: ['#4dd0e1', '#8bc34a', '#ffca28'],
+            borderColor: ['#4dd0e1', '#8bc34a', '#ffca28'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#e8f1f8' }, grid: { color: '#243447' } },
+            y: { beginAtZero: true, ticks: { color: '#e8f1f8' }, grid: { color: '#243447' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

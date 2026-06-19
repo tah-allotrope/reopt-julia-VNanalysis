@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: Ninhsim Developer Revenue and Offtaker Cost Path</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#111111',
+        primaryTextColor: '#e8f6ff',
+        primaryBorderColor: '#00f5ff',
+        lineColor: '#39ff14',
+        secondaryColor: '#121a1a',
+        tertiaryColor: '#111111',
+        background: '#0d0d0d',
+        mainBkg: '#0d0d0d',
+        nodeBorder: '#00f5ff',
+        clusterBkg: '#111111',
+        clusterBorder: '#39ff14',
+        edgeLabelBackground: '#0d0d0d'
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88);
+      --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26);
+      --text: #e9f6ff;
+      --muted: #8ea3ad;
+      --accent-blue: #00f5ff;
+      --accent-green: #39ff14;
+      --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42);
+      --glow-green: 0 0 18px rgba(57, 255, 20, 0.28);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text);
+      font-family: var(--narrative-font);
+      line-height: 1.6;
+    }
+
+    code, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid {
+      font-family: var(--technical-font);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    .hero, .section {
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .hero-grid, .summary-grid, .metric-strip {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-grid { grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr); }
+    .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
+
+    .section-kicker, .section-index {
+      color: var(--accent-green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-shadow: var(--glow-green);
+    }
+
+    .phase-title {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(2.5rem, 5vw, 4.7rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      color: #f5feff;
+      text-transform: uppercase;
+    }
+
+    .hero-summary, .meta-label { color: var(--muted); }
+    .hero-summary { max-width: 60ch; }
+
+    .meta-card, .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      background: rgba(7, 7, 7, 0.82);
+      padding: 18px;
+    }
+
+    .meta-chip, .column-label { color: var(--accent-blue); text-shadow: var(--glow-blue); font-weight: 700; }
+    .column-label { font-size: 0.83rem; text-transform: uppercase; letter-spacing: 0.16em; margin: 0 0 12px; }
+    .repo-tag, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .repo-tag { border: 1px solid rgba(0,245,255,0.24); background: rgba(0,245,255,0.08); color: var(--accent-blue); }
+    .pill { border: 1px solid rgba(57,255,20,0.22); background: rgba(57,255,20,0.06); color: #d9ffd0; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .section-title { margin: 0; font-size: clamp(1.2rem, 2vw, 1.7rem); }
+    .splitter { height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+
+    .metric {
+      padding: 14px 16px;
+      border: 1px solid rgba(0,245,255,0.18);
+      border-radius: var(--radius-sm);
+      background: rgba(0,245,255,0.04);
+    }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; text-transform: uppercase; letter-spacing: 0.12em; }
+
+    .diagram-frame { overflow-x: auto; }
+    .mermaid { min-width: 640px; }
+
+    .chart-wrap { position: relative; width: 100%; height: 320px; margin-bottom: 24px; }
+    .viz-frame canvas { width: 100% !important; height: 100% !important; display: block; max-width: 100%; }
+
+    ul { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142,163,173,0.72); font-size: 0.78rem; text-transform: uppercase; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; }
+      .phase-title { max-width: none; }
+      .mermaid { min-width: 560px; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .phase-title { font-size: clamp(2rem, 12vw, 3rem); }
+      .mermaid { min-width: 480px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">Ninhsim Developer Revenue and Offtaker Cost Path</h1>
+          <p class="hero-summary">
+            This phase extends the Ninhsim escalated bundled-CPPA path into a simple screening view for developer revenue and customer cost, using the solved year-one delivery mix and the existing multi-year escalation logic without pretending to be a full project-finance model.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: REopt Vietnam</span>
+            <span class="pill">date :: 2026-04-02</span>
+          </div>
+          <div class="repo-tag">repo :: tah-allotrope/reopt-julia-VNanalysis</div>
+        </div>
+        <div class="hero-grid" style="grid-template-columns:1fr;">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">REopt Vietnam</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">tah-allotrope/reopt-julia-VNanalysis</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-04-02</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -&gt; Output</div><h2 class="section-title">Input -&gt; Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Input / Constraints</p>
+          <div class="splitter"></div>
+          <ul>
+            <li>Phase 10 already produced the 20-year escalated CPPA strike path and held the solved year-one renewable delivery and residual EVN supply volumes fixed.</li>
+            <li>The next open seed was to extend that path into developer-revenue and offtaker-cost views that could support commercial screening.</li>
+            <li>This pass intentionally reuses the scenario discount rates and escalation rates already encoded in the Ninhsim REopt results.</li>
+            <li>The output is a contract-screening view only; it does not model taxes, debt, degradation, merchant spill, or full project cash flow.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs / Decisions</p>
+          <div class="splitter"></div>
+          <ul>
+            <li>Added <code>financial_screening_view</code> to `scripts/python/analyze_ninhsim_cppa.py`.</li>
+            <li>Added regression coverage for projected developer revenue, customer total cost, and NPV fields in `tests/python/test_ninhsim_cppa.py`.</li>
+            <li>Generated `artifacts/reports/ninhsim/2026-04-02_ninhsim-cppa-financial-screening.json`.</li>
+            <li>Published this synchronized HTML report in `reports/2026-04-02-ninhsim-developer-revenue-and-offtaker-cost-path.html`.</li>
+          </ul>
+          <div class="metric-strip">
+            <div class="metric"><div class="metric-label">Developer revenue NPV</div><div class="metric-value">$153.03M</div></div>
+            <div class="metric"><div class="metric-label">Offtaker cost NPV</div><div class="metric-value">$170.69M</div></div>
+            <div class="metric"><div class="metric-label">Offtaker savings NPV</div><div class="metric-value">$0.19</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">flowchart TD
+    A[Read next open Ninhsim seed in activeContext] --> B[Review existing CPPA path and repo finance helpers]
+    B --> C{Need full project finance model?}
+    C -- No --> D[Choose lightweight screening view]
+    C -- Yes --> X[Deferred branch: separate finance workstream]
+    D --> E[Write failing tests for developer revenue and customer cost path]
+    E --> F[Run pytest and confirm missing helper failure]
+    F --> G[Implement financial_screening_view from existing multi-year CPPA path]
+    G --> H[Discount annual values into NPV screening metrics]
+    H --> I[Re-run pytest and refresh JSON artifact]
+    I --> J[Record lesson about report chart containers]
+    J --> K[Publish synced HTML phase report]</div>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">03 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Item</th><th>Purpose</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>python -m pytest tests/python/test_ninhsim_cppa.py -v --tb=short</code></td><td>Red/green validation for the new financial screening view.</td><td>Failed first on missing import, then passed at 8/8.</td></tr>
+            <tr><td><code>financial_screening_view</code></td><td>Projects annual developer revenue and customer cost using the escalated strike path.</td><td>Uses renewable payment + residual EVN payment; no extra settlement layer was introduced.</td></tr>
+            <tr><td><code>developer_revenue_y = renewable_kwh * strike_y</code></td><td>Approximates annual CPPA revenue tied to delivered renewable energy.</td><td>Matches the bundled CPPA framing already used in the Ninhsim workflow.</td></tr>
+            <tr><td><code>NPV = sum(value_y / (1 + r)^y)</code></td><td>Discounts annual screening values using owner/offtaker discount rates from the REopt result.</td><td>Owner rate 8%, offtaker rate 10% in this case.</td></tr>
+            <tr><td>Browser-reviewed report pattern</td><td>Prevents report breakage from unconstrained Chart.js canvases.</td><td>This pass carries forward the new lesson to use explicit chart containers.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">04 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame">
+        <p>The added screening view shows that, under the fixed-volume escalated-price replay, annual developer revenue rises from about $10.66M in year 1 to $26.93M in year 20. Customer total cost stays essentially equal to the escalated EVN benchmark by construction, so the modeled customer savings remain near zero in NPV terms.</p>
+        <div class="chart-wrap"><canvas id="revenueCostChart" aria-label="Developer revenue and customer cost path"></canvas></div>
+        <div class="chart-wrap"><canvas id="npvChart" aria-label="NPV screening comparison"></canvas></div>
+        <script>
+          const labels = Array.from({ length: 20 }, (_, i) => `Y${i + 1}`);
+          const developerRevenue = [10.66,11.19,11.75,12.34,12.95,13.60,14.28,15.00,15.75,16.53,17.36,18.23,19.14,20.10,21.10,22.16,23.27,24.43,25.65,26.93];
+          const customerCost = [14.09,14.80,15.54,16.31,17.13,17.99,18.89,19.83,20.82,21.86,22.96,24.10,25.31,26.57,27.90,29.30,30.76,32.30,33.92,35.61];
+
+          new Chart(document.getElementById('revenueCostChart'), {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [
+                { label: 'Developer revenue ($M)', data: developerRevenue, borderColor: '#00f5ff', backgroundColor: 'rgba(0,245,255,0.14)', tension: 0.24, fill: false, pointRadius: 2.5 },
+                { label: 'Customer total cost ($M)', data: customerCost, borderColor: '#39ff14', backgroundColor: 'rgba(57,255,20,0.14)', tension: 0.24, fill: false, pointRadius: 2.5 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: '#e9f6ff' } } },
+              scales: {
+                x: { ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                y: { ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+              }
+            }
+          });
+
+          new Chart(document.getElementById('npvChart'), {
+            type: 'bar',
+            data: {
+              labels: ['Developer revenue NPV', 'Offtaker cost NPV', 'Benchmark EVN cost NPV'],
+              datasets: [{
+                label: '$M',
+                data: [153.03, 170.69, 170.69],
+                backgroundColor: ['#00f5ff', '#39ff14', '#7ce8ff']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                y: { ticks: { color: '#8ea3ad' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+              }
+            }
+          });
+        </script>
+      </div>
+    </section>
+
+    <section class="section" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">05 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li>This screening view keeps delivered energy fixed across all years. The next stronger phase would introduce degradation, load growth, or changing residual EVN exposure.</li>
+          <li>The current developer-revenue view assumes all delivered renewable energy earns the bundled strike. If the commercial structure needs merchant handling for excess renewable generation or curtailment risk, that should become the next explicit enhancement.</li>
+          <li>The modeled offtaker savings stay effectively zero because the strike path is set to match the EVN benchmark. A decision-oriented next step would add below-benchmark or above-benchmark sensitivity bands around that ceiling.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+</body>
+</html>

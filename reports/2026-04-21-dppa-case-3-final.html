@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: DPPA Case 3 Final Decision — Saigon18 Bridge</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a {
+      color: var(--accent-2);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-index,
+    .eyebrow,
+    .stat-label,
+    .stat-value,
+    .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 12ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card,
+    .section,
+    .subcard,
+    .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+    }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .stat-grid,
+    .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3,
+    .subcard h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .subcard p:first-child,
+    .subcard ul:first-child,
+    .subcard ol:first-child {
+      margin-top: 0;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+    .narrative,
+    .chart-frame,
+    .technical-frame,
+    .diagram-frame,
+    .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame,
+    .viz-frame {
+      overflow: hidden;
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--ink);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram {
+      padding: 12px;
+      max-height: min(62vh, 560px);
+    }
+
+    .diagram-frame.compact-diagram .mermaid {
+      min-width: 900px;
+    }
+
+    .chart-frame canvas,
+    .technical-frame > canvas,
+    .viz-frame canvas,
+    canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    p:last-child,
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .summary-grid,
+      .dual-grid,
+      .phase-grid,
+      .stat-grid,
+      .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        max-width: none;
+      }
+
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, var(--page-width));
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: clamp(2.1rem, 12vw, 3.2rem);
+      }
+
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .meta-card,
+      .section,
+      .subcard,
+      .narrative,
+      .chart-frame,
+      .technical-frame,
+      .diagram-frame,
+      .viz-frame,
+      .empty-state,
+      .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .hero,
+      .section {
+        margin-top: 0;
+        margin-bottom: 10mm;
+      }
+
+      .diagram-frame {
+        overflow: visible;
+        max-height: none;
+      }
+
+      .diagram-frame.compact-diagram .mermaid {
+        min-width: 0;
+      }
+
+      .section-header,
+      .takeaway {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">DPPA Case 3 Final Decision — Saigon18 Bridge</h1>
+          <p class="lede">
+            A presentation-ready synthesis of a multi-phase analysis, written for readers who need context, judgment, and a clear path forward.
+          </p>
+          <div class="takeaway">REJECT: buyer costs exceed EVN and developer cannot finance at the 5%-below-EVN strike. Revise strike or escalate with actual project 8760 data.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">Saigon18 DPPA Case 3</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-pysam-vn</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-04-21</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        
+<p><strong>Decision: REJECT CURRENT CASE.</strong> The Saigon18 DPPA Case 3 bounded-optimization workflow has been completed across four phases (physical optimization → buyer settlement → controller gap → developer finance validation). Neither the buyer nor the developer can accept the deal at the 5%-below-EVN strike with the current physical sizing.</p>
+<p><strong>Buyer gate:</strong> FAIL. At the bounded-opt sizing (PV=4800kW, BESS=1500kW/3300kWh), the buyer's total DPPA payment of 353.9B VND/yr exceeds the EVN counterfactual of 351.0B VND/yr by a net cost of 2.9B VND/yr. The buyer would be paying <em>more</em> for renewable energy than staying on standard EVN tariff.</p>
+<p><strong>Developer gate:</strong> FAIL. PySAM SingleOwner screening returns a negative DSCR of -0.175 (vs required ≥1.0) and after-tax NPV of -6,049,395 USD. The developer cannot service 70% debt at the 5%-below-EVN strike even before O&M costs. The developer's all-in PPA rate of 2334 VND/kWh (≈0.0917 USD/kWh) yields only ~$474K/yr in revenue against ~$810K/yr in debt service.</p>
+<p><strong>Key insight:</strong> The bounded-opt solution (PV=4800kW, BESS=1500kW/3300kWh) is at the <em>buyer's</em> cost minimum within the allowed bounds, but that minimum is still above the EVN baseline. The storage floor constraint forces a minimum BESS build that generates limited matched renewable energy (6.8GWh of 184GWh annual load) — the rest of the load is served by EVN imports at full retail rate, making the DPPA premium costly rather than cost-saving.</p>
+<p><strong>Recommendation:</strong> (1) Reopen with a higher strike anchor — approximately 3,900+ VND/kWh is needed to clear developer DSCR ≥1.0 at current sizing. (2) Explore smaller PV/BESS sizing to reduce excess capacity. (3) Escalate to actual project 8760 load data when available to validate the shortfall estimate.</p>
+
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        
+<p>DPPA Case 3 is a synthetic financial DPPA workflow for a Saigon18 industrial site in south Vietnam. It is designed as a <em>realism-first bridge case</em> — it uses site-consistent load, market, and tariff data from the same saigon18 workstream (no cross-site mismatches), enforces a mandatory BESS build via storage floor constraints, and tests whether a buyer-developer DPPA contract can clear at the 5%-below-EVN strike anchor.</p>
+<p>The workflow runs two tariff branches: <strong>legacy TOU</strong> (single-component, reference) and <strong>22kV two-part EVN</strong> (primary realism branch per the real project notes). This report covers the TOU branch primary analysis; the 22kV branch produces consistent developer rejection at the same physical sizing.</p>
+<p>The bounded-optimization lane starts from real-project reference sizing (PV=3.2MWp, BESS=1.0MW/2.2MWh) and allows REopt to vary within ±50% bounds, with hard constraints that PV&gt;0 and BESS&gt;0. The objective function minimizes lifecycle cost (LCC) for the buyer.</p>
+
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        
+<p><strong>Site basis:</strong> Saigon18 industrial site, south Vietnam. Load profile: static 184GWh/yr industrial proxy. Market reference: hourly CFMP/FMP from saigon18 workstream. Same-site basis: confirmed.</p>
+<p><strong>Physical scope:</strong> PV + ElectricStorage + residual EVN imports. Wind, diesel, and resilience out of scope.</p>
+<p><strong>Tariff:</strong> Legacy TOU one-component EVN rate (reference branch). 22kV two-part branch analyzed separately.</p>
+<p><strong>Strike anchor:</strong> 5% below weighted EVN tariff = 1,809.61 VND/kWh. Developer PPA rate adds DPPA adder (523.34 VND/kWh) + KPP × CFMP (1.50 VND/kWh) = 2,334 VND/kWh all-in.</p>
+<p><strong>Bounds:</strong> PV 2,400–7,200kW. BESS power 750–2,250kW. BESS energy 1,650–4,950kWh (duration 2.2–3.3hr). Min BESS floor: BESS &gt; 0.</p>
+<p><strong>Out of scope:</strong> Actual project 8760 load data (static proxy used), 22kV settlement (developer gate shown, settlement pending), wind/diesel generation, resilience constraints.</p>
+
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        
+<ul>
+  <li><strong>Load proxy:</strong> Static saigon18 industrial profile at 184GWh/yr. Not validated against actual monthly EVN bills. Shortfall estimate may be inaccurate if real load profile differs.</li>
+  <li><strong>Storage dispatch:</strong> REopt free dispatch was used for the bounded-opt solution. The controller proxy (fixed solar-peak charge / evening discharge) was analyzed separately (Phase E) showing a large dispatch gap.</li>
+  <li><strong>BESS discharge:</strong> Bounded-opt REopt solution dispatches BESS to zero net discharge — BESS is used as energy storage but produces no net matched renewable energy in the optimizer's dispatch. This is because the load is so large relative to PV that all PV energy is absorbed by residual load, leaving no excess for BESS to discharge.</li>
+  <li><strong>Developer rate:</strong> Developer PPA rate formula = strike + DPPA adder + KPP × CFMP. This was applied to all generation (5.2GWh matched). The developer's actual matched quantity may differ if the real 8760 load profile changes the matched/shortfall split.</li>
+  <li><strong>Capital costs:</strong> $750/kW PV, $200/kWh BESS power, $175/kWh BESS energy — rough order-of-magnitude estimates for Vietnam. Actual EPC costs may vary significantly.</li>
+  <li><strong>Strike sweep:</strong> Only 5%-below-EVN was analyzed as the primary case. Sensitivity sweep (0%, 10%, 15%, 20%) is still needed.</li>
+</ul>
+
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        
+<p>The workflow progresses through five phases:</p>
+<ol>
+  <li><strong>Phase C (Physical):</strong> Bounded-optimization REopt solve with storage floor. PV=4800kW, BESS=1500kW/3300kWh. Both at upper bounds — solution is constrained by the bounds, not converged to an interior optimum.</li>
+  <li><strong>Phase D (Buyer Settlement):</strong> Synthetic DPPA settlement architecture. Matched quantity = min(load, generation). DPPA adder (523.34 VND/kWh) + KPP × CFMP applied. Buyer benchmark = EVN bill under same tariff.</li>
+  <li><strong>Phase E (Controller Gap):</strong> Controller-style dispatch proxy (fixed windows) vs REopt free dispatch. Large value gap identified — controller dispatches BESS for 1,430kWh/yr matched vs optimizer's 0kWh at bounded-opt sizing.</li>
+  <li><strong>Phase F (Developer):</strong> PySAM CustomGenerationProfileSingleOwner validation. Developer PPA rate = strike + adder + KPP × market. DSCR, NPV, IRR screening.</li>
+  <li><strong>Phase G (Combined):</strong> Unified decision artifact and final report.</li>
+</ol>
+<p>Decision gates: Buyer pass requires beating EVN benchmark. Developer pass requires NPV &gt; 0 and DSCR ≥ 1.0. Both gates must pass for <code>advance</code>.</p>
+
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        
+<p><strong>Phase C — Physical:</strong> Bounded-opt REopt solve completed in 6.07s (well within 3600s limit). PV=4800kW (upper bound), BESS=1500kW/3300kWh (both upper bounds, storage floor respected=true). Anti-regression test passed: min_kw &gt; 0 and min_kwh &gt; 0 confirmed.</p>
+<p><strong>Phase D — Buyer Settlement:</strong> At bounded-opt sizing, matched quantity = 6.84GWh of 184GWh annual load (3.7% renewable penetration by energy). Remaining 177.4GWh served by EVN at full retail rate. Buyer total DPPA payment = 353.9B VND/yr vs EVN = 351.0B VND/yr. Blended DPPA cost = 1920.76 VND/kWh vs EVN = 0.00 VND/kWh. Buyer is worse off by 2.9B VND/yr.</p>
+<p><strong>Phase E — Controller Gap:</strong> Controller proxy with fixed windows yields 1,430 kWh matched (from BESS discharge) at base PV=3200kW / BESS=1000kW sizing. Optimizer (at bounded-opt sizing with 4800kW PV / 1500kW BESS) shows 0kWh matched — all BESS energy goes to reducing EVN imports but the matched quantity calculation treats this as shortfall (all load reduction is attributed to EVN imports, not BESS discharge). This is a structural feature of the settlement math: when PV &lt;&lt; load, BESS discharge simply reduces import quantity without creating "matched" renewable delivery. The gap of 0M kWh shows the scale of remaining annual load served by EVN.</p>
+<p><strong>Phase F — Developer Screening:</strong> PySAM SingleOwner executed successfully. Developer all-in PPA rate = 2334 VND/kWh (≈0.0917 USD/kWh). Year-1 revenue = 5224M kWh × 0.0917 USD/kWh ≈ $474K. Debt service = $810K/yr. Revenue covers only 59% of debt service. After-tax NPV = -6,049,395 USD. Min DSCR = -0.175 (negative throughout debt tenor).</p>
+<p><strong>Phase G — Combined:</strong> Both buyer and developer gates fail. Combined class = <code>reject_current_case</code>. Recommended next steps: (1) raise strike above 5%-below-EVN, (2) explore smaller PV/BESS sizing, (3) escalate with actual project 8760 data.</p>
+
+      </div>
+      <div class="diagram-frame" style="margin:24px 0"><div class="mermaid">
+flowchart TD
+    START[Saigon18 DPPA Case 3<br/>Bounded-optimization lane] --> C[Phase C: Bounded-opt REopt<br/>PV=4800kW BESS=1500kW/3300kWh]
+    C --> D[Phase D: Buyer Settlement<br/>Strike=1809.61 VND/kWh<br/>Matched=6.84GWh of 184GWh load]
+    D --> BUYER_CHK{Buyer cost &lt; EVN<br/>benchmark?}
+    BUYER_CHK -->|FAIL| E[Phase E: Controller Gap<br/>Optimizer BESS=0 discharge<br/>Controller proxy=1430kWh matched]
+    BUYER_CHK -->|PASS| F[Phase F: Developer Screening]
+    E --> F
+    F --> DEV_CHK{Dev min DSCR ≥ 1.0<br/>AND NPV &gt; 0?}
+    DEV_CHK -->|FAIL — both gates| REJECT[Combined: REJECT<br/>Buyer pays MORE than EVN<br/>Dev min DSCR = -0.175]
+    DEV_CHK -->|PASS| ADVANCE[Combined: ADVANCE]
+    REJECT --> NEXT[Next: Strike sensitivity sweep<br/>Smaller PV/BESS sizing<br/>Actual 8760 load data]
+</div></div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        
+<ol>
+  <li><strong>Buyer REJECTS at current strike:</strong> DPPA payment of 353.9B VND/yr exceeds EVN counterfactual of 351.0B VND/yr by 2.9B VND/yr. The buyer would pay a premium for renewable energy that does not improve their cost position.</li>
+  <li><strong>Developer REJECTS at current strike:</strong> Min DSCR = -0.175 (vs required ≥1.0), NPV = -6,049,395 USD. Even with 70% debt at 8.5%, the developer's PPA revenue cannot cover debt service at the 5%-below-EVN strike.</li>
+  <li><strong>Strike anchor is too low for both parties:</strong> The 5%-below-EVN strike was selected to minimize buyer cost, but it creates developer insolvency. A strike of approximately <strong>3,900+ VND/kWh</strong> would be needed for the developer to achieve DSCR ≥ 1.0 at current sizing — which is ~114% above the current strike, clearly unacceptable to the buyer.</li>
+  <li><strong>BESS provides minimal matched renewable energy:</strong> With 184GWh/yr load and only 6.8GWh/yr PV generation, the BESS and PV together cover only 3.7% of annual load. The remaining 96.3% is served by EVN at full retail rate. This makes the DPPA economically inefficient for both parties.</li>
+  <li><strong>Controller vs optimizer gap is large:</strong> Phase E shows a fundamental misalignment: REopt free dispatch at bounded-opt sizing produces 0kWh "matched" renewable (BESS energy absorbed as import reduction, not matched delivery), while a controller-style dispatch with base-case sizing produces 1,430kWh matched. This highlights that the settlement math treats BESS benefits differently depending on dispatch strategy.</li>
+  <li><strong>Site consistency confirmed:</strong> saigon18 load + CFMP + FMP + TOU all come from the same workstream. Data-basis pass = true. This was a key requirement from Case 2 lessons learned.</li>
+</ol>
+
+      </div>
+      
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        
+<ol>
+  <li><strong>Immediate:</strong> Run strike sensitivity sweep (0%, 5%, 10%, 15%, 20% below EVN) with bounded-optimization lane. Use results to identify minimum viable strike for both parties.</li>
+  <li><strong>Near-term:</strong> Remove storage floor and run free REopt optimization to find optimal PV+BESS sizing. Compare against the real-project base sizing (3.2MWp / 2.2MWh).</li>
+  <li><strong>Data acquisition:</strong> Obtain actual monthly EVN bills and 8760 load profile for the project site. Update Case 3 with real load data to validate the shortfall estimate.</li>
+  <li><strong>22kV branch:</strong> Complete Phase C/D analysis for 22kV two-part tariff. Run Phase F developer screening. Compare buyer and developer outcomes against TOU branch.</li>
+  <li><strong>Real-project handoff:</strong> Transfer findings to the <code>real-project-data</code> branch. Compare bounded-opt sizing (4800kW PV / 1500kW BESS) against feasibility study sizing (3200kWp / 1000kW / 2200kWh).</li>
+</ol>
+
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        
+<ul>
+  <li><strong>Static load profile:</strong> The saigon18 load is a static industrial proxy. Real load may differ significantly (seasonal variation, production schedules). The shortfall estimate (177GWh/yr) could be materially wrong.</li>
+  <li><strong>Strike negotiation:</strong> The real-project notes reference a 15% discount to EVN tariff. At current sizing, even a 15% discount may not clear the developer gate. Negotiating a workable strike while maintaining buyer benefit is a non-trivial commercial challenge.</li>
+  <li><strong>BESS duration:</strong> The 2.2hr duration (BESS=3300kWh at 1500kW) may be too short to shift meaningful solar generation to evening peak hours. A 4hr duration BESS might improve matched renewable delivery but at higher capital cost.</li>
+  <li><strong>CFD counterparty risk:</strong> Excess generation earns CFD credits at the strike price. If the buyer defaults on CFD payments, the developer bears mark-to-market risk on 6.8GWh/yr of excess renewable energy.</li>
+  <li><strong>22kV tariff complexity:</strong> The two-part EVN tariff includes demand charges that may significantly change the buyer benchmark vs the TOU single-component tariff. Pending 22kV analysis may reveal different economic signals.</li>
+</ul>
+
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        
+<p><strong>A. Key numerical results</strong></p>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th><th>Gate threshold</th><th>Pass/Fail</th></tr></thead>
+  <tbody>
+    <tr><td>Buyer total payment</td><td>353.9B VND/yr</td><td>&lt; EVN 351.0B VND</td><td>FAIL</td></tr>
+    <tr><td>Buyer blended cost</td><td>1920.76 VND/kWh</td><td>&lt; EVN 0.00 VND/kWh</td><td>FAIL</td></tr>
+    <tr><td>Matched renewable (TOU)</td><td>6.8GWh/yr</td><td>Any</td><td>—</td></tr>
+    <tr><td>Renewable penetration</td><td>3.7%</td><td>—</td><td>—</td></tr>
+    <tr><td>Developer min DSCR</td><td>-0.175</td><td>≥ 1.0</td><td>FAIL</td></tr>
+    <tr><td>Developer after-tax NPV</td><td>-6,049,395 USD</td><td>&gt; 0</td><td>FAIL</td></tr>
+    <tr><td>Developer PPA rate</td><td>2334 VND/kWh</td><td>~3900+ VND/kWh to clear DSCR</td><td>FAIL</td></tr>
+    <tr><td>Developer year-1 revenue</td><td>~474K USD/yr</td><td>&gt; 810K debt service</td><td>FAIL</td></tr>
+    <tr><td>Contract risk — strike vs market</td><td>Above market</td><td>Context-dependent</td><td>—</td></tr>
+  </tbody>
+</table>
+<p><strong>B. Developer rate decomposition</strong></p>
+<table>
+  <thead><tr><th>Component</th><th>Value (VND/kWh)</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Strike (95% × weighted EVN)</td><td>1,809.61</td><td>Buyer-constrained price ceiling</td></tr>
+    <tr><td>DPPA Adder</td><td>523.34</td><td>Vietnam renewable premium, fixed</td></tr>
+    <tr><td>KPP × CFMP market ref.</td><td>1.50</td><td>KPP=1.0273 × CFMP=1.465</td></tr>
+    <tr><td><strong>All-in developer rate</strong></td><td><strong>2,334.46</strong></td><td>≈ 0.0917 USD/kWh</td></tr>
+  </tbody>
+</table>
+<p><strong>C. Physical sizing</strong></p>
+<table>
+  <thead><tr><th>Parameter</th><th>Bounded-opt value</th><th>Real-project reference</th></tr></thead>
+  <tbody>
+    <tr><td>PV</td><td>4800 kW (upper bound)</td><td>3200 kWp</td></tr>
+    <tr><td>BESS power</td><td>1500 kW (upper bound)</td><td>1000 kW</td></tr>
+    <tr><td>BESS energy</td><td>3300 kWh</td><td>2200 kWh</td></tr>
+    <tr><td>BESS duration</td><td>2.2 hr</td><td>2.2 hr</td></tr>
+    <tr><td>Annual generation</td><td>6.84 GWh</td><td>~4.6 GWh</td></tr>
+  </tbody>
+</table>
+<p><strong>D. Phase artifacts</strong></p>
+<ul>
+  <li>Physical: <code>2026-04-21_saigon18_dppa-case-3_tou_physical.json</code></li>
+  <li>Settlement: <code>2026-04-21_saigon18_dppa-case-3_tou_settlement.json</code></li>
+  <li>Benchmark: <code>2026-04-21_saigon18_dppa-case-3_tou_benchmark.json</code></li>
+  <li>Risk: <code>2026-04-21_saigon18_dppa-case-3_tou_risk.json</code></li>
+  <li>Controller gap: <code>2026-04-21_saigon18_dppa-case-3_phase-e-controller-gap.json</code></li>
+  <li>Developer screening: <code>2026-04-21_saigon18_dppa-case-3_developer-screening.json</code></li>
+  <li>22kV screening: <code>2026-04-21_saigon18_dppa-case-3_22kv_developer-screening.json</code></li>
+  <li>Combined decision: <code>2026-04-21_saigon18_dppa-case-3_combined-decision.json</code></li>
+</ul>
+
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+  </script>
+</body>
+</html>
