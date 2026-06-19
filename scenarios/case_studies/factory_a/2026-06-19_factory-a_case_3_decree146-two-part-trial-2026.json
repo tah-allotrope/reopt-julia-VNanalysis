@@ -1,0 +1,54 @@
+{
+  "case_id": "case_3",
+  "project": "factory_a",
+  "date": "2026-06-19",
+  "label": "Solar+BESS, Decision 963 + two-part capacity charge",
+  "tariff_regime": "decree146_two_part_trial_2026",
+  "facility": {
+    "annual_kwh": 9750000.0,
+    "peak_kw": 2430.0,
+    "avg_kw": 1113.013698630137,
+    "voltage": "medium_voltage_22kv_to_110kv",
+    "region": "south",
+    "customer_type": "industrial",
+    "load_source": "synthetic"
+  },
+  "system": {
+    "has_bess": true,
+    "pv_mw_slide": 5.77,
+    "bess_power_mw_slide": 1.83,
+    "bess_capacity_mwh_slide": 11.7,
+    "battery_can_grid_charge": false
+  },
+  "finance": {
+    "capex_usd": 4320000.0,
+    "om_usd_per_year": 47000.0,
+    "debt_fraction": 0.7,
+    "debt_interest_rate_fraction": 0.085,
+    "debt_tenor_years": 10,
+    "owner_discount_rate_fraction": 0.1,
+    "analysis_years": 25,
+    "esco_price_fraction_of_tou": 0.9
+  },
+  "slide_reference": {
+    "label": "Solar+BESS, Decision 963 + two-part capacity charge",
+    "tariff_regime": "decree146_two_part_trial_2026",
+    "has_bess": true,
+    "pv_mw": 5.77,
+    "bess_power_mw": 1.83,
+    "bess_capacity_mwh": 11.7,
+    "clean_self_supply_pct": 65.8,
+    "annual_savings_usd": 494000.0,
+    "equity_irr_fraction": 0.161,
+    "npv_usd": 1440000.0,
+    "avg_dscr": 1.21,
+    "capacity_charge_vnd_per_kw_month": 209459.0
+  },
+  "solver_path": "pysam_fixed_sizing",
+  "notes": "Sizes taken from slide; PySAM Single Owner used for financial outputs only.",
+  "two_part_tariff": {
+    "capacity_charge_slide_vnd_per_kw_month": 209459.0,
+    "capacity_charge_repo_vnd_per_kw_month": 235414.0,
+    "demand_resolution": "hourly_peak_grid_import"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "case_id": "case_1",
+  "project": "factory_a",
+  "date": "2026-06-19",
+  "label": "Solar+BESS, current TOU (Decision 14/2025 legacy)",
+  "tariff_regime": "decision_14_2025_legacy",
+  "facility": {
+    "annual_kwh": 9750000.0,
+    "peak_kw": 2430.0,
+    "avg_kw": 1113.013698630137,
+    "voltage": "medium_voltage_22kv_to_110kv",
+    "region": "south",
+    "customer_type": "industrial",
+    "load_source": "synthetic"
+  },
+  "system": {
+    "has_bess": true,
+    "pv_mw_slide": 5.32,
+    "bess_power_mw_slide": 1.66,
+    "bess_capacity_mwh_slide": 8.3,
+    "battery_can_grid_charge": false
+  },
+  "finance": {
+    "capex_usd": 3680000.0,
+    "om_usd_per_year": 40000.0,
+    "debt_fraction": 0.7,
+    "debt_interest_rate_fraction": 0.085,
+    "debt_tenor_years": 10,
+    "owner_discount_rate_fraction": 0.1,
+    "analysis_years": 25,
+    "esco_price_fraction_of_tou": 0.9
+  },
+  "slide_reference": {
+    "label": "Solar+BESS, current TOU (Decision 14/2025 legacy)",
+    "tariff_regime": "decision_14_2025_legacy",
+    "has_bess": true,
+    "pv_mw": 5.32,
+    "bess_power_mw": 1.66,
+    "bess_capacity_mwh": 8.3,
+    "clean_self_supply_pct": 59.5,
+    "annual_savings_usd": 531000.0,
+    "equity_irr_fraction": 0.187,
+    "npv_usd": 800000.0,
+    "avg_dscr": 1.33
+  },
+  "solver_path": "pysam_fixed_sizing",
+  "notes": "Sizes taken from slide; PySAM Single Owner used for financial outputs only."
+}
