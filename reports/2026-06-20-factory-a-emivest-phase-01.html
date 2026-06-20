@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: factory-a-emivest-phase-01</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111',
+          background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff',
+          clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d'
+        }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root {
+      --bg:#0d0d0d; --panel:rgba(13,13,13,0.88); --panel-strong:rgba(19,19,19,0.96);
+      --line:rgba(0,245,255,0.26); --text:#e9f6ff; --muted:#8ea3ad;
+      --accent-blue:#00f5ff; --accent-green:#39ff14;
+      --glow-blue:0 0 18px rgba(0,245,255,0.42); --glow-green:0 0 18px rgba(57,255,20,0.28);
+      --shadow:0 14px 40px rgba(0,0,0,0.32);
+      --radius-lg:22px; --radius-md:16px; --radius-sm:12px;
+      --narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+      --technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace;
+    }
+    * { box-sizing:border-box; }
+    body {
+      position:relative; margin:0; min-height:100vh; overflow-x:hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0,245,255,0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57,255,20,0.08), transparent 24%),
+        linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%);
+      color:var(--text); font-family:var(--narrative-font); line-height:1.6; letter-spacing:0.01em;
+    }
+    body::before {
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size:32px 32px; opacity:0.16;
+    }
+    a { color:var(--accent-blue); }
+    code, pre, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family:var(--technical-font); }
+    .page-shell { width:min(1180px, calc(100vw - 32px)); margin:0 auto; padding:32px 0 72px; position:relative; z-index:1; }
+    .hero {
+      position:relative; padding:28px; margin-bottom:24px; border:1px solid var(--line); border-radius:28px;
+      background:
+        linear-gradient(145deg, rgba(0,245,255,0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--panel-strong);
+      box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .hero::after { content:""; position:absolute; inset:auto -10% -55% 42%; height:280px; background:radial-gradient(circle, rgba(0,245,255,0.18), transparent 64%); filter:blur(12px); pointer-events:none; }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(260px,0.85fr); gap:22px; align-items:end; }
+    .section-kicker { margin:0 0 12px; color:var(--accent-green); font-size:0.76rem; font-weight:700; text-transform:uppercase; letter-spacing:0.22em; text-shadow:var(--glow-green); }
+    .phase-title { margin:0; max-width:16ch; font-size:clamp(2.1rem,4.2vw,3.8rem); line-height:0.94; letter-spacing:-0.05em; color:#f5feff; text-transform:uppercase; text-wrap:balance; text-shadow:0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin:18px 0 0; max-width:62ch; color:var(--muted); font-size:0.98rem; }
+    .hero-meta { display:grid; gap:12px; }
+    .meta-card { padding:16px 18px; border:1px solid rgba(57,255,20,0.2); border-radius:18px; background:rgba(255,255,255,0.025); box-shadow:inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom:6px; color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .meta-chip { color:var(--accent-blue); font-size:1rem; font-weight:700; letter-spacing:0.02em; text-shadow:var(--glow-blue); word-break:break-word; }
+    .repo-tag { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; border:1px solid rgba(0,245,255,0.24); border-radius:999px; background:rgba(0,245,255,0.08); color:var(--accent-blue); font-size:0.82rem; letter-spacing:0.04em; }
+    .section { position:relative; margin-top:22px; padding:24px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--panel); box-shadow:var(--shadow); }
+    .section::before { content:""; position:absolute; left:24px; right:24px; top:0; height:1px; background:linear-gradient(90deg, transparent, rgba(0,245,255,0.9), rgba(57,255,20,0.9), transparent); transform:translateY(-1px); }
+    .section-header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 18px; align-items:end; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .section-title { margin:0; font-size:clamp(1.2rem,2vw,1.7rem); line-height:1.1; color:#f0feff; }
+    .section-index { display:inline-flex; align-items:center; gap:10px; color:var(--accent-green); font-size:0.78rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; text-shadow:var(--glow-green); }
+    .section-index::after { content:""; width:44px; height:1px; background:linear-gradient(90deg, rgba(57,255,20,0.9), transparent); }
+    .summary-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state {
+      border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), rgba(7,7,7,0.82);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.012);
+    }
+    .column-card { padding:18px; min-height:180px; }
+    .column-label { margin:0 0 12px; color:var(--accent-blue); font-size:0.83rem; font-weight:700; text-transform:uppercase; letter-spacing:0.16em; text-shadow:var(--glow-blue); }
+    .splitter { width:100%; height:1px; margin:8px 0 16px; background:linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding:18px; }
+    .diagram-frame { overflow:auto; overscroll-behavior:contain; max-height:min(70vh,720px); }
+    .mermaid { width:100%; max-width:100%; min-width:0; color:var(--text); }
+    .mermaid svg { display:block; width:auto !important; min-width:100%; max-width:none !important; height:auto !important; }
+    .chart-frame, .viz-frame { overflow:hidden; }
+    .technical-frame { color:#d6f6ff; }
+    .technical-frame table { width:100%; border-collapse:collapse; }
+    .technical-frame th, .technical-frame td { padding:11px 10px; border-bottom:1px solid rgba(255,255,255,0.08); vertical-align:top; }
+    .technical-frame th { color:var(--accent-green); font-size:0.76rem; text-align:left; letter-spacing:0.12em; text-transform:uppercase; }
+    .chart-frame canvas, .viz-frame canvas, canvas.report-chart { display:block; width:100% !important; max-width:100%; height:320px !important; min-height:320px; max-height:320px; }
+    .metric-strip { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .metric { padding:14px 16px; border:1px solid rgba(0,245,255,0.18); border-radius:var(--radius-sm); background:rgba(0,245,255,0.04); }
+    .metric-label { color:var(--muted); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .metric-value { margin-top:8px; color:var(--accent-green); font-size:1.2rem; font-weight:700; text-shadow:var(--glow-green); }
+    .pill-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid rgba(57,255,20,0.22); border-radius:999px; background:rgba(57,255,20,0.06); color:#d9ffd0; font-size:0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin:0; padding-left:20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom:8px; }
+    .flag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+    .flag-ok { color:#062; background:rgba(57,255,20,0.16); border:1px solid rgba(57,255,20,0.4); }
+    .flag-warn { color:#ffd27a; background:rgba(255,200,80,0.12); border:1px solid rgba(255,200,80,0.4); }
+    .chart-wrap { border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md); padding:16px; background:rgba(7,7,7,0.82); }
+    .chart-label { color:var(--accent-blue); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; margin:0 0 12px; }
+    .resolve-badge { display:inline-block; padding:4px 12px; border-radius:8px; font-size:0.74rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; background:rgba(57,255,20,0.14); border:1px solid rgba(57,255,20,0.5); color:#39ff14; text-shadow:var(--glow-green); }
+    .footer-note { margin-top:18px; text-align:right; color:rgba(142,163,173,0.72); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; }
+    @media (max-width:900px){ .hero-grid,.summary-grid,.metric-strip{ grid-template-columns:1fr; } .phase-title{ max-width:none; } }
+    @media (max-width:640px){ .page-shell{ width:min(100vw - 20px,1180px); padding-top:16px; padding-bottom:42px; } .hero,.section{ padding:18px; border-radius:20px; } .section::before{ left:18px; right:18px; } }
+    @media print { body{ background:#fff; color:#111; } body::before,.hero::after{ display:none; } .section,.hero{ box-shadow:none; border-color:#bbb; break-inside:avoid; } .metric-value,.section-kicker,.meta-chip{ text-shadow:none; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+
+    <!-- 1 / PHASE HEADER -->
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Factory A Emivest Rerun</p>
+          <h1 class="phase-title">Phase 01 — Emivest Load Ingestion</h1>
+          <p class="hero-summary">
+            Replaced the synthetic half-sine profile with real Emivest hourly meter data (2024).
+            347 missing rows and 24 extreme outlier rows cleaned via linear interpolation, then
+            scaled to the slide-stated <strong>9,750,000 kWh</strong>.
+            The real load's day/night split (70%/30%) is substantially closer to the slide
+            than the synthetic was (78%/22%), resolving
+            <span class="resolve-badge">BIAS-01</span> and setting up tighter clean
+            self-supply validation in PHASE-02/03.
+          </p>
+          <div class="pill-row">
+            <span class="pill">project :: Factory A BESS Rerun</span>
+            <span class="pill">date :: 2026-06-20</span>
+            <span class="pill">commit :: 3a2a502</span>
+            <span class="pill">BIAS-01 resolved</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Load source</div><div class="meta-chip">emivest_1hr_2024</div></div>
+          <div class="meta-card"><div class="meta-label">Rows cleaned</div><div class="meta-chip">371 / 8,760 (4.2%)</div></div>
+          <div class="meta-card"><div class="meta-label">Phase status</div><div class="meta-chip">PHASE-01 COMPLETE</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 / INPUT -> OUTPUT SUMMARY -->
+    <section class="section" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input &rarr; Output</div><h2 class="section-title">Input &rarr; Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p><div class="splitter"></div>
+          <ul>
+            <li><code>C:/Users/tukum/Downloads/Emivest load profile 1hr.csv</code> — real Emivest hourly meter file, 8,760 rows, 2024, headers: DateTime | Load_kW | TimePeriodFlag.</li>
+            <li>Data quality issues: 347 blank/dash Load_kW rows, 24 rows with values 37,000–42,000 kW (meter read errors).</li>
+            <li>Q1 answer: track raw CSV in git under <code>data/raw/factory_a/</code>.</li>
+            <li>Q2 answer: scale cleaned load to 9,750,000 kWh to match slide stated consumption.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p><div class="splitter"></div>
+          <ul>
+            <li><code>data/raw/factory_a/emivest_load_profile_1hr_2024.csv</code> — raw CSV copied to repo and tracked in git.</li>
+            <li><code>src/python/reopt_pysam_vn/integration/factory_a.py</code> — added <code>EMIVEST_LOAD_FILE</code> constant, <code>load_emivest_8760()</code> function, <code>__main__</code> block; updated <code>build_factory_a_extracted_inputs()</code> to use real load.</li>
+            <li><code>data/interim/factory_a/factory_a_extracted_inputs.json</code> — regenerated with <code>load_source: "emivest_1hr_2024"</code>.</li>
+            <li>Commit <code>3a2a502</code> pushed to <code>origin/main</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Total kWh</div><div class="metric-value">9,750,000</div></div>
+        <div class="metric"><div class="metric-label">Peak kW</div><div class="metric-value">2,443</div></div>
+        <div class="metric"><div class="metric-label">Avg kW</div><div class="metric-value">1,113</div></div>
+        <div class="metric"><div class="metric-label">Load Factor</div><div class="metric-value">0.456</div></div>
+      </div>
+    </section>
+
+    <!-- 3 / LOGIC FLOW -->
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame">
+        <div class="mermaid">
+flowchart LR
+  A[Emivest load profile\n1hr.csv\n8760 rows] --> B[Parse Load_kW\nstrip commas/whitespace]
+  B --> C{Valid float\nand ≤ 5000 kW?}
+  C -->|yes| D[keep value]
+  C -->|no: blank/dash\nor > 5000 kW| E[mark None\n371 rows]
+  D & E --> F[linear interpolation\ngap-fill missing indices]
+  F --> G[scale array\nsum → 9,750,000 kWh\nfactor ≈ 1.047]
+  G --> H[8760-point list\npeak 2443 kW\navg 1113 kW\nLF 0.456]
+  H --> I[build_factory_a_\nextracted_inputs\nload_source=\nemivest_1hr_2024]
+  I --> J[factory_a_\nextracted_inputs.json\nregenerated]
+  J --> K[commit 3a2a502\npush main]
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 / MATH / ALGORITHM USED -->
+    <section class="section" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Step</th><th>Formula / Method</th><th>Applied to</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Outlier detection</td>
+              <td><code>value > 5,000 kW → mark None</code>. Threshold chosen from bimodal distribution: clean readings cluster 0–2,500 kW; erroneous readings cluster 37,000–42,000 kW. Gap between 2,500 and 5,000 kW is empty.</td>
+              <td>24 rows removed</td>
+            </tr>
+            <tr>
+              <td>Missing value detection</td>
+              <td>Blank string, dash "<code>-</code>", or non-parseable Load_kW → mark None.</td>
+              <td>347 rows removed</td>
+            </tr>
+            <tr>
+              <td>Linear interpolation</td>
+              <td><code>loads[i] = raw[prev] + t × (raw[next] − raw[prev])</code> where <code>t = (i − prev) / (next − prev)</code>. Boundary case: use nearest valid neighbour.</td>
+              <td>371 gap-filled indices</td>
+            </tr>
+            <tr>
+              <td>Annual scaling</td>
+              <td><code>factor = 9,750,000 / sum(cleaned_loads)</code> ≈ 1.047. All 8,760 values multiplied by factor. Preserves shape; adjusts magnitude to match slide stated consumption.</td>
+              <td>Full array, post-cleaning</td>
+            </tr>
+            <tr>
+              <td>Day/night split</td>
+              <td><code>day = Σ loads[h] where h%24 ∈ [6,22)</code>; <code>night = total − day</code>. Split: 69.6% day / 30.4% night (vs synthetic 78%/22%).</td>
+              <td>Diagnostic metric</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5 / TOOLS / METHODS -->
+    <section class="section" id="tools-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Implementation</p><div class="splitter"></div>
+          <ul>
+            <li><code>load_emivest_8760(path, scale_to_kwh, outlier_threshold_kw)</code> — pure Python, no external dependencies beyond stdlib <code>csv</code>.</li>
+            <li>Opens with <code>encoding="utf-8-sig"</code> to handle Windows BOM in CSV.</li>
+            <li><code>_REPO_ROOT = Path(__file__).parents[4]</code> — makes path resolution portable; no hardcoded absolute paths in committed code.</li>
+            <li>Synthetic builder <code>build_factory_a_load_8760()</code> retained as documented fallback.</li>
+            <li>Both functions share <code>_validate_load()</code> — length assert + stats dict.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Decision rationale</p><div class="splitter"></div>
+          <ul>
+            <li><strong>Scale to 9,750 MWh (Q2):</strong> Natural cleaned total is ~9,315 MWh — 4.5% below slide. Cong likely normalised before running the model. Scaling preserves load shape while matching the stated annual figure.</li>
+            <li><strong>Track in git (Q1):</strong> 263 KB CSV — well within git limits. Reproducibility requires the source file; external-only reference would break for any other reviewer.</li>
+            <li><strong>Outlier threshold 5,000 kW:</strong> The bimodal gap between valid readings (max ≈ 2,428 kW) and erroneous readings (min ≈ 37,000 kW) is wide. Any threshold between 3,000 and 10,000 kW gives identical results.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 / RESULTS & VISUALIZATIONS -->
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="chart-wrap" style="margin-bottom:16px;">
+        <p class="chart-label">Load profile comparison — slide target vs synthetic (prior) vs real Emivest</p>
+        <div class="viz-frame" style="padding:0;">
+          <canvas id="statsChart" class="report-chart"></canvas>
+        </div>
+      </div>
+      <div class="technical-frame">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Slide reference</th><th>Synthetic (prior run)</th><th>Real Emivest (this run)</th><th>Delta vs slide</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Annual MWh</td><td>9,750</td><td>9,750 (fixed)</td><td>9,750 (scaled)</td><td>0%</td></tr>
+            <tr><td>Peak kW</td><td>2,430</td><td>2,483</td><td><strong>2,443</strong></td><td>+0.5% <span class="flag flag-ok">closer</span></td></tr>
+            <tr><td>Avg kW</td><td>1,110</td><td>1,113</td><td><strong>1,113</strong></td><td>+0.3%</td></tr>
+            <tr><td>Load Factor</td><td>0.46</td><td>0.448</td><td><strong>0.456</strong></td><td>&minus;0.9%</td></tr>
+            <tr><td>Day (6–22) share</td><td>~54% (implied)</td><td>78%</td><td><strong>70%</strong></td><td>&minus;8 pp <span class="flag flag-ok">closer</span></td></tr>
+            <tr><td>Night share</td><td>~46% (implied)</td><td>22%</td><td><strong>30%</strong></td><td>+8 pp <span class="flag flag-ok">closer</span></td></tr>
+            <tr><td>Missing rows cleaned</td><td>n/a</td><td>n/a</td><td>371 (4.2%)</td><td>n/a</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7 / LIMITATIONS -->
+    <section class="section" id="limitations-alternatives">
+      <div class="section-header"><div><div class="section-index">06 / Limitations</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Remaining gaps</p><div class="splitter"></div>
+          <ul>
+            <li><strong>Day/night still 70/30 vs slide's ~54/46.</strong> The real meter data has a stronger daytime bias than the slide implies. Clean self-supply will improve vs the synthetic run but may not fully converge to slide figures — the gap likely reflects a different model assumption in Cong's tool (e.g. hourly vs 30-min demand resolution, or a different base year).</li>
+            <li><strong>BIAS-05 (natural total vs slide):</strong> Raw cleaned total was 9,315 MWh (4.5% below slide). Scaling to 9,750 MWh inflates all values by factor 1.047. This is the correct approach per Q2, but a reviewer should know the raw data undershoots the stated annual consumption.</li>
+            <li><strong>BIAS-02, BIAS-03, BIAS-04 remain:</strong> IRR (hybrid PySAM model), depreciation (US MACRS vs VN straight-line), and savings metric definition are unchanged.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Alternative not chosen</p><div class="splitter"></div>
+          <ul>
+            <li><strong>ALT-001 (30-min Emivest file):</strong> <code>Emivest_load_profile_30min_annual.csv.csv</code> has 17,519 rows at 30-min resolution. Resampling to 1-hr by averaging pairs would give a cleaner profile but identical information content. Not chosen — same underlying data, more processing complexity, PySAM ingests 1-hr natively.</li>
+            <li><strong>ALT-002 (WH01 + WH02 separately):</strong> The <code>Load Profile/</code> folder has raw EVN meter exports for two Emivest warehouses (WH01 and WH02). The pre-processed <code>1hr.csv</code> is already their combined total. Reaggregating from scratch was not required.</li>
+            <li><strong>ALT-003 (keep synthetic):</strong> The prior report documented synthetic as fallback. Retained in module; not used for results.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 / ERRORS / WARNINGS -->
+    <section class="section" id="errors-warnings-flags">
+      <div class="section-header"><div><div class="section-index">07 / Errors / Warnings</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Item</th><th>Description</th><th>Resolution</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>ModuleNotFoundError on first run</td>
+              <td><code>python -m reopt_pysam_vn.integration.factory_a</code> failed with <code>No module named 'reopt_pysam_vn'</code> because <code>src/python</code> was not on the path.</td>
+              <td>Set <code>$env:PYTHONPATH = "src\python"</code> before invoking the module.</td>
+              <td><span class="flag flag-ok">Resolved</span></td>
+            </tr>
+            <tr>
+              <td>CSV BOM on Windows</td>
+              <td>Windows-generated CSVs may include a UTF-8 BOM that corrupts the first column name when using <code>encoding="utf-8"</code>.</td>
+              <td>Opened with <code>encoding="utf-8-sig"</code> — Python stdlib strips the BOM transparently. No issues observed.</td>
+              <td><span class="flag flag-ok">Mitigated</span></td>
+            </tr>
+            <tr>
+              <td>371 bad rows (4.2%)</td>
+              <td>347 blank/dash rows + 24 rows with values 37,000–42,000 kW. Concentrated in specific months (meter connectivity drops and read-back errors from the raw EVN export).</td>
+              <td>Linear interpolation. No consecutive run longer than ~3 hours observed; interpolation introduces negligible shape distortion.</td>
+              <td><span class="flag flag-warn">Accepted / documented</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9 / OPEN QUESTIONS -->
+    <section class="section" id="open-questions">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>PHASE-02 — PySAM run with real load.</strong> Update <code>run_factory_a_pysam.py</code> to import and call <code>load_emivest_8760()</code> instead of <code>build_factory_a_load_8760()</code>. Output date prefix → <code>2026-06-20</code>. Run all four cases. Expected: clean self-supply drops from 78–82% (synthetic) toward 60–70% (real load, day share 70%).</li>
+          <li><strong>PHASE-03 — Tighten CSS tolerance.</strong> Once PHASE-02 results are known, update <code>CLEAN_SUPPLY_TOLERANCE_PP</code> in the test file from 25.0 pp to ≤ 15.0 pp. If any case still exceeds 15 pp, document as residual day/night bias and set to the next 5 pp increment.</li>
+          <li><strong>BIAS-05 monitoring.</strong> The scaling factor of 1.047 slightly inflates peak kW (2,428 → 2,443 kW) relative to the slide's 2,430 kW. Monitor whether this materially affects BESS dispatch sizing in PySAM results.</li>
+          <li><strong>WH01 vs WH02 split.</strong> The raw EVN meter folder has separate daily and monthly reports for Emivest WH01 and WH02 (May 2025). If a more granular disaggregation is ever needed (e.g., to model separate on-site solar for each warehouse), the raw exports are available at <code>Load Profile/Tổng hợp thông tin tải/Emivest 1_05.2025/</code> and <code>Emivest 2_05.2025/</code>.</li>
+        </ul>
+      </div>
+      <div class="footer-note">Phase 01 complete — 2026-06-20 &mdash; reopt-pysam / factory-a-emivest-rerun</div>
+    </section>
+
+  </main>
+
+  <script>
+    Chart.defaults.devicePixelRatio = 1;
+    Chart.defaults.animation = false;
+    Chart.defaults.resizeDelay = 150;
+    Chart.defaults.normalized = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    new Chart(document.getElementById('statsChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Peak kW', 'Avg kW', 'LF × 1000', 'Day % share'],
+        datasets: [
+          {
+            label: 'Slide reference',
+            data: [2430, 1110, 460, 54],
+            backgroundColor: 'rgba(0,245,255,0.15)',
+            borderColor: 'rgba(0,245,255,0.9)',
+            borderWidth: 2
+          },
+          {
+            label: 'Synthetic (prior)',
+            data: [2483, 1113, 448, 78],
+            backgroundColor: 'rgba(255,200,80,0.12)',
+            borderColor: 'rgba(255,200,80,0.8)',
+            borderWidth: 2
+          },
+          {
+            label: 'Real Emivest (this run)',
+            data: [2443, 1113, 456, 70],
+            backgroundColor: 'rgba(57,255,20,0.14)',
+            borderColor: 'rgba(57,255,20,0.9)',
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#8ea3ad', font: { family: 'Cascadia Code,monospace', size: 11 } } },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` } }
+        },
+        scales: {
+          x: { ticks: { color: '#8ea3ad', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { ticks: { color: '#8ea3ad', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

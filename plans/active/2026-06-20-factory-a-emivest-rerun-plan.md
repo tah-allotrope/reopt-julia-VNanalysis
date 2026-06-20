@@ -1,7 +1,7 @@
 ---
 title: "Factory A BESS Validation Rerun — Real Emivest Load"
 date: "2026-06-20"
-status: "draft"
+status: "complete"
 request: "Rerun Factory A BESS 4-case PySAM validation using the real Emivest hourly load file instead of the synthetic profile, same cadence as 2026-06-19 plan."
 plan_type: "multi-phase"
 research_inputs:

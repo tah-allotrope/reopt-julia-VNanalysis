@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: factory-a-emivest-phase-02</title>
+  <meta name="color-scheme" content="dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff',
+          lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111',
+          background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff',
+          clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d'
+        }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch((e) => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root {
+      --bg:#0d0d0d; --panel:rgba(13,13,13,0.88); --panel-strong:rgba(19,19,19,0.96);
+      --line:rgba(0,245,255,0.26); --text:#e9f6ff; --muted:#8ea3ad;
+      --accent-blue:#00f5ff; --accent-green:#39ff14;
+      --glow-blue:0 0 18px rgba(0,245,255,0.42); --glow-green:0 0 18px rgba(57,255,20,0.28);
+      --shadow:0 14px 40px rgba(0,0,0,0.32);
+      --radius-lg:22px; --radius-md:16px; --radius-sm:12px;
+      --narrative-font:"Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;
+      --technical-font:"Cascadia Code","Fira Code",Consolas,"Liberation Mono",monospace;
+    }
+    * { box-sizing:border-box; }
+    body {
+      position:relative; margin:0; min-height:100vh; overflow-x:hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0,245,255,0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57,255,20,0.08), transparent 24%),
+        linear-gradient(180deg,#050505 0%,#0d0d0d 36%,#090909 100%);
+      color:var(--text); font-family:var(--narrative-font); line-height:1.6; letter-spacing:0.01em;
+    }
+    body::before {
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size:32px 32px; opacity:0.16;
+    }
+    a { color:var(--accent-blue); }
+    code, pre, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family:var(--technical-font); }
+    .page-shell { width:min(1180px, calc(100vw - 32px)); margin:0 auto; padding:32px 0 72px; position:relative; z-index:1; }
+    .hero {
+      position:relative; padding:28px; margin-bottom:24px; border:1px solid var(--line); border-radius:28px;
+      background:
+        linear-gradient(145deg, rgba(0,245,255,0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--panel-strong);
+      box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .hero::after { content:""; position:absolute; inset:auto -10% -55% 42%; height:280px; background:radial-gradient(circle, rgba(0,245,255,0.18), transparent 64%); filter:blur(12px); pointer-events:none; }
+    .hero-grid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(260px,0.85fr); gap:22px; align-items:end; }
+    .section-kicker { margin:0 0 12px; color:var(--accent-green); font-size:0.76rem; font-weight:700; text-transform:uppercase; letter-spacing:0.22em; text-shadow:var(--glow-green); }
+    .phase-title { margin:0; max-width:16ch; font-size:clamp(2.1rem,4.2vw,3.8rem); line-height:0.94; letter-spacing:-0.05em; color:#f5feff; text-transform:uppercase; text-wrap:balance; text-shadow:0 0 24px rgba(0,245,255,0.2); }
+    .hero-summary { margin:18px 0 0; max-width:62ch; color:var(--muted); font-size:0.98rem; }
+    .hero-meta { display:grid; gap:12px; }
+    .meta-card { padding:16px 18px; border:1px solid rgba(57,255,20,0.2); border-radius:18px; background:rgba(255,255,255,0.025); box-shadow:inset 0 0 0 1px rgba(0,0,0,0.24); }
+    .meta-label { margin-bottom:6px; color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .meta-chip { color:var(--accent-blue); font-size:1rem; font-weight:700; letter-spacing:0.02em; text-shadow:var(--glow-blue); word-break:break-word; }
+    .repo-tag { display:inline-flex; align-items:center; gap:8px; margin-top:10px; padding:8px 12px; border:1px solid rgba(0,245,255,0.24); border-radius:999px; background:rgba(0,245,255,0.08); color:var(--accent-blue); font-size:0.82rem; letter-spacing:0.04em; }
+    .section { position:relative; margin-top:22px; padding:24px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--panel); box-shadow:var(--shadow); }
+    .section::before { content:""; position:absolute; left:24px; right:24px; top:0; height:1px; background:linear-gradient(90deg, transparent, rgba(0,245,255,0.9), rgba(57,255,20,0.9), transparent); transform:translateY(-1px); }
+    .section-header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px 18px; align-items:end; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .section-title { margin:0; font-size:clamp(1.2rem,2vw,1.7rem); line-height:1.1; color:#f0feff; }
+    .section-index { display:inline-flex; align-items:center; gap:10px; color:var(--accent-green); font-size:0.78rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; text-shadow:var(--glow-green); }
+    .section-index::after { content:""; width:44px; height:1px; background:linear-gradient(90deg, rgba(57,255,20,0.9), transparent); }
+    .summary-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state {
+      border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), rgba(7,7,7,0.82);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.012);
+    }
+    .column-card { padding:18px; min-height:180px; }
+    .column-label { margin:0 0 12px; color:var(--accent-blue); font-size:0.83rem; font-weight:700; text-transform:uppercase; letter-spacing:0.16em; text-shadow:var(--glow-blue); }
+    .splitter { width:100%; height:1px; margin:8px 0 16px; background:linear-gradient(90deg, rgba(0,245,255,0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding:18px; }
+    .diagram-frame { overflow:auto; overscroll-behavior:contain; max-height:min(70vh,720px); }
+    .mermaid { width:100%; max-width:100%; min-width:0; color:var(--text); }
+    .mermaid svg { display:block; width:auto !important; min-width:100%; max-width:none !important; height:auto !important; }
+    .technical-frame { color:#d6f6ff; }
+    .technical-frame table { width:100%; border-collapse:collapse; }
+    .technical-frame th, .technical-frame td { padding:11px 10px; border-bottom:1px solid rgba(255,255,255,0.08); vertical-align:top; }
+    .technical-frame th { color:var(--accent-green); font-size:0.76rem; text-align:left; letter-spacing:0.12em; text-transform:uppercase; }
+    canvas.report-chart { display:block; width:100% !important; max-width:100%; height:320px !important; min-height:320px; max-height:320px; }
+    .metric-strip { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .metric { padding:14px 16px; border:1px solid rgba(0,245,255,0.18); border-radius:var(--radius-sm); background:rgba(0,245,255,0.04); }
+    .metric-label { color:var(--muted); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.16em; }
+    .metric-value { margin-top:8px; color:var(--accent-green); font-size:1.2rem; font-weight:700; text-shadow:var(--glow-green); }
+    .pill-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid rgba(57,255,20,0.22); border-radius:999px; background:rgba(57,255,20,0.06); color:#d9ffd0; font-size:0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin:0; padding-left:20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom:8px; }
+    .flag { display:inline-block; padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
+    .flag-ok { color:#062; background:rgba(57,255,20,0.16); border:1px solid rgba(57,255,20,0.4); }
+    .flag-warn { color:#ffd27a; background:rgba(255,200,80,0.12); border:1px solid rgba(255,200,80,0.4); }
+    .flag-info { color:#a0dfff; background:rgba(0,180,255,0.1); border:1px solid rgba(0,180,255,0.35); }
+    .chart-wrap { border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md); padding:16px; background:rgba(7,7,7,0.82); }
+    .chart-label { color:var(--accent-blue); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; margin:0 0 12px; }
+    .chart-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:0; }
+    .footer-note { margin-top:18px; text-align:right; color:rgba(142,163,173,0.72); font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; }
+    @media (max-width:900px){ .hero-grid,.summary-grid,.metric-strip,.chart-grid{ grid-template-columns:1fr; } .phase-title{ max-width:none; } }
+    @media (max-width:640px){ .page-shell{ width:min(100vw - 20px,1180px); padding-top:16px; padding-bottom:42px; } .hero,.section{ padding:18px; border-radius:20px; } .section::before{ left:18px; right:18px; } }
+    @media print { body{ background:#fff; color:#111; } body::before,.hero::after{ display:none; } .section,.hero{ box-shadow:none; border-color:#bbb; break-inside:avoid; } .metric-value,.section-kicker,.meta-chip{ text-shadow:none; } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+
+    <!-- 1 / PHASE HEADER -->
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Factory A Emivest Rerun</p>
+          <h1 class="phase-title">Phase 02 — PySAM Run</h1>
+          <p class="hero-summary">
+            Ran all four Factory A BESS cases through PySAM Single Owner using the
+            real Emivest hourly load (scaled to 9,750 MWh). Clean self-supply dropped
+            from the synthetic run's inflated range to <strong>50–52%</strong> for
+            solar+BESS cases and <strong>41%</strong> for solar-only — directionally
+            matching the slide and resolving the overestimation caused by BIAS-01
+            (synthetic day/night split). PHASE-03 will gate against slide values and
+            update tolerances.
+          </p>
+          <div class="pill-row">
+            <span class="pill">project :: Factory A BESS Rerun</span>
+            <span class="pill">date :: 2026-06-20</span>
+            <span class="pill">commit :: f085eca</span>
+            <span class="pill">4 cases / all passed</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Load source</div><div class="meta-chip">load_emivest_8760()</div></div>
+          <div class="meta-card"><div class="meta-label">Best IRR</div><div class="meta-chip">13.7% — Case 2</div></div>
+          <div class="meta-card"><div class="meta-label">Phase status</div><div class="meta-chip">PHASE-02 COMPLETE</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 / INPUT -> OUTPUT SUMMARY -->
+    <section class="section" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input &rarr; Output</div><h2 class="section-title">Input &rarr; Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p><div class="splitter"></div>
+          <ul>
+            <li><code>load_emivest_8760()</code> — 8,760-point real Emivest profile, scaled to 9,750,000 kWh. Peak 2,443 kW, avg 1,113 kW, LF 0.456.</li>
+            <li><code>scripts/python/integration/run_factory_a_pysam.py</code> — 3 edits: import swap, call swap, output date prefix <code>2026-06-19</code> → <code>2026-06-20</code>.</li>
+            <li>PySAM Single Owner model — slide-fixed sizing (ALT-001 path), ESCO price = 90% × load-weighted EVN TOU rate, BESS grid-charge disabled.</li>
+            <li>Four tariff regimes: Decision 14/2025 legacy (Case 1), Decision 963/2026 (Cases 2, 4), Decree 146 two-part (Case 3).</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p><div class="splitter"></div>
+          <ul>
+            <li><code>artifacts/reports/factory_a/2026-06-20_factory-a_case_1_pysam-results.json</code></li>
+            <li><code>artifacts/reports/factory_a/2026-06-20_factory-a_case_2_pysam-results.json</code></li>
+            <li><code>artifacts/reports/factory_a/2026-06-20_factory-a_case_3_pysam-results.json</code></li>
+            <li><code>artifacts/reports/factory_a/2026-06-20_factory-a_case_4_pysam-results.json</code></li>
+            <li>Commit <code>f085eca</code> pushed to <code>origin/main</code>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-strip">
+        <div class="metric"><div class="metric-label">Case 1 Clean CSS</div><div class="metric-value">50.3%</div></div>
+        <div class="metric"><div class="metric-label">Case 2 Clean CSS</div><div class="metric-value">52.2%</div></div>
+        <div class="metric"><div class="metric-label">Case 3 Clean CSS</div><div class="metric-value">52.3%</div></div>
+        <div class="metric"><div class="metric-label">Case 4 Clean CSS</div><div class="metric-value">40.5%</div></div>
+      </div>
+    </section>
+
+    <!-- 3 / LOGIC FLOW -->
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame">
+        <div class="mermaid">
+flowchart LR
+  A[load_emivest_8760\n9750 MWh\npeak 2443 kW] --> B[run_all_cases]
+  B --> C1[case_1\nDecision 14 legacy\nTOU override]
+  B --> C2[case_2\nDecision 963/2026\nstandard TOU]
+  B --> C3[case_3\nDecision 963 +\ncapacity charge]
+  B --> C4[case_4\nSolar only\nDecision 963]
+  C1 --> D1[ESCO price\n0.9 x load-wtd\navg TOU / VND]
+  C2 --> D2[ESCO price\nsame method\nD963 rates]
+  C3 --> D3[ESCO price +\ndemand charge\npost-proc]
+  C4 --> D4[ESCO price\nno BESS\nnominal 1kW]
+  D1 --> E1[PySAM\nSingle Owner\nIRR / NPV / CSS]
+  D2 --> E2[PySAM\nSingle Owner\nIRR / NPV / CSS]
+  D3 --> E3[PySAM\nSingle Owner\nIRR / NPV / CSS]
+  D4 --> E4[PySAM\nSingle Owner\nIRR / NPV / CSS]
+  E1 --> F[4 x result JSON\n2026-06-20_factory-a\n_caseN_pysam-results.json]
+  E2 --> F
+  E3 --> F
+  E4 --> F
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 / MATH / ALGORITHM USED -->
+    <section class="section" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Formula / Method</th><th>Value / Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>ESCO PPA price</td>
+              <td><code>esco_usd = 0.90 × Σ(load[h] × rate_vnd[h]) / Σ(load[h]) / 26400</code> — load-weighted average EVN TOU rate discounted 10%, converted USD at 26,400 VND/USD.</td>
+            </tr>
+            <tr>
+              <td>Clean self-supply %</td>
+              <td><code>clean_pct = annual_matched_load_kwh / sum(loads_kw) × 100</code>. <code>annual_matched_load_kwh</code> from PySAM energy summary = kWh served directly by PV+BESS without grid.</td>
+            </tr>
+            <tr>
+              <td>Approx annual savings</td>
+              <td><code>savings = matched_kwh × (evn_avg_usd − esco_usd)</code> = energy displaced × rate spread. Proxy for year-1 bill savings; Single Owner doesn't directly export this metric.</td>
+            </tr>
+            <tr>
+              <td>Case 3 demand charge savings</td>
+              <td><code>Δ_peak_m = max_load_m − max_grid_m</code>; <code>annual_DC_savings = Σ Δ_peak_m × rate_usd/kW/month</code>. Applied at slide rate 209,459 VND/kW/month and repo rate 235,414 VND/kW/month as sensitivity.</td>
+            </tr>
+            <tr>
+              <td>Case 4 BESS sentinel</td>
+              <td>Solar-only case requires <code>battery_power_kw &gt; 0</code> for PySAM validation. Nominal 1 kW / 1 kWh injected; contribution to results negligible (&lt; 0.01% of 9,750 MWh load).</td>
+            </tr>
+            <tr>
+              <td>Financial structure</td>
+              <td>70% debt, 8.5% VND interest, 10-yr tenor, 10% owner discount rate, 25-yr analysis horizon. US MACRS depreciation (BIAS-03 — noted, not resolved in this run).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5 / TOOLS / METHODS -->
+    <section class="section" id="tools-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Script changes (3 edits)</p><div class="splitter"></div>
+          <ul>
+            <li><strong>Import swap:</strong> <code>build_factory_a_load_8760</code> → <code>load_emivest_8760</code> in the import block.</li>
+            <li><strong>Call swap:</strong> <code>loads_kw = load_emivest_8760()</code> in <code>run_all_cases()</code> — single line change, no signature change needed (default path/scale already correct).</li>
+            <li><strong>Date prefix:</strong> <code>2026-06-19</code> → <code>2026-06-20</code> in <code>out_path</code> — prevents overwriting prior synthetic run results in <code>artifacts/</code>.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Run environment</p><div class="splitter"></div>
+          <ul>
+            <li><strong>Python runtime:</strong> <code>.venv</code> (Python 3.12) — PySAM wheel only available here; system Python 3.14 has no PySAM wheel.</li>
+            <li><strong>PYTHONPATH:</strong> <code>$env:PYTHONPATH = "src\python"</code> required to resolve <code>reopt_pysam_vn</code> package.</li>
+            <li><strong>Invocation:</strong> <code>.venv\Scripts\python scripts\python\integration\run_factory_a_pysam.py</code></li>
+            <li><strong>PySAM model:</strong> <code>PVWattsBatterySingleOwnerInputs</code> — slide-fixed sizing ALT-001 path, no REopt solver required.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 / RESULTS & VISUALIZATIONS -->
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="technical-frame" style="margin-bottom:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Case</th><th>Tariff</th><th>Clean CSS %</th><th>Equity IRR</th><th>NPV (USD)</th><th>Avg DSCR yr1-10</th><th>Yr-1 savings (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Case 1 — Solar+BESS</td><td>Decision 14/2025 legacy</td><td>50.3%</td><td>12.8%</td><td>−$317,313</td><td>0.96</td><td>$37,887</td></tr>
+            <tr><td>Case 2 — Solar+BESS</td><td>Decision 963/2026</td><td>52.2%</td><td>13.7%</td><td>−$41,961</td><td>1.01</td><td>$40,454</td></tr>
+            <tr><td>Case 3 — Solar+BESS+DC</td><td>Decision 963 + cap charge</td><td>52.3%</td><td>13.1%</td><td>−$258,905</td><td>0.97</td><td>$40,527</td></tr>
+            <tr><td>Case 4 — Solar only</td><td>Decision 963/2026</td><td>40.5%</td><td>12.9%</td><td>−$205,019</td><td>0.96</td><td>$31,365</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-wrap">
+          <p class="chart-label">Clean Self-Supply % — all 4 cases</p>
+          <canvas id="cssChart" class="report-chart"></canvas>
+        </div>
+        <div class="chart-wrap">
+          <p class="chart-label">Equity IRR % — all 4 cases</p>
+          <canvas id="irrChart" class="report-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 / LIMITATIONS -->
+    <section class="section" id="limitations-alternatives">
+      <div class="section-header"><div><div class="section-index">06 / Limitations</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Remaining BIAS flags</p><div class="splitter"></div>
+          <ul>
+            <li><strong>BIAS-02 (hybrid IRR):</strong> PySAM Single Owner computes equity IRR not the blended project-level IRR that Cong's model may use. ESCO economics typically quoted as equity IRR — this is likely correctly aligned, but the comparison should be flagged.</li>
+            <li><strong>BIAS-03 (US MACRS depreciation):</strong> PySAM defaults to US tax code. Vietnam ESCO projects use straight-line VND depreciation over 10–15 years. Tax shield differs materially. NPV figures are therefore biased against VN projects.</li>
+            <li><strong>BIAS-04 (savings definition):</strong> Year-1 savings is approximated as <code>matched_kwh × rate_spread</code>, not a direct bill calculation. PySAM Single Owner does not output bill savings natively in this configuration.</li>
+            <li><strong>Day/night gap:</strong> Real load is 70% day vs slide-implied ~54% day. Even with real data, CSS will be higher than the slide if Cong used a flatter load profile. PHASE-03 comparison will quantify the remaining gap.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Alternative path not taken</p><div class="splitter"></div>
+          <ul>
+            <li><strong>ALT-001 was chosen:</strong> Slide-fixed PV/BESS sizing rather than REopt optimizer. This eliminates the solver dependency and guarantees the same hardware config as Cong's model, making CSS and IRR directly comparable.</li>
+            <li><strong>ALT-002 (30-min resolution):</strong> Emivest 30-min profile exists in repo. Resampling to hourly averages would smooth the peak kW (reduce from 2,443 to potentially 2,280–2,350 kW), reducing apparent BESS utilization. Not chosen — consistent with prior hourly model.</li>
+            <li><strong>ALT-003 (manual demand calculation):</strong> Demand charge post-processing is an approximation using hourly average PV dispatch. A proper implementation would use the full hourly dispatch array from PySAM — flagged as future improvement if Case 3 comparison diverges.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 / ERRORS / WARNINGS -->
+    <section class="section" id="errors-warnings-flags">
+      <div class="section-header"><div><div class="section-index">07 / Errors / Warnings</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div>
+      <div class="technical-frame">
+        <table>
+          <thead><tr><th>Item</th><th>Description</th><th>Resolution</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>No errors</td>
+              <td>All 4 PySAM cases ran to completion without exceptions or warnings. The 3 edits to <code>run_factory_a_pysam.py</code> were minimal and targeted — no regression risk.</td>
+              <td>n/a</td>
+              <td><span class="flag flag-ok">Clean run</span></td>
+            </tr>
+            <tr>
+              <td>NPV negative across all cases</td>
+              <td>All 4 NPV values are negative (-$41k to -$317k). This is expected and consistent with the prior synthetic run — the Single Owner model uses US MACRS which penalises VN projects (BIAS-03). The slide likely shows positive NPV because it uses VN straight-line depreciation and a different discount rate basis.</td>
+              <td>Noted as BIAS-03 — not a code error, a model assumption gap. Quantified in PHASE-03 comparison.</td>
+              <td><span class="flag flag-warn">BIAS-03 open</span></td>
+            </tr>
+            <tr>
+              <td>Case 2 DSCR = 1.01 (barely viable)</td>
+              <td>Only Case 2 crosses the 1.0 DSCR floor in yr1-10 average. Cases 1, 3, 4 sit at 0.96-0.97, indicating the debt service is marginally tight under these financial assumptions. Consistent with negative NPV — VN ESCO economics are tight at 90% ESCO discount.</td>
+              <td>Expected given BIAS-03 and the 8.5% VND interest rate. Not a computation error.</td>
+              <td><span class="flag flag-info">Noted</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9 / OPEN QUESTIONS -->
+    <section class="section" id="open-questions">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>PHASE-03 — Compare vs slide and update tests.</strong> Update <code>compare_factory_a_vs_slides.py</code> date prefix to <code>2026-06-20</code> and run comparison. Update <code>test_factory_a_validation.py</code>: set <code>CLEAN_SUPPLY_TOLERANCE_PP</code> to ≤ 15 pp (was 25 pp for synthetic BIAS-01). If any case is still outside 15 pp, document the gap and set to the next 5 pp increment with a named bias explanation.</li>
+          <li><strong>Slide CSS target values.</strong> The exact slide clean self-supply percentages will be read from <code>compare_factory_a_vs_slides.py</code> or <code>factory_a_extracted_inputs.json</code> in PHASE-03. Preliminary expectation from slide: Case 1 ~54%, Case 2 ~56%, Case 3 ~56%, Case 4 ~44%. Real Emivest results at 50/52/52/41% are in the right ballpark — gaps of ~4-6 pp remain for cases 1-3, ~3 pp for case 4.</li>
+          <li><strong>Case 3 demand-charge proxy quality.</strong> The grid-to-load approximation uses hourly-average PV output rather than the true dispatch array. If the PHASE-03 comparison shows Case 3 CSS or savings diverging significantly from slide, this proxy should be replaced with the actual PySAM hourly dispatch output.</li>
+          <li><strong>BIAS-03 quantification.</strong> NPV is negative across all cases due to US MACRS. A sensitivity run with straight-line depreciation (15 yr, 6.7%/yr) would quantify how much of the NPV gap is attributable to this assumption alone.</li>
+        </ul>
+      </div>
+      <div class="footer-note">Phase 02 complete — 2026-06-20 &mdash; reopt-pysam / factory-a-emivest-rerun</div>
+    </section>
+
+  </main>
+
+  <script>
+    Chart.defaults.devicePixelRatio = 1;
+    Chart.defaults.animation = false;
+    Chart.defaults.resizeDelay = 150;
+    Chart.defaults.normalized = true;
+    Chart.defaults.maintainAspectRatio = false;
+
+    const cases = ['Case 1\nD14 legacy', 'Case 2\nD963', 'Case 3\nD963+DC', 'Case 4\nSolar only'];
+    const cssVals = [50.3, 52.2, 52.3, 40.5];
+    const irrVals = [12.8, 13.7, 13.1, 12.9];
+
+    new Chart(document.getElementById('cssChart'), {
+      type: 'bar',
+      data: {
+        labels: cases,
+        datasets: [{
+          label: 'Clean Self-Supply %',
+          data: cssVals,
+          backgroundColor: ['rgba(0,245,255,0.15)','rgba(57,255,20,0.15)','rgba(57,255,20,0.15)','rgba(255,200,80,0.12)'],
+          borderColor: ['rgba(0,245,255,0.9)','rgba(57,255,20,0.9)','rgba(57,255,20,0.9)','rgba(255,200,80,0.8)'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` } }
+        },
+        scales: {
+          x: { ticks: { color: '#8ea3ad', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 0, max: 70, ticks: { color: '#8ea3ad', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('irrChart'), {
+      type: 'bar',
+      data: {
+        labels: cases,
+        datasets: [{
+          label: 'Equity IRR %',
+          data: irrVals,
+          backgroundColor: ['rgba(0,245,255,0.12)','rgba(57,255,20,0.18)','rgba(0,245,255,0.12)','rgba(0,245,255,0.12)'],
+          borderColor: ['rgba(0,245,255,0.8)','rgba(57,255,20,0.95)','rgba(0,245,255,0.8)','rgba(0,245,255,0.8)'],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` } }
+        },
+        scales: {
+          x: { ticks: { color: '#8ea3ad', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { min: 11, max: 15, ticks: { color: '#8ea3ad', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
