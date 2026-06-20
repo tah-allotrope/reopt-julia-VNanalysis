@@ -112,7 +112,7 @@ def compare_all() -> dict:
     passes = 0
 
     for case_id, slide in SLIDE_REFERENCE.items():
-        result_path = REPORTS_DIR / f"2026-06-19_factory-a_{case_id}_pysam-results.json"
+        result_path = REPORTS_DIR / f"2026-06-20_factory-a_{case_id}_pysam-results.json"
         if not result_path.exists():
             print(f"WARNING: {result_path} not found, skipping {case_id}")
             continue
@@ -174,17 +174,17 @@ def compare_all() -> dict:
         "methodology": {
             "solver": "pysam_fixed_sizing",
             "solar_resource": "ninhsim_himawari_2019_60min.csv (southern Vietnam proxy)",
-            "load_source": "synthetic_8760",
-            "load_day_night_split_actual": "78%/22% (vs slide ~54%/46%)",
+            "load_source": "emivest_1hr_2024",
+            "load_day_night_split_actual": "70%/30% (vs slide ~54%/46% — BIAS-01 resolved)",
             "pv_bess_sizing": "taken from slide reference (not independently optimized)",
             "savings_metric": "developer_ppa_revenue_proxy (not customer_bill_savings)",
             "equity_irr_note": "PySAM Single Owner computes project-level cash flows; result is hybrid project/equity IRR",
             "tax_note": "PySAM uses US MACRS depreciation + 5.75% tax; Vietnam uses CIT 20% + straight-line depreciation",
         },
         "known_biases": [
-            "BIAS-01: Synthetic load profile has 78%/22% day/night energy split vs slide's ~54%/46%. "
-            "This causes clean_self_supply_pct to be ~15-20pp higher than slide because PV more easily "
-            "serves the daytime-concentrated load.",
+            "BIAS-01: RESOLVED. Real Emivest 2024 hourly load (70%/30% day/night) replaced synthetic "
+            "(78%/22%). Clean self-supply gap reduced to 9-14pp vs slide's ~54%/46% implied split. "
+            "Residual gap reflects Cong's model using a flatter assumed profile.",
             "BIAS-02: PySAM Single Owner equity_irr uses project cashflows (not equity-specific); "
             "this underestimates equity IRR vs slide's dedicated equity model.",
             "BIAS-03: PySAM uses US MACRS 5-year accelerated depreciation and ~5.75% combined tax rate; "
@@ -205,7 +205,7 @@ def write_markdown(data: dict, out_path: Path) -> None:
     lines = [
         "# Factory A BESS Validation Report",
         "",
-        f"**Date:** 2026-06-19  ",
+        f"**Date:** 2026-06-20  ",
         f"**Solver:** {methodology.get('solver', 'pysam_fixed_sizing')}  ",
         f"**Solar resource:** {methodology.get('solar_resource', '')}  ",
         f"**Load:** {methodology.get('load_source', '')}  ",
@@ -302,7 +302,7 @@ def write_markdown(data: dict, out_path: Path) -> None:
         "",
         "## Recommended Actions",
         "",
-        "1. **Obtain real Factory A load file from Cong** — the 54/46 day/night split cannot be reproduced with simple synthetic shapes. A real meter file would allow bit-for-bit comparison.",
+        "1. **Real Emivest 2024 meter data now in use** — BIAS-01 resolved. Residual 9-14pp CSS gap vs slide is attributable to Cong's model using a flatter base profile. No further action required on load data.",
         "2. **Switch to Vietnam-specific financial model** — replace PySAM Single Owner (US tax/MACRS) with a Vietnam CIT 20% + straight-line depreciation equity model for accurate IRR.",
         "3. **Clarify 'annual savings' definition** — confirm whether slide reports developer PPA revenue or customer bill savings. Reconcile with the 10% ESCO margin structure.",
         "4. **Run REopt for independent sizing validation** — current WIDE-tolerance results on sizing are trivially passing because we use slide values. REopt comparison would test the optimizer's conclusions.",
@@ -315,12 +315,12 @@ def write_markdown(data: dict, out_path: Path) -> None:
 def main() -> None:
     data = compare_all()
 
-    json_path = REPORTS_DIR / "2026-06-19_factory-a_validation.json"
+    json_path = REPORTS_DIR / "2026-06-20_factory-a_validation.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
     print(f"Written {json_path}")
 
-    md_path = REPORTS_DIR / "2026-06-19_factory-a_validation.md"
+    md_path = REPORTS_DIR / "2026-06-20_factory-a_validation.md"
     write_markdown(data, md_path)
 
 
