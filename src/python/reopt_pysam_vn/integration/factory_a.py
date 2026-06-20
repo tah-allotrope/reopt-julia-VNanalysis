@@ -9,15 +9,24 @@ Four cases from Cong's CEBA BESS session (ceba-review/cong bess session.pptx):
 Facility: ~9,750 MWh/yr, 2,430 kW peak, 1,110 kW avg, 0.46 LF, 22-110 kV.
 ESCO model: developer sells clean energy at 90% of EVN TOU rate for the applicable regime.
 Finance: 70% debt, 8.5% VND interest, 10-yr tenor, 10% owner discount rate, 25-yr analysis.
+
+Load source: real Emivest hourly meter data (2024) in data/raw/factory_a/.
+  Primary loader: load_emivest_8760() — cleans 347 missing rows + 24 outlier rows,
+  then scales to FACTORY_A_ANNUAL_KWH (9,750,000 kWh) to match slide stated consumption.
+  Fallback: build_factory_a_load_8760() — synthetic half-sine (retained for reference).
 """
 
 from __future__ import annotations
 
+import csv
 import math
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+EMIVEST_LOAD_FILE = _REPO_ROOT / "data" / "raw" / "factory_a" / "emivest_load_profile_1hr_2024.csv"
 
 # ---------------------------------------------------------------------------
 # Facility constants
@@ -185,6 +194,70 @@ def build_factory_a_load_8760(
     return [w * scale for w in weights]
 
 
+def load_emivest_8760(
+    path: Path = EMIVEST_LOAD_FILE,
+    *,
+    scale_to_kwh: float = FACTORY_A_ANNUAL_KWH,
+    outlier_threshold_kw: float = 5_000.0,
+) -> list[float]:
+    """Load and clean the real Emivest hourly meter file (2024, 8,760 rows).
+
+    Cleaning steps:
+      1. Parse Load_kW; rows with blank/dash values are marked missing.
+      2. Rows where value > outlier_threshold_kw are also marked missing
+         (the raw file contains 24 rows in the 37,000–42,000 kW range that
+         are meter read errors, not real demand events).
+      3. Missing indices are gap-filled by linear interpolation between the
+         nearest valid neighbours (boundary missing values use nearest valid).
+      4. The cleaned array is scaled so sum(loads) == scale_to_kwh, matching
+         the slide's stated annual consumption of 9,750,000 kWh.
+
+    Returns a list of exactly 8,760 positive floats (kW).
+    """
+    raw: list[float | None] = []
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            v = row["Load_kW"].replace(",", "").strip()
+            if v and v not in ("-", "--", "N/A"):
+                try:
+                    val = float(v)
+                    raw.append(None if val > outlier_threshold_kw else val)
+                except ValueError:
+                    raw.append(None)
+            else:
+                raw.append(None)
+
+    if len(raw) != 8760:
+        raise ValueError(f"Emivest CSV: expected 8760 data rows, got {len(raw)}")
+
+    # Linear interpolation gap-fill
+    loads: list[float] = [0.0] * 8760
+    for i, v in enumerate(raw):
+        if v is not None:
+            loads[i] = v
+        else:
+            # find previous and next valid indices
+            prev_i = next((j for j in range(i - 1, -1, -1) if raw[j] is not None), None)
+            next_i = next((j for j in range(i + 1, 8760) if raw[j] is not None), None)
+            if prev_i is None and next_i is None:
+                raise ValueError(f"No valid neighbours found near index {i}")
+            elif prev_i is None:
+                loads[i] = raw[next_i]  # type: ignore[arg-type]
+            elif next_i is None:
+                loads[i] = raw[prev_i]  # type: ignore[arg-type]
+            else:
+                t = (i - prev_i) / (next_i - prev_i)
+                loads[i] = raw[prev_i] + t * (raw[next_i] - raw[prev_i])  # type: ignore[operator]
+
+    # Scale to target annual total
+    if scale_to_kwh is not None:
+        total = sum(loads)
+        factor = scale_to_kwh / total
+        loads = [v * factor for v in loads]
+
+    return loads
+
+
 def _validate_load(loads: list[float]) -> dict:
     """Return load stats dict; raises on critical violations."""
     if len(loads) != 8760:
@@ -272,7 +345,7 @@ def build_factory_a_extracted_inputs() -> dict:
     vn = load_vietnam_data()
     tariff = vn.tariff
 
-    loads_kw = build_factory_a_load_8760()
+    loads_kw = load_emivest_8760()
     stats = _validate_load(loads_kw)
 
     # --- TOU rate series for each regime ---
@@ -312,7 +385,14 @@ def build_factory_a_extracted_inputs() -> dict:
             "peak_kw": stats["peak_kw"],
             "avg_kw": stats["avg_kw"],
             "load_factor": stats["load_factor"],
-            "notes": "Synthetic 8760; half-sine production 06-22 (peak h=14), night base. LF ≈ 0.46.",
+            "load_source": "emivest_1hr_2024",
+            "load_file": str(EMIVEST_LOAD_FILE),
+            "notes": (
+                "Real Emivest hourly meter data (2024). "
+                "347 missing rows and 24 outlier rows (>5,000 kW) gap-filled via linear interpolation. "
+                "Scaled to 9,750,000 kWh to match slide stated consumption. "
+                "BIAS-01 (synthetic day/night split) resolved."
+            ),
         },
         "tariff_series": {
             "decision_963_vnd_per_kwh": rates_963_vnd,
@@ -350,3 +430,31 @@ def build_factory_a_extracted_inputs() -> dict:
             for k, v in SLIDE_REFERENCE.items()
         },
     }
+
+
+if __name__ == "__main__":
+    import json
+
+    out_dir = _REPO_ROOT / "data" / "interim" / "factory_a"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    loads = load_emivest_8760()
+    stats = _validate_load(loads)
+    total = stats["total_kwh"]
+    peak = stats["peak_kw"]
+    avg = stats["avg_kw"]
+    lf = stats["load_factor"]
+    day = sum(v for i, v in enumerate(loads) if (i % 24) in range(6, 22))
+    night = total - day
+    print(f"Load stats (real Emivest, scaled to 9,750 MWh):")
+    print(f"  Total kWh : {total:,.0f}")
+    print(f"  Peak kW   : {peak:,.1f}")
+    print(f"  Avg kW    : {avg:,.1f}")
+    print(f"  LF        : {lf:.3f}")
+    print(f"  Day (6-22): {day/total*100:.1f}%   Night: {night/total*100:.1f}%")
+
+    data = build_factory_a_extracted_inputs()
+    out_path = out_dir / "factory_a_extracted_inputs.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    print(f"\nWrote {out_path}")
