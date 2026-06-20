@@ -89,7 +89,7 @@
           "buyer_passes": true,
           "developer_status": "ok",
           "developer_irr_fraction": null,
-          "developer_npv_usd": -79696197.98599958,
+          "developer_npv_usd": -80394514.87435532,
           "developer_passes": false,
           "overlap": false
         },
@@ -103,7 +103,7 @@
           "buyer_passes": true,
           "developer_status": "ok",
           "developer_irr_fraction": null,
-          "developer_npv_usd": -74085758.23475501,
+          "developer_npv_usd": -74784075.12311073,
           "developer_passes": false,
           "overlap": false
         }
@@ -121,7 +121,7 @@
         "buyer_passes": true,
         "developer_status": "ok",
         "developer_irr_fraction": null,
-        "developer_npv_usd": -79696197.98599958,
+        "developer_npv_usd": -80394514.87435532,
         "developer_passes": false,
         "overlap": false
       },
@@ -135,7 +135,7 @@
         "buyer_passes": true,
         "developer_status": "ok",
         "developer_irr_fraction": null,
-        "developer_npv_usd": -74085758.23475501,
+        "developer_npv_usd": -74784075.12311073,
         "developer_passes": false,
         "overlap": false
       },
@@ -149,7 +149,7 @@
         "buyer_passes": false,
         "developer_status": "ok",
         "developer_irr_fraction": null,
-        "developer_npv_usd": -68475318.48351043,
+        "developer_npv_usd": -69173635.37186615,
         "developer_passes": false,
         "overlap": false
       },
@@ -163,7 +163,7 @@
         "buyer_passes": false,
         "developer_status": "ok",
         "developer_irr_fraction": null,
-        "developer_npv_usd": -62864878.73226585,
+        "developer_npv_usd": -63563195.62062158,
         "developer_passes": false,
         "overlap": false
       },
@@ -177,7 +177,7 @@
         "buyer_passes": false,
         "developer_status": "ok",
         "developer_irr_fraction": null,
-        "developer_npv_usd": -57254438.98102127,
+        "developer_npv_usd": -57952755.869376995,
         "developer_passes": false,
         "overlap": false
       }

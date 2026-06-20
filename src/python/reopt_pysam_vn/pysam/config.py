@@ -32,7 +32,8 @@ class VietnamFinanceDefaults:
     debt_fraction: float
     debt_interest_rate_fraction: float
     debt_tenor_years: int
-    depreciation_schedule: tuple[float, ...]
+    # "vn_sl_15yr" = VN Circular 45 SL 15-yr | "vn_sl_10yr" = SL 10-yr custom | "us_macrs_5yr" = US MACRS
+    depreciation_schedule: str
 
 
 def build_vietnam_finance_defaults(vn: VNData) -> VietnamFinanceDefaults:
@@ -67,5 +68,5 @@ def build_vietnam_finance_defaults(vn: VNData) -> VietnamFinanceDefaults:
         debt_fraction=0.70,
         debt_interest_rate_fraction=0.085,
         debt_tenor_years=10,
-        depreciation_schedule=(100.0,),
+        depreciation_schedule="vn_sl_15yr",
     )

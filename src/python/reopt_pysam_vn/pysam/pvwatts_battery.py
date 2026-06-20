@@ -38,19 +38,22 @@ class PVWattsBatterySingleOwnerInputs:
     losses_pct: float = 14.0
     degradation_fraction_per_year: float = 0.005
     debt_fraction: float = 0.70
-    target_project_irr_fraction: float = 0.15
-    owner_tax_rate_fraction: float = 0.0575
+    owner_tax_rate_fraction: float = 0.20          # VN CIT standard (was 0.0575 US effective)
     owner_discount_rate_fraction: float = 0.08
     offtaker_discount_rate_fraction: float = 0.10
     inflation_rate_fraction: float = 0.035
     debt_interest_rate_fraction: float = 0.085
     debt_tenor_years: int = 10
     ppa_escalation_rate_fraction: float = 0.05
-    om_escalation_rate_fraction: float = 0.04
+    om_escalation_rate_fraction: float = 0.03     # VN default (was 0.04 US)
     installed_cost_usd: float = 1_000_000.0
     fixed_om_usd_per_year: float = 10_000.0
     battery_can_grid_charge: bool = False
     battery_dispatch_mode: str = "peak_shaving_look_ahead"
+    # "vn_sl_15yr" = VN Circular 45 SL 15-yr (default)
+    # "vn_sl_10yr" = VN SL 10-yr via custom schedule
+    # "us_macrs_5yr" = US 5-yr MACRS (legacy / comparison only)
+    depreciation_schedule: str = "vn_sl_15yr"
     case_metadata: dict = field(default_factory=dict)
 
     @property
@@ -294,15 +297,30 @@ def run_pvwatts_battery_single_owner_model(
         float(inputs.debt_interest_rate_fraction) * 100.0
     )
     financial_model.FinancialParameters.term_tenor = int(inputs.debt_tenor_years)
-    financial_model.Depreciation.depr_fedbas_method = 1
-    financial_model.Depreciation.depr_stabas_method = 1
-    financial_model.Depreciation.depr_alloc_macrs_5_percent = 100.0
+    sched = inputs.depreciation_schedule
+    if sched == "us_macrs_5yr":
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 1
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 100.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 0.0
+    elif sched == "vn_sl_10yr":
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 0
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 0.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 100.0
+        financial_model.Depreciation.depr_fedbas_custom = [10.0] * 10 + [0.0] * 15
+    else:  # vn_sl_15yr (VN Circular 45 default)
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 0
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 0.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 100.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 0.0
     financial_model.Depreciation.depr_alloc_macrs_15_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_5_percent = 0.0
-    financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_20_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_39_percent = 0.0
-    financial_model.Depreciation.depr_alloc_custom_percent = 0.0
     financial_model.Depreciation.depr_bonus_fed = 0.0
     financial_model.Depreciation.depr_bonus_sta = 0.0
     financial_model.TaxCreditIncentives.itc_fed_percent = (0.0,)
@@ -385,7 +403,9 @@ def run_pvwatts_battery_single_owner_model(
             "ppa_price_input_usd_per_kwh": float(inputs.ppa_price_input_usd_per_kwh),
             "analysis_years": analysis_years,
             "debt_fraction": float(inputs.debt_fraction),
-            "target_project_irr_fraction": float(inputs.target_project_irr_fraction),
+            "owner_tax_rate_fraction": float(inputs.owner_tax_rate_fraction),
+            "om_escalation_rate_fraction": float(inputs.om_escalation_rate_fraction),
+            "depreciation_schedule": inputs.depreciation_schedule,
             "battery_can_grid_charge": bool(inputs.battery_can_grid_charge),
             "battery_dispatch_mode": inputs.battery_dispatch_mode,
         },

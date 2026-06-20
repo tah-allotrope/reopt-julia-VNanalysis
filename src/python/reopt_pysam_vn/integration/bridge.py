@@ -464,7 +464,6 @@ def build_dppa_case_1_pvwatts_inputs(
         solar_resource_file=solar_resource_file,
         analysis_years=int(financial.get("analysis_years") or defaults.analysis_years),
         debt_fraction=defaults.debt_fraction,
-        target_project_irr_fraction=DEFAULT_TARGET_DEVELOPER_IRR_FRACTION,
         owner_tax_rate_fraction=_value_or_default(
             financial,
             "owner_tax_rate_fraction",

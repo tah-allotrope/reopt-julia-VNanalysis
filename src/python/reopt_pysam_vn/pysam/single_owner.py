@@ -31,7 +31,8 @@ class SingleOwnerInputs:
     debt_tenor_years: int = 10
     ppa_escalation_rate_fraction: float = 0.04
     om_escalation_rate_fraction: float = 0.03
-    depreciation_schedule: tuple[float, ...] = (100.0,)
+    # "vn_sl_15yr" = VN Circular 45 SL 15-yr | "vn_sl_10yr" = SL 10-yr custom | "us_macrs_5yr" = US MACRS
+    depreciation_schedule: str = "vn_sl_15yr"
     metadata: dict = field(default_factory=dict)
 
 
@@ -98,22 +99,32 @@ def _configure_financial_model(financial_model, inputs: SingleOwnerInputs) -> No
     )
     financial_model.FinancialParameters.term_tenor = int(inputs.debt_tenor_years)
 
-    financial_model.Depreciation.depr_fedbas_method = 1
-    financial_model.Depreciation.depr_stabas_method = 1
-    financial_model.Depreciation.depr_alloc_macrs_5_percent = float(
-        inputs.depreciation_schedule[0]
-    )
+    sched = inputs.depreciation_schedule
+    if sched == "us_macrs_5yr":
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 1
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 100.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 0.0
+    elif sched == "vn_sl_10yr":
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 0
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 0.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 100.0
+        financial_model.Depreciation.depr_custom_schedule = [10.0] * 10 + [0.0] * 15
+    else:  # vn_sl_15yr (VN Circular 45 default)
+        financial_model.Depreciation.depr_fedbas_method = 1
+        financial_model.Depreciation.depr_stabas_method = 0
+        financial_model.Depreciation.depr_alloc_macrs_5_percent = 0.0
+        financial_model.Depreciation.depr_alloc_sl_15_percent = 100.0
+        financial_model.Depreciation.depr_alloc_custom_percent = 0.0
     financial_model.Depreciation.depr_alloc_macrs_15_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_5_percent = 0.0
-    financial_model.Depreciation.depr_alloc_sl_15_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_20_percent = 0.0
     financial_model.Depreciation.depr_alloc_sl_39_percent = 0.0
-    financial_model.Depreciation.depr_alloc_custom_percent = 0.0
     financial_model.Depreciation.depr_bonus_fed = 0.0
     financial_model.Depreciation.depr_bonus_sta = 0.0
-    financial_model.Depreciation.depr_custom_schedule = [0.0] * int(
-        inputs.analysis_years
-    )
 
     financial_model.TaxCreditIncentives.itc_fed_percent = (0.0,)
     financial_model.TaxCreditIncentives.itc_sta_percent = (0.0,)
