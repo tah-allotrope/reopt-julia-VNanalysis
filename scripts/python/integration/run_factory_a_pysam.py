@@ -36,7 +36,7 @@ from reopt_pysam_vn.integration.factory_a import (
     SLIDE_REFERENCE,
     CAPACITY_CHARGE_SLIDE_VND_PER_KW_MONTH,
     CAPACITY_CHARGE_REPO_VND_PER_KW_MONTH,
-    build_factory_a_load_8760,
+    load_emivest_8760,
     build_hourly_rate_series_vnd,
     _decision_14_tou_schedule,
     _load_weighted_avg_vnd,
@@ -163,7 +163,7 @@ def _compute_demand_charge_savings(
 def run_all_cases() -> dict[str, dict]:
     vn = load_vietnam_data()
     tariff = vn.tariff
-    loads_kw = build_factory_a_load_8760()
+    loads_kw = load_emivest_8760()
 
     results: dict[str, dict] = {}
     for case_id in ["case_1", "case_2", "case_3", "case_4"]:
@@ -246,7 +246,7 @@ def main() -> None:
     results = run_all_cases()
 
     for case_id, result in results.items():
-        out_path = out_dir / f"2026-06-19_factory-a_{case_id}_pysam-results.json"
+        out_path = out_dir / f"2026-06-20_factory-a_{case_id}_pysam-results.json"
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2)
         print(f"Wrote {out_path}")
