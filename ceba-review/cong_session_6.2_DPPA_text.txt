@@ -1,0 +1,652 @@
+[Slide 1]
+Understanding Vietnam's DPPA
+M
+echanisms and Pricing Considerations
+Virtual (grid CfD) DPPA under Decree 57/2025/ND-CP
+
+[Slide 2]
+Session Roadmap
+Follow the money: From your EVN bill to a bankable DPPA
+#
+Module
+1
+The
+B
+aseline:
+W
+hat you pay EVN today
+2
+Virtual DPPA money flow:
+the
+five
+-line
+bill compo
+nents
+3
+CfD mechanics:
+w
+hat drives your number
+4
+Developer economics and the three gates
+5
+Case study:
+one factory, Cases 5 & 6
+6
+Key decision points and close
+By the end of this session you can:
+1.
+Breakdown
+a virtual DPPA monthly settlement into its five components and compare it to your EVN bill
+2.  Explain how the CfD strike, market price
+(FMP)
+, loss factors, and grid fees
+set
+determine
+your net cost
+3.  See why buyer
+s
+, seller
+s
+, and lender
+s
+each have a gate - and why a deal must pass all three
+4.  Leave with realistic pricing expectations grounded in a real factory model
+Scope: virtual (grid CfD) DPPA only.
+
+[Slide 3]
+Module 1:
+The Baseline: What You Pay EVN Today
+
+[Slide 4]
+What you pay EVN today: TOU is the reference price
+MODULE 1 - THE BASELINE
+Period
+Hours
+vs base
+Off-peak
+00
+:00 - 0
+6
+:00
+~0.52x
+Normal
+06:00 - 18:00
+1.0x
+Peak
+18:00 - 23:00
+~1.78x
+Sunday rule: no peak period on Sundays (all hours normal).
+Voltage
+Off-peak
+Normal
+Peak
+>=110kV
+0.034
+0.065
+0.116
+22-110kV
+0.037
+0.070
+0.126
+6-22kV
+0.042
+0.079
+0.141
+<6kV
+0.049
+0.092
+0.164
+Why this matters for DPPA
+Every DPPA offer is judged against this bill - business
+-
+as-usual (BAU)
+Peak hours cost 3.4x
+off
+-peak: your load shape decides what "average" means for you
+Residual energy (load not covered by the DPPA) keeps paying these TOU rates
+(USD/kWh approx. 2025)
+The savings benchmark
+BAU = your current EVN bill escalated ~4%/yr (historical trend 2015-2024)
+A DPPA is evaluated on cumulative cost vs BAU over 10
+years and over the project lifetime
+—
+not just Year 1
+EVN tariff escalation is the main source of long-term DPPA value
+
+[Slide 5]
+Module 2:
+The Five-Line Bill
+
+[Slide 6]
+Virtual DPPA Money Flow: Three relationships, One bill
+MODULE
+2
+-
+THE FIVE-LINE BILL
+RE GENERATOR
+sells 100% of output
+to the spot market
+VWEM SPOT MARKET
+pays generator FMP
+per kWh generated
+EVN
+meters, wheels & bills
+the DPPA customer
+YOUR FACTORY
+pays EVN the DPPA bill;
+settles CfD with generator
+energy -> market (FMP)
+DPPA bill (5 lines)
+CfD settlement (two-way)
+Physical electrons flow through the national grid as usual - the DPPA is a financial overlay
+The generator's revenue = spot sales at FMP + CfD settlement with you
+Your
+cost = the five-line EVN bill + the CfD settlement  ->  next slide
+
+[Slide 7]
+The monthly DPPA settlement has five lines
+MODULE
+2
+-
+THE FIVE-LINE BILL
+#
+Line
+Formula
+Level (2025 reference)
+1
+Market energy
+Q_Khc x FMP x k x K_pp
+FMP avg ~1,426.6 VND/kWh; k~1.026; K_pp by voltage
+2
+DPPA service fee
+Q_Khc x C_dppa_dv
+360 VND/kWh
+3
+Balancing fee
+Q_Khc x P_cl
+163.3 VND/kWh
+4
+Residual purchase
+(Load - Q_Khc) x EVN retail
+TOU rates
+5
+CfD settlement
+(Strike - FMP) x min(Q_c, Q_Khc)
+two-way: can be + or -
+Lines 1-4 are billed by EVN. Line 5 settles bilaterally with the generator under CfD contract.
+Q_Khc = the renewable volume actually received and consumed (defined next slide).
+CFMP = FMP x k: k converts the market price to the customer delivery point (price conversion, not a volume loss).
+
+[Slide 8]
+Which volume?
+You settle only on
+what you actually consume
+MODULE
+2
+-
+THE FIVE-LINE BILL
+Q_adj = Q_meter / K_pp        delivered volume at your meter
+Q_Khc = min(Load, Q_adj)      settled volume (lines 1-3)
+Q_CfD = min(Q_c, Q_Khc)       CfD settles on received volume
+Grid losses are reflected through coordinated volume and price conversions:
+K_pp converts generator-meter output into buyer-side credited volume, while
+k and K_pp convert FMP into the corresponding buyer-side market-energy price.
+If the plant generates more than you consume in an hour, the excess earns the generator spot revenue only
+;
+it is NOT billed to you and does NOT earn CfD
+Practical consequence:
+contracted volume (Q_c) above your real consumption buys nothing
+
+[Slide 9]
+Simulation: Industrial park buys 6,000 MWh/month
+MODULE
+2 - WORKED EXAMPLE
+Parameter
+Symbol
+Value
+Consumption = received RE volume
+Q_KH = Q_Khc
+6,000,000 kWh/mo
+Contracted CfD volume
+Q_c
+6,000,000 kWh/mo
+CfD strike price
+P_c
+1,300 VND/kWh
+Market price (monthly avg)
+FMP
+1,200 VND/kWh
+Price conversion factor
+k
+1.026
+Loss factor (110 kV)
+K_pp
+1.008
+DPPA service fee
+C_dppa_dv
+360 VND/kWh
+Balancing fee
+P_cl
+163.3 VND/kWh
+Avg retail price (residual)
+P1
+2,204 VND/kWh
+Scenario
+A 50 MW solar plant contracts its full output to one industrial customer
+Consumption exactly equals delivered RE volume - no residual EVN purchase this month
+Strike just 100 VND above market - watch what the fees do
+
+[Slide 10]
+The five lines, computed
+MODULE
+2
+-
+WORKED EXAMPLE
+Line
+Calculation
+VND/month
+1  Market energy (C_DN)
+6,000,000 x 1,200 x 1.026 x 1.008
+7,446,297,600
+2  Service fee (C_dppa)
+6,000,000 x 360
+2,160,000,000
+3  Balancing fee (C_cl)
+6,000,000 x 163.3
+979,800,000
+4  Residual (C_bl)
+0 kWh x 2,204
+0
+EVN bill (C_EVN)
+lines 1 + 2 + 3 + 4
+10,586,097,600
+5  CfD settlement (C_CfD)
+(1,300 - 1,200) x 6,000,000
+600,000,000
+TOTAL (C_KH)
+C_EVN + C_CfD
+11,186,097,600
+Effective cost = 11,186,097,600 / 6,000,000 = ~1,864 VND/kWh for fully renewable supply (vs ~2,204 VND avg retail in the example)
+Generator side: 6,048,000 kWh x 1,200 (spot) + 600,000,000 (CfD) = 7,857,600,000 VND
+
+[Slide 11]
+Your monthly settlement has five lines
+MODULE
+2
+-
+THE FIVE-LINE BILL
+Component (per matched kWh)
+VND/kWh
+US cents
+Market energy at 2025 avg FMP x k x K_pp (22-110kV)
+~1,504
+~6.0c
+DPPA service fee (C_dppa_dv)
+360
+1.4c
+Balancing fee (P_cl)
+163.3
+0.7c
+Delivered cost before CfD
+~2,027
+~8.1c
+The 523 VND/kWh of fixed fees applies to every matched kWh, regardless of your strike
+They are set by regulation, not negotiation
+Compare ~2,027 VND delivered (pre-CfD) with your own TOU mix - for many factories that is already near or above average grid cost
+Virtual DPPA is rarely a Day-1 discount. Its value = price certainty vs EVN escalation + credible renewable claims.
+
+[Slide 12]
+Module 3:
+CfD Mechanics
+
+[Slide 13]
+The CfD is two-way: certainty, not automatic savings
+MODULE  -
+CFD MECHANICS
+CfD cash flow = (Strike - FMP) x Q_CfD
+Market condition
+Who pays whom
+FMP below strike
+You top up the generator
+FMP above strike
+Generator pays you back
+Net effect:
+the
+renewable energy cost is locked near the strike (+ fees), whatever the market does
+2025 reference: FMP averaged ~1,427 VND/kWh with strong hourly volatility - the CfD removes that volatility from
+the
+budget
+A strike below expected average FMP would mean expected receipts - but no developer can finance that (Module 4)
+
+[Slide 14]
+Strike escalation and the Year 1 reality
+MODULE  -
+CFD MECHANICS
+Strike escalation (e.g. 4%/yr)
+Escalating strikes improve the seller's and lender's lifetime economics...
+...but do nothing for
+the
+Year 1 cost - and compound against
+BUYER
+later
+Negotiate the escalation index as hard as the starting strike (fixed VND vs CPI vs USD-linked)
+What Year 1 usually looks like
+In most realistic structures, Year 1 DPPA cost is at or above BAU
+Savings build as EVN tariffs escalate (~4%/yr) against
+BUYER
+locked strike
+Evaluate on 10-year and lifetime cumulative cost - never on Year 1 alone
+Budget question: can we accept a modest Year 1 premium to cap
+15~25
+year exposure?
+
+[Slide 15]
+Contract volume vs your load
+shape
+MODULE  -
+CFD MECHANICS
+Solar generates midday;
+the
+factory runs its own shape. The overlap
+—
+hour by hour
+—
+is all that counts.
+If you...
+What happens
+Cost consequence
+Over-contract (Q_c > consumption)
+CfD caps at consumed volume - excess earns nothing
+You paid contract terms for volume you can never settle
+Match contract to hourly overlap
+Every contracted kWh settles
+Efficient - the target
+Under-contract (Q_c < overlap)
+More residual purchased from EVN at TOU
+Less price certainty, smaller renewable claim
+Ask every developer for an hourly (8760) matching analysis against
+your
+meter data - not an annual percentage
+Batteries can shift the overlap window but add capex the tariff must carry (see the case study)
+
+[Slide 16]
+Module 4:
+Developer Economics
+
+[Slide 17]
+The other side of the table: where the money comes from
+MODULE
+4
+-
+DEVELOPER ECONOMICS
+Revenue =
+Q_meter x FMP
+spot sales (volatile)
++ (Strike - FMP) x Q_CfD
+CfD with you (stabiliser)
+The CfD converts volatile spot revenue into a near-fixed price on matched volume
+Your strike IS the developer's bankable revenue line
+Everything the lender checks flows from it
+Typical Vietnam RE project finance:
+70% debt / 30% equity, ~10-year debt term
+Debt: ~8.5%/yr in VND  -  ~5%/yr in USD (international)
+Equity target: 12-15%+ IRR
+CIT incentives: 4 years exempt + 9 years at half
+rate
+
+[Slide 18]
+A deal must pass three gates at once
+MODULE
+4
+-
+DEVELOPER ECONOMICS
+Gate
+Who
+Test
+Strike pressure
+BUYER
+You
+Cumulative cost <= BAU over 10 yr AND lifetime
+pushes strike DOWN
+SELLER
+Developer
+Equity IRR >= 12-15%
+pushes strike UP
+LENDER
+Bank
+Minimum DSCR >= ~1.20x every year
+pushes strike UP (hardest gate)
+DSCR = cash available for debt service / debt service, computed for every year of the loan
+One bad year - e.g. a battery replacement - can sink the whole financing even if averages look fine
+The negotiation window is the strike range where all three gates pass - it can be empty (case study)
+A strike below the developer's bankability floor does not mean a cheap deal - it means no project.
+
+[Slide 19]
+Lifecycle items the tariff must carry - even when they are absent from the term sheet
+MODULE
+4
+-
+DEVELOPER ECONOMICS
+Item
+Typical assumption
+Buyer Implication
+PV degradation
+~0.5%/yr output decline
+Matched volume shrinks; lost kWh repurchased from EVN at TOU
+Battery replacement
+Around year
+8-10
+, large one-off cost
+Can crater DSCR in that year;
+CIT holiday
+4 yr exempt + 9 yr half rate (RE projects)
+Improves developer economics
+FX exposure
+VND strike vs USD capex/debt
+USD-linked terms shift FX
+the
+risks
+; price it consciously
+These rarely appear in headline term sheets, but each one moves the bankable strike floor and therefore your price.
+
+[Slide 20]
+Module 5:
+Case Study
+
+[Slide 21]
+Same factory as yesterday - now going off-site
+MODULE
+5
+-
+CASE STUDY
+Yesterday
+’s
+On-Site
+S
+ession): Cases 1-4 explored rooftop solar + BESS behind the meter.
+Today:
+the same southern
+Vietnam manufacturing facility (22-110kV) signs a virtual DPPA with a dedicated solar + storage project.
+Deal frame (both cases)
+Value
+DPPA type
+Virtual (grid CfD) under Decree 57/2025
+Strike price
+2,000 VND/kWh, escalating 4%/yr
+Tenor / analysis period
+25 years
+Financing
+70% debt, 8.5% VND, 10-yr term
+Difference between cases
+Case 5: solar + LARGE battery   -   Case 6: solar + MINIMUM battery
+Method: full 8760-hour settlement simulation (ND57 formulas, hourly FMP/CFMP series) + 25-year project cash-flow model with the three gates.
+
+[Slide 22]
+Case 5 - solar + large battery: the battery eats the deal
+MODULE
+5
+-
+CASE STUDY
+Metric
+Result
+Seller equity IRR
+16.9%
+Project IRR
+13.5%
+Developer NPV
+$1.52M
+Minimum DSCR
+1.14x  (replacement year)
+Payback
+9.1 yr
+Buyer vs BAU - Year 1
+-8.7%
+Buyer vs BAU - 10-yr cumulative
+-8.9%
+Buyer vs BAU - lifetime
+-9.3%
+At strike 2,000 the buyer pays ~9% MORE than BAU on every horizon
+The oversized battery adds a ~$1.2M replacement around year 11 that the tariff must recover
+Even so, lender comfort is thin (min DSCR 1.14x < 1.20x)
+Lesson 1: an oversized battery cannot carry its own replacement cost through the tariff - everyone loses.
+
+[Slide 23]
+Case 6 - solar + minimum battery: bankable, but the strike is the fight
+MODULE
+5
+-
+CASE STUDY
+Metric
+Result
+Seller equity IRR
+26.9%
+Project IRR
+18.2%
+Developer NPV
+$2.54M
+Minimum DSCR
+1.50x  (comfortably > 1.20x)
+Payback
+4.7 yr
+Buyer vs BAU - all horizons
+-14.4%
+Lean sizing: seller and lender are now comfortable - returns strong, DSCR 1.50x
+But at strike 2,000 the buyer is ~14% worse than BAU: the seller's headroom IS the negotiation space
+So: sweep the strike down and see where the gates cross
+Lesson 2: right-sized assets make the project financeable - then the entire negotiation is the strike price.
+
+[Slide 24]
+Sweeping the strike on Case 6: the window is empty
+MODULE
+5
+-
+CASE STUDY
+56 scenarios swept: strikes 1,200-2,200 VND/kWh x contract volume 70-100%. Gate results:
+Strike level
+Buyer gate
+Seller gate
+Lender gate (>=1.20x)
+Balanced?
+~2,000 (offer)
+FAIL  -14%
+PASS
+PASS  1.50x
+No
+~1,400
+FAIL  -1.4%
+PASS  19%
+PASS  1.19-1.5x
+No
+~1,300 x 70% vol
+PASS  +0.5% lifetime
+PASS  17.9%
+FAIL  1.14x
+No
+~1,200
+PASS  +2.9%
+PASS
+FAIL  <1.20x
+No
+The buyer turns positive just as the lender drops out: zero of 56 scenarios pass all three gates at current market prices and fee levels.
+Pricing alone cannot balance this deal. The levers that can: lower leverage, debt sculpting, USD-denominated debt (~5%), fee relief, longer tenor -
+(For the
+afternoon's panel
+)
+
+[Slide 25]
+What this means and expectations
+MODULE
+5
+-
+CASE STUDY
+1.  Expect low single-digit lifetime savings at best
+. T
+he product you are buying i
+s 10~
+25
+year price certainty plus credible renewable claims, not a discount.
+2.  Expect Year 1 to cost more than BAU
+. P
+lan the internal approval around cumulative horizons.
+3.  Strike offers near 2,000 VND/kWh leave the buyer deeply negative
+. R
+ealistic buyer-positive territory starts near ~1,300, which today fails the lender.
+4.  Deal feasibility is decided by financing structure as much as by price
+—
+ask developers HOW their project is financed, not just what they charge.
+
+[Slide 26]
+Module 5:
+Decision Points
+
+[Slide 27]
+Five questions that change the term sheet
+MODULE
+6
+-
+DECISION POINTS
+#
+Decision
+What to check
+1
+Strike level & escalation/indexation
+Fixed VND vs
+escalating/deescalating
+vs USD
+linked; model
+these
+vs BAU
+2
+Contract volume vs load shape
+8760 hourly matching vs meter data; CfD caps at consumed volume
+3
+Tenor & termination
+Developer wants 15-25 yr; match to your lease / order book; exit terms
+4
+Voltage eligibility & K_pp
+>=22kV only today; which K_pp applies decides your loss adjustment
+5
+Risk allocation
+FMP volatility, curtailment, negative
+CfD months, change-in-law
+Items 1-4 are quantifiable before negotiation
+;
+run them against load data first.
+
+[Slide 28]
+Three core reminders
+CLOSE
+Know the five-line bill - 523 VND/kWh of fees and the loss factor are fixed;
+The strike price remains the
+big number
+open to negotiation.
+Ev
+aluated
+the deal on 10-year and lifetime cost vs BAU - not on Year 1
+Every deal must pass buyer, seller AND lender gates - if the window is empty, the fix is structural, not just price
+Next: panel discussion on risk allocation and the reality of bank financing for
+Grid
+DPPAΩ
+
+[Slide 29]
+Q&A
