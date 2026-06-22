@@ -4,53 +4,41 @@
 > Rotate finished-work history into `docs/worklog/`. Full pre-2026-06-12 log:
 > [`docs/worklog/2026-06-12-activecontext-archive.md`](docs/worklog/2026-06-12-activecontext-archive.md).
 
-## Current focus — Repo trim & restructure (started 2026-06-12)
+## Current focus — CEBA DPPA 2026 deck repo verification (started 2026-06-23)
 
-Goal: a trimmed, restructured repo whose key function is **ReOpt + PySAM analysis of
-future onsite (BTM) and offsite/DPPA clean-energy projects in Vietnam**. Driven by the
-gap analysis and three sprint plans.
+Goal: run every repo-testable claim in `ceba-review/CEBA DPPA 2026.pptx` through
+real `reopt_pysam_vn` functions, emit a results JSON + delta markdown, and write
+structured `[Repo check]` notes into a copy of the deck so colleagues review
+against repo-computed figures before the CEBA workshop.
 
-- **Gap analysis:** `reports/2026-06-12-reopt-pysam-vietnam-repo-trim-gap-analysis.md`
-- **Sprint plans:** `plans/active/2026-06-12-sprint-{1,2,3}-*.md`
-- **Per-phase workflow:** implement → `/report <phase>` → git commit → git push origin main.
+- **Plan:** `plans/2026-06-23-ceba-deck-repo-verification-plan.md` (5 phases)
+- **Brainstorm:** `research/2026-06-23_ceba-deck-repo-verification-brainstorm.md`
+- **Source deck text:** `ceba-review/ceba_dppa_2026_text.txt` (extracted via `_extract_ceba_deck_text.py`)
+- **Workflow:** implement phase → run `/report <phase>` → git commit → git push origin main.
+- **After all phases:** run `/report final plans/2026-06-23-ceba-deck-repo-verification-plan.md`.
 
 ### Status
 
-| Sprint | Scope | State |
+| Phase | Goal | State |
 |---|---|---|
-| 1 — Mechanical de-bloat | Untrack generated artifacts, remove dead/foreign dirs, golden `examples/` | ✅ complete (635 → 371 tracked files) |
-| 2 — Shim removal + binaries | Remove 2 shim layers, untrack ~35MB binaries, slim this file | ✅ complete |
-| 3 — Onsite/offsite pipelines | Generalize per-deal modules into `analysis/{onsite,offsite_dppa}.py` + CLI | ✅ complete (5 phases) |
+| 0 | Extract deck text, write plan | ✅ done (text extracted 2026-06-23) |
+| 1 | Build `deck_checks.py` registry | ⏳ in progress |
+| 2 | Compute all A/B/C testables → JSON | pending |
+| 3 | Synthesize `reports/ceba_dppa_2026_repo_check.md` | pending |
+| 4 | Inject `[Repo check]` notes into a deck copy | pending |
+| 5 | End-to-end run, commit, push, final report | pending |
 
-Final reports: `reports/2026-06-12-final-sprint-1-repo-trim.html`, `...final-sprint-2-repo-trim.html` (+ Sprint 3 final).
-
-### Sprint 1 result (✅ 2026-06-12)
-Tracked files 635 → 371. Generated `artifacts/`, `reports/*.html`, `present/`, `scenarios/generated/`
-untracked (regenerable, kept on disk, git-ignored). Dead `archive/` dropped; `.opencode/` untracked;
-`legacy/README.md` → `docs/legacy-path-map.md`. Golden runs frozen in `examples/`. One archive-deletion
-test regression caught + fixed (`reopt/sanitize.py`).
-
-### Sprint 2 result (✅ 2026-06-12)
-Removed both shadow shim layers: 44 flat `scripts/python/*.py` shims deleted, **7 real scripts**
-(no twin) relocated to `scripts/python/integration/`, 3 `src/` shims deleted. Untracked ~35MB
-binaries (TOU PDF, FMP CSV, Saigon18 `.xlsm`) with `SOURCES.md`/`SOURCE.md` manifests. README
-"Script Paths (canonical)" mapping table added. The shims were load-bearing for tests — repointed
-7 tests (CLI subprocess + 6 flat-import tests) to canonical subdirs.
-
-### Sprint 3 result (✅ 2026-06-14)
-New first-class `reopt_pysam_vn.analysis` package: `DealConfig`/`OnsiteResult`/`OffsiteDppaResult`/
-`CombinedDecision` contract, `run_onsite` (deterministic coverage, exact parity vs ninhsim, no implicit
-solve), `run_offsite_dppa` (injectable + registry-resolved orchestrator), and a
-`python -m reopt_pysam_vn.analysis {onsite,offsite_dppa}` CLI. Samsung-TTC parity-gated **bit-for-bit**
-(136 numeric fields, max rel diff 0.0). 24 analysis tests. Decisions: DEC-002 exact+0.5% bar,
-DEC-003 deprecated wrappers, DEC-004 CLI now.
-**Follow-up (next cycle):** invert delegation — move case-module orchestration into `analysis/`, reduce
-case modules to thin `DeprecationWarning` wrappers, then remove; add parity gates for the other cases.
+### Phase 1 progress (started 2026-06-23)
+Created `scripts/python/integration/_extract_ceba_deck_text.py` (uses `.venv` + `python-pptx`)
+to dump the 57-slide deck into `ceba-review/ceba_dppa_2026_text.txt` (35,935 chars).
+Reviewed the full text; identified 20+ repo-testable claims across A/B/C buckets
+plus 3 known gaps (Decree 146 two-part tariff, RECs/EACs, GHG scopes).
 
 ## Environment
 - PySAM 7.1.0 lives in the repo **`.venv` (Python 3.12)** — use `.venv\Scripts\python.exe` for PySAM/PVWatts
   and for the test suite. System Python 3.14 has no PySAM wheel (code falls back to a synthetic profile).
 - Tests: `.\tests\run_all_tests.ps1` (PowerShell runner) or `pytest tests/python/...`.
+- python-pptx 1.0.2 is also installed in `.venv` for the deck note injector.
 
 ## Known pre-existing test failures (out of scope for the trim — backlog)
 - `tests/python/integration/test_capacity_factor_benchmark.py::test_pvwatts_capacity_factor_binh_thuan`
