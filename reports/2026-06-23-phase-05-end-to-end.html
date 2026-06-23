@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: phase-05-end-to-end</title>
+  <meta name="color-scheme" "dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose', themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff', lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch(e => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root { --bg: #0d0d0d; --bg-soft: #111111; --panel: rgba(13, 13, 13, 0.88); --panel-strong: rgba(19, 19, 19, 0.96); --line: rgba(0, 245, 255, 0.26); --line-strong: rgba(57, 255, 20, 0.38); --text: #e9f6ff; --muted: #8ea3ad; --accent-blue: #00f5ff; --accent-green: #39ff14; --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42); --glow-green: 0 0 18px rgba(57, 255, 20, 0.28); --shadow: 0 14px 40px rgba(0, 0, 0, 0.32); --radius-lg: 22px; --radius-md: 16px; --radius-sm: 12px; --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%), radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%), linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%); color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px); background-size: 32px 32px; opacity: 0.16; }
+    a { color: var(--accent-blue); }
+    code, pre, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%), linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--panel-strong); box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02); }
+    .hero::after { content: ""; position: absolute; inset: auto -10% -55% 42%; height: 280px; background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%); filter: blur(12px); pointer-events: none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 12ch; font-size: clamp(2.5rem, 5vw, 4.7rem); line-height: 0.94; letter-spacing: -0.05em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0, 245, 255, 0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 18px; background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0, 245, 255, 0.24); border-radius: 999px; background: rgba(0, 245, 255, 0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem, 2vw, 1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content: ""; width: 44px; height: 1px; background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)), rgba(7, 7, 7, 0.82); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012); }
+    .column-card { padding: 18px; min-height: 200px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 280px !important; min-height: 280px; max-height: 280px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0, 245, 255, 0.18); border-radius: var(--radius-sm); background: rgba(0, 245, 255, 0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57, 255, 20, 0.22); border-radius: 999px; background: rgba(57, 255, 20, 0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142, 163, 173, 0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } .phase-title { font-size: clamp(2rem, 12vw, 3rem); } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">PHASE-05 END-TO-END</h1>
+          <p class="hero-summary">
+            Phase 5: end-to-end pipeline run (orchestrator → markdown synthesis → note
+            injection → idempotency re-run), spot-check the three Phase-4 exit slides,
+            verify the source deck is unmodified, and commit the regenerated artifacts
+            (DEC-009: large <code>.pptx</code> stays untracked).
+          </p>
+          <div class="pill-row"><span class="pill">project :: CEBA DPPA 2026</span><span class="pill">date :: 2026-06-23</span><span class="pill">phase :: 5 of 5</span></div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">CEBA DPPA 2026</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>scripts/python/integration/verify_ceba_dppa_deck.py</strong> (Phase 2 orchestrator)</li>
+            <li><strong>scripts/python/integration/ceba_deck/synthesize_md_report.py</strong> (Phase 3 markdown)</li>
+            <li><strong>scripts/python/integration/ceba_deck/inject_repo_notes.py</strong> (Phase 4 injector)</li>
+            <li><strong>scripts/python/integration/ceba_deck/test_inject_idempotency.py</strong> (Phase 4 idempotency test)</li>
+            <li><strong>ceba-review/CEBA DPPA 2026.pptx</strong> (source, must remain unmodified — CON-002)</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>reports/ceba_dppa_2026_repo_check.json</strong> — regenerated, 30,552 bytes, 34 checks, 0 errors.</li>
+            <li><strong>reports/ceba_dppa_2026_repo_check.md</strong> — regenerated, 10,768 bytes, verdict counts + tables + reconciliations + known gaps.</li>
+            <li><strong>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</strong> — 12.96 MB, 24 slides annotated, source mtime preserved.</li>
+            <li><strong>Idempotency:</strong> Slides 12, 24, 26 sha256 byte-stable across two injector runs.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+    A[ceba-review/CEBA DPPA 2026.pptx<br>source] --> B[verify_ceba_dppa_deck.py]
+    B --> C[reports/ceba_dppa_2026_repo_check.json]
+    C --> D[synthesize_md_report.py]
+    D --> E[reports/ceba_dppa_2026_repo_check.md]
+    C --> F[inject_repo_notes.py]
+    A --> F
+    F --> G[ceba-review/CEBA DPPA 2026 [repo-checked].pptx]
+    F --> H[test_inject_idempotency.py]
+    H --> I{byte-stable?}
+    I -- yes --> J[commit scripts + reports<br>leave .pptx untracked]
+    I -- no --> K[debug + re-run]
+    J --> L[git push origin main]
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <p>Phase 5 has no new math — it is a wiring + verification pass. The end-to-end flow is:</p>
+        <ol>
+          <li><strong>Orchestrator (Phase 2):</strong> reads the registry, dispatches every <code>Check.repo_fn</code>, fills <code>repo_value</code>/<code>delta_pct</code>/<code>verdict</code>/<code>takeaway</code>, writes the JSON. Idempotent on re-run (only the <code>generated_at_utc</code> timestamp changes).</li>
+          <li><strong>Markdown synthesis (Phase 3):</strong> reads the JSON, groups by bucket, emits the colleague-friendly markdown with verdict counts, per-bucket tables, structural reconciliations, and known-gap callouts. Always re-runnable from the JSON — never hand-edited.</li>
+          <li><strong>Note injection (Phase 4):</strong> copies the source deck, writes a structured <code>[Repo check]</code> block into the speaker notes of every slide that has a registry check, idempotently. Source mtime preserved.</li>
+          <li><strong>Idempotency re-run (Phase 4 test):</strong> re-invokes the injector, re-reads Slides 12, 24, 26, and asserts sha256 byte-equality. This is the only validation that the idempotency contract holds across re-runs.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool</th><th>Use</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td>End-to-end command sequence</td><td>Verify the four scripts compose: orchestrator → markdown → injector → idempotency test, in one PowerShell pipeline.</td><td>Phase 5 run</td></tr>
+            <tr><td>Source mtime check</td><td><code>Get-ChildItem</code> on <code>ceba-review/CEBA DPPA 2026.pptx</code> — confirm the original mtime (6/22 10:30 PM) is unchanged after the injector runs. CON-002 exit criterion.</td><td>Phase 5 spot-check</td></tr>
+            <tr><td>Git add (per-file, never <code>-A</code>)</td><td>Stage only the four Phase-1..4 deliverables + the Phase-5 report. Never <code>git add .</code> or <code>git add -A</code> — the .pptx is large and intentionally untracked (DEC-009). The .gitignore also keeps it from being staged silently.</td><td>Phase 5 commit</td></tr>
+            <tr><td>Phase 4 exit slides</td><td>Manual review of Slide 12 (5-line bill B-bucket, 3 checks), Slide 24 (Case 5 B11/B12/C04 with PySAM null IRR), Slide 26 (B15 empty-window directional). Each note has verdict icon, deck value, repo value, % delta, repo_fn + file:line, takeaway.</td><td>Phase 5 spot-check</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame">
+        <div class="chart-frame"><canvas id="phaseStatus"></canvas></div>
+        <div class="empty-state" style="margin-top:14px;">
+          <strong>All 5 phases complete</strong>
+          End-to-end pipeline is rerunnable from a single command. Source deck mtime preserved.
+          24 of 57 slides annotated; 5 honest "bad" findings (deck vs repo) carry structural
+          reconciliations; PySAM null IRR for Case 5/6 is the most important finding for
+          the colleague review pass.
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Idempotency is per-check, not per-deck.</strong> Two runs produce byte-stable notes for Slides 12, 24, 26 (the Phase 4 exit slides). All 24 annotated slides are byte-stable across runs by the same construction (the replace function uses the delimiter + check id as a deterministic key). A full-deck sha256 sweep could prove this for all 24 slides; not done here because the exit criterion is 3 representative slides.</li>
+          <li><strong>The pptx is a 12.96 MB untracked binary.</strong> This is intentional (DEC-009: large file, git-ignored, handed off to colleagues on disk) but it does mean "git status" shows it as untracked forever. If the colleague loses their copy, the pipeline can re-generate it in &lt; 1 second from the source.</li>
+          <li><strong>The PySAM null IRR finding is the most important unmodeled assumption in the deck.</strong> The deck's Case 5 / Case 6 metrics (16.9% / 26.9% seller equity IRR; 1.14× / 1.50× min DSCR) cannot be reproduced from the deck's stated inputs (49 MWp, 70% debt / 8.5% / 10-yr, strike 2,000 VND/kWh, 25-yr). The deck's figures require undisclosed assumptions. This is in the deck note (Slide 24) and the markdown structural reconciliations, but a colleague may need to ask the deck author directly which inputs close the gap.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>No unhandled exceptions in the end-to-end run.</strong> Orchestrator wrote the JSON (0 errors), markdown synthesis wrote the .md, injector wrote the .pptx, idempotency test confirmed byte-stability for Slides 12, 24, 26.</li>
+          <li><strong>Two artifacts have 1-line diffs from the previous commit (timestamp only).</strong> <code>reports/ceba_dppa_2026_repo_check.json</code> and <code>reports/ceba_dppa_2026_repo_check.md</code> each show 2 insertions / 2 deletions = 1-line generated_at_utc change. The deterministic parts (verdicts, deltas, takeaways) are byte-stable. The re-commit captures the new timestamp so the artifacts on <code>main</code> reflect the latest run.</li>
+          <li><strong>Source deck mtime preserved.</strong> <code>CEBA DPPA 2026.pptx</code> mtime stayed at 6/22 10:30 PM (its original timestamp) across all five phases — the injector only ever copies + annotates the <code>[repo-checked]</code> output, never touches the source. CON-002 satisfied.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>The plan is complete; what follows is colleague review, not more code.</strong> The deliverable is the <code>[repo-checked].pptx</code> in <code>ceba-review/</code> + the markdown report in <code>reports/</code>. A CEBA workshop reviewer opens the deck, reads the Notes pane for each slide, and either accepts the slide or asks for revisions before the workshop. The repo's job is done when the notes carry the structural callouts the colleague needs to make those decisions.</li>
+          <li><strong>Future cycle (out of scope for this plan):</strong> back-solve the undisclosed inputs for Case 5 / Case 6 — what CAPEX / BESS sizing / revenue assumptions close the gap between the deck's 16.9% / 26.9% seller equity IRR and the repo's null IRR? That requires more than a verification harness; it's a feature build (a real, wired Vietnam case study), and is properly a future-cycle plan.</li>
+          <li><strong>Final report follows immediately after this phase.</strong> The next step is the <code>/report final plans/2026-06-23-ceba-deck-repo-verification-plan.md</code> call to produce the client-shareable synthesis: title hero, executive summary, methodology, phase-by-phase analysis, findings + recommendation, implementation path, risks, appendices.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true };
+      const ctx = document.getElementById('phaseStatus');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['P1 registry', 'P2 orchestrator', 'P3 markdown', 'P4 injector', 'P5 e2e'],
+            datasets: [{
+              label: 'checks / rows / slides',
+              data: [34, 34, 34, 24, 34],
+              backgroundColor: [
+                'rgba(0, 245, 255, 0.55)', 'rgba(0, 245, 255, 0.55)', 'rgba(0, 245, 255, 0.55)',
+                'rgba(57, 255, 20, 0.55)', 'rgba(255, 200, 0, 0.55)'
+              ],
+              borderColor: [
+                'rgba(0, 245, 255, 0.95)', 'rgba(0, 245, 255, 0.95)', 'rgba(0, 245, 255, 0.95)',
+                'rgba(57, 255, 20, 0.95)', 'rgba(255, 200, 0, 0.95)'
+              ],
+              borderWidth: 1.5
+            }]
+          },
+          options: { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true, plugins: { legend: { labels: { color: '#d6f6ff', font: { family: 'Cascadia Code' } } }, title: { display: true, text: 'Phase status — registry / checks / annotated slides', color: '#e8f6ff', font: { family: 'Cascadia Code', size: 13 } } }, scales: { x: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } } }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

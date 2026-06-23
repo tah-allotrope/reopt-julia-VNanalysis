@@ -1,6 +1,6 @@
 # CEBA DPPA 2026 — Repo verification report
 
-_Generated 2026-06-23T04:21:44.743817+00:00 from `CEBA DPPA 2026.pptx`_
+_Generated 2026-06-23T04:28:48.890536+00:00 from `CEBA DPPA 2026.pptx`_
 
 - **Plan:** `plans/2026-06-23-ceba-deck-repo-verification-plan.md`
 - **Registry size:** 34
