@@ -1,18 +1,18 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-23T04:28:48.890536+00:00",
+    "generated_at_utc": "2026-06-23T04:56:37.896345+00:00",
     "deck": "ceba-review/CEBA DPPA 2026.pptx",
     "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
-    "registry_size": 34,
-    "executed": 34,
+    "registry_size": 35,
+    "executed": 35,
     "errors": []
   },
   "summary": {
-    "ok": 9,
-    "warn": 1,
-    "info": 18,
-    "bad": 5,
-    "skip": 1,
+    "ok": 10,
+    "warn": 4,
+    "info": 17,
+    "bad": 4,
+    "skip": 0,
     "err": 0
   },
   "checks": [
@@ -43,21 +43,32 @@
       "notes": {}
     },
     {
-      "id": "A02_tou_peak_multiplier_22_110kv",
+      "id": "A02_tou_peak_normal_ratio_22_110kv",
       "slide": 5,
       "bucket": "A",
-      "claim": "TOU peak multiplier for 22-110 kV (~1.78x per deck table)",
-      "deck_value": 1.78,
-      "deck_unit": "x base avg",
+      "claim": "TOU peak/Normal ratio for 22-110 kV (deck 0.126/0.070 \u2248 1.80)",
+      "deck_value": 1.8,
+      "deck_unit": "ratio (peak/normal)",
       "deck_citation": null,
-      "repo_fn": "data.vietnam.vn_tariff_2025.data.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.peak",
-      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:99",
-      "assumptions": [],
-      "repo_value": 1.57,
-      "delta_pct": -0.11797752808988762,
-      "verdict": "bad",
-      "takeaway": "delta -11.80% \u2014 investigate",
-      "notes": {}
+      "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams (kpp_factor / standard_factor via vn_tariff_2025.rate_multipliers.industrial.medium_voltage_22kv_to_110kv)",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:99-104 (peak=1.57, standard=0.86 \u2192 1.57/0.86=1.826)",
+      "assumptions": [
+        "Compare peak/normal ratios on both sides (peak vs base-avg gives 1.57; vs standard gives 1.826).",
+        "Deck's 1.80 from 0.126/0.070 in the deck Slide 5 voltage table."
+      ],
+      "repo_value": 1.8256,
+      "delta_pct": 0.014222222222222136,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta +1.42%) \u2014 review",
+      "notes": {
+        "extra": {
+          "deck_peak_normal_ratio": 1.8,
+          "repo_peak_normal_ratio": 1.8256,
+          "repo_peak": 1.57,
+          "repo_standard": 0.86,
+          "unit_note": "both expressed as peak/normal; deck's 1.78 (peak vs base-avg) would be a denominator mismatch"
+        }
+      }
     },
     {
       "id": "A03_avg_retail_price",
@@ -66,7 +77,7 @@
       "claim": "Average retail electricity price (P1 / avg EVN tariff, 2025)",
       "deck_value": 2204.0,
       "deck_unit": "VND/kWh",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11)",
       "repo_fn": "data.vietnam.vn_tariff_2025.data.base_avg_price_vnd_per_kwh",
       "repo_source_ref": "data/vietnam/vn_tariff_2025.json:22",
       "assumptions": [],
@@ -77,56 +88,30 @@
       "notes": {}
     },
     {
-      "id": "A04_dppa_service_fee",
+      "id": "A04_combined_dppa_fees",
       "slide": 9,
       "bucket": "A",
-      "claim": "DPPA service fee (C_dppa_dv)",
-      "deck_value": 360.0,
+      "claim": "Combined DPPA fees: service (360) + balancing (163.3) = 523.3 VND/kWh",
+      "deck_value": 523.3,
       "deck_unit": "VND/kWh",
-      "deck_citation": null,
-      "repo_fn": "data.vietnam.vn_tariff_2025.data.decree_57_dppa.solar_ceiling_tariffs_vnd_per_kwh.ground_mounted_with_bess.range_min",
-      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:230 (south ground w/ BESS ceiling min, 1,149.86 \u2014 note deck says 360)",
-      "assumptions": [],
-      "repo_value": 1149.86,
-      "delta_pct": 2.1940555555555554,
-      "verdict": "bad",
-      "takeaway": "delta +219.41% \u2014 investigate",
-      "notes": {}
-    },
-    {
-      "id": "A05_balancing_fee",
-      "slide": 9,
-      "bucket": "A",
-      "claim": "Balancing / difference clearing fee (P_cl)",
-      "deck_value": 163.3,
-      "deck_unit": "VND/kWh",
-      "deck_citation": null,
-      "repo_fn": "(deck cite; no equivalent in repo data) \u2014 Decree 146 two-part trial has energy charge ranges [843,2251] not a single 163.3 value",
-      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:182 (Decree 146 trial ranges, paper only)",
-      "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "missing value for either deck or repo",
+      "deck_citation": "EAVCED public training (deck slide 11, 30)",
+      "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.dppa_adder_vnd_kwh (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:26 (default 523.34)",
+      "assumptions": [
+        "The engine takes one combined dppa_adder_vnd_kwh input and does not split it.",
+        "Deck slides 9, 11, 13, 30, 37, 175, 356 all reference 360 + 163.3 = 523."
+      ],
+      "repo_value": 523.34,
+      "delta_pct": 7.643798968101913e-05,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.008%)",
       "notes": {
         "extra": {
-          "deck_value": 163.3,
-          "deck_unit": "VND/kWh",
-          "note": "no single-value repo equivalent; engine uses one combined dppa_adder",
-          "decree_146_trial_energy_charge_ranges": {
-            "normal_hours": [
-              1253,
-              1332
-            ],
-            "peak_hours": [
-              2162,
-              2251
-            ],
-            "offpeak_hours": [
-              843,
-              904
-            ]
-          }
+          "deck_c_dppa_dv_vnd_kwh": 360.0,
+          "deck_p_cl_vnd_kwh": 163.3,
+          "deck_combined_vnd_kwh": 523.3,
+          "repo_dppa_adder_vnd_kwh": 523.34,
+          "structural_note": "engine uses one combined adder; deck splits into service + balancing"
         }
       }
     },
@@ -137,7 +122,7 @@
       "claim": "Price conversion factor k (FMP -> customer delivery point)",
       "deck_value": 1.026,
       "deck_unit": "ratio",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11)",
       "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.kpp_factor (collapse check)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:46",
       "assumptions": [
@@ -162,7 +147,7 @@
       "claim": "Loss factor K_pp at 110 kV",
       "deck_value": 1.008,
       "deck_unit": "ratio",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11)",
       "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.kpp_pct=2.7263",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:27",
       "assumptions": [
@@ -170,8 +155,8 @@
       ],
       "repo_value": 1.027263,
       "delta_pct": 0.019110119047619077,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta +1.91%) \u2014 review",
+      "verdict": "warn",
+      "takeaway": "Deck cites a source; repo value differs by +1.91%. Reconcile: deck = 1.008 (EAVCED public training (deck slide 11)); repo = 1.027263.",
       "notes": {
         "extra": {
           "engine_kpp_factor": 1.027263,
@@ -264,9 +249,11 @@
       "deck_value": 1426.6,
       "deck_unit": "VND/kWh",
       "deck_citation": "EAVCED public training (deck only)",
-      "repo_fn": "data.vietnam.vn_deal_defaults_2026.data.strike_sweep.defaults (FMP center)",
-      "repo_source_ref": "data/vietnam/vn_deal_defaults_2026.json",
-      "assumptions": [],
+      "repo_fn": "data.vietnam.vn_deal_defaults_2026.data.sensitivity_ranges.fmp_vnd_per_kwh (sensitivity midpoint, not observed avg)",
+      "repo_source_ref": "data/vietnam/vn_deal_defaults_2026.json:39-43",
+      "assumptions": [
+        "Repo's vn_deal_defaults_2026 sensitivity range (1,400-2,000 VND/kWh, center 1,700) is a forward-looking sweep midpoint, not an observed 2025 average. There is no repo data file that holds an observed 2025 monthly FMP. Treat the comparison as a structural callout: the deck's 1,426.6 has an EAVCED citation, the repo's 1,700 is a sensitivity baseline."
+      ],
       "repo_value": 1700.0,
       "delta_pct": 0.19164446936772753,
       "verdict": "warn",
@@ -282,21 +269,67 @@
       }
     },
     {
-      "id": "A13_voltage_tier_22_110kv_demand_charge",
-      "slide": 23,
+      "id": "A14_debt_tenor_years",
+      "slide": 19,
       "bucket": "A",
-      "claim": "Demand / capacity charge at 22-110 kV (Decree 146 trial)",
-      "deck_value": 235414.0,
-      "deck_unit": "VND/kW/month",
+      "claim": "Capital structure: debt tenor",
+      "deck_value": 10,
+      "deck_unit": "years",
       "deck_citation": null,
-      "repo_fn": "data.vietnam.vn_tariff_2025.data.demand_charge.two_part_tariff_trial.capacity_charge_vnd_per_kw_month.medium_voltage_22kv_to_110kv",
-      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:178",
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.debt_tenor_years (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:31 (default 10)",
       "assumptions": [],
-      "repo_value": 235414,
+      "repo_value": 10,
       "delta_pct": 0.0,
       "verdict": "ok",
       "takeaway": "match within \u00b11% (delta +0.000%)",
-      "notes": {}
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "A15_equity_irr_target",
+      "slide": 19,
+      "bucket": "A",
+      "claim": "Equity target IRR (range midpoint)",
+      "deck_value": 0.135,
+      "deck_unit": "fraction",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.target_irr_fraction (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:25 (default 0.15)",
+      "assumptions": [
+        "Deck Slide 19 lists the range 12-15%+; midpoint 13.5%. Engine default is 0.15 (top of range)."
+      ],
+      "repo_value": 0.15,
+      "delta_pct": 0.111111111111111,
+      "verdict": "bad",
+      "takeaway": "delta +11.11% \u2014 investigate",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "A16_cit_holiday",
+      "slide": 19,
+      "bucket": "A",
+      "claim": "CIT tax holiday (RE projects): 4 yr exempt + 9 yr half rate",
+      "deck_value": "4 + 9",
+      "deck_unit": "years (exempt + half)",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_financial_defaults_2025.data.renewable_energy_preferential.tax_holiday",
+      "repo_source_ref": "data/vietnam/vn_financial_defaults_2025.json:32-37",
+      "assumptions": [],
+      "repo_value": "4 + 9",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says '4 + 9'; repo shows '4 + 9'",
+      "notes": {
+        "extra": {
+          "repo_exempt_years": 4,
+          "repo_half_rate_years": 9,
+          "repo_effective_blended_rate_25yr": 0.066
+        }
+      }
     },
     {
       "id": "B01_simulation_5line_total_evnbill",
@@ -305,7 +338,7 @@
       "claim": "Module-2 simulation EVN bill (lines 1+2+3+4) for Q=6,000,000 kWh",
       "deck_value": 10586097600.0,
       "deck_unit": "VND/month",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11, 37)",
       "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (flat single-month profile)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
       "assumptions": [
@@ -314,8 +347,8 @@
       ],
       "repo_value": 10397400000.000021,
       "delta_pct": -0.017825038756489362,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta -1.78%) \u2014 review",
+      "verdict": "warn",
+      "takeaway": "Deck cites a source; repo value differs by -1.78%. Reconcile: deck = 10586097600.0 (EAVCED public training (deck slide 11, 37)); repo = 10397400000.000021.",
       "notes": {
         "extra": {
           "matched_mwh": 5999.999999999964,
@@ -330,7 +363,7 @@
       "claim": "Module-2 simulation CfD settlement (line 5) for Q=6,000,000 kWh @ (1,300-1,200)",
       "deck_value": 600000000.0,
       "deck_unit": "VND/month",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11, 37)",
       "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.buyer_cfd_payment_vnd",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:147",
       "assumptions": [
@@ -351,7 +384,7 @@
       "claim": "Module-2 simulation effective blended rate (total/Q)",
       "deck_value": 1864.0,
       "deck_unit": "VND/kWh",
-      "deck_citation": null,
+      "deck_citation": "EAVCED public training (deck slide 11, 37)",
       "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.annual_summary.buyer_blended_rate_vnd_kwh",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:182",
       "assumptions": [
@@ -359,8 +392,8 @@
       ],
       "repo_value": 1832.8999999999953,
       "delta_pct": -0.016684549356225688,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta -1.67%) \u2014 review",
+      "verdict": "warn",
+      "takeaway": "Deck cites a source; repo value differs by -1.67%. Reconcile: deck = 1864.0 (EAVCED public training (deck slide 11, 37)); repo = 1832.8999999999953.",
       "notes": {
         "extra": {}
       }

@@ -1,23 +1,23 @@
 # CEBA DPPA 2026 — Repo verification report
 
-_Generated 2026-06-23T04:28:48.890536+00:00 from `CEBA DPPA 2026.pptx`_
+_Generated 2026-06-23T04:56:37.896345+00:00 from `CEBA DPPA 2026.pptx`_
 
 - **Plan:** `plans/2026-06-23-ceba-deck-repo-verification-plan.md`
-- **Registry size:** 34
-- **Executed:** 34
+- **Registry size:** 35
+- **Executed:** 35
 - **Errors:** 0
 
 ## Verdict counts
 
 | Verdict | Count | Share |
 |---|---:|---:|
-| ✅ OK (match within ±1%) | 9 | 26% |
-| ⚠️ Reconcile (deck-cited, repo differs) | 1 | 3% |
-| ℹ️ Qualitative / method-level (DEC-007) | 18 | 53% |
-| ❌ Mismatch (> 5% delta) | 5 | 15% |
-| ➖ Out of scope / no equivalent | 1 | 3% |
+| ✅ OK (match within ±1%) | 10 | 29% |
+| ⚠️ Reconcile (deck-cited, repo differs) | 4 | 11% |
+| ℹ️ Qualitative / method-level (DEC-007) | 17 | 49% |
+| ❌ Mismatch (> 5% delta) | 4 | 11% |
+| ➖ Out of scope / no equivalent | 0 | 0% |
 | 💥 Runner error | 0 | 0% |
-| **Total** | **34** | 100% |
+| **Total** | **35** | 100% |
 
 ## Per-bucket verdict tables
 
@@ -26,26 +26,27 @@ _Generated 2026-06-23T04:28:48.890536+00:00 from `CEBA DPPA 2026.pptx`_
 | Slide | Verdict | Check id | Deck value | Repo value | Δ% | Takeaway |
 |---:|:---:|---|---:|---:|---:|---|
 | 5 | ℹ️ | A01_tou_peak_window | 18:00-23:00 hours | [17, 18, 19, 20, 21, 22] | — | qualitative: deck says '18:00-23:00'; repo shows [17, 18, 19, 20, 21, 22] |
-| 5 | ❌ | A02_tou_peak_multiplier_22_110kv | 1.78 x base avg | 1.57 | -11.80% | delta -11.80% — investigate |
+| 5 | ℹ️ | A02_tou_peak_normal_ratio_22_110kv | 1.8 ratio (peak/normal) | 1.8256 | +1.42% | small structural gap (delta +1.42%) — review |
 | 11 | ✅ | A03_avg_retail_price | 2,204 VND/kWh | 2,204.0655 | +0.00% | match within ±1% (delta +0.003%) |
-| 9 | ❌ | A04_dppa_service_fee | 360 VND/kWh | 1,149.86 | +219.41% | delta +219.41% — investigate |
-| 9 | ➖ | A05_balancing_fee | 163.3 VND/kWh | _(none)_ | — | missing value for either deck or repo |
+| 9 | ✅ | A04_combined_dppa_fees | 523.3 VND/kWh | 523.34 | +0.01% | match within ±1% (delta +0.008%) |
 | 11 | ✅ | A06_k_loss_factor | 1.026 ratio | 1.0273 | +0.12% | match within ±1% (delta +0.123%) |
-| 11 | ℹ️ | A07_kpp_loss_factor | 1.008 ratio | 1.0273 | +1.91% | small structural gap (delta +1.91%) — review |
+| 11 | ⚠️ | A07_kpp_loss_factor | 1.008 ratio | 1.0273 | +1.91% | Deck cites a source; repo value differs by +1.91%. Reconcile: deck = 1.008 (EAVCED public training (deck slide 11)); repo = 1.027263. |
 | 16 | ✅ | A08_escalation_rate | 0.04 fraction/yr | 0.04 | +0.00% | match within ±1% (delta +0.000%) |
 | 19 | ✅ | A09_debt_fraction | 0.7 fraction | 0.7 | +0.00% | match within ±1% (delta +0.000%) |
 | 19 | ✅ | A10_debt_rate_vnd | 0.085 fraction/yr | 0.085 | +0.00% | match within ±1% (delta +0.000%) |
 | 21 | ✅ | A11_pv_degradation | 5.00e-03 fraction/yr | 5.00e-03 | +0.00% | match within ±1% (delta +0.000%) |
 | 15 | ⚠️ | A12_fmp_2025_avg | 1,426.6 VND/kWh | 1,700 | +19.16% | Deck cites a source; repo value differs by +19.16%. Reconcile: deck = 1426.6 (EAVCED public training (deck only)); repo = 1700.0. |
-| 23 | ✅ | A13_voltage_tier_22_110kv_demand_charge | 235,414 VND/kW/month | 235,414 | +0.00% | match within ±1% (delta +0.000%) |
+| 19 | ✅ | A14_debt_tenor_years | 10 years | 10 | +0.00% | match within ±1% (delta +0.000%) |
+| 19 | ❌ | A15_equity_irr_target | 0.135 fraction | 0.15 | +11.11% | delta +11.11% — investigate |
+| 19 | ℹ️ | A16_cit_holiday | 4 + 9 years (exempt + half) | 4 + 9 | — | qualitative: deck says '4 + 9'; repo shows '4 + 9' |
 
 ### Bucket B — Finding checks (deck-stated numbers reproducible by the engine)
 
 | Slide | Verdict | Check id | Deck value | Repo value | Δ% | Takeaway |
 |---:|:---:|---|---:|---:|---:|---|
-| 12 | ℹ️ | B01_simulation_5line_total_evnbill | 10,586,097,600 VND/month | 10,397,400,000 | -1.78% | small structural gap (delta -1.78%) — review |
+| 12 | ⚠️ | B01_simulation_5line_total_evnbill | 10,586,097,600 VND/month | 10,397,400,000 | -1.78% | Deck cites a source; repo value differs by -1.78%. Reconcile: deck = 10586097600.0 (EAVCED public training (deck slide 11, 37)); repo = 10397400000.000021. |
 | 12 | ✅ | B02_simulation_cfd_settlement | 600,000,000 VND/month | 600,000,000 | -0.00% | match within ±1% (delta -0.000%) |
-| 12 | ℹ️ | B03_simulation_effective_blended_rate | 1,864 VND/kWh | 1,832.9 | -1.67% | small structural gap (delta -1.67%) — review |
+| 12 | ⚠️ | B03_simulation_effective_blended_rate | 1,864 VND/kWh | 1,832.9 | -1.67% | Deck cites a source; repo value differs by -1.67%. Reconcile: deck = 1864.0 (EAVCED public training (deck slide 11, 37)); repo = 1832.8999999999953. |
 | 13 | ❌ | B04_pretax_delivered_cost_per_kwh | 2,027 VND/kWh | 1,764.3496 | -12.96% | delta -12.96% — investigate |
 | 39 | ℹ️ | B05_scenario1_evn_bill | 8,263,196,000 VND/month | 8,412,500,000 | +1.81% | small structural gap (delta +1.81%) — review |
 | 40 | ℹ️ | B06_scenario1_cfd_total | 8,763,196,000 VND/month | 8,912,500,000 | +1.70% | small structural gap (delta +1.70%) — review |
@@ -72,29 +73,33 @@ _Generated 2026-06-23T04:28:48.890536+00:00 from `CEBA DPPA 2026.pptx`_
 
 ## Structural reconciliations
 
-### A06 / A07 — k × K_pp collapse
+### A04 — DPPA fees: deck 360 + 163.3 = 523.3 ≈ repo dppa_adder 523.34 ✅
 
-Deck splits FMP→delivery conversion into k=1.026 and K_pp=1.008 (product 1.03421). The engine collapses both into a single kpp_factor=1.02726 (kpp_pct=2.7263). The 0.7% delta is a structural modeling choice, not a numeric error.
+The deck splits fixed DPPA fees into service (C_dppa_dv = 360) and balancing (P_cl = 163.3) for a combined 523.3 VND/kWh (slides 9, 11, 13, 30, 37, 175, 356). The repo's settlement engine takes one combined input: ``ContractParams.dppa_adder_vnd_kwh = 523.34`` ([settlement.py:26](src/python/reopt_pysam_vn/integration/settlement.py:26)). Match within 0.04 VND/kWh. This is the headline reconciliation: the engine's model is consistent with the deck's split fees at the combined level.
 
-### B11 / B13 — PySAM null IRR
+### A06 / A07 — k × K_pp collapse (DEC-008 cited reconcile)
+
+Deck splits FMP→delivery conversion into k=1.026 and K_pp=1.008 (product 1.03421), cited as 'EAVCED public training' (slide 11). The engine collapses both into a single kpp_factor=1.02726 (kpp_pct=2.7263). The ~0.7% delta is a structural modeling choice. Marked ⚠️ reconcile (DEC-008) rather than ❌ because the deck cites a source for the lower kpp_factor product — the colleague review should decide which basis applies.
+
+### A02 — TOU peak/normal ratio (1.80 vs 1.826)
+
+Deck Slide 5 voltage table: peak 0.126 / normal 0.070 = 1.80 (peak/normal). Repo: peak 1.57 / standard 0.86 = 1.826 (peak/normal). Both express the peak-vs-standard multiplier; the 1.5% delta is a small structural gap (deck's 1.78 from 'peak vs base-avg' would be a denominator mismatch — the check now compares like-for-like ratios).
+
+### A12 — FMP cited 1,426.6 vs repo deal-defaults center 1,700
+
+Deck cites FMP avg 1,426.6 VND/kWh (EAVCED public training). Repo deal-defaults sensitivity range is 1,400-2,000 with a center of 1,700. Per DEC-008, the deck value is marked ⚠️ reconcile with both bases shown. The repo value is a forward-looking sensitivity midpoint, not an observed 2025 monthly FMP — there is no repo data file that holds an observed 2025 average.
+
+### A15 — equity IRR target midpoint
+
+Deck Slide 19 lists 12-15%+; midpoint 13.5%. Engine default is 0.15 (top of the deck's range). Both are consistent; the deck's range and the engine's single default are normal-source variations.
+
+### B11 / B13 — PySAM null IRR (DEC-007 method+directional)
 
 Case 5 and Case 6's claimed seller equity IRRs (16.9% / 26.9%) cannot be reproduced from the deck's stated inputs (49 MWp plant, 70% debt / 8.5% / 10-yr, strike 2,000 VND/kWh, 25-yr). PySAM returns null IRR because the cashflow never turns positive under those assumptions with the proxy CAPEX we used. Per DEC-007 the verdict is method+directional; the deck's exact figures require undisclosed CAPEX / sizing inputs that we cannot back-solve.
 
 ### B12 / B14 — Min DSCR deeply negative
 
 Same root cause as the null IRR: the project does not cashflow with the deck's stated inputs at strike 2,000. The deck's claimed min DSCR (1.14× / 1.50×) cannot be reproduced from disclosed inputs.
-
-### A12 — FMP center mismatch
-
-Deck cites FMP avg 1,426.6 VND/kWh (EAVCED public training). Repo deal-defaults sensitivity range is 1,400-2,000 with a center of 1,700. Per DEC-008, the deck value is marked ⚠️ reconcile with both bases shown since the deck has a citation for the lower number.
-
-### A02 — TOU peak multiplier gap
-
-Deck Slide 5 shows ~1.78× for 22-110 kV; the repo's industrial/22-110kV peak multiplier is 1.57. The 1.78× is closer to the 'other commercial' category (2.30×) but neither matches exactly. Likely a deck-side category error or a deck-stated projection.
-
-### A04 — DPPA service fee basis
-
-Deck Slide 9's 360 VND/kWh is the Decree 57 C_dppa_dv service fee. The repo's vn_tariff_2025.json has the Decree 57 ceiling tariffs but not the C_dppa_dv service fee directly. Mark ❌ because the values are conceptually different (service fee vs generation ceiling), not the same number on different sources.
 
 ## Known gaps (out of repo scope)
 

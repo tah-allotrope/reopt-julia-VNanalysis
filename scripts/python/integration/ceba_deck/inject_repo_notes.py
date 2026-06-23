@@ -197,7 +197,16 @@ def main(argv: list[str] | None = None) -> int:
 
     # Always copy fresh from source (CON-002: never modify the source).
     if args.dst.exists():
-        args.dst.unlink()
+        try:
+            args.dst.unlink()
+        except PermissionError as exc:
+            print(
+                f"[inject_repo_notes] destination {args.dst.name} is locked "
+                f"(likely open in PowerPoint): {exc}. "
+                f"Close the deck in PowerPoint and re-run, or pass --dst to a new path.",
+                file=sys.stderr,
+            )
+            return 3
     shutil.copy2(args.src, args.dst)
     print(f"[inject_repo_notes] copied {args.src.name} → {args.dst.name}", flush=True)
 
@@ -218,8 +227,12 @@ def main(argv: list[str] | None = None) -> int:
         tf.text = new_text
         annotated += 1
     prs.save(str(args.dst))
+    try:
+        rel = args.dst.resolve().relative_to(REPO_ROOT)
+    except ValueError:
+        rel = args.dst
     print(
-        f"[inject_repo_notes] annotated {annotated} slide(s); wrote {args.dst.relative_to(REPO_ROOT)}",
+        f"[inject_repo_notes] annotated {annotated} slide(s); wrote {rel}",
         flush=True,
     )
     return 0

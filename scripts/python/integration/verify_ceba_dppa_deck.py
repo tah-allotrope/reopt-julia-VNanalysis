@@ -232,7 +232,54 @@ def run_B04_pretax_delivered_cost_per_kwh(check: Check) -> dict:
     return {"value": cfmp + fees}
 
 
-# --- A-bucket engine-default checks (A06, A07, A09, A10, A11) ---------------
+# --- A-bucket engine-default checks (A02, A04, A06, A07, A09, A10, A11) -----
+def run_A02_tou_peak_normal_ratio_22_110kv(check: Check) -> dict:
+    """Compare peak/normal ratios on both sides (avoids the unit-mismatch).
+
+    Deck Slide 5: peak = 0.126 / normal = 0.070 → 1.80 (peak/normal).
+    Repo: peak = 1.57 / standard = 0.86 → 1.826 (peak/normal).
+    """
+    deck_ratio = 0.126 / 0.070
+    repo_peak = resolve_data_vietnam(
+        "data.vietnam.vn_tariff_2025.data.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.peak"
+    )
+    repo_standard = resolve_data_vietnam(
+        "data.vietnam.vn_tariff_2025.data.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.standard"
+    )
+    repo_ratio = repo_peak / repo_standard
+    return {
+        "value": round(repo_ratio, 4),
+        "extra": {
+            "deck_peak_normal_ratio": round(deck_ratio, 4),
+            "repo_peak_normal_ratio": round(repo_ratio, 4),
+            "repo_peak": repo_peak,
+            "repo_standard": repo_standard,
+            "unit_note": "both expressed as peak/normal; deck's 1.78 (peak vs base-avg) would be a denominator mismatch",
+        },
+    }
+
+
+def run_A04_combined_dppa_fees(check: Check) -> dict:
+    """Deck Slide 9/11/13/30/175/356: 360 + 163.3 = 523.3 VND/kWh.
+
+    The repo's settlement engine takes a single combined ``dppa_adder_vnd_kwh``
+    input, not the C_dppa_dv + P_cl split — see settlement.py:26.
+    """
+    from reopt_pysam_vn.integration.settlement import ContractParams
+    # ContractParams() instantiates with all defaults; dppa_adder_vnd_kwh=523.34
+    params = ContractParams(mode="virtual_cfd", strike_vnd_kwh=1_500.0)
+    return {
+        "value": params.dppa_adder_vnd_kwh,
+        "extra": {
+            "deck_c_dppa_dv_vnd_kwh": 360.0,
+            "deck_p_cl_vnd_kwh": 163.3,
+            "deck_combined_vnd_kwh": 523.3,
+            "repo_dppa_adder_vnd_kwh": params.dppa_adder_vnd_kwh,
+            "structural_note": "engine uses one combined adder; deck splits into service + balancing",
+        },
+    }
+
+
 def run_A06_k_loss_factor(check: Check) -> dict:
     """Engine collapses k=1.026 and Kpp=1.008 into kpp_factor=1.02726.
 
@@ -281,26 +328,26 @@ def run_A11_pv_degradation(check: Check) -> dict:
     }
 
 
-def run_A05_balancing_fee(check: Check) -> dict:
-    """Deck P_cl = 163.3 VND/kWh; no direct repo equivalent.
+def run_A14_debt_tenor_years(check: Check) -> dict:
+    from reopt_pysam_vn.pysam.single_owner import SingleOwnerInputs
+    return {"value": SingleOwnerInputs.__dataclass_fields__["debt_tenor_years"].default}
 
-    The repo vn_tariff_2025 has Decree 146 two-part trial energy charge ranges
-    (normal 1,253-1,332, peak 2,162-2,251, offpeak 843-904) — not a single
-    P_cl of 163.3. The deck value is from Decree 57/2025 settlement formulas;
-    the repo's settlement engine takes ``dppa_adder_vnd_kwh`` as a single input
-    and does not split it into C_dppa_dv + P_cl. Mark as informational.
-    """
+
+def run_A15_equity_irr_target(check: Check) -> dict:
+    from reopt_pysam_vn.pysam.single_owner import SingleOwnerInputs
+    return {"value": SingleOwnerInputs.__dataclass_fields__["target_irr_fraction"].default}
+
+
+def run_A16_cit_holiday(check: Check) -> dict:
+    data = resolve_data_vietnam(
+        "data.vietnam.vn_financial_defaults_2025.data.renewable_energy_preferential.tax_holiday"
+    )
     return {
-        "value": None,
+        "value": f"{data['exempt_years']} + {data['half_rate_years']}",
         "extra": {
-            "deck_value": check.deck_value,
-            "deck_unit": check.deck_unit,
-            "note": "no single-value repo equivalent; engine uses one combined dppa_adder",
-            "decree_146_trial_energy_charge_ranges": {
-                "normal_hours": [1253, 1332],
-                "peak_hours": [2162, 2251],
-                "offpeak_hours": [843, 904],
-            },
+            "repo_exempt_years": data["exempt_years"],
+            "repo_half_rate_years": data["half_rate_years"],
+            "repo_effective_blended_rate_25yr": data["effective_blended_rate_25yr"],
         },
     }
 
@@ -761,13 +808,17 @@ def run_C06_daytime_vs_night_economics(check: Check) -> dict:
 
 
 _SCENARIO_RUNNERS: dict[str, Callable[[Check], dict]] = {
-    "A05_balancing_fee": run_A05_balancing_fee,
+    "A02_tou_peak_normal_ratio_22_110kv": run_A02_tou_peak_normal_ratio_22_110kv,
+    "A04_combined_dppa_fees": run_A04_combined_dppa_fees,
     "A06_k_loss_factor": run_A06_k_loss_factor,
     "A07_kpp_loss_factor": run_A07_kpp_loss_factor,
     "A09_debt_fraction": run_A09_debt_fraction,
     "A10_debt_rate_vnd": run_A10_debt_rate_vnd,
     "A11_pv_degradation": run_A11_pv_degradation,
     "A12_fmp_2025_avg": run_A12_fmp_2025_avg,
+    "A14_debt_tenor_years": run_A14_debt_tenor_years,
+    "A15_equity_irr_target": run_A15_equity_irr_target,
+    "A16_cit_holiday": run_A16_cit_holiday,
     "B01_simulation_5line_total_evnbill": run_B01_simulation_5line_total_evnbill,
     "B02_simulation_cfd_settlement": run_B02_simulation_cfd_settlement,
     "B03_simulation_effective_blended_rate": run_B03_simulation_effective_blended_rate,
