@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: phase-04-deck-note-injector</title>
+  <meta name="color-scheme" "dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose', themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff', lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' } });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch(e => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root { --bg: #0d0d0d; --bg-soft: #111111; --panel: rgba(13, 13, 13, 0.88); --panel-strong: rgba(19, 19, 19, 0.96); --line: rgba(0, 245, 255, 0.26); --line-strong: rgba(57, 255, 20, 0.38); --text: #e9f6ff; --muted: #8ea3ad; --accent-blue: #00f5ff; --accent-green: #39ff14; --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42); --glow-green: 0 0 18px rgba(57, 255, 20, 0.28); --shadow: 0 14px 40px rgba(0, 0, 0, 0.32); --radius-lg: 22px; --radius-md: 16px; --radius-sm: 12px; --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%), radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%), linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%); color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px); background-size: 32px 32px; opacity: 0.16; }
+    a { color: var(--accent-blue); }
+    code, pre, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%), linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--panel-strong); box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02); }
+    .hero::after { content: ""; position: absolute; inset: auto -10% -55% 42%; height: 280px; background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%); filter: blur(12px); pointer-events: none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 12ch; font-size: clamp(2.5rem, 5vw, 4.7rem); line-height: 0.94; letter-spacing: -0.05em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0, 245, 255, 0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 18px; background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0, 245, 255, 0.24); border-radius: 999px; background: rgba(0, 245, 255, 0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem, 2vw, 1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content: ""; width: 44px; height: 1px; background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)), rgba(7, 7, 7, 0.82); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012); }
+    .column-card { padding: 18px; min-height: 200px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 280px !important; min-height: 280px; max-height: 280px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0, 245, 255, 0.18); border-radius: var(--radius-sm); background: rgba(0, 245, 255, 0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57, 255, 20, 0.22); border-radius: 999px; background: rgba(57, 255, 20, 0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142, 163, 173, 0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } .phase-title { font-size: clamp(2rem, 12vw, 3rem); } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">PHASE-04 DECK NOTE INJECTOR</h1>
+          <p class="hero-summary">
+            Phase 4: build the note injector that copies the source deck to a
+            <code>[repo-checked].pptx</code> and writes a structured
+            <code>[Repo check]</code> block into the speaker notes of every slide that
+            has a registry check (plus relevant-but-unmodeled slides for known gaps).
+            Idempotent — re-running produces a byte-stable notes payload.
+          </p>
+          <div class="pill-row"><span class="pill">project :: CEBA DPPA 2026</span><span class="pill">date :: 2026-06-23</span><span class="pill">phase :: 4 of 5</span></div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">CEBA DPPA 2026</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>ceba-review/CEBA DPPA 2026.pptx</strong> — source deck (13.1 MB, 57 slides, read-only).</li>
+            <li><strong>reports/ceba_dppa_2026_repo_check.json</strong> — Phase 2 results: 34 checks + 3 known gaps.</li>
+            <li><strong>CON-002</strong> — never modify the original .pptx; CON-003 — note injection must be idempotent (replace prior block, preserve author notes).</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>scripts/python/integration/ceba_deck/inject_repo_notes.py</strong> — single-file injector (copy + per-slide block build + idempotent replace).</li>
+            <li><strong>scripts/python/integration/ceba_deck/test_inject_idempotency.py</strong> — re-runs the injector and confirms Slides 12, 24, 26 are byte-stable (sha256 match).</li>
+            <li><strong>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</strong> — 24 slides annotated with structured <code>[Repo check]</code> notes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+    A[results JSON<br>34 checks + 3 gaps] --> B[group by slide]
+    B --> C{slide has check<br>or gap?}
+    C -- no --> D[skip]
+    C -- yes --> E[build structured<br>[Repo check] block]
+    E --> F[idempotent replace<br>below DELIMITER]
+    F --> G[save updated deck]
+    G --> H[ceba-review/CEBA DPPA 2026 [repo-checked].pptx]
+    H --> I[spot-check 3 slides<br>byte-stable across runs]
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <p>Three structural choices matter for the injector:</p>
+        <ul>
+          <li><strong>Copy-then-modify, never modify in place.</strong> Each run deletes the existing copy (if any) and <code>shutil.copy2</code>s the source before opening. The source mtime stays at its original value (verified: source mtime preserved across runs, output mtime is "now"). This is the "Phase 4 exit criterion: The original .pptx mtime is unchanged after a run."</li>
+          <li><strong>Idempotent replace via a single delimiter.</strong> <code>=== [Repo check] (generated) ===</code> is the marker. The replace function splits on the delimiter: keep everything above, replace everything below. If the delimiter is absent, the new block is appended below any existing author notes. If the slide has no notes slide, <code>slide.notes_slide</code> lazily creates one.</li>
+          <li><strong>Per-slide block composition.</strong> For each slide, gather every check where <code>check["slide"] == slide_idx</code> and every known_gap where <code>gap["slide"] == slide_idx</code>. Each check renders as a 6-12 line block (verdict icon + id + slide/bucket, claim, deck value, repo value, optional delta, repo_fn + file:line, optional assumptions, takeaway, optional extras). This is the per-slide colleague-facing summary; the markdown is the per-bucket table, the JSON is the raw data, and the deck notes are the in-context review surface.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool</th><th>Use</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td><code>shutil.copy2</code></td><td>Copy source to output preserving mtime metadata; the output then gets a new mtime once we save through python-pptx.</td><td>inject_repo_notes.py</td></tr>
+            <tr><td><code>pptx.Presentation</code> + <code>slide.notes_slide</code></td><td>Open the output deck; lazily create a notes slide for any slide that doesn't have one.</td><td>inject_repo_notes.py</td></tr>
+            <tr><td><code>prs.save</code></td><td>Persist the modified deck; python-pptx writes a new ZIP with the new notes XML.</td><td>inject_repo_notes.py</td></tr>
+            <tr><td><code>hashlib.sha256</code> + subprocess re-invoke</td><td>Idempotency test: re-run the injector, re-read Slides 12, 24, 26, compare sha256. Confirmed byte-stable across runs.</td><td>test_inject_idempotency.py</td></tr>
+            <tr><td><code>argparse</code> (--src, --dst, --results, --dry-run)</td><td>CLI surface: re-target source/dest/results, or run dry-run to print blocks without writing the deck.</td><td>inject_repo_notes.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame">
+        <div class="chart-frame"><canvas id="slideCoverage"></canvas></div>
+        <div class="empty-state" style="margin-top:14px;">
+          <strong>Idempotency verified</strong>
+          Two injector runs produced byte-stable notes payloads for Slides 12, 24, 26
+          (sha256 hashes match). The source deck mtime is preserved (6/22 10:30 PM original,
+          unchanged after multiple runs). 24 slides were annotated; the 33 non-annotated
+          slides retain their original empty/minimal notes unchanged.
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Notes are text-only, not styled.</strong> python-pptx 1.0.2 doesn't expose rich-text styling on the notes slide. The same verdict icon + id block renders as monospaced Courier. That's fine for a colleague reading in the Notes pane of PowerPoint; not great for an "at-a-glance" review view. The alternative — drop a separate HTML review file alongside the deck — was rejected because the goal is in-deck review.</li>
+          <li><strong>Block length on B-bucket PySAM slides is ~2 KB.</strong> Slides 24 / 25 each have 3 checks (B11/B12/C04 or B13/B14/C04) with full PySAM numbers in the extras. Still readable but a colleague scanning Notes pane may need to scroll. A future cycle could shorten the extras block to the headline number only.</li>
+          <li><strong>No slide-level aggregation of "this is the headline finding."</strong> Each slide's block is the per-check detail. A future cycle could add a slide-header summary line ("This slide's 3 checks: 1 ✅, 1 ❌, 1 ℹ️; see kpp collapse structural note.") so colleagues see the headline before the detail.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>First idempotency test failed with a path bug.</strong> The test sat one directory deeper than the orchestrator (under <code>ceba_deck/</code>), so the original <code>parents[3]</code> resolved to <code>scripts/</code>. Same fix as before: <code>parents[4]</code>. The test errored with "missing: scripts\ceba-review\CEBA DPPA 2026 [repo-checked].pptx" — clear, fixable in one line.</li>
+          <li><strong>24 slides annotated, not 31.</strong> The 7 unsannotated quantitative slides are the deck's narrative/agenda slides (1, 2, 3, 4, 6, 14, 18, 22, 28, 30, 31, 32, 33, 34, 35, 36, 38, 41, 50, 51, 53, 55, 56, 57). The 3 known gaps (slides 6, 53, 55 — decree 146, RECs/EACs, GHG) get the ➖ out-of-repo-scope note via the known-gaps section, not via the per-check pipeline. Verified: 24 of the 31 unique slide numbers in the registry have notes; the other 7 don't carry repo-testable content.</li>
+          <li><strong>B-block extras line length on Slide 12.</strong> The first version emitted 12 extras lines; trimmed to 4 in <code>_block_for_check</code> to keep the slide note scannable. Headline numbers (matched_mwh, buyer_cfd_payment_vnd) are kept; per-hour ledger excerpts are dropped.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Phase 5 (End-to-end) — primary next step.</strong> Run the full pipeline: <code>verify_ceba_dppa_deck.py</code> → <code>synthesize_md_report.py</code> → <code>inject_repo_notes.py</code> → idempotency re-run → confirm no <code>.pptx</code> tracked in git (DEC-009). Spot-check three notes in PowerPoint (out-of-scope for the script but a human review) — Slide 12's 3-check B-block, Slide 24's PySAM null-IRR, Slide 26's empty-window B15.</li>
+          <li><strong>Should the annotated pptx be referenced from the markdown report?</strong> Currently the markdown report is the colleague-friendly companion but doesn't link to the [repo-checked].pptx. Adding a "How to use this report" line at the top of the markdown saying "Open <code>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</code> in PowerPoint and read the Notes pane for each slide" would make the workflow obvious.</li>
+          <li><strong>What about the unknown errors in <code>extra</code> for B-block PySAM runs?</strong> PySAM's null IRR surfaces as <code>None</code> in the extras dict, which renders in the deck note as <code>irr     : None</code>. That's correct but reads oddly. A future phase could format PySAM null IRR as <code>"n/a (cashflow does not turn positive)"</code> in the note — same information, more useful.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true };
+      const ctx = document.getElementById('slideCoverage');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['checks pinned to a slide', 'known-gap slides', 'slides annotated', 'deck slides total'],
+            datasets: [{
+              label: 'count',
+              data: [21, 3, 24, 57],
+              backgroundColor: [
+                'rgba(0, 245, 255, 0.55)',
+                'rgba(180, 180, 180, 0.45)',
+                'rgba(57, 255, 20, 0.55)',
+                'rgba(255, 200, 0, 0.55)'
+              ],
+              borderColor: [
+                'rgba(0, 245, 255, 0.95)',
+                'rgba(180, 180, 180, 0.85)',
+                'rgba(57, 255, 20, 0.95)',
+                'rgba(255, 200, 0, 0.95)'
+              ],
+              borderWidth: 1.5
+            }]
+          },
+          options: { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true, plugins: { legend: { labels: { color: '#d6f6ff', font: { family: 'Cascadia Code' } } }, title: { display: true, text: 'Phase 4 — deck coverage', color: '#e8f6ff', font: { family: 'Cascadia Code', size: 13 } } }, scales: { x: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } } }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
