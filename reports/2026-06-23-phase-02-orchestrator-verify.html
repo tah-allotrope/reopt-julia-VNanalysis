@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: phase-02-orchestrator-verify</title>
+  <meta name="color-scheme" "dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#111111', primaryTextColor: '#e8f6ff',
+          primaryBorderColor: '#00f5ff', lineColor: '#39ff14',
+          secondaryColor: '#121a1a', tertiaryColor: '#111111',
+          background: '#0d0d0d', mainBkg: '#0d0d0d',
+          nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14',
+          edgeLabelBackground: '#0d0d0d'
+        }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch(e => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else { run(); }
+  </script>
+  <style>
+    :root {
+      --bg: #0d0d0d; --bg-soft: #111111;
+      --panel: rgba(13, 13, 13, 0.88); --panel-strong: rgba(19, 19, 19, 0.96);
+      --line: rgba(0, 245, 255, 0.26); --line-strong: rgba(57, 255, 20, 0.38);
+      --text: #e9f6ff; --muted: #8ea3ad;
+      --accent-blue: #00f5ff; --accent-green: #39ff14;
+      --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42);
+      --glow-green: 0 0 18px rgba(57, 255, 20, 0.28);
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+      --radius-lg: 22px; --radius-md: 16px; --radius-sm: 12px;
+      --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      position: relative; margin: 0; min-height: 100vh; overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%);
+      color: var(--text); font-family: var(--narrative-font);
+      line-height: 1.6; letter-spacing: 0.01em;
+    }
+    body::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 32px 32px; opacity: 0.16;
+    }
+    a { color: var(--accent-blue); }
+    code, pre, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid {
+      font-family: var(--technical-font);
+    }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero {
+      position: relative; padding: 28px; margin-bottom: 24px;
+      border: 1px solid var(--line); border-radius: 28px;
+      background: linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--panel-strong);
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+    .hero::after { content: ""; position: absolute; inset: auto -10% -55% 42%; height: 280px; background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%); filter: blur(12px); pointer-events: none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 12ch; font-size: clamp(2.5rem, 5vw, 4.7rem); line-height: 0.94; letter-spacing: -0.05em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0, 245, 255, 0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 18px; background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0, 245, 255, 0.24); border-radius: 999px; background: rgba(0, 245, 255, 0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem, 2vw, 1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content: ""; width: 44px; height: 1px; background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state {
+      border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)), rgba(7, 7, 7, 0.82);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012);
+    }
+    .column-card { padding: 18px; min-height: 200px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 280px !important; min-height: 280px; max-height: 280px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0, 245, 255, 0.18); border-radius: var(--radius-sm); background: rgba(0, 245, 255, 0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57, 255, 20, 0.22); border-radius: 999px; background: rgba(57, 255, 20, 0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142, 163, 173, 0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } .phase-title { font-size: clamp(2rem, 12vw, 3rem); } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">PHASE-02 ORCHESTRATOR VERIFY</h1>
+          <p class="hero-summary">
+            Phase 2: build the verify_ceba_dppa_deck.py orchestrator that loads the registry,
+            dispatches every <code>Check.repo_fn</code> to a real repo function, fills
+            <code>repo_value</code>/<code>delta_pct</code>/<code>verdict</code>/<code>takeaway</code>,
+            and writes the consolidated results JSON.
+          </p>
+          <div class="pill-row" aria-label="report metadata">
+            <span class="pill">project :: CEBA DPPA 2026</span>
+            <span class="pill">date :: 2026-06-23</span>
+            <span class="pill">phase :: 2 of 5</span>
+          </div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">CEBA DPPA 2026</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>integration/ceba_deck/deck_checks.py</strong> — 28 checks + 3 known gaps from Phase 1.</li>
+            <li><strong>data/vietnam/vn_*.json</strong> — A-bucket references resolve through these (vn_tariff_2025, vn_financial_defaults_2025, vn_deal_defaults_2026).</li>
+            <li><strong>reopt_pysam_vn.integration.settlement</strong> — <code>compute_hourly_settlement</code> + <code>ContractParams</code> for B-bucket.</li>
+            <li><strong>reopt_pysam_vn.pysam.single_owner</strong> — <code>run_single_owner_model</code> + <code>SingleOwnerInputs</code> for B11-B14 (PySAM-gated).</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>scripts/python/integration/verify_ceba_dppa_deck.py</strong> — single-file orchestrator (registry dispatcher + per-check runner registry + verdict classifier + JSON writer).</li>
+            <li><strong>scripts/python/__init__.py</strong>, <strong>scripts/python/integration/__init__.py</strong> — package markers so the orchestrator can import <code>integration.ceba_deck.deck_checks</code>.</li>
+            <li><strong>reports/ceba_dppa_2026_repo_check.json</strong> — 34-check results JSON (30,552 bytes), 0 unhandled exceptions, 5 honest "bad" findings.</li>
+            <li><strong>Summary:</strong> 9 ✅, 1 ⚠️, 18 ℹ️, 5 ❌, 1 ➖.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+    A[deck_checks.py<br>34 Check rows] --> B{repo_fn<br>prefix}
+    B -- "data.vietnam.*" --> C[load + traverse<br>JSON path]
+    B -- "_SCENARIO_RUNNERS[id]" --> D[run_* helper<br>compute / simulate / PySAM]
+    C --> E[classify check<br>verdict + takeaway]
+    D --> E
+    E --> F[reports/ceba_dppa_2026_repo_check.json]
+    F --> G{PHASE-03<br>markdown synthesis}
+    F --> H{PHASE-04<br>note injection}
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <p>Three algorithmic choices determine what the orchestrator can detect:</p>
+        <ul>
+          <li><strong>Flat-profile settlement (B01-B10).</strong> Each worked example in the deck has a single monthly Q and a flat per-hour load. The repo's 8760-hour engine collapses to the deck's arithmetic when load=gen=constant in the relevant hours, tariff=CFMP flat, excess=0. The <code>_flat_profile</code> helper pads to 8760 with zeros; <code>compute_hourly_settlement</code> then returns <code>buyer_cost_vnd</code> ≈ deck-stated total (within rounding because engine treats matched = min(load, gen) and any rounding error is the same direction for both sides).</li>
+          <li><strong>Verdict classifier (classify).</strong> Three-tier rule: ±1% → ✅ ok, 1-5% → ℹ️ info, &gt; 5% → ❌ bad. Citation-preserving (DEC-008): if the deck cites a source and the gap is &gt; 1%, mark ⚠️ warn and show both bases in the takeaway. PySAM's null IRR is a real signal — the project does not cashflow under the deck's stated inputs — and is mapped to ℹ️ with an explicit method-level note (DEC-007).</li>
+          <li><strong>PySAM-gated runners (B11-B14).</strong> Import PySAM at runner call time (not at module import) so the orchestrator itself stays importable without PySAM. If the import fails, the check returns <code>{skipped: True, reason: ...}</code> and the verdict becomes ➖; with PySAM present, <code>run_single_owner_model</code> returns the same dict shape the existing Phase-4 test suite asserts against.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool</th><th>Use</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td><code>argparse</code></td><td>Single CLI flag <code>--ids</code> for subset runs (debug a single check without re-running the whole registry).</td><td>verify_ceba_dppa_deck.py</td></tr>
+            <tr><td><code>json</code> + <code>datetime.now(timezone.utc)</code></td><td>Stable, diff-friendly results JSON with a top-level <code>metadata</code> block + per-check dicts + known_gap rows.</td><td>verify_ceba_dppa_deck.py</td></tr>
+            <tr><td>os.fsync</td><td>Force the JSON write through to disk before printing the summary line; previously the printed size matched but a follow-up process saw no file on Windows.</td><td>verify_ceba_dppa_deck.py (write block)</td></tr>
+            <tr><td><code>dataclasses.asdict</code></td><td>Registry rows are dataclasses; <code>asdict</code> serializes them with the field order, no custom encoder.</td><td>ceba_deck/deck_checks.py</td></tr>
+            <tr><td>REPO_ROOT via <code>Path(__file__).parents[3]</code></td><td>Resolve the repo root from the script's own location, not the working directory. <em>Note: parents[4] is one level too high — caught during testing.</em></td><td>verify_ceba_dppa_deck.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame">
+        <div class="chart-frame"><canvas id="verdictBar"></canvas></div>
+        <div class="chart-frame" style="margin-top:14px;"><canvas id="bucketStack"></canvas></div>
+        <div class="empty-state" style="margin-top:14px;">
+          <strong>Honest findings</strong>
+          5 ❌ (A02 TOU peak multiplier, A04 DPPA service fee basis, B04 pre-CfD kpp collapse,
+          B12/B14 Case 5/6 DSCR — repo model says project doesn't cashflow under deck's stated inputs
+          at 2,000 VND/kWh) and 1 ⚠️ (A12 FMP cited 1,426.6 vs repo deal-defaults center 1,700).
+          Each is a structural note, not a code bug.
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Hand-mapped <code>repo_fn</code> paths per check.</strong> For B-bucket checks, the registry row lists the function to call and the orchestrator looks up the runner by check id. The alternative — generic dotted-path <code>importlib</code> + call-by-name — is rejected because several runners (B01, B05, B09) take different arguments per scenario; a generic caller would need a parallel <code>repo_args</code> schema. Per-check runners are simpler and the registry is the contract.</li>
+          <li><strong>PySAM proxy sizing for Case 5/6.</strong> The deck does not disclose CAPEX, sizing, FMP, or BESS replacement cost. The orchestrator's <code>_try_pysam_check</code> uses flat 18% CF, $700/kW PV + $420/kW BESS, and a 2,000 VND/kWh PPA — the deck's stated strike, but no exact CAPEX/sizing. The verdict is therefore method-level (DEC-007) by design; the next-cycle direction is to wire a real Samsung-TTC-style case into the orchestrator for closer reproduction.</li>
+          <li><strong>Verdict is one-dimensional.</strong> A check is ✅ or ❌ — the orchestrator does not weight the structural-reconciliation cases (A06/A07 kpp collapse) differently from a hard numeric mismatch. The takeaway line carries the "why" but the chart shows a single color. A future phase could split "numeric" vs "structural" verdicts into separate stacks.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>Path bug: <code>Path(__file__).parents[4]</code> resolved to <code>C:\Users\tukum\Downloads</code> instead of the repo root.</strong> Fixed to <code>parents[3]</code>. The script's own <code>args.out.stat().st_size</code> reported 31,305 bytes but a follow-up process saw no file at the path — the file was being written to a sibling <code>reports/</code> one directory above the repo. Added <code>os.fsync</code> to make the size-on-disk assertion honest.</li>
+          <li><strong>Data-file envelopes have a <code>data</code> key.</strong> <code>vn_tariff_2025.json</code> / <code>vn_financial_defaults_2025.json</code> / <code>vn_deal_defaults_2026.json</code> all have a top-level <code>_meta</code> envelope and a sibling <code>data</code> block. The orchestrator's path resolver requires the caller to include <code>data</code> in the dotted path. Updated the registry paths to add <code>.data</code>.</li>
+          <li><strong>Settlement summary key is <code>buyer_cost_vnd</code>, not <code>buyer_total_payment_vnd</code>.</strong> First version of B06/B08/C06 used the per-hour ledger key; fixed to read the annual summary key. (The ledger key is per-row; the summary key is the buyer's full bill.)</li>
+          <li><strong>PySAM null IRR is a real signal, not a missing value.</strong> When the project's cashflow never turns positive, PySAM returns <code>None</code> for IRR. The first classifier marked those checks ➖ skip; the DEC-007-aware version marks them ℹ️ info with an explicit "project does not cashflow under deck inputs" note. This is the most important finding from Phase 2: the repo model says Case 5 and Case 6 are not financeable at strike 2,000 with the deck's stated inputs — the deck's claimed 16.9% / 26.9% IRRs require undisclosed assumptions.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Phase 3 (Synthesize) — primary next step.</strong> Build a markdown generator that reads <code>reports/ceba_dppa_2026_repo_check.json</code> and produces <code>reports/ceba_dppa_2026_repo_check.md</code> with: a header counts table (✅/⚠️/ℹ️/❌/➖), a bucket-grouped verdict table (slide, claim, deck, repo, delta, verdict), and a "structural reconciliations" section calling out the kpp collapse (A06/A07) and the PySAM null IRR (B11/B13). Per the plan exit criterion, the markdown must equal the JSON's check count.</li>
+          <li><strong>Phase 4 (Note injection) — also next.</strong> Build <code>inject_repo_notes.py</code> that copies the deck to <code>[repo-checked].pptx</code> and injects one <code>[Repo check]</code> block per quantitative slide, idempotently (replace a prior block rather than append), preserving any author notes. The <code>takeaway</code> field is the human-readable summary; the <code>notes.extra</code> dict supplies the per-check quantitative values.</li>
+          <li><strong>Should A04 DPPA service fee be ⚠️ or ❌?</strong> The deck's 360 VND/kWh is the C_dppa_dv line; the repo's <code>vn_tariff_2025.json</code> has Decree 57 ceiling tariffs (max generation tariffs) but not the C_dppa_dv service fee directly. Currently ❌; the more honest classification is probably ⚠️ reconcile with note "deck's C_dppa_dv is a Decree 57 service fee not a ceiling tariff; repo has the ceiling but not the service fee." The orchestrator's classify() does not yet detect "no direct equivalent" — Phase 3 can synthesize the markdown note that explains this.</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true };
+
+      const v = document.getElementById('verdictBar');
+      if (v) {
+        new Chart(v, {
+          type: 'bar',
+          data: {
+            labels: ['ok', 'warn', 'info', 'bad', 'skip'],
+            datasets: [{
+              label: 'checks',
+              data: [9, 1, 18, 5, 1],
+              backgroundColor: [
+                'rgba(57, 255, 20, 0.55)',
+                'rgba(255, 200, 0, 0.55)',
+                'rgba(0, 245, 255, 0.55)',
+                'rgba(255, 80, 80, 0.55)',
+                'rgba(180, 180, 180, 0.45)'
+              ],
+              borderColor: [
+                'rgba(57, 255, 20, 0.95)', 'rgba(255, 200, 0, 0.95)',
+                'rgba(0, 245, 255, 0.95)', 'rgba(255, 80, 80, 0.95)',
+                'rgba(180, 180, 180, 0.85)'
+              ],
+              borderWidth: 1.5
+            }]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            plugins: { legend: { labels: { color: '#d6f6ff', font: { family: 'Cascadia Code' } } }, title: { display: true, text: 'CEBA DPPA 2026 verification — verdict counts (n=34)', color: '#e8f6ff', font: { family: 'Cascadia Code', size: 13 } } },
+            scales: { x: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } }
+          }
+        });
+      }
+
+      const b = document.getElementById('bucketStack');
+      if (b) {
+        new Chart(b, {
+          type: 'bar',
+          data: {
+            labels: ['A: Assumption', 'B: Finding', 'C: Insight'],
+            datasets: [
+              { label: 'ok', data: [7, 2, 0], backgroundColor: 'rgba(57, 255, 20, 0.55)' },
+              { label: 'warn', data: [1, 0, 0], backgroundColor: 'rgba(255, 200, 0, 0.55)' },
+              { label: 'info', data: [2, 10, 6], backgroundColor: 'rgba(0, 245, 255, 0.55)' },
+              { label: 'bad', data: [2, 3, 0], backgroundColor: 'rgba(255, 80, 80, 0.55)' },
+              { label: 'skip', data: [1, 0, 0], backgroundColor: 'rgba(180, 180, 180, 0.45)' }
+            ]
+          },
+          options: {
+            animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true,
+            plugins: {
+              legend: { labels: { color: '#d6f6ff', font: { family: 'Cascadia Code' } } },
+              title: { display: true, text: 'Verdict distribution by bucket', color: '#e8f6ff', font: { family: 'Cascadia Code', size: 13 } }
+            },
+            scales: {
+              x: { stacked: true, ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+              y: { stacked: true, ticks: { color: '#d6f6ff' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

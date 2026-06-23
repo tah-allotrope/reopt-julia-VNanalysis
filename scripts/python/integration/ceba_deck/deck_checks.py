@@ -100,7 +100,7 @@ A: list[Check] = [
         deck_value="18:00-23:00",
         deck_unit="hours",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.tou_schedule.weekday.peak_hours",
+        repo_fn="data.vietnam.vn_tariff_2025.data.tou_schedule.weekday.peak_hours",
         repo_source_ref="data/vietnam/vn_tariff_2025.json:26",
         assumptions=[
             "Hourly discretization (decision-963 boundaries map to 17:30/22:30 -> integer hours 17,22).",
@@ -114,7 +114,7 @@ A: list[Check] = [
         deck_value=1.78,
         deck_unit="x base avg",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.peak",
+        repo_fn="data.vietnam.vn_tariff_2025.data.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.peak",
         repo_source_ref="data/vietnam/vn_tariff_2025.json:99",
     ),
     _line(
@@ -125,7 +125,7 @@ A: list[Check] = [
         deck_value=2204.0,
         deck_unit="VND/kWh",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.base_avg_price_vnd_per_kwh",
+        repo_fn="data.vietnam.vn_tariff_2025.data.base_avg_price_vnd_per_kwh",
         repo_source_ref="data/vietnam/vn_tariff_2025.json:22",
     ),
     _line(
@@ -136,8 +136,8 @@ A: list[Check] = [
         deck_value=360.0,
         deck_unit="VND/kWh",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.decree_57_dppa.solar_ceiling_tariffs_vnd_per_kwh",
-        repo_source_ref="data/vietnam/vn_tariff_2025.json:218 (region: south ground w/ BESS min)",
+        repo_fn="data.vietnam.vn_tariff_2025.data.decree_57_dppa.solar_ceiling_tariffs_vnd_per_kwh.ground_mounted_with_bess.range_min",
+        repo_source_ref="data/vietnam/vn_tariff_2025.json:230 (south ground w/ BESS ceiling min, 1,149.86 — note deck says 360)",
     ),
     _line(
         "A05_balancing_fee",
@@ -147,8 +147,8 @@ A: list[Check] = [
         deck_value=163.3,
         deck_unit="VND/kWh",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.demand_charge.two_part_tariff_trial",
-        repo_source_ref="data/vietnam/vn_tariff_2025.json:171 (Decree 146 trial, paper only)",
+        repo_fn="(deck cite; no equivalent in repo data) — Decree 146 two-part trial has energy charge ranges [843,2251] not a single 163.3 value",
+        repo_source_ref="data/vietnam/vn_tariff_2025.json:182 (Decree 146 trial ranges, paper only)",
     ),
     _line(
         "A06_k_loss_factor",
@@ -186,7 +186,7 @@ A: list[Check] = [
         deck_value=0.04,
         deck_unit="fraction/yr",
         citation=None,
-        repo_fn="data.vietnam.vn_financial_defaults_2025.standard.elec_cost_escalation_rate_fraction",
+        repo_fn="data.vietnam.vn_financial_defaults_2025.data.standard.elec_cost_escalation_rate_fraction",
         repo_source_ref="data/vietnam/vn_financial_defaults_2025.json:18",
     ),
     _line(
@@ -197,8 +197,8 @@ A: list[Check] = [
         deck_value=0.70,
         deck_unit="fraction",
         citation=None,
-        repo_fn="reopt_pysam_vn.analysis.offsite_dppa.OffsiteDppaResult (default capital structure)",
-        repo_source_ref="src/python/reopt_pysam_vn/analysis/types.py",
+        repo_fn="reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.debt_fraction (default)",
+        repo_source_ref="src/python/reopt_pysam_vn/pysam/single_owner.py:24 (default 0.70)",
     ),
     _line(
         "A10_debt_rate_vnd",
@@ -208,8 +208,8 @@ A: list[Check] = [
         deck_value=0.085,
         deck_unit="fraction/yr",
         citation=None,
-        repo_fn="data.vietnam.vn_financial_defaults_2025.standard.owner_discount_rate_fraction",
-        repo_source_ref="data/vietnam/vn_financial_defaults_2025.json:17 (8% discount used as proxy; debt rate is a separate input)",
+        repo_fn="reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.debt_interest_rate_fraction (default)",
+        repo_source_ref="src/python/reopt_pysam_vn/pysam/single_owner.py:30 (default 0.085)",
     ),
     _line(
         "A11_pv_degradation",
@@ -219,8 +219,8 @@ A: list[Check] = [
         deck_value=0.005,
         deck_unit="fraction/yr",
         citation=None,
-        repo_fn="reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.degradation_fraction",
-        repo_source_ref="src/python/reopt_pysam_vn/pysam/single_owner.py",
+        repo_fn="reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs (degradation is hard-coded 0.5% in engine at single_owner.py:163)",
+        repo_source_ref="src/python/reopt_pysam_vn/pysam/single_owner.py:163 (generic_degradation=0.5)",
     ),
     _line(
         "A12_fmp_2025_avg",
@@ -230,8 +230,8 @@ A: list[Check] = [
         deck_value=1426.6,
         deck_unit="VND/kWh",
         citation="EAVCED public training (deck only)",
-        repo_fn="reopt_pysam_vn.integration.strike_search.sweep_strike_prices (FMP center)",
-        repo_source_ref="src/python/reopt_pysam_vn/integration/strike_search.py:44",
+        repo_fn="data.vietnam.vn_deal_defaults_2026.data.strike_sweep.defaults (FMP center)",
+        repo_source_ref="data/vietnam/vn_deal_defaults_2026.json",
     ),
     _line(
         "A13_voltage_tier_22_110kv_demand_charge",
@@ -241,7 +241,7 @@ A: list[Check] = [
         deck_value=235414.0,
         deck_unit="VND/kW/month",
         citation=None,
-        repo_fn="data.vietnam.vn_tariff_2025.demand_charge.two_part_tariff_trial.capacity_charge_vnd_per_kw_month.medium_voltage_22kv_to_110kv",
+        repo_fn="data.vietnam.vn_tariff_2025.data.demand_charge.two_part_tariff_trial.capacity_charge_vnd_per_kw_month.medium_voltage_22kv_to_110kv",
         repo_source_ref="data/vietnam/vn_tariff_2025.json:178",
     ),
 ]

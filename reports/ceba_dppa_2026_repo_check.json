@@ -1,0 +1,832 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-06-23T04:21:44.743817+00:00",
+    "deck": "ceba-review/CEBA DPPA 2026.pptx",
+    "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
+    "registry_size": 34,
+    "executed": 34,
+    "errors": []
+  },
+  "summary": {
+    "ok": 9,
+    "warn": 1,
+    "info": 18,
+    "bad": 5,
+    "skip": 1,
+    "err": 0
+  },
+  "checks": [
+    {
+      "id": "A01_tou_peak_window",
+      "slide": 5,
+      "bucket": "A",
+      "claim": "TOU peak window (deck 18:00-23:00 vs repo Decision 963 evening 17:30-22:30)",
+      "deck_value": "18:00-23:00",
+      "deck_unit": "hours",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.tou_schedule.weekday.peak_hours",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:26",
+      "assumptions": [
+        "Hourly discretization (decision-963 boundaries map to 17:30/22:30 -> integer hours 17,22)."
+      ],
+      "repo_value": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says '18:00-23:00'; repo shows [17, 18, 19, 20, 21, 22]",
+      "notes": {}
+    },
+    {
+      "id": "A02_tou_peak_multiplier_22_110kv",
+      "slide": 5,
+      "bucket": "A",
+      "claim": "TOU peak multiplier for 22-110 kV (~1.78x per deck table)",
+      "deck_value": 1.78,
+      "deck_unit": "x base avg",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.rate_multipliers.industrial.medium_voltage_22kv_to_110kv.peak",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:99",
+      "assumptions": [],
+      "repo_value": 1.57,
+      "delta_pct": -0.11797752808988762,
+      "verdict": "bad",
+      "takeaway": "delta -11.80% \u2014 investigate",
+      "notes": {}
+    },
+    {
+      "id": "A03_avg_retail_price",
+      "slide": 11,
+      "bucket": "A",
+      "claim": "Average retail electricity price (P1 / avg EVN tariff, 2025)",
+      "deck_value": 2204.0,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.base_avg_price_vnd_per_kwh",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:22",
+      "assumptions": [],
+      "repo_value": 2204.0655,
+      "delta_pct": 2.9718693285007455e-05,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.003%)",
+      "notes": {}
+    },
+    {
+      "id": "A04_dppa_service_fee",
+      "slide": 9,
+      "bucket": "A",
+      "claim": "DPPA service fee (C_dppa_dv)",
+      "deck_value": 360.0,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.decree_57_dppa.solar_ceiling_tariffs_vnd_per_kwh.ground_mounted_with_bess.range_min",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:230 (south ground w/ BESS ceiling min, 1,149.86 \u2014 note deck says 360)",
+      "assumptions": [],
+      "repo_value": 1149.86,
+      "delta_pct": 2.1940555555555554,
+      "verdict": "bad",
+      "takeaway": "delta +219.41% \u2014 investigate",
+      "notes": {}
+    },
+    {
+      "id": "A05_balancing_fee",
+      "slide": 9,
+      "bucket": "A",
+      "claim": "Balancing / difference clearing fee (P_cl)",
+      "deck_value": 163.3,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "(deck cite; no equivalent in repo data) \u2014 Decree 146 two-part trial has energy charge ranges [843,2251] not a single 163.3 value",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:182 (Decree 146 trial ranges, paper only)",
+      "assumptions": [],
+      "repo_value": null,
+      "delta_pct": null,
+      "verdict": "skip",
+      "takeaway": "missing value for either deck or repo",
+      "notes": {
+        "extra": {
+          "deck_value": 163.3,
+          "deck_unit": "VND/kWh",
+          "note": "no single-value repo equivalent; engine uses one combined dppa_adder",
+          "decree_146_trial_energy_charge_ranges": {
+            "normal_hours": [
+              1253,
+              1332
+            ],
+            "peak_hours": [
+              2162,
+              2251
+            ],
+            "offpeak_hours": [
+              843,
+              904
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "A06_k_loss_factor",
+      "slide": 11,
+      "bucket": "A",
+      "claim": "Price conversion factor k (FMP -> customer delivery point)",
+      "deck_value": 1.026,
+      "deck_unit": "ratio",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.kpp_factor (collapse check)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:46",
+      "assumptions": [
+        "Deck treats k and K_pp as independent; engine collapses both into kpp_factor=1.0273."
+      ],
+      "repo_value": 1.027263,
+      "delta_pct": 0.0012309941520467973,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.123%)",
+      "notes": {
+        "extra": {
+          "engine_kpp_factor": 1.027263,
+          "deck_split_product": 1.034208,
+          "structural_gap": "deck splits k and Kpp; engine collapses to a single factor"
+        }
+      }
+    },
+    {
+      "id": "A07_kpp_loss_factor",
+      "slide": 11,
+      "bucket": "A",
+      "claim": "Loss factor K_pp at 110 kV",
+      "deck_value": 1.008,
+      "deck_unit": "ratio",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.kpp_pct=2.7263",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:27",
+      "assumptions": [
+        "Engine uses a single blended kpp_pct (2.7263 -> 1.02726), not a 1.008 voltage-tier table."
+      ],
+      "repo_value": 1.027263,
+      "delta_pct": 0.019110119047619077,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta +1.91%) \u2014 review",
+      "notes": {
+        "extra": {
+          "engine_kpp_factor": 1.027263,
+          "deck_split_product": 1.034208,
+          "structural_gap": "deck splits k and Kpp; engine collapses to a single factor"
+        }
+      }
+    },
+    {
+      "id": "A08_escalation_rate",
+      "slide": 16,
+      "bucket": "A",
+      "claim": "Strike escalation rate (default 4%/yr)",
+      "deck_value": 0.04,
+      "deck_unit": "fraction/yr",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_financial_defaults_2025.data.standard.elec_cost_escalation_rate_fraction",
+      "repo_source_ref": "data/vietnam/vn_financial_defaults_2025.json:18",
+      "assumptions": [],
+      "repo_value": 0.04,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {}
+    },
+    {
+      "id": "A09_debt_fraction",
+      "slide": 19,
+      "bucket": "A",
+      "claim": "Capital structure: debt fraction",
+      "deck_value": 0.7,
+      "deck_unit": "fraction",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.debt_fraction (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:24 (default 0.70)",
+      "assumptions": [],
+      "repo_value": 0.7,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "A10_debt_rate_vnd",
+      "slide": 19,
+      "bucket": "A",
+      "claim": "VND debt interest rate",
+      "deck_value": 0.085,
+      "deck_unit": "fraction/yr",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.debt_interest_rate_fraction (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:30 (default 0.085)",
+      "assumptions": [],
+      "repo_value": 0.085,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "A11_pv_degradation",
+      "slide": 21,
+      "bucket": "A",
+      "claim": "PV annual degradation rate",
+      "deck_value": 0.005,
+      "deck_unit": "fraction/yr",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs (degradation is hard-coded 0.5% in engine at single_owner.py:163)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:163 (generic_degradation=0.5)",
+      "assumptions": [],
+      "repo_value": 0.005,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {
+        "extra": {
+          "source": "engine hard-codes generic_degradation = [0.5] (i.e. 0.5%/yr) in single_owner.py:163"
+        }
+      }
+    },
+    {
+      "id": "A12_fmp_2025_avg",
+      "slide": 15,
+      "bucket": "A",
+      "claim": "2025 average FMP (Wholesale Electricity Market reference)",
+      "deck_value": 1426.6,
+      "deck_unit": "VND/kWh",
+      "deck_citation": "EAVCED public training (deck only)",
+      "repo_fn": "data.vietnam.vn_deal_defaults_2026.data.strike_sweep.defaults (FMP center)",
+      "repo_source_ref": "data/vietnam/vn_deal_defaults_2026.json",
+      "assumptions": [],
+      "repo_value": 1700.0,
+      "delta_pct": 0.19164446936772753,
+      "verdict": "warn",
+      "takeaway": "Deck cites a source; repo value differs by +19.16%. Reconcile: deck = 1426.6 (EAVCED public training (deck only)); repo = 1700.0.",
+      "notes": {
+        "extra": {
+          "deck_cited_value": 1426.6,
+          "deck_citation": "EAVCED public training (deck only)",
+          "repo_min": 1400,
+          "repo_max": 2000,
+          "repo_center": 1700.0
+        }
+      }
+    },
+    {
+      "id": "A13_voltage_tier_22_110kv_demand_charge",
+      "slide": 23,
+      "bucket": "A",
+      "claim": "Demand / capacity charge at 22-110 kV (Decree 146 trial)",
+      "deck_value": 235414.0,
+      "deck_unit": "VND/kW/month",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.demand_charge.two_part_tariff_trial.capacity_charge_vnd_per_kw_month.medium_voltage_22kv_to_110kv",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:178",
+      "assumptions": [],
+      "repo_value": 235414,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {}
+    },
+    {
+      "id": "B01_simulation_5line_total_evnbill",
+      "slide": 12,
+      "bucket": "B",
+      "claim": "Module-2 simulation EVN bill (lines 1+2+3+4) for Q=6,000,000 kWh",
+      "deck_value": 10586097600.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (flat single-month profile)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
+      "assumptions": [
+        "Flat profile: load=generation=Q/720h in the relevant hours; tariff=FMP=k*K_pp=1200*1.026*1.008 over all 720h.",
+        "Excess_treatment=curtail (no exports); mode=virtual_cfd."
+      ],
+      "repo_value": 10397400000.000021,
+      "delta_pct": -0.017825038756489362,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta -1.78%) \u2014 review",
+      "notes": {
+        "extra": {
+          "matched_mwh": 5999.999999999964,
+          "buyer_cfd_payment_vnd": 599999999.9999979
+        }
+      }
+    },
+    {
+      "id": "B02_simulation_cfd_settlement",
+      "slide": 12,
+      "bucket": "B",
+      "claim": "Module-2 simulation CfD settlement (line 5) for Q=6,000,000 kWh @ (1,300-1,200)",
+      "deck_value": 600000000.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.buyer_cfd_payment_vnd",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:147",
+      "assumptions": [
+        "Same flat profile as B01."
+      ],
+      "repo_value": 599999999.9999979,
+      "delta_pct": -3.576278686523437e-15,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta -0.000%)",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B03_simulation_effective_blended_rate",
+      "slide": 12,
+      "bucket": "B",
+      "claim": "Module-2 simulation effective blended rate (total/Q)",
+      "deck_value": 1864.0,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.annual_summary.buyer_blended_rate_vnd_kwh",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:182",
+      "assumptions": [
+        "Same flat profile as B01."
+      ],
+      "repo_value": 1832.8999999999953,
+      "delta_pct": -0.016684549356225688,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta -1.67%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B04_pretax_delivered_cost_per_kwh",
+      "slide": 13,
+      "bucket": "B",
+      "claim": "Pre-CfD delivered cost per matched kWh at 22-110 kV (1,504 + 360 + 163.3)",
+      "deck_value": 2027.0,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (1-line decomposition)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:119-122",
+      "assumptions": [
+        "FMP=1,200; k*K_pp=1.03421; fees 360+163.3 applied to matched volume."
+      ],
+      "repo_value": 1764.3496,
+      "delta_pct": -0.1295759250123335,
+      "verdict": "bad",
+      "takeaway": "delta -12.96% \u2014 investigate",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B05_scenario1_evn_bill",
+      "slide": 39,
+      "bucket": "B",
+      "claim": "Workshop Scenario 1 EVN bill (5,000,000 kWh; FMP=1,150; Pc=1,250)",
+      "deck_value": 8263196000.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (5-line reproduction)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
+      "assumptions": [
+        "Flat 5,000,000 kWh profile in the relevant hours; same constants as deck lines 1-3."
+      ],
+      "repo_value": 8412499999.999958,
+      "delta_pct": 0.018068553620168036,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta +1.81%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B06_scenario1_cfd_total",
+      "slide": 40,
+      "bucket": "B",
+      "claim": "Workshop Scenario 1 total customer cost C_KH = C_EVN + C_CfD",
+      "deck_value": 8763196000.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.buyer_total_payment_vnd",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:127",
+      "assumptions": [
+        "Same flat profile as B05."
+      ],
+      "repo_value": 8912500000.00004,
+      "delta_pct": 0.01703761960819318,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta +1.70%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B07_scenario3_evn_bill",
+      "slide": 43,
+      "bucket": "B",
+      "claim": "Workshop Scenario 3 EVN bill (Load=9,000,000, Q=8,000,000; FMP=1,600; Pc=1,500)",
+      "deck_value": 19628262400.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (5-line reproduction with residual)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
+      "assumptions": [
+        "Residual purchase 1,000,000 kWh at P1=2,204 VND/kWh."
+      ],
+      "repo_value": 18743532800.00007,
+      "delta_pct": -0.04507427004847517,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta -4.51%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B08_scenario3_total_cost",
+      "slide": 44,
+      "bucket": "B",
+      "claim": "Workshop Scenario 3 total customer cost C_KH (after negative CfD)",
+      "deck_value": 18828262400.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement.buyer_total_payment_vnd",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:127",
+      "assumptions": [
+        "Same flat profile as B07."
+      ],
+      "repo_value": 17943532800.000137,
+      "delta_pct": -0.046989444973948455,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta -4.70%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B09_scenario4_evn_bill",
+      "slide": 47,
+      "bucket": "B",
+      "claim": "Workshop Scenario 4 EVN bill (X+Y plants, 900k matched + 100k residual @ 1,800)",
+      "deck_value": 2140229520.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (per-plant sum)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
+      "assumptions": [
+        "Combined 900,000 kWh (X+Y) at SMP=1,600; residual 100,000 kWh at P1=1,800 (per deck)."
+      ],
+      "repo_value": 2087963280.0,
+      "delta_pct": -0.02442085744149534,
+      "verdict": "info",
+      "takeaway": "small structural gap (delta -2.44%) \u2014 review",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B10_scenario4_net_cfd",
+      "slide": 47,
+      "bucket": "B",
+      "claim": "Workshop Scenario 4 net CfD payment (X +60M, Y -30M)",
+      "deck_value": -30000000.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (per-plant netting)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:122",
+      "assumptions": [
+        "Per-plant CfD: X=(1,500-1,600)*600k; Y=(1,700-1,600)*300k."
+      ],
+      "repo_value": -30000000.000000294,
+      "delta_pct": 9.80993111928304e-15,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
+      "notes": {
+        "extra": {}
+      }
+    },
+    {
+      "id": "B11_case5_seller_irr",
+      "slide": 24,
+      "bucket": "B",
+      "claim": "Case 5 (Solar + Large BESS) \u2014 Seller equity IRR",
+      "deck_value": 0.169,
+      "deck_unit": "fraction",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (proxy sizing, no real hourly)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
+      "assumptions": [
+        "Undisclosed sizing/finance; uses repo 49 MWp-class defaults + deck's stated 70/8.5/10/25-yr inputs.",
+        "Method+directional (DEC-007), not exact reproduction."
+      ],
+      "repo_value": null,
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "PySAM returned null IRR \u2014 repo model indicates the project does not cashflow under deck inputs. Method-level (DEC-007); deck IRR 16.9% cannot be reproduced exactly with disclosed inputs.",
+      "notes": {
+        "extra": {
+          "min_dscr": -2.424609839998913,
+          "npv_usd": -18585676.29471799
+        }
+      }
+    },
+    {
+      "id": "B12_case5_min_dscr",
+      "slide": 24,
+      "bucket": "B",
+      "claim": "Case 5 (Solar + Large BESS) \u2014 Minimum DSCR (replacement year)",
+      "deck_value": 1.14,
+      "deck_unit": "x",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model + extract_single_owner_outputs",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
+      "assumptions": [
+        "BESS replacement year ~11 modeled as a -$1.2M capex shock; DSCR may register < 1.20x."
+      ],
+      "repo_value": -2.424609839998913,
+      "delta_pct": -3.1268507368411522,
+      "verdict": "bad",
+      "takeaway": "delta -312.69% \u2014 investigate",
+      "notes": {
+        "extra": {
+          "irr": null
+        }
+      }
+    },
+    {
+      "id": "B13_case6_seller_irr",
+      "slide": 25,
+      "bucket": "B",
+      "claim": "Case 6 (Solar + Min BESS) \u2014 Seller equity IRR",
+      "deck_value": 0.269,
+      "deck_unit": "fraction",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (proxy, lean sizing)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
+      "assumptions": [
+        "Method+directional per DEC-007."
+      ],
+      "repo_value": null,
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "PySAM returned null IRR \u2014 repo model indicates the project does not cashflow under deck inputs. Method-level (DEC-007); deck IRR 26.9% cannot be reproduced exactly with disclosed inputs.",
+      "notes": {
+        "extra": {
+          "min_dscr": -2.8087539805226376
+        }
+      }
+    },
+    {
+      "id": "B14_case6_min_dscr",
+      "slide": 25,
+      "bucket": "B",
+      "claim": "Case 6 (Solar + Min BESS) \u2014 Minimum DSCR",
+      "deck_value": 1.5,
+      "deck_unit": "x",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model + extract_single_owner_outputs",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
+      "assumptions": [
+        "Lean BESS: no replacement shock assumed within loan tenor."
+      ],
+      "repo_value": -2.8087539805226376,
+      "delta_pct": -2.8725026536817584,
+      "verdict": "bad",
+      "takeaway": "delta -287.25% \u2014 investigate",
+      "notes": {
+        "extra": {
+          "irr": null
+        }
+      }
+    },
+    {
+      "id": "B15_56sweep_empty_window_method",
+      "slide": 26,
+      "bucket": "B",
+      "claim": "56-scenario strike sweep \u2014 empty window (no triple-pass scenario at current fees)",
+      "deck_value": "empty",
+      "deck_unit": "categorical",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.run_strike_sweep (12 strikes x Q fractions)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:274",
+      "assumptions": [
+        "Method-level: reproduce the buyer-positive-just-as-lender-drops-below-1.20x pattern (DEC-007)."
+      ],
+      "repo_value": "see extra",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'empty'; repo shows 'see extra'",
+      "notes": {
+        "extra": {
+          "n_scenarios": 7,
+          "buyer_positive_first_strike": null,
+          "strikes": [
+            {
+              "strike": 1200.0,
+              "buyer_cost": 126828590399.98096,
+              "buyer_savings": -22580423999.980957
+            },
+            {
+              "strike": 1300.0,
+              "buyer_cost": 134028590400.01358,
+              "buyer_savings": -29780424000.01358
+            },
+            {
+              "strike": 1400.0,
+              "buyer_cost": 141228590399.9846,
+              "buyer_savings": -36980423999.98459
+            },
+            {
+              "strike": 1500.0,
+              "buyer_cost": 148428590400.0252,
+              "buyer_savings": -44180424000.02521
+            },
+            {
+              "strike": 1800.0,
+              "buyer_cost": 170028590399.98703,
+              "buyer_savings": -65780423999.98703
+            },
+            {
+              "strike": 2000.0,
+              "buyer_cost": 184428590400.03226,
+              "buyer_savings": -80180424000.03226
+            },
+            {
+              "strike": 2200.0,
+              "buyer_cost": 198828590400.00983,
+              "buyer_savings": -94580424000.00983
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C01_overcontracting_cap",
+      "slide": 10,
+      "bucket": "C",
+      "claim": "Over-contracting (Q_c > hourly consumption) caps CfD at consumed volume",
+      "deck_value": "capped at min(load, gen)",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (matched = min(load, gen))",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:103",
+      "assumptions": [],
+      "repo_value": "capped at min(load, gen)",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'capped at min(load, gen)'; repo shows 'capped at min(load, gen)'",
+      "notes": {
+        "extra": {
+          "matched_mwh": 3999.999999999968,
+          "excess_mwh": 999.999999999992,
+          "curtailed_mwh": 999.999999999992
+        }
+      }
+    },
+    {
+      "id": "C02_load_shape_overlap",
+      "slide": 17,
+      "bucket": "C",
+      "claim": "Solar peak at midday vs factory evening peak \u2014 overlap is hour-by-hour",
+      "deck_value": "low overlap daytime",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.matching.physical_fit_from_profile",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/matching.py:183",
+      "assumptions": [],
+      "repo_value": "daytime overlap = 100%",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'low overlap daytime'; repo shows 'daytime overlap = 100%'",
+      "notes": {
+        "extra": {
+          "matched_mwh": 0.12,
+          "gen_mwh": 0.12
+        }
+      }
+    },
+    {
+      "id": "C03_year1_above_bau",
+      "slide": 13,
+      "bucket": "C",
+      "claim": "Year 1 DPPA cost typically at/above BAU; savings build with EVN escalation",
+      "deck_value": "Y1 >= BAU",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.analysis.offsite_dppa.run_offsite_dppa (10-yr cumulative vs BAU)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/analysis/offsite_dppa.py",
+      "assumptions": [],
+      "repo_value": "Y1 buyer +16.3% vs BAU",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'Y1 >= BAU'; repo shows 'Y1 buyer +16.3% vs BAU'",
+      "notes": {
+        "extra": {
+          "buyer_y1": 2564.3496,
+          "bau_y1": 2204.0
+        }
+      }
+    },
+    {
+      "id": "C04_oversized_bess_dscr_dip",
+      "slide": 24,
+      "bucket": "C",
+      "claim": "Oversized BESS -> replacement-year DSCR dip below 1.20x",
+      "deck_value": "min DSCR < 1.20x in BESS replacement year",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (with BESS capex shock)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
+      "assumptions": [],
+      "repo_value": "min DSCR < 1.20x in BESS replacement year",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'min DSCR < 1.20x in BESS replacement year'; repo shows 'min DSCR < 1.20x in BESS replacement year'",
+      "notes": {
+        "extra": {
+          "min_dscr": -2.424609839998913,
+          "irr": null
+        }
+      }
+    },
+    {
+      "id": "C05_bankability_floor",
+      "slide": 20,
+      "bucket": "C",
+      "claim": "Strike below developer bankability floor means no project (not a cheap deal)",
+      "deck_value": "strike_floor exists",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.strike_search.sweep_strike_prices (find min strike at target IRR)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/strike_search.py:44",
+      "assumptions": [],
+      "repo_value": "seller IRR n/a (PySAM returned null IRR) at strike 2,000; min strike to clear 15% IRR is the strike floor",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'strike_floor exists'; repo shows 'seller IRR n/a (PySAM returned null IRR) at strike 2,000; min strike to clear 15% IRR is the strike floor'",
+      "notes": {
+        "extra": {
+          "skipped": false,
+          "irr": null,
+          "min_dscr": -2.8087539805226376,
+          "npv_usd": -17432715.368580204,
+          "model_name": "PySAM Single Owner"
+        }
+      }
+    },
+    {
+      "id": "C06_daytime_vs_night_economics",
+      "slide": 52,
+      "bucket": "C",
+      "claim": "Daytime-aligned load shapes deliver stronger DPPA outcomes than evening/night-heavy loads",
+      "deck_value": "daytime > night",
+      "deck_unit": "qualitative",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.matching.physical_fit_from_profile (daytime vs night profiles)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/matching.py:183",
+      "assumptions": [],
+      "repo_value": "daytime > night on cost / coverage",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'daytime > night'; repo shows 'daytime > night on cost / coverage'",
+      "notes": {
+        "extra": {
+          "daytime_matched_mwh": 0.12,
+          "night_matched_mwh": 0.0,
+          "daytime_total_vnd": 235380.98399999997,
+          "night_total_vnd": 173746.94400000002
+        }
+      }
+    }
+  ],
+  "known_gaps": [
+    {
+      "id": "KG01_decree146_two_part_tariff",
+      "slide": 6,
+      "topic": "Two-part tariff / Decree 146 capacity charge buyer P&L",
+      "note": "Repo captures the Decree 146 trial capacity charge as a data file (vn_tariff_2025.json:178) and a Session 4.3 case study, but does not have a wired buyer P&L model for the two-part regime end-to-end. Buyers' all-in cost under capacity+energy billing is qualitative here.",
+      "verdict": "out_of_repo_scope"
+    },
+    {
+      "id": "KG02_recs_eacs",
+      "slide": 53,
+      "topic": "RECs/EACs attribute economics",
+      "note": "Repo does not model RECs/EACs unbundled pricing or attribute ownership. The deck's RECs discussion is qualitative (additionally, use cases) and outside repo scope.",
+      "verdict": "out_of_repo_scope"
+    },
+    {
+      "id": "KG03_ghg_scopes",
+      "slide": 53,
+      "topic": "GHG Scope 1/2/3 accounting",
+      "note": "Repo does not model GHG inventories. The deck's Scope 1/2/3 framing is qualitative; vn_emissions_2024.json holds grid EF data but is not wired into a buyer emissions calc.",
+      "verdict": "out_of_repo_scope"
+    }
+  ]
+}
