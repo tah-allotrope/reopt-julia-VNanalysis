@@ -124,5 +124,59 @@ class DeckChecksRegistryTest(unittest.TestCase):
         self.assertEqual(len(rows), len(CHECKS) + len(KNOWN_GAPS))
 
 
+class OrchestratorVerdictTest(unittest.TestCase):
+    """Tests for the orchestrator's verdict classifier (DEC-004 / DEC-007 / DEC-008)."""
+
+    def test_dec007_set_exists_and_includes_case56_family(self) -> None:
+        """DEC-007 method+directional checks must be registered before classify() runs."""
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
+        from verify_ceba_dppa_deck import DEC_007_METHOD_DIRECTIONAL_CHECKS
+        self.assertIn("B11_case5_seller_irr", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        self.assertIn("B12_case5_min_dscr", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        self.assertIn("B13_case6_seller_irr", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        self.assertIn("B14_case6_min_dscr", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        self.assertIn("C04_oversized_bess_dscr_dip", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        self.assertIn("C05_bankability_floor", DEC_007_METHOD_DIRECTIONAL_CHECKS)
+
+    def test_dec007_never_yields_bad(self) -> None:
+        """Even with a 300% delta, a DEC-007 check must be info, not bad."""
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
+        from verify_ceba_dppa_deck import classify, DEC_007_METHOD_DIRECTIONAL_CHECKS
+        sample = next(c for c in CHECKS if c.id in DEC_007_METHOD_DIRECTIONAL_CHECKS)
+        verdict, takeaway = classify(sample, repo_value=-100.0, delta_pct=-3.0)
+        self.assertEqual(
+            verdict, "info",
+            f"DEC-007 check {sample.id} must be info even with a -300% delta; got {verdict!r}",
+        )
+        self.assertIn("DEC-007", takeaway)
+
+    def test_classify_uses_binary_pm1_strict(self) -> None:
+        """Per DEC-004, anything > 1% should not be silently 'info' (the old 3-band rule)."""
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
+        from verify_ceba_dppa_deck import classify
+        non_dec007 = next(
+            c for c in CHECKS
+            if c.id not in {"B11_case5_seller_irr", "B12_case5_min_dscr",
+                            "B13_case6_seller_irr", "B14_case6_min_dscr",
+                            "C04_oversized_bess_dscr_dip", "C05_bankability_floor"}
+        )
+        deck_value = non_dec007.deck_value
+        if isinstance(deck_value, (int, float)):
+            repo_value = float(deck_value) * 1.02  # 2% delta
+            delta = 0.02
+        else:
+            self.skipTest("qualitative check, no numeric test possible")
+        verdict, _takeaway = classify(non_dec007, repo_value=repo_value, delta_pct=delta)
+        self.assertIn(verdict, ("warn", "ok"), f"2% delta should map to warn or ok; got {verdict!r}")
+
+    def test_b04_uses_2025_avg_fmp(self) -> None:
+        """B04's pre-CfD cost 2,027 is built from the 2025-avg FMP, not the slide-12 sim FMP."""
+        sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
+        from verify_ceba_dppa_deck import run_B04_pretax_delivered_cost_per_kwh
+        b04 = next(c for c in CHECKS if c.id == "B04_pretax_delivered_cost_per_kwh")
+        out = run_B04_pretax_delivered_cost_per_kwh(b04)
+        self.assertAlmostEqual(out["value"], 2_027.3, delta=0.1)
+
+
 if __name__ == "__main__":
     unittest.main()

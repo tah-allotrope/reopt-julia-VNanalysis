@@ -117,23 +117,18 @@ def _structural_section(checks: list[dict]) -> list[str]:
          "13, 30, 37, 175, 356). The repo's settlement engine takes one combined "
          "input: ``ContractParams.dppa_adder_vnd_kwh = 523.34`` "
          "([settlement.py:26](src/python/reopt_pysam_vn/integration/settlement.py:26)). "
-         "Match within 0.04 VND/kWh. This is the headline reconciliation: the "
-         "engine's model is consistent with the deck's split fees at the "
-         "combined level."),
+         "Match within 0.04 VND/kWh. This is the headline reconciliation."),
         ("A06 / A07 — k × K_pp collapse (DEC-008 cited reconcile)",
          "Deck splits FMP→delivery conversion into k=1.026 and K_pp=1.008 "
          "(product 1.03421), cited as 'EAVCED public training' (slide 11). The "
          "engine collapses both into a single kpp_factor=1.02726 "
          "(kpp_pct=2.7263). The ~0.7% delta is a structural modeling choice. "
          "Marked ⚠️ reconcile (DEC-008) rather than ❌ because the deck cites a "
-         "source for the lower kpp_factor product — the colleague review should "
-         "decide which basis applies."),
+         "source for the lower kpp_factor product."),
         ("A02 — TOU peak/normal ratio (1.80 vs 1.826)",
          "Deck Slide 5 voltage table: peak 0.126 / normal 0.070 = 1.80 (peak/normal). "
          "Repo: peak 1.57 / standard 0.86 = 1.826 (peak/normal). Both express "
-         "the peak-vs-standard multiplier; the 1.5% delta is a small structural gap "
-         "(deck's 1.78 from 'peak vs base-avg' would be a denominator mismatch — "
-         "the check now compares like-for-like ratios)."),
+         "the peak-vs-standard multiplier; the 1.5% delta is a small structural gap."),
         ("A12 — FMP cited 1,426.6 vs repo deal-defaults center 1,700",
          "Deck cites FMP avg 1,426.6 VND/kWh (EAVCED public training). Repo "
          "deal-defaults sensitivity range is 1,400-2,000 with a center of 1,700. "
@@ -141,22 +136,33 @@ def _structural_section(checks: list[dict]) -> list[str]:
          "shown. The repo value is a forward-looking sensitivity midpoint, "
          "not an observed 2025 monthly FMP — there is no repo data file that "
          "holds an observed 2025 average."),
-        ("A15 — equity IRR target midpoint",
-         "Deck Slide 19 lists 12-15%+; midpoint 13.5%. Engine default is 0.15 "
-         "(top of the deck's range). Both are consistent; the deck's range "
-         "and the engine's single default are normal-source variations."),
-        ("B11 / B13 — PySAM null IRR (DEC-007 method+directional)",
-         "Case 5 and Case 6's claimed seller equity IRRs (16.9% / 26.9%) "
-         "cannot be reproduced from the deck's stated inputs (49 MWp plant, "
-         "70% debt / 8.5% / 10-yr, strike 2,000 VND/kWh, 25-yr). PySAM returns "
-         "null IRR because the cashflow never turns positive under those "
-         "assumptions with the proxy CAPEX we used. Per DEC-007 the verdict "
-         "is method+directional; the deck's exact figures require undisclosed "
-         "CAPEX / sizing inputs that we cannot back-solve."),
-        ("B12 / B14 — Min DSCR deeply negative",
-         "Same root cause as the null IRR: the project does not cashflow with "
-         "the deck's stated inputs at strike 2,000. The deck's claimed min DSCR "
-         "(1.14× / 1.50×) cannot be reproduced from disclosed inputs."),
+        ("A15 — equity IRR target (range consistency, not value match)",
+         "Deck Slide 19 lists the equity IRR target as a range 12-15%+; the "
+         "engine's ``target_irr_fraction`` is a single tunable default of 0.15. "
+         "A value comparison is meaningless (a tunable knob is not "
+         "authoritative), so the check is a range-consistency check: the "
+         "engine's default 0.15 falls within the deck's range 0.12-0.15+. ✅"),
+        ("B11 / B13 / B12 / B14 — Case 5/6 PySAM: DEC-007 method+directional",
+         "The deck's Case 5 / Case 6 numbers (16.9% / 26.9% seller equity IRR, "
+         "1.14× / 1.50× min DSCR) cannot be exactly reproduced from disclosed "
+         "inputs. PySAM with proxy CAPEX does not produce a financeable project "
+         "at the deck's stated strike 2,000 VND/kWh. Per DEC-007 the verdict "
+         "is method+directional only and is never forced to ❌ even when the "
+         "numeric delta is large. Colleague review should ask the deck author "
+         "to disclose the inputs that close the gap."),
+        ("C04 — oversized BESS dips DSCR (DEC-007 directional)",
+         "C04 is now a directional comparison: run two PySAM scenarios (lean "
+         "BESS vs oversized BESS with $1.2M replacement shock) and check that "
+         "oversized BESS has a lower min DSCR than lean BESS. The deck's "
+         "specific 1.14× value is not reproducible with the proxy CAPEX — the "
+         "verdict reports the directional relationship only."),
+        ("C05 — bankability floor (real strike sweep, not single PySAM call)",
+         "C05 now runs the repo's actual ``sweep_strike_prices`` "
+         "([integration/strike_search.py:44](src/python/reopt_pysam_vn/integration/strike_search.py:44)) "
+         "across 5-15 USc/kWh to find the min strike clearing a 15% seller "
+         "IRR. The deck's Lesson 2 ('a strike below the bankability floor "
+         "means no project') is verified as a method+direction; the exact "
+         "floor value is not authoritative with proxy CAPEX."),
     ]
     for title, body in items:
         lines.append(f"### {title}")

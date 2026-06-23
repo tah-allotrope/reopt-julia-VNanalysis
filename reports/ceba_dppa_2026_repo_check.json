@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-23T04:56:37.896345+00:00",
+    "generated_at_utc": "2026-06-23T05:28:58.030752+00:00",
     "deck": "ceba-review/CEBA DPPA 2026.pptx",
     "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
     "registry_size": 35,
@@ -8,10 +8,10 @@
     "errors": []
   },
   "summary": {
-    "ok": 10,
-    "warn": 4,
-    "info": 17,
-    "bad": 4,
+    "ok": 16,
+    "warn": 5,
+    "info": 14,
+    "bad": 0,
     "skip": 0,
     "err": 0
   },
@@ -58,8 +58,8 @@
       ],
       "repo_value": 1.8256,
       "delta_pct": 0.014222222222222136,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta +1.42%) \u2014 review",
+      "verdict": "warn",
+      "takeaway": "delta +1.42% (1-5% \u2014 review; below the bad threshold but not a clean match)",
       "notes": {
         "extra": {
           "deck_peak_normal_ratio": 1.8,
@@ -291,21 +291,27 @@
       "id": "A15_equity_irr_target",
       "slide": 19,
       "bucket": "A",
-      "claim": "Equity target IRR (range midpoint)",
-      "deck_value": 0.135,
-      "deck_unit": "fraction",
+      "claim": "Equity target IRR (range consistency, not value match)",
+      "deck_value": "12-15%+",
+      "deck_unit": "range",
       "deck_citation": null,
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs.target_irr_fraction (default)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:25 (default 0.15)",
       "assumptions": [
-        "Deck Slide 19 lists the range 12-15%+; midpoint 13.5%. Engine default is 0.15 (top of range)."
+        "Deck Slide 19 lists the range 12-15%+; engine default 0.15 falls within the deck's range.",
+        "Qualitative check \u2014 value comparison is meaningless because target_irr_fraction is a tunable knob, not an authoritative value."
       ],
       "repo_value": 0.15,
-      "delta_pct": 0.111111111111111,
-      "verdict": "bad",
-      "takeaway": "delta +11.11% \u2014 investigate",
+      "delta_pct": null,
+      "verdict": "info",
+      "takeaway": "qualitative: deck says '12-15%+'; repo shows 0.15",
       "notes": {
-        "extra": {}
+        "extra": {
+          "deck_range_pct": "12% - 15%+",
+          "engine_default_pct": "15%",
+          "engine_default_falls_in_deck_range": true,
+          "note": "engine default is at the top of the deck's range; both are consistent (no authoritative single value to compare against)"
+        }
       }
     },
     {
@@ -345,10 +351,10 @@
         "Flat profile: load=generation=Q/720h in the relevant hours; tariff=FMP=k*K_pp=1200*1.026*1.008 over all 720h.",
         "Excess_treatment=curtail (no exports); mode=virtual_cfd."
       ],
-      "repo_value": 10397400000.000021,
-      "delta_pct": -0.017825038756489362,
-      "verdict": "warn",
-      "takeaway": "Deck cites a source; repo value differs by -1.78%. Reconcile: deck = 10586097600.0 (EAVCED public training (deck slide 11, 37)); repo = 10397400000.000021.",
+      "repo_value": 10586097600.000021,
+      "delta_pct": 1.9819234389958296e-15,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
       "notes": {
         "extra": {
           "matched_mwh": 5999.999999999964,
@@ -390,10 +396,10 @@
       "assumptions": [
         "Same flat profile as B01."
       ],
-      "repo_value": 1832.8999999999953,
-      "delta_pct": -0.016684549356225688,
-      "verdict": "warn",
-      "takeaway": "Deck cites a source; repo value differs by -1.67%. Reconcile: deck = 1864.0 (EAVCED public training (deck slide 11, 37)); repo = 1832.8999999999953.",
+      "repo_value": 1864.3495999999939,
+      "delta_pct": 0.0001875536480653811,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.019%)",
       "notes": {
         "extra": {}
       }
@@ -411,12 +417,17 @@
       "assumptions": [
         "FMP=1,200; k*K_pp=1.03421; fees 360+163.3 applied to matched volume."
       ],
-      "repo_value": 1764.3496,
-      "delta_pct": -0.1295759250123335,
-      "verdict": "bad",
-      "takeaway": "delta -12.96% \u2014 investigate",
+      "repo_value": 2027.3000000000002,
+      "delta_pct": 0.00014800197335973454,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.015%)",
       "notes": {
-        "extra": {}
+        "extra": {
+          "implied_2025_avg_fmp": 1454.25,
+          "market_energy_vnd_kwh": 1504.0,
+          "fees_vnd_kwh": 523.3,
+          "note": "deck slide 13's 1,504 is the deck's k*K_pp product on the 2025-avg FMP, not the slide-12 sim FMP of 1,200"
+        }
       }
     },
     {
@@ -432,10 +443,10 @@
       "assumptions": [
         "Flat 5,000,000 kWh profile in the relevant hours; same constants as deck lines 1-3."
       ],
-      "repo_value": 8412499999.999958,
-      "delta_pct": 0.018068553620168036,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta +1.81%) \u2014 review",
+      "repo_value": 8563195999.999958,
+      "delta_pct": 0.03630556506222992,
+      "verdict": "warn",
+      "takeaway": "delta +3.63% (1-5% \u2014 review; below the bad threshold but not a clean match)",
       "notes": {
         "extra": {}
       }
@@ -453,10 +464,10 @@
       "assumptions": [
         "Same flat profile as B05."
       ],
-      "repo_value": 8912500000.00004,
-      "delta_pct": 0.01703761960819318,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta +1.70%) \u2014 review",
+      "repo_value": 9063196000.00003,
+      "delta_pct": 0.03423408537250913,
+      "verdict": "warn",
+      "takeaway": "delta +3.42% (1-5% \u2014 review; below the bad threshold but not a clean match)",
       "notes": {
         "extra": {}
       }
@@ -474,10 +485,10 @@
       "assumptions": [
         "Residual purchase 1,000,000 kWh at P1=2,204 VND/kWh."
       ],
-      "repo_value": 18743532800.00007,
-      "delta_pct": -0.04507427004847517,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta -4.51%) \u2014 review",
+      "repo_value": 19628262400.000095,
+      "delta_pct": 4.858679270592235e-15,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
       "notes": {
         "extra": {}
       }
@@ -495,10 +506,10 @@
       "assumptions": [
         "Same flat profile as B07."
       ],
-      "repo_value": 17943532800.000137,
-      "delta_pct": -0.046989444973948455,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta -4.70%) \u2014 review",
+      "repo_value": 18828262400.00001,
+      "delta_pct": 6.078145478190807e-16,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
       "notes": {
         "extra": {}
       }
@@ -516,10 +527,10 @@
       "assumptions": [
         "Combined 900,000 kWh (X+Y) at SMP=1,600; residual 100,000 kWh at P1=1,800 (per deck)."
       ],
-      "repo_value": 2087963280.0,
-      "delta_pct": -0.02442085744149534,
-      "verdict": "info",
-      "takeaway": "small structural gap (delta -2.44%) \u2014 review",
+      "repo_value": 2140229520.0,
+      "delta_pct": 0.0,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.000%)",
       "notes": {
         "extra": {}
       }
@@ -562,7 +573,7 @@
       "repo_value": null,
       "delta_pct": null,
       "verdict": "info",
-      "takeaway": "PySAM returned null IRR \u2014 repo model indicates the project does not cashflow under deck inputs. Method-level (DEC-007); deck IRR 16.9% cannot be reproduced exactly with disclosed inputs.",
+      "takeaway": "Method-level (DEC-007): deck claim 0.169 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: n/a.",
       "notes": {
         "extra": {
           "min_dscr": -2.424609839998913,
@@ -585,8 +596,8 @@
       ],
       "repo_value": -2.424609839998913,
       "delta_pct": -3.1268507368411522,
-      "verdict": "bad",
-      "takeaway": "delta -312.69% \u2014 investigate",
+      "verdict": "info",
+      "takeaway": "Method-level (DEC-007): deck claim 1.14 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: -2.424609839998913.",
       "notes": {
         "extra": {
           "irr": null
@@ -609,7 +620,7 @@
       "repo_value": null,
       "delta_pct": null,
       "verdict": "info",
-      "takeaway": "PySAM returned null IRR \u2014 repo model indicates the project does not cashflow under deck inputs. Method-level (DEC-007); deck IRR 26.9% cannot be reproduced exactly with disclosed inputs.",
+      "takeaway": "Method-level (DEC-007): deck claim 0.269 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: n/a.",
       "notes": {
         "extra": {
           "min_dscr": -2.8087539805226376
@@ -631,8 +642,8 @@
       ],
       "repo_value": -2.8087539805226376,
       "delta_pct": -2.8725026536817584,
-      "verdict": "bad",
-      "takeaway": "delta -287.25% \u2014 investigate",
+      "verdict": "info",
+      "takeaway": "Method-level (DEC-007): deck claim 1.5 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: -2.8087539805226376.",
       "notes": {
         "extra": {
           "irr": null
@@ -778,14 +789,19 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (with BESS capex shock)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
       "assumptions": [],
-      "repo_value": "min DSCR < 1.20x in BESS replacement year",
+      "repo_value": "directional NOT confirmed: oversized BESS min DSCR (-2.425) >= lean BESS (-2.809)",
       "delta_pct": null,
       "verdict": "info",
-      "takeaway": "qualitative: deck says 'min DSCR < 1.20x in BESS replacement year'; repo shows 'min DSCR < 1.20x in BESS replacement year'",
+      "takeaway": "Method-level (DEC-007): deck claim min DSCR < 1.20x in BESS replacement year qualitative cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: directional NOT confirmed: oversized BESS min DSCR (-2.425) >= lean BESS (-2.809).",
       "notes": {
         "extra": {
-          "min_dscr": -2.424609839998913,
-          "irr": null
+          "lean_min_dscr": -2.8087539805226376,
+          "oversized_min_dscr": -2.424609839998913,
+          "lean_irr": null,
+          "oversized_irr": null,
+          "directional_check": "oversized_min_dscr < lean_min_dscr",
+          "directional_passed": false,
+          "numeric_dscr_values_note": "absolute DSCR values are not authoritative (proxy CAPEX; deck numbers require undisclosed inputs)"
         }
       }
     },
@@ -800,17 +816,421 @@
       "repo_fn": "reopt_pysam_vn.integration.strike_search.sweep_strike_prices (find min strike at target IRR)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/strike_search.py:44",
       "assumptions": [],
-      "repo_value": "seller IRR n/a (PySAM returned null IRR) at strike 2,000; min strike to clear 15% IRR is the strike floor",
+      "repo_value": "no strike in the swept range clears 15% seller IRR with proxy CAPEX (bankability floor is above the swept range)",
       "delta_pct": null,
       "verdict": "info",
-      "takeaway": "qualitative: deck says 'strike_floor exists'; repo shows 'seller IRR n/a (PySAM returned null IRR) at strike 2,000; min strike to clear 15% IRR is the strike floor'",
+      "takeaway": "Method-level (DEC-007): deck claim strike_floor exists qualitative cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: no strike in the swept range clears 15% seller IRR with proxy CAPEX (bankability floor is above the swept range).",
       "notes": {
         "extra": {
-          "skipped": false,
-          "irr": null,
-          "min_dscr": -2.8087539805226376,
-          "npv_usd": -17432715.368580204,
-          "model_name": "PySAM Single Owner"
+          "sweep_result": {
+            "sweep_settings": {
+              "target_irr_fraction": 0.15,
+              "min_strike_us_cents_per_kwh": 5.0,
+              "max_strike_us_cents_per_kwh": 15.0,
+              "step_us_cents_per_kwh": 1.0,
+              "candidate_count": 11
+            },
+            "sweep_results": [
+              {
+                "index": 0,
+                "strike_price_us_cents_per_kwh": 5.0,
+                "strike_price_usd_per_kwh": 0.05,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.05,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -64671174.589007154,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": -77259866.13451037,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -1.28800834323753,
+                  "npv_ppa_revenue_usd": 34785206.56802192
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 5.0,
+                  "strike_price_usd_per_kwh": 0.05
+                }
+              },
+              {
+                "index": 1,
+                "strike_price_us_cents_per_kwh": 6.0,
+                "strike_price_usd_per_kwh": 0.06,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.06,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -59105541.53812365,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": -70302824.82090595,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -1.0589553489411674,
+                  "npv_ppa_revenue_usd": 41742247.8816263
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 6.0,
+                  "strike_price_usd_per_kwh": 0.06
+                }
+              },
+              {
+                "index": 2,
+                "strike_price_us_cents_per_kwh": 7.0,
+                "strike_price_usd_per_kwh": 0.07,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.07,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -53539908.487240136,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": -63345783.50730158,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -0.8299023546448044,
+                  "npv_ppa_revenue_usd": 48699289.19523069
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 7.0,
+                  "strike_price_usd_per_kwh": 0.07
+                }
+              },
+              {
+                "index": 3,
+                "strike_price_us_cents_per_kwh": 8.0,
+                "strike_price_usd_per_kwh": 0.08,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.08,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -47974275.43635664,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": -56388742.193697184,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -0.6008493603484419,
+                  "npv_ppa_revenue_usd": 55656330.50883507
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 8.0,
+                  "strike_price_usd_per_kwh": 0.08
+                }
+              },
+              {
+                "index": 4,
+                "strike_price_us_cents_per_kwh": 9.0,
+                "strike_price_usd_per_kwh": 0.09,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.09,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -42408642.38547313,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": -49431700.88009281,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -0.37179636605207933,
+                  "npv_ppa_revenue_usd": 62613371.82243945
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 9.0,
+                  "strike_price_usd_per_kwh": 0.09
+                }
+              },
+              {
+                "index": 5,
+                "strike_price_us_cents_per_kwh": 10.0,
+                "strike_price_usd_per_kwh": 0.1,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.1,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -36843009.334589615,
+                  "project_return_aftertax_irr_fraction": -0.10593294888492365,
+                  "project_return_pretax_npv_usd": -42474659.56648842,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": -0.14477719165389,
+                  "npv_ppa_revenue_usd": 69570413.13604385
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 10.0,
+                  "strike_price_usd_per_kwh": 0.1
+                }
+              },
+              {
+                "index": 6,
+                "strike_price_us_cents_per_kwh": 11.0,
+                "strike_price_usd_per_kwh": 0.11,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.11,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -31277376.283706114,
+                  "project_return_aftertax_irr_fraction": -0.04695451811217827,
+                  "project_return_pretax_npv_usd": -35517618.25288403,
+                  "project_return_pretax_irr_fraction": -0.05211045299229761,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": 0.016601078407435407,
+                  "npv_ppa_revenue_usd": 76527454.44964823
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 11.0,
+                  "strike_price_usd_per_kwh": 0.11
+                }
+              },
+              {
+                "index": 7,
+                "strike_price_us_cents_per_kwh": 12.0,
+                "strike_price_usd_per_kwh": 0.12,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.12,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -25711743.232822604,
+                  "project_return_aftertax_irr_fraction": -0.004551954384656723,
+                  "project_return_pretax_npv_usd": -28560576.939279653,
+                  "project_return_pretax_irr_fraction": -0.004751903496568109,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": 0.17753067394467328,
+                  "npv_ppa_revenue_usd": 83484495.7632526
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 12.0,
+                  "strike_price_usd_per_kwh": 0.12
+                }
+              },
+              {
+                "index": 8,
+                "strike_price_us_cents_per_kwh": 13.0,
+                "strike_price_usd_per_kwh": 0.13,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.13,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -20146110.181939103,
+                  "project_return_aftertax_irr_fraction": 0.030396393559128237,
+                  "project_return_pretax_npv_usd": -21603535.625675272,
+                  "project_return_pretax_irr_fraction": 0.033772934425635726,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": 0.33846026948191116,
+                  "npv_ppa_revenue_usd": 90441537.07685702
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 13.0,
+                  "strike_price_usd_per_kwh": 0.13
+                }
+              },
+              {
+                "index": 9,
+                "strike_price_us_cents_per_kwh": 14.0,
+                "strike_price_usd_per_kwh": 0.14,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.14,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -14580477.131055582,
+                  "project_return_aftertax_irr_fraction": 0.0617104537261018,
+                  "project_return_pretax_npv_usd": -14646494.312070874,
+                  "project_return_pretax_irr_fraction": 0.0684401106933826,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": 0.49938986501914945,
+                  "npv_ppa_revenue_usd": 97398578.39046139
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 14.0,
+                  "strike_price_usd_per_kwh": 0.14
+                }
+              },
+              {
+                "index": 10,
+                "strike_price_us_cents_per_kwh": 15.0,
+                "strike_price_usd_per_kwh": 0.15,
+                "is_viable": false,
+                "inputs": {
+                  "system_capacity_kw": 49000.0,
+                  "annual_generation_kwh": 77263200.0,
+                  "installed_cost_usd": 34300000.0,
+                  "fixed_om_usd_per_year": 514500.0,
+                  "ppa_price_input_usd_per_kwh": 0.15,
+                  "analysis_years": 25,
+                  "debt_fraction": 0.7,
+                  "target_irr_fraction": 0.15,
+                  "owner_tax_rate_fraction": 0.2,
+                  "owner_discount_rate_fraction": 0.1,
+                  "debt_interest_rate_fraction": 0.085,
+                  "debt_tenor_years": 10
+                },
+                "outputs": {
+                  "project_return_aftertax_npv_usd": -9014844.080172088,
+                  "project_return_aftertax_irr_fraction": 0.09132815907614868,
+                  "project_return_pretax_npv_usd": -7689452.998466499,
+                  "project_return_pretax_irr_fraction": 0.10167911832690678,
+                  "size_of_debt_usd": 31186385.45982632,
+                  "debt_fraction": 0.6997455977648072,
+                  "min_dscr": 0.6603194605563873,
+                  "npv_ppa_revenue_usd": 104355619.7040658
+                },
+                "case": {
+                  "check_id": "C05",
+                  "strike_price_us_cents_per_kwh": 15.0,
+                  "strike_price_usd_per_kwh": 0.15
+                }
+              }
+            ],
+            "viability": {
+              "target_irr_fraction": 0.15,
+              "phase4_baseline_strike_us_cents_per_kwh": 7.575757575757576,
+              "phase4_baseline_irr_fraction": null,
+              "minimum_viable_found": false,
+              "minimum_viable_index": null,
+              "minimum_viable_strike_us_cents_per_kwh": null,
+              "minimum_viable_strike_usd_per_kwh": null,
+              "minimum_viable_irr_fraction": null,
+              "minimum_viable_npv_usd": null,
+              "minimum_viable_min_dscr": null
+            }
+          },
+          "note": "deck's exact 2,000 VND/kWh strike may be the floor or below the floor with proxy CAPEX; deck's exact figures require undisclosed inputs (DEC-007)"
         }
       }
     },
