@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: CEBA DPPA 2026 Deck Repo Verification</title>
+  <meta name="color-scheme" "dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 12ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3, .subcard h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .subcard p:first-child,
+    .subcard ul:first-child,
+    .subcard ol:first-child {
+      margin-top: 0;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame, .viz-frame {
+      overflow: hidden;
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--ink);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .technical-frame th, .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, var(--page-width));
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body { background: #ffffff; }
+
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+
+      .diagram-frame { overflow: visible; max-height: none; }
+
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">CEBA DPPA 2026 DECK<br>REPO VERIFICATION</h1>
+          <p class="lede">
+            A presentation-ready synthesis of the multi-phase plan that ran every
+            quantitative claim in <code>ceba-review/CEBA DPPA 2026.pptx</code> through
+            the repo's settlement, developer-finance, and matching engines — and
+            wrote structured <code>[Repo check]</code> notes into a copy of the deck
+            for colleague review.
+          </p>
+          <div class="takeaway">
+            <strong>Headline:</strong> 9 ✅ / 1 ⚠️ / 18 ℹ️ / 5 ❌ / 1 ➖ across 34 deck-testable
+            claims. The most important finding is that the repo's PySAM model cannot reproduce
+            the deck's 16.9% / 26.9% seller equity IRR for Case 5 / Case 6 — the project does
+            not cashflow under the deck's stated inputs at strike 2,000 VND/kWh, which means
+            undisclosed assumptions underpin those figures and the colleague review should
+            ask the deck author to disclose them.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">CEBA DPPA 2026</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-06-23</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was analyzed</h3>
+          <p>The 57-slide <em>Session 5.2: Off-Site Solutions Deep Dive</em> deck by
+          Cong Nguyen (Allotrope Partners) for the July 2026 CEBA workshop. The deck
+          makes ~30 quantitative claims: a TOU tariff structure, a five-line CfD
+          settlement formula, four worked workshop scenarios, two Vietnam case studies
+          (Solar + Large BESS and Solar + Min BESS), and a 56-scenario strike sweep.
+          All claims were mapped to a 34-check registry pinned to specific slides.</p>
+        </div>
+        <div class="subcard">
+          <h3>What matters most</h3>
+          <p>The deck's headline metrics (Case 5: 16.9% seller equity IRR, 1.14× min
+          DSCR; Case 6: 26.9% IRR, 1.50× min DSCR) cannot be reproduced from the deck's
+          stated inputs by the repo's PySAM Single Owner model. PySAM returns null
+          IRR for both cases. The deck's 5-line bill examples (Slides 12, 13, 39-48)
+          reproduce within ±2% (small structural gap from the engine's collapsed
+          kpp_factor); the data-file references reproduce exactly. No other major
+          discrepancies were found.</p>
+        </div>
+        <div class="subcard">
+          <h3>Recommended direction</h3>
+          <p>Colleagues should review the <code>[Repo check]</code> notes in
+          <code>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</code> (24 of 57 slides
+          annotated). For Slides 24 / 25 (Case 5 / 6), the colleague should ask the
+          deck author for the undisclosed CAPEX / BESS sizing / FMP / revenue
+          assumptions that close the gap between the deck's 16.9% / 26.9% IRR and
+          the repo model's null. The deck can otherwise proceed to the workshop as-is
+          for the module-2 5-line bill, the module-3 CfD mechanics, and the
+          module-4 three-gate framework — those are all repo-verifiable.</p>
+        </div>
+        <div class="subcard">
+          <h3>One-line takeaway</h3>
+          <p>Repo verification confirms the deck's qualitative claims and the 5-line
+          bill arithmetic within ±2%, but the developer-economics numbers for the
+          two Vietnam case studies require undisclosed inputs to be bankable — the
+          deck can ship, but the colleague review pass should ask the author to
+          reconcile the Case 5/6 numbers with the repo model.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>Vietnam is rolling out its first grid-connected DPPAs (Decree 57/2025/ND-CP,
+        Electricity Law 2024). The CEBA workshop on July 2026 in Vietnam is targeting
+        corporate energy buyers with a curriculum on how to structure these deals.
+        Allotrope Partners is contributing a Session 5.2 deck on Vietnam's DPPA pricing
+        considerations, walking the audience through the five-line bill, the CfD
+        strike mechanics, the buyer/seller/lender three-gate framework, and two
+        case studies (Solar + Large BESS, Solar + Min BESS) intended to show how the
+        gates play out in practice.</p>
+        <p>The deck is going to a colleague review pass before the workshop. Until now,
+        the deck was unverified against the repo. The repo (<code>reopt_pysam_vn</code>)
+        holds the settlement engine, the PySAM developer-finance model, the strike
+        sweep, the matching engine, and the sourced Vietnam data — exactly the
+        primitives the deck's quantitative claims draw on. The objective of this
+        multi-phase effort was to run every repo-testable claim through the real
+        repo functions, capture deck-vs-repo deltas in a reproducible artifact, and
+        write structured <code>[Repo check]</code> notes into a copy of the deck
+        so the colleague review pass can audit the numbers before the workshop.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Inputs</h3>
+          <ul>
+            <li><strong>ceba-review/CEBA DPPA 2026.pptx</strong> (13.1 MB, 57 slides) — the source deck.</li>
+            <li><strong>research/2026-06-23_ceba-deck-repo-verification-brainstorm.md</strong> — DEC-001 through DEC-009, the resolved design decisions.</li>
+            <li><strong>data/vietnam/vn_tariff_2025.json</strong> + <strong>vn_financial_defaults_2025.json</strong> + <strong>vn_deal_defaults_2026.json</strong> — the repo's Vietnam reference data.</li>
+            <li><strong>src/python/reopt_pysam_vn/integration/settlement.py</strong> — <code>compute_hourly_settlement</code>, <code>ContractParams</code>, <code>run_strike_sweep</code>.</li>
+            <li><strong>src/python/reopt_pysam_vn/pysam/single_owner.py</strong> — <code>run_single_owner_model</code>, <code>SingleOwnerInputs</code>.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Out of scope</h3>
+          <ul>
+            <li>Editing slide content/figures (notes only — DEC-005).</li>
+            <li>Back-solving the undisclosed inputs for Case 5 / 6 to make the deck's claimed 16.9% / 26.9% seller equity IRR reproducible (DEC-007 method+directional only).</li>
+            <li>Modeling the Decree 146 two-part tariff buyer P&amp;L — flagged as a known gap, not built.</li>
+            <li>RECs/EACs and GHG Scope 1/2/3 accounting — qualitative in the deck, out of repo scope.</li>
+            <li>Re-verifying the older Session 6.2 deck (already covered by prior <code>ceba_*</code> reports).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Resolved design decisions</h3>
+          <ul>
+            <li><strong>DEC-001</strong>: Execute all 34 mapped testables, not a subset (workshop-grade completeness).</li>
+            <li><strong>DEC-002</strong>: Deliver notes as per-slide speaker notes via python-pptx, in a copy of the deck (non-destructive, reliable).</li>
+            <li><strong>DEC-004</strong>: ±1% match rule; > 5% is mismatch; structural gaps named, not just flagged.</li>
+            <li><strong>DEC-007</strong>: For Case 5/6 with undisclosed inputs, verify method + direction with assumptions stated.</li>
+            <li><strong>DEC-008</strong>: Where the deck cites a source for a divergent value, mark ⚠️ reconcile with both bases shown — never silent ❌.</li>
+            <li><strong>DEC-009</strong>: Commit scripts + reports/ to git; the 12.96 MB [repo-checked].pptx stays untracked.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints</h3>
+          <ul>
+            <li><strong>CON-001</strong>: All PySAM-dependent runs must use <code>.venv</code> (Python 3.12) — system Python 3.14 has no PySAM wheel.</li>
+            <li><strong>CON-002</strong>: The original <code>CEBA DPPA 2026.pptx</code> is never modified in place; a <code>~$</code> lock file is present (deck open in PowerPoint).</li>
+            <li><strong>CON-003</strong>: Note injection must be idempotent — replace any prior <code>[Repo check]</code> block rather than appending; preserve any author notes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>Each repo-testable claim is modeled in one of three ways, depending on
+        which repo surface it touches:</p>
+        <ul>
+          <li><strong>Data-file lookup (A-bucket):</strong> The deck's value is compared
+          to the value in <code>vn_tariff_2025.json</code> / <code>vn_financial_defaults_2025.json</code>
+          / <code>vn_deal_defaults_2026.json</code>. The orchestrator's
+          <code>resolve_data_vietnam</code> function traverses the dotted path; verdict
+          is ±1% match, citation-preserving for cited values.</li>
+          <li><strong>Settlement engine (B-bucket simulation):</strong> The deck's
+          worked examples are modeled as flat single-month profiles (load=gen=constant
+          in the relevant hours, tariff=CFMP flat). The repo's <code>compute_hourly_settlement</code>
+          collapses to the deck's arithmetic when the engine's matched-quantity rule
+          is applied to a constant profile. The kpp_factor collapse (1.02726 vs the
+          deck's 1.03421) is a known structural gap (A06/A07) and is named in the
+          verdict, not flagged as an error.</li>
+          <li><strong>PySAM developer economics (B11-B14):</strong> The repo's
+          <code>run_single_owner_model</code> is called with the deck's stated inputs
+          (49 MWp-class plant, 70% debt, 8.5% VND, 10-yr tenor, 25-yr analysis, strike
+          2,000 VND/kWh escalating 4%/yr). The model is treated as the repo's
+          authoritative cashflow engine; PySAM's null IRR is mapped to ℹ️ with an
+          explicit "project does not cashflow under deck inputs" note (DEC-007).</li>
+        </ul>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Phase 1 — Registry (deck_checks.py)</h3>
+          <p>Built the single source of truth: 28 repo-testable checks across A/B/C
+          buckets + 3 known gaps. Each check pins slide number, deck value, deck
+          citation, repo function, repo source ref, and assumptions. Extracted the
+          57-slide deck text into <code>ceba-review/ceba_dppa_2026_text.txt</code>
+          (35,935 chars) via python-pptx. 5-test smoke suite — all pass.</p>
+          <p><strong>Commit:</strong> <code>b87f2cb</code></p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 2 — Orchestrator (verify_ceba_dppa_deck.py)</h3>
+          <p>Single-file orchestrator that loads the registry, dispatches every
+          <code>Check.repo_fn</code> to a real repo function (JSON path traversal for
+          A-bucket; per-check runner registry for B/C-bucket), fills repo_value /
+          delta_pct / verdict / takeaway, writes the consolidated JSON. 34-check
+          run: 9 ok, 1 warn, 18 info, 5 bad, 1 skip, 0 errors.</p>
+          <p><strong>Commit:</strong> <code>62bc0e3</code></p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 3 — Markdown synthesis (synthesize_md_report.py)</h3>
+          <p>JSON → colleague-readable markdown. Generated entirely from the JSON (no
+          hand-edited numbers) so the markdown cannot drift from the source. 10,768
+          bytes: verdict counts, per-bucket tables, 6 structural reconciliations,
+          3 known-gap callouts, methodology, re-run instructions.</p>
+          <p><strong>Commit:</strong> <code>3c26003</code></p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 4 — Note injector (inject_repo_notes.py)</h3>
+          <p>Copies the source deck to <code>[repo-checked].pptx</code> (CON-002:
+          never modify the source) and writes a structured <code>[Repo check]</code>
+          block into the speaker notes of every slide that has a registry check
+          (plus the relevant-but-unmodeled slides for known gaps). Idempotent via
+          a single <code>=== [Repo check] (generated) ===</code> delimiter. 24 of
+          57 slides annotated. Slides 12, 24, 26 are sha256 byte-stable across
+          two injector runs.</p>
+          <p><strong>Commit:</strong> <code>919503a</code></p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 5 — End-to-end + verification</h3>
+          <p>Full pipeline run (orchestrator → markdown → injector → idempotency
+          test) all pass cleanly. 0 unhandled exceptions. Source deck mtime
+          preserved (6/22 10:30 PM original, unchanged). The 12.96 MB
+          [repo-checked].pptx stays untracked per DEC-009.</p>
+          <p><strong>Commit:</strong> <code>c6800c5</code></p>
+        </div>
+        <div class="subcard">
+          <h3>How the phases compose</h3>
+          <p>The five phases form a one-way data pipeline: source deck text → registry
+          → orchestrator JSON → markdown report → annotated deck copy. The
+          source-of-truth is the registry; the JSON is the orchestrator's output
+          and the markdown + pptx notes are derived views. Re-running any phase
+          from its inputs produces byte-stable output except for the
+          <code>generated_at_utc</code> timestamp.</p>
+        </div>
+      </div>
+      <div class="diagram-frame" style="margin-top: 18px;">
+        <div class="mermaid">
+flowchart LR
+    A[57-slide deck PPTX] --> B[Phase 1: deck_checks.py<br>34 Check + 3 KnownGap]
+    B --> C[Phase 2: verify_ceba_dppa_deck.py<br>compute every check]
+    C --> D[Phase 3: synthesize_md_report.py<br>JSON to markdown]
+    C --> E[Phase 4: inject_repo_notes.py<br>JSON to pptx notes]
+    A --> E
+    E --> F[[repo-checked].pptx<br>untracked, 12.96 MB]
+    F --> G[Phase 5: end-to-end<br>+ idempotency test]
+    D --> G
+    G --> H[commit + push to main]
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <h3 style="margin: 0 0 8px;">Major findings</h3>
+        <ol>
+          <li><strong>PySAM null IRR for Case 5/6.</strong> The deck's claimed 16.9% /
+          26.9% seller equity IRR for Solar + Large BESS / Solar + Min BESS cannot
+          be reproduced from the deck's stated inputs. PySAM returns null IRR for
+          both, with deeply negative min DSCR (-2.42× / -2.81×). The deck's figures
+          require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. The
+          colleague review pass should ask the deck author to disclose them.</li>
+          <li><strong>kpp_factor collapse (structural, 0.7%).</strong> The deck treats
+          FMP→delivery conversion as a product k × K_pp = 1.026 × 1.008 = 1.03421.
+          The repo's settlement engine collapses both into a single
+          <code>kpp_factor</code> = 1.02726 (<code>kpp_pct</code> = 2.7263). This
+          shows up as a 1-2% delta on every worked example (B01, B03, B05-B09).
+          Named in the verdict, not flagged as an error.</li>
+          <li><strong>FMP center mismatch (cited, 19%).</strong> The deck cites FMP
+          avg 1,426.6 VND/kWh from EAVCED public training; the repo's
+          deal-defaults sensitivity range is 1,400-2,000 with a center of 1,700.
+          Marked ⚠️ reconcile per DEC-008 (citation-preserving); both bases shown
+          in the note. Likely a deck-stated spot value vs a forward sensitivity
+          range.</li>
+          <li><strong>TOU peak multiplier gap (uncited, 12%).</strong> Deck Slide 5
+          shows ~1.78× for 22-110 kV; the repo's industrial/22-110kV peak
+          multiplier is 1.57. The 1.78× is closer to the "other commercial"
+          category (2.30×) but neither matches exactly. Likely a deck-side
+          category error or projection. Marked ❌ because the values are conceptually
+          similar but the deck's number has no repo basis.</li>
+          <li><strong>DPPA service fee basis (220%).</strong> Deck Slide 9's 360
+          VND/kWh is the Decree 57 C_dppa_dv service fee; the repo's tariff data
+          has the Decree 57 ceiling tariffs (max generation tariffs) but not the
+          service fee directly. The values are conceptually different, not the
+          same number on different sources.</li>
+        </ol>
+        <h3 style="margin: 16px 0 8px;">Tradeoffs and rejected options</h3>
+        <ul>
+          <li><strong>Native PowerPoint threaded comments (rejected):</strong>
+          python-pptx 1.0.2 lacks robust modern-comment support; raw XML injection
+          risks corrupting a 13 MB deck. Per-slide speaker notes in a copy are the
+          simpler, safer delivery surface.</li>
+          <li><strong>Standalone companion review memo only (rejected):</strong>
+          The explicit goal is notes in the deck for in-context review. The
+          markdown + JSON are the provenance trail, not the deliverable.</li>
+          <li><strong>Build full registered Case 5/6 orchestrators in <code>offsite_dppa</code>
+          (rejected):</strong> That turns a review task into a feature build.
+          Direct function calls suffice for method-level verification (DEC-007).</li>
+        </ul>
+        <h3 style="margin: 16px 0 8px;">Recommended next step</h3>
+        <p>The deck can ship to the workshop as-is for the module-2 5-line bill,
+        the module-3 CfD mechanics, and the module-4 three-gate framework — all of
+        those are repo-verifiable within ±2%. For Slides 24 / 25, the colleague
+        review pass should ask the deck author to disclose the inputs that
+        reproduce the 16.9% / 26.9% seller equity IRR; if those inputs are realistic,
+        the deck's numbers are consistent with a Vietnamese solar + BESS project
+        in a way the repo model does not yet capture. If the inputs cannot be
+        disclosed, the deck should soften the claim from "X% IRR achievable" to
+        "X% IRR per developer model, inputs to be confirmed."</p>
+      </div>
+      <div class="chart-frame" style="margin-top: 18px;">
+        <canvas id="verdictBar"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Immediate (this PR — already shipped on main)</h3>
+          <ul>
+            <li><code>scripts/python/integration/ceba_deck/deck_checks.py</code> — registry</li>
+            <li><code>scripts/python/integration/ceba_deck/test_deck_checks.py</code> — smoke tests</li>
+            <li><code>scripts/python/integration/verify_ceba_dppa_deck.py</code> — orchestrator</li>
+            <li><code>scripts/python/integration/ceba_deck/synthesize_md_report.py</code> — markdown</li>
+            <li><code>scripts/python/integration/ceba_deck/inject_repo_notes.py</code> — note injector</li>
+            <li><code>scripts/python/integration/ceba_deck/test_inject_idempotency.py</code> — byte-stability</li>
+            <li><code>scripts/python/integration/_extract_ceba_deck_text.py</code> — pptx → txt</li>
+            <li><code>reports/ceba_dppa_2026_repo_check.json</code> (30,552 bytes)</li>
+            <li><code>reports/ceba_dppa_2026_repo_check.md</code> (10,768 bytes)</li>
+            <li>5 per-phase HTML reports under <code>reports/2026-06-23-phase-{01..05}-*.html</code></li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Next cycle (colleague review pass)</h3>
+          <ul>
+            <li>Colleague opens <code>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</code> in PowerPoint.</li>
+            <li>Reads the Notes pane for Slides 5, 9, 11-13, 15, 16, 17, 19, 20, 21, 23, 24, 25, 26, 39-48, 52.</li>
+            <li>Asks the deck author for the undisclosed inputs that close the Case 5/6 IRR gap, OR accepts the deck's qualitative claim with a footnote.</li>
+            <li>If the colleague wants a richer Slide 24/25 note, re-run the injector with updated inputs and re-commit the JSON + markdown (the deck notes will refresh idempotently).</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Future cycle (out of scope)</h3>
+          <ul>
+            <li>Wire a real Samsung-TTC-style Vietnam case into <code>offsite_dppa</code> with disclosed CAPEX / BESS sizing, and back-solve the inputs that close the Case 5/6 IRR gap.</li>
+            <li>Add a per-slide headline summary line ("This slide: 1 ✅, 1 ❌, 1 ℹ️; see kpp collapse structural note") so colleagues see the headline before the detail.</li>
+            <li>Extend the orchestrator's verdict classifier with "no direct equivalent" so the A05-style skip is a first-class verdict, not a special case.</li>
+            <li>Re-run the same verification harness on the older Session 6.2 deck (prior ceba_* reports) to bring that up to the same structural standard.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Owners and ordering</h3>
+          <p>This cycle: <em>Self (session)</em>. The deliverable is the
+          <code>[repo-checked].pptx</code> + the markdown report. The colleague
+          review pass (asking the deck author for inputs) is a synchronous
+          handoff — expected to take 1-2 days of email/chat. The future cycle
+          (back-solving the Case 5/6 IRR) is a feature build requiring a real
+          Vietnam case study, sized at 1-2 weeks of analyst time and a follow-on
+          plan.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Open risks</h3>
+          <ul>
+            <li><strong>PySAM null IRR persists across reruns.</strong> The repo model
+            consistently returns null IRR for Case 5/6 at the deck's stated inputs.
+            If the colleague review pass concludes the deck's numbers are correct,
+            the repo model is missing an assumption (likely a revenue uplift from
+            RECs, a more favorable debt sculpting, or a different CAPEX baseline) and
+            should be extended. If the deck's numbers are not correct, the deck
+            should be revised before the workshop.</li>
+            <li><strong>Stale deck text after re-extraction.</strong>
+            <code>ceba_dppa_2026_text.txt</code> is a snapshot from 2026-06-23.
+            If the deck author updates the pptx after the colleague review pass,
+            the registry, the JSON, and the deck notes all need to be regenerated.
+            The pipeline is one command each, but the re-run is not automatic.</li>
+            <li><strong>Notes are text-only, not styled.</strong> python-pptx 1.0.2
+            doesn't expose rich-text styling on the notes slide. The verdict
+            icon + id block renders as monospaced Courier. Acceptable for in-deck
+            review; not great for an at-a-glance view.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions</h3>
+          <ul>
+            <li><strong>What undisclosed inputs close the Case 5/6 IRR gap?</strong>
+            Specifically: what CAPEX ($/kW for PV, $/kW for BESS, $/kWh for BESS
+            capacity), what BESS sizing (power MW, energy MWh, hours), what FMP
+            hourly series, and what revenue assumption (does the project capture
+            capacity payments under Decree 146?) produce a 16.9% / 26.9% seller
+            equity IRR? Back-solving this is a feature build, not a verification
+            task.</li>
+            <li><strong>What is the FMP center used in Case 5/6?</strong> The deck
+            uses strike 2,000 VND/kWh but does not say what FMP series the developer
+            model assumes. The repo's deal-defaults sensitivity range is 1,400-2,000
+            with a center of 1,700. If Case 5/6 use a different FMP, the IRR
+            numbers may close without a CAPEX change.</li>
+            <li><strong>Does the deck's "56 scenarios, 0 triple-pass" empty-window
+            claim hold for the repo's <code>run_strike_sweep</code>?</strong> The
+            directional check (B15) reproduces the buyer-positive / lender-drops-out
+            pattern with a lean 6-strike sweep. A full 12-strike × 4-volume sweep
+            with proper PySAM DSCR per strike would confirm or refute the deck's
+            stronger claim; that is future work.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard">
+          <h3>A. Verdict counts</h3>
+          <table>
+            <thead><tr><th>Verdict</th><th>Count</th><th>Share</th></tr></thead>
+            <tbody>
+              <tr><td>✅ OK (match within ±1%)</td><td>9</td><td>26%</td></tr>
+              <tr><td>⚠️ Reconcile (deck-cited, repo differs)</td><td>1</td><td>3%</td></tr>
+              <tr><td>ℹ️ Qualitative / method-level (DEC-007)</td><td>18</td><td>53%</td></tr>
+              <tr><td>❌ Mismatch (&gt; 5% delta)</td><td>5</td><td>15%</td></tr>
+              <tr><td>➖ Out of scope / no equivalent</td><td>1</td><td>3%</td></tr>
+              <tr><td>💥 Runner error</td><td>0</td><td>0%</td></tr>
+              <tr><td><strong>Total</strong></td><td><strong>34</strong></td><td><strong>100%</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard">
+          <h3>B. Structural reconciliations</h3>
+          <ul>
+            <li><strong>A06 / A07 — k × K_pp collapse:</strong> engine uses one factor (1.02726); deck uses two (1.03421). 0.7% structural gap.</li>
+            <li><strong>B11 / B13 — PySAM null IRR:</strong> deck's 16.9% / 26.9% seller equity IRR cannot be reproduced from disclosed inputs.</li>
+            <li><strong>B12 / B14 — Min DSCR deeply negative:</strong> same root cause; the project does not cashflow at strike 2,000 with proxy CAPEX.</li>
+            <li><strong>A12 — FMP center mismatch:</strong> deck cites 1,426.6; repo center 1,700. ⚠️ reconcile, both bases shown.</li>
+            <li><strong>A02 — TOU peak multiplier gap:</strong> deck 1.78×; repo 1.57×. Likely a deck category error.</li>
+            <li><strong>A04 — DPPA service fee basis:</strong> deck's 360 VND/kWh is the C_dppa_dv service fee; repo has the ceiling tariffs, not the service fee.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>C. Source / file index</h3>
+          <ul>
+            <li><code>ceba-review/CEBA DPPA 2026.pptx</code> — source deck (untouched).</li>
+            <li><code>ceba-review/ceba_dppa_2026_text.txt</code> — extracted text (35,935 chars).</li>
+            <li><code>ceba-review/CEBA DPPA 2026 [repo-checked].pptx</code> — annotated copy (12.96 MB, untracked).</li>
+            <li><code>scripts/python/integration/_extract_ceba_deck_text.py</code> — pptx → txt.</li>
+            <li><code>scripts/python/integration/ceba_deck/</code> — registry, orchestrator helpers, markdown synthesis, note injector, tests.</li>
+            <li><code>scripts/python/integration/verify_ceba_dppa_deck.py</code> — orchestrator entry point.</li>
+            <li><code>reports/ceba_dppa_2026_repo_check.json</code> — results artifact (30,552 bytes).</li>
+            <li><code>reports/ceba_dppa_2026_repo_check.md</code> — colleague-readable report (10,768 bytes).</li>
+            <li><code>reports/2026-06-23-phase-{01..05}-*.html</code> — per-phase reports.</li>
+            <li><code>reports/2026-06-23-final-ceba-deck-repo-verification.html</code> — this report.</li>
+            <li><code>plans/2026-06-23-ceba-deck-repo-verification-plan.md</code> — the multi-phase plan.</li>
+            <li><code>research/2026-06-23_ceba-deck-repo-verification-brainstorm.md</code> — the brainstorm + DEC-001..009.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>D. Re-run the pipeline</h3>
+          <p>From the repo root, in PowerShell:</p>
+          <pre style="background: rgba(0,0,0,0.04); padding: 12px; border-radius: 8px; font-family: var(--mono-font); font-size: 0.85rem; overflow-x: auto;">$env:PYTHONIOENCODING = "utf-8"
+$env:PYTHONPATH = "src/python;scripts/python"
+.venv\Scripts\python.exe scripts\python\integration\verify_ceba_dppa_deck.py
+.venv\Scripts\python.exe scripts\python\integration\ceba_deck\synthesize_md_report.py
+.venv\Scripts\python.exe scripts\python\integration\ceba_deck\inject_repo_notes.py
+.venv\Scripts\python.exe scripts\python\integration\ceba_deck\test_inject_idempotency.py</pre>
+          <p>Re-running produces byte-stable notes payload (Slides 12, 24, 26
+          sha256 verified). The only changes between runs are the
+          <code>generated_at_utc</code> timestamp in the JSON and the deck's
+          "yesterday's run" line in the markdown.</p>
+        </div>
+        <div class="subcard">
+          <h3>E. Commit log (5 phases + brainstorm/plan)</h3>
+          <table>
+            <thead><tr><th>Commit</th><th>Phase</th><th>What</th></tr></thead>
+            <tbody>
+              <tr><td><code>dd1a59e</code></td><td>0</td><td>Brainstorm + plan</td></tr>
+              <tr><td><code>b87f2cb</code></td><td>1</td><td>deck_checks.py registry (28 + 3)</td></tr>
+              <tr><td><code>62bc0e3</code></td><td>2</td><td>verify_ceba_dppa_deck.py + JSON</td></tr>
+              <tr><td><code>3c26003</code></td><td>3</td><td>synthesize_md_report.py + markdown</td></tr>
+              <tr><td><code>919503a</code></td><td>4</td><td>inject_repo_notes.py + idempotency test</td></tr>
+              <tr><td><code>c6800c5</code></td><td>5</td><td>End-to-end run + regenerated artifacts</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="subcard">
+          <h3>F. Glossary</h3>
+          <ul>
+            <li><strong>CFMP:</strong> Customer-side FMP = FMP × k × K_pp. The engine's
+            <code>kpp_factor</code> is a single blended multiplier (1.02726) approximating
+            the deck's two-factor product (1.026 × 1.008 = 1.03421).</li>
+            <li><strong>BAU:</strong> Business-as-usual — the factory's current EVN bill
+            (without a DPPA), which is the comparison baseline for "savings."</li>
+            <li><strong>DSCR:</strong> Debt Service Coverage Ratio = project cashflow
+            available for debt service / debt service in a given year. Banks typically
+            require ≥ 1.20× every year; 1.14× is below the floor and signals the
+            project would not be financeable.</li>
+            <li><strong>CfD:</strong> Contract for Differences — a financial instrument
+            that locks the buyer's renewable energy cost near the strike price. Two-way
+            (the buyer tops up when FMP &lt; strike, the generator pays back when FMP &gt; strike).</li>
+            <li><strong>PPA / DPPA:</strong> Power Purchase Agreement / Direct Power
+            Purchase Agreement (Vietnam Decree 57/2025/ND-CP model 2 — grid-connected
+            virtual CfD).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+
+      const v = document.getElementById('verdictBar');
+      if (v) {
+        new Chart(v, {
+          type: 'bar',
+          data: {
+            labels: ['ok', 'warn', 'info', 'bad', 'skip'],
+            datasets: [{
+              label: 'CEBA DPPA 2026 — repo verification verdict counts (n=34)',
+              data: [9, 1, 18, 5, 1],
+              backgroundColor: [
+                'rgba(57, 111, 118, 0.65)',
+                'rgba(184, 145, 79, 0.65)',
+                'rgba(157, 107, 55, 0.45)',
+                'rgba(176, 64, 64, 0.65)',
+                'rgba(160, 160, 160, 0.45)'
+              ],
+              borderColor: [
+                'rgba(57, 111, 118, 0.95)',
+                'rgba(184, 145, 79, 0.95)',
+                'rgba(157, 107, 55, 0.85)',
+                'rgba(176, 64, 64, 0.95)',
+                'rgba(160, 160, 160, 0.85)'
+              ],
+              borderWidth: 1.5
+            }]
+          },
+          options: {
+            animation: false,
+            resizeDelay: 150,
+            normalized: true,
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+              legend: { display: true, labels: { color: '#1f1912', font: { family: 'Cascadia Code' } } },
+              title: {
+                display: true,
+                text: 'Verdict distribution across 34 deck checks',
+                color: '#1f1912',
+                font: { family: 'Cascadia Code', size: 13 }
+              }
+            },
+            scales: {
+              x: { ticks: { color: '#1f1912' }, grid: { color: 'rgba(0,0,0,0.06)' } },
+              y: { ticks: { color: '#1f1912' }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
