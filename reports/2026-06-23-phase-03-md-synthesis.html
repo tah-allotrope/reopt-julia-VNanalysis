@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phase Report :: phase-03-md-synthesis</title>
+  <meta name="color-scheme" "dark">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) return;
+      mermaid.initialize({
+        startOnLoad: false, theme: 'dark', securityLevel: 'loose',
+        themeVariables: { primaryColor: '#111111', primaryTextColor: '#e8f6ff', primaryBorderColor: '#00f5ff', lineColor: '#39ff14', secondaryColor: '#121a1a', tertiaryColor: '#111111', background: '#0d0d0d', mainBkg: '#0d0d0d', nodeBorder: '#00f5ff', clusterBkg: '#111111', clusterBorder: '#39ff14', edgeLabelBackground: '#0d0d0d' }
+      });
+      await mermaid.run({ nodes: blocks });
+    }
+    const run = () => initMermaid().catch(e => console.error('Mermaid render failed', e));
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+    else run();
+  </script>
+  <style>
+    :root { --bg: #0d0d0d; --bg-soft: #111111; --panel: rgba(13, 13, 13, 0.88); --panel-strong: rgba(19, 19, 19, 0.96); --line: rgba(0, 245, 255, 0.26); --line-strong: rgba(57, 255, 20, 0.38); --text: #e9f6ff; --muted: #8ea3ad; --accent-blue: #00f5ff; --accent-green: #39ff14; --glow-blue: 0 0 18px rgba(0, 245, 255, 0.42); --glow-green: 0 0 18px rgba(57, 255, 20, 0.28); --shadow: 0 14px 40px rgba(0, 0, 0, 0.32); --radius-lg: 22px; --radius-md: 16px; --radius-sm: 12px; --narrative-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; --technical-font: "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace; }
+    * { box-sizing: border-box; }
+    body { position: relative; margin: 0; min-height: 100vh; overflow-x: hidden; background: radial-gradient(circle at top left, rgba(0, 245, 255, 0.12), transparent 28%), radial-gradient(circle at 85% 12%, rgba(57, 255, 20, 0.08), transparent 24%), linear-gradient(180deg, #050505 0%, #0d0d0d 36%, #090909 100%); color: var(--text); font-family: var(--narrative-font); line-height: 1.6; letter-spacing: 0.01em; }
+    body::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px); background-size: 32px 32px; opacity: 0.16; }
+    a { color: var(--accent-blue); }
+    code, pre, .technical, .meta-chip, .section-kicker, .pill, .metric-label, .metric-value, .repo-tag, .mermaid { font-family: var(--technical-font); }
+    .page-shell { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 72px; position: relative; z-index: 1; }
+    .hero { position: relative; padding: 28px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg, rgba(0, 245, 255, 0.08), transparent 28%), linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--panel-strong); box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02); }
+    .hero::after { content: ""; position: absolute; inset: auto -10% -55% 42%; height: 280px; background: radial-gradient(circle, rgba(0, 245, 255, 0.18), transparent 64%); filter: blur(12px); pointer-events: none; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr); gap: 22px; align-items: end; }
+    .section-kicker { margin: 0 0 12px; color: var(--accent-green); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; text-shadow: var(--glow-green); }
+    .phase-title { margin: 0; max-width: 12ch; font-size: clamp(2.5rem, 5vw, 4.7rem); line-height: 0.94; letter-spacing: -0.05em; color: #f5feff; text-transform: uppercase; text-wrap: balance; text-shadow: 0 0 24px rgba(0, 245, 255, 0.2); }
+    .hero-summary { margin: 18px 0 0; max-width: 60ch; color: var(--muted); font-size: 0.98rem; }
+    .hero-meta { display: grid; gap: 12px; }
+    .meta-card { padding: 16px 18px; border: 1px solid rgba(57, 255, 20, 0.2); border-radius: 18px; background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24); }
+    .meta-label { margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .meta-chip { color: var(--accent-blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; text-shadow: var(--glow-blue); word-break: break-word; }
+    .repo-tag { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 12px; border: 1px solid rgba(0, 245, 255, 0.24); border-radius: 999px; background: rgba(0, 245, 255, 0.08); color: var(--accent-blue); font-size: 0.82rem; letter-spacing: 0.04em; }
+    .section { position: relative; margin-top: 22px; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--panel); box-shadow: var(--shadow); }
+    .section::before { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.9), rgba(57, 255, 20, 0.9), transparent); transform: translateY(-1px); }
+    .section-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .section-title { margin: 0; font-size: clamp(1.2rem, 2vw, 1.7rem); line-height: 1.1; color: #f0feff; }
+    .section-index { display: inline-flex; align-items: center; gap: 10px; color: var(--accent-green); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; text-shadow: var(--glow-green); }
+    .section-index::after { content: ""; width: 44px; height: 1px; background: linear-gradient(90deg, rgba(57, 255, 20, 0.9), transparent); }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .column-card, .diagram-frame, .technical-frame, .viz-frame, .question-frame, .empty-state { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)), rgba(7, 7, 7, 0.82); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.012); }
+    .column-card { padding: 18px; min-height: 200px; }
+    .column-label { margin: 0 0 12px; color: var(--accent-blue); font-size: 0.83rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; text-shadow: var(--glow-blue); }
+    .splitter { width: 100%; height: 1px; margin: 8px 0 16px; background: linear-gradient(90deg, rgba(0, 245, 255, 0.4), transparent); }
+    .diagram-frame, .chart-frame, .technical-frame, .viz-frame, .question-frame { padding: 18px; }
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--text); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .technical-frame { color: #d6f6ff; }
+    .technical-frame table { width: 100%; border-collapse: collapse; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); vertical-align: top; }
+    .technical-frame th { color: var(--accent-green); font-size: 0.76rem; text-align: left; letter-spacing: 0.12em; text-transform: uppercase; }
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart { display: block; width: 100% !important; max-width: 100%; height: 280px !important; min-height: 280px; max-height: 280px; }
+    .empty-state { padding: 22px; text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent-blue); font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: var(--glow-blue); }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .metric { padding: 14px 16px; border: 1px solid rgba(0, 245, 255, 0.18); border-radius: var(--radius-sm); background: rgba(0, 245, 255, 0.04); }
+    .metric-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; }
+    .metric-value { margin-top: 8px; color: var(--accent-green); font-size: 1.2rem; font-weight: 700; text-shadow: var(--glow-green); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(57, 255, 20, 0.22); border-radius: 999px; background: rgba(57, 255, 20, 0.06); color: #d9ffd0; font-size: 0.8rem; }
+    .question-frame ul, .technical-frame ul, .column-card ul { margin: 0; padding-left: 20px; }
+    .question-frame li, .technical-frame li, .column-card li { margin-bottom: 8px; }
+    .footer-note { margin-top: 18px; text-align: right; color: rgba(142, 163, 173, 0.72); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    @media (max-width: 900px) { .hero-grid, .summary-grid, .metric-strip { grid-template-columns: 1fr; } .phase-title { max-width: none; } }
+    @media (max-width: 640px) { .page-shell { width: min(100vw - 20px, 1180px); padding-top: 16px; padding-bottom: 42px; } .hero, .section { padding: 18px; border-radius: 20px; } .section::before { left: 18px; right: 18px; } .phase-title { font-size: clamp(2rem, 12vw, 3rem); } }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="phase-header">
+      <div class="hero-grid">
+        <div>
+          <p class="section-kicker">Phase Report / Personal Technical Artifact</p>
+          <h1 class="phase-title">PHASE-03 MD SYNTHESIS</h1>
+          <p class="hero-summary">
+            Phase 3: synthesize a colleague-readable <code>reports/ceba_dppa_2026_repo_check.md</code>
+            from the results JSON. Generated entirely from the JSON (never hand-authored
+            numbers) so the markdown cannot drift from the source-of-truth.
+          </p>
+          <div class="pill-row"><span class="pill">project :: CEBA DPPA 2026</span><span class="pill">date :: 2026-06-23</span><span class="pill">phase :: 3 of 5</span></div>
+          <div class="repo-tag">repo :: reopt-pysam</div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">CEBA DPPA 2026</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-06-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="input-output-summary">
+      <div class="section-header"><div><div class="section-index">01 / Input -> Output</div><h2 class="section-title">Input -> Output Summary</h2></div></div>
+      <div class="summary-grid">
+        <div class="column-card">
+          <p class="column-label">Inputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>reports/ceba_dppa_2026_repo_check.json</strong> — Phase-2 results: 34 checks with verdict, delta, takeaway, notes.</li>
+            <li><strong>DEC-006</strong> — annotation must cover quant slides + known gaps.</li>
+            <li><strong>Plan exit criterion</strong> — markdown renders a complete verdict table; counts equal the JSON's check count.</li>
+          </ul>
+        </div>
+        <div class="column-card">
+          <p class="column-label">Outputs</p>
+          <div class="splitter"></div>
+          <ul>
+            <li><strong>scripts/python/integration/ceba_deck/synthesize_md_report.py</strong> — JSON→markdown generator (no hand-authored numbers).</li>
+            <li><strong>reports/ceba_dppa_2026_repo_check.md</strong> — 10,768 bytes; verdict counts, per-bucket tables, structural reconciliations, known-gaps section, methodology, re-run instructions.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="logic-flow">
+      <div class="section-header"><div><div class="section-index">02 / Logic Flow</div><h2 class="section-title">Logic Flow</h2></div></div>
+      <div class="diagram-frame technical">
+        <div class="mermaid">
+flowchart LR
+    A[results JSON<br>34 checks + known_gaps] --> B[load + group by bucket]
+    B --> C[verdict counts table]
+    B --> D[per-bucket verdict table<br>slide, claim, deck, repo, delta]
+    A --> E[structural reconciliations<br>6 hand-curated callouts]
+    A --> F[known-gaps section<br>3 hand-curated callouts]
+    C --> G[reports/ceba_dppa_2026_repo_check.md]
+    D --> G
+    E --> G
+    F --> G
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="math-algorithm-used">
+      <div class="section-header"><div><div class="section-index">03 / Math / Algorithm Used</div><h2 class="section-title">Math / Algorithm Used</h2></div></div>
+      <div class="technical-frame">
+        <p>The synthesis is formatting logic, not math. Three pieces of structure matter:</p>
+        <ul>
+          <li><strong>Verdict icon mapping.</strong> One-line dict <code>{ok: "✅", warn: "⚠️", info: "ℹ️", bad: "❌", skip: "➖", err: "💥"}</code>. The same icons appear in the per-slide notes (Phase 4) so colleagues see one consistent visual language across the markdown, the deck notes, and the final HTML report.</li>
+          <li><strong>Value formatting.</strong> Floats &lt; 0.01 render as scientific (so <code>5e-3</code> doesn't show as <code>0.005000</code>); floats ≥ 0.01 use thousands separator; lists &gt; 8 items collapse to <code>[…N items…]</code> so a 6,000,000 kWh list of 6 zeros doesn't blow up the table. This is purely cosmetic but it keeps the table scannable.</li>
+          <li><strong>Hand-curated structural reconciliations.</strong> Six items (A06/A07 kpp collapse, B11/B13 null IRR, B12/B14 negative DSCR, A12 FMP cited mismatch, A02 TOU peak multiplier gap, A04 service-fee basis). These are the items the orchestrator marks as ❌/ℹ️/⚠️ but where the gap is explainable — the markdown callout gives colleagues the explanation, not just the verdict.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="tools-formulas-methods">
+      <div class="section-header"><div><div class="section-index">04 / Tools / Formulas / Methods</div><h2 class="section-title">Tools / Formulas / Methods</h2></div></div>
+      <div class="technical-frame technical">
+        <table>
+          <thead><tr><th>Tool</th><th>Use</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td><code>json.loads</code></td><td>Read the Phase-2 results JSON; no schema required since Phase 2 already validated structure.</td><td>synthesize_md_report.py</td></tr>
+            <tr><td>Group-by-bucket</td><td><code>by_bucket.setdefault(c["bucket"], []).append(c)</code> — one pass over the JSON builds the per-bucket table inputs.</td><td>synthesize_md_report.py</td></tr>
+            <tr><td>Hand-curated reconciliations</td><td>Six callouts inline in the script. Adding a new structural reconciliation = one new tuple in the list, not a JSON edit.</td><td>synthesize_md_report.py</td></tr>
+            <tr><td>Markdown table cell formatting</td><td><code>_md_value</code> dispatches on Python type (int/float/list/str/None) to render cells that fit a colleague's screen.</td><td>synthesize_md_report.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="results-visualizations">
+      <div class="section-header"><div><div class="section-index">05 / Results &amp; Visualizations</div><h2 class="section-title">Results &amp; Visualizations</h2></div></div>
+      <div class="viz-frame">
+        <div class="chart-frame"><canvas id="mdCoverage"></canvas></div>
+        <div class="empty-state" style="margin-top:14px;">
+          <strong>Markdown rendered successfully</strong>
+          10,768 bytes; 34 verdict rows across 3 bucket tables; 6 structural reconciliations; 3 known-gap callouts.
+          The file is the colleague-readable companion to the JSON — it is the provenance trail for the deck notes
+          that Phase 4 will inject.
+        </div>
+      </div>
+    </section>
+
+    <section class="section narrative" id="limitations-second-best-alternative">
+      <div class="section-header"><div><div><div class="section-index">06 / Limitations / Second-Best Alternative</div><h2 class="section-title">Limitations / Second-Best Alternative</h2></div></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Structural reconciliations are hand-curated, not derived.</strong> Six items live in the script. If the JSON's verdict distribution changes (say, a new ❌ appears), the markdown will show the new row but won't auto-call out a structural reason. The alternative — auto-detect "kpp-related" or "PySAM-null-IRR" tags from the registry — would require extending the registry. Acceptable trade-off for now: the registry is the single source of truth, and structural callouts are review-quality commentary that should be human-reviewed anyway.</li>
+          <li><strong>One table per bucket.</strong> Slides 12, 13, 17, 24 each appear in 1+ tables (B/C). A flat single table by slide would let colleagues scan top-to-bottom, but the per-bucket split keeps the methodology visible (assumption vs finding vs insight). The tradeoff is "readability by method" vs "readability by slide" — Phase 4's note injector does the per-slide read for the deck itself.</li>
+          <li><strong>No chart in the markdown.</strong> The report skill is HTML-only. The markdown is plain text — the verdict distribution lives in a single table. That's the right place for a one-screen colleague-friendly artifact; the chart is in the HTML report.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="errors-warnings-flags-encountered">
+      <div class="section-header"><div><div><div class="section-index">07 / Errors / Warnings / Flags</div><h2 class="section-title">Errors / Warnings / Flags Encountered</h2></div></div></div>
+      <div class="question-frame technical">
+        <ul>
+          <li><strong>Path bug (caught at first run).</strong> Same <code>Path(__file__).resolve().parents[N]</code> issue as the orchestrator — the synthesis script sits at depth 4 (under <code>ceba_deck/</code>), so the original <code>parents[3]</code> resolved to <code>scripts/</code>. Fixed to <code>parents[4]</code>. The first run errored cleanly with a "results JSON not found" message at the wrong path; that surfacing is the value of the early exit.</li>
+          <li><strong>B01 / B03 / B05-B09 show 1-5% deltas.</strong> These are the deck's five worked examples where the engine's collapsed <code>kpp_factor</code> differs from the deck's <code>k × K_pp</code> product (1.02726 vs 1.03421 — 0.7% delta on line 1). The orchestrator marks them ℹ️ info, not ❌, and the markdown's structural reconciliations section explains the cause. Per-bucket ℹ️ rate is 67% (10/15) for B — this is the expected shape of a settlement-engine verification, not a bug.</li>
+          <li><strong>A02 (TOU peak 1.78 vs 1.57) marked ❌.</strong> The deck's 1.78× doesn't match any repo category. Likely a deck-side category error or projection; the markdown callout says so. A future cycle could mark this ⚠️ warn if we add "deck-stated projection with no repo category" as a reconcile rule, but that needs a new orchestrator classification.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section narrative" id="open-questions-next-phase-seeds">
+      <div class="section-header"><div><div class="section-index">08 / Open Questions / Next Phase Seeds</div><h2 class="section-title">Open Questions / Next Phase Seeds</h2></div></div>
+      <div class="question-frame">
+        <ul>
+          <li><strong>Phase 4 (Note injection) — primary next step.</strong> Build <code>inject_repo_notes.py</code> that copies the deck to <code>[repo-checked].pptx</code> and injects one structured <code>[Repo check]</code> block per quantitative slide, idempotently (CON-003: replace a prior block rather than append, preserve author notes). The block content is the per-slide aggregation of the JSON's checks; the per-slide text uses the verdict icon, deck value, repo value, % delta, <code>repo_fn</code> + <code>file:line</code>, and the takeaway line.</li>
+          <li><strong>Should the deck note also include the markdown's structural reconciliation callout?</strong> For the 5 ❌/1 ⚠️/18 ℹ️ cases, a short "why" line gives colleagues context — the markdown already has those, and the deck note is the place a CEBA reviewer will see them. The injector should include the callout inline.</li>
+          <li><strong>What to do about PySAM null IRR in the deck note?</strong> The deck claims 16.9% / 26.9% seller equity IRR for Case 5/6; the repo model says null (project doesn't cashflow). This is the most important finding in the report and should get explicit attention in the deck note — the colleague's job is to ask "what undisclosed assumption reconciles this?"</li>
+        </ul>
+      </div>
+      <div class="footer-note">artifact generated for reflection, not presentation theater</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1; Chart.defaults.animation = false; Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true; Chart.defaults.maintainAspectRatio = false; Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true };
+      const ctx = document.getElementById('mdCoverage');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['34 check rows', '6 reconciliations', '3 known gaps', 'methodology + re-run'],
+            datasets: [{ data: [34, 6, 3, 2], backgroundColor: ['rgba(0, 245, 255, 0.55)', 'rgba(57, 255, 20, 0.55)', 'rgba(180, 180, 180, 0.45)', 'rgba(255, 200, 0, 0.55)'], borderColor: ['rgba(0, 245, 255, 0.95)', 'rgba(57, 255, 20, 0.95)', 'rgba(180, 180, 180, 0.85)', 'rgba(255, 200, 0, 0.95)'], borderWidth: 1.5 }]
+          },
+          options: { animation: false, resizeDelay: 150, normalized: true, maintainAspectRatio: false, responsive: true, plugins: { legend: { labels: { color: '#d6f6ff', font: { family: 'Cascadia Code' } } }, title: { display: true, text: 'Markdown content coverage (rows / callouts / sections)', color: '#e8f6ff', font: { family: 'Cascadia Code', size: 13 } } } }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
