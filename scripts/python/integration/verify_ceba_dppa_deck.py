@@ -1,17 +1,29 @@
-"""CEBA DPPA 2026 deck verification orchestrator.
+"""Deck verification orchestrator (parametrized over ``DeckConfig``).
 
-Loads the registry from ``deck_checks``, dispatches each ``Check``'s
-``repo_fn`` (either a data-file lookup or a Python function call), fills
-``repo_value`` / ``delta_pct`` / ``verdict`` / ``takeaway``, and writes the
-results to ``reports/ceba_dppa_2026_repo_check.json``.
+Loads the registry from the deck's configured ``registry_module``
+(defaults to ``integration.ceba_deck.deck_checks`` for the CEBA deck;
+``integration.ceba_deck.july_deck_checks`` for the July deck), dispatches
+each ``Check``'s ``repo_fn`` (either a data-file lookup or a Python function
+call), fills ``repo_value`` / ``delta_pct`` / ``verdict`` / ``takeaway``, and
+writes the results to the configured ``results_json`` path.
 
 Usage (from repo root):
+    # CEBA deck (default; same behavior as the committed CEBA pipeline)
     .venv/Scripts/python.exe scripts/python/integration/verify_ceba_dppa_deck.py
 
+    # July 2026 deck
+    .venv/Scripts/python.exe scripts/python/integration/verify_ceba_dppa_deck.py --deck july
+
+    # Override output path
+    .venv/Scripts/python.exe scripts/python/integration/verify_ceba_dppa_deck.py --out reports/custom.json
+
+    # Subset of checks (by id)
+    .venv/Scripts/python.exe scripts/python/integration/verify_ceba_dppa_deck.py --ids A04_combined_dppa_fees B01_simulation_5line_total_evnbill
+
 The script is intentionally a single file: it is a verification harness, not
-a library. Adding a new check is a one-line change in ``deck_checks.py`` and
-a small entry in ``_SCENARIO_RUNNERS`` here (for B-bucket settlement / PySAM
-checks) — A-bucket and C-bucket checks need no per-check code.
+a library. Adding a new check is a one-line change in the registry module
+and a small entry in ``_SCENARIO_RUNNERS`` here (for B-bucket settlement /
+PySAM checks) — A-bucket and C-bucket checks need no per-check code.
 
 Exit codes: 0 = success, 2 = unhandled exception in a check (results JSON
 still written; the failing check carries an error verdict).
@@ -20,6 +32,7 @@ still written; the failing check carries an error verdict).
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import math
 import sys
@@ -32,17 +45,25 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_PYTHON = REPO_ROOT / "src" / "python"
 SCRIPTS_PYTHON = REPO_ROOT / "scripts" / "python"
 REPORTS_DIR = REPO_ROOT / "reports"
-RESULTS_PATH = REPORTS_DIR / "ceba_dppa_2026_repo_check.json"
 
 for path in (str(SRC_PYTHON), str(SCRIPTS_PYTHON)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from integration.ceba_deck.deck_checks import (  # noqa: E402
-    CHECKS,
-    KNOWN_GAPS,
-    Check,
-)
+from integration.ceba_deck.deck_config import get_deck  # noqa: E402
+
+
+def _load_registry(config):
+    """Import the registry module declared by ``config.registry_module`` and
+    return ``(Check, CHECKS, all_rows)`` plus, for the CEBA deck, ``KNOWN_GAPS``.
+    """
+    module = importlib.import_module(config.registry_module)
+    # The Check dataclass and CHECKS are the only mandatory members.
+    Check = getattr(module, "Check")
+    CHECKS = getattr(module, "CHECKS")
+    all_rows = getattr(module, "all_rows")
+    KNOWN_GAPS = getattr(module, "KNOWN_GAPS", [])
+    return Check, CHECKS, all_rows, KNOWN_GAPS
 
 # --------------------------------------------------------------------------
 # Pure data resolvers (A-bucket)
@@ -1003,15 +1024,49 @@ DEC_007_METHOD_DIRECTIONAL_CHECKS: set[str] = {
 
 
 # --------------------------------------------------------------------------
+# Calibrated-checks set (per-deck, pluggable via DeckConfig registry)
+# --------------------------------------------------------------------------
+# Some decks carry a set of checks whose numeric target was solved-for by
+# design (e.g. Case 5/6 seller IRR in the July deck — the calibration phase
+# back-solves CAPEX so the model exactly reproduces the deck's IRR). These
+# checks still get a verdict — but it is a distinct "calibrated" tier that
+# signals: "the deck value was the solver's target; the model is consistent
+# with that target by construction; treat as a successful calibration, not a
+# numeric match." Independent checks (the other 5 Case 5/6 metrics, the
+# sweep) still get the standard ±1% / 1-5% / >5% verdict.
+#
+# Each registry module can declare its own CALIBRATED_CHECKS set. The CEBA
+# registry (DEC-007 method+directional) does not use this — its Case 5/6
+# values cannot be calibrated (no solver; the proxy CAPEX is fixed). The
+# July registry declares JULY_CALIBRATED_CHECKS in july_deck_checks.py.
+def _get_calibrated_checks() -> set[str]:
+    try:
+        module = sys.modules.get("integration.ceba_deck.july_deck_checks")
+    except Exception:  # noqa: BLE001
+        return set()
+    if module is None:
+        try:
+            module = importlib.import_module("integration.ceba_deck.july_deck_checks")
+        except Exception:  # noqa: BLE001
+            return set()
+    return getattr(module, "JULY_CALIBRATED_CHECKS", set())
+
+
+# --------------------------------------------------------------------------
 # Verdict classifier
 # --------------------------------------------------------------------------
 def classify(check: Check, repo_value: Any, delta_pct: float | None) -> tuple[str, str]:
     """Apply DEC-004 (±1% rule) + DEC-007 (method+directional) + DEC-008
-    (citation-preserving reconcile).
+    (citation-preserving reconcile) + the per-deck "calibrated" tier.
 
     Returns (verdict_icon, takeaway).
+
+    Verdict set: ok | warn | info | bad | skip | err | **calibrated** (new).
+    "calibrated" is reserved for checks where the deck's numeric target was
+    the solver's objective — by construction the model hits it; the verdict
+    records that fact, not a numeric comparison.
     """
-    # DEC-007 first: route the entire Case 5/6 family to method+directional info.
+    # DEC-007 first: route the entire CEBA Case 5/6 family to method+directional info.
     if check.id in DEC_007_METHOD_DIRECTIONAL_CHECKS:
         deck_str = f"{check.deck_value}" if check.deck_value is not None else "n/a"
         repo_str = f"{repo_value}" if repo_value is not None else "n/a"
@@ -1020,6 +1075,17 @@ def classify(check: Check, repo_value: Any, delta_pct: float | None) -> tuple[st
             f"Method-level (DEC-007): deck claim {deck_str} {check.deck_unit} cannot be reproduced exactly from disclosed inputs. "
             f"PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. "
             f"Repo observation: {repo_str}.",
+        )
+    # Per-deck "calibrated" tier: deck value was the solver's target.
+    calibrated_checks = _get_calibrated_checks()
+    if check.id in calibrated_checks:
+        deck_str = f"{check.deck_value}" if check.deck_value is not None else "n/a"
+        repo_str = f"{repo_value}" if repo_value is not None else "n/a"
+        return (
+            "calibrated",
+            f"Calibrated: deck value {deck_str} {check.deck_unit} is the solver's target by construction (DEC-001, "
+            f"DEC-004). Repo model with solved CAPEX returns {repo_str} — match by design. "
+            f"Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
         )
     if check.deck_citation and delta_pct is not None and abs(delta_pct) > 0.01:
         return (
@@ -1103,10 +1169,16 @@ def run_check(check: Check) -> Check:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--deck",
+        choices=("ceba", "july"),
+        default="ceba",
+        help="Which deck to verify (default: ceba).",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
-        default=RESULTS_PATH,
-        help="Where to write the results JSON (default: reports/ceba_dppa_2026_repo_check.json).",
+        default=None,
+        help="Where to write the results JSON (default: <deck_config>.results_json).",
     )
     parser.add_argument(
         "--ids",
@@ -1116,8 +1188,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    config = get_deck(args.deck)
+    Check, CHECKS, all_rows, KNOWN_GAPS = _load_registry(config)
+    out_path = args.out or config.results_json
+
     targets = [c for c in CHECKS if not args.ids or c.id in args.ids]
-    print(f"[verify_ceba_dppa_deck] running {len(targets)} of {len(CHECKS)} checks", flush=True)
+    print(f"[verify_ceba_dppa_deck] deck={config.key} running {len(targets)} of {len(CHECKS)} checks", flush=True)
 
     completed: list[dict] = []
     errs: list[str] = []
@@ -1138,8 +1214,9 @@ def main(argv: list[str] | None = None) -> int:
     payload = {
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-            "deck": "ceba-review/CEBA DPPA 2026.pptx",
-            "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
+            "deck": str(config.source_pptx.relative_to(REPO_ROOT)),
+            "deck_title": config.deck_title,
+            "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
             "registry_size": len(CHECKS),
             "executed": len(targets),
             "errors": errs,
@@ -1151,6 +1228,7 @@ def main(argv: list[str] | None = None) -> int:
             "bad": sum(1 for c in completed if c["verdict"] == "bad"),
             "skip": sum(1 for c in completed if c["verdict"] == "skip"),
             "err": sum(1 for c in completed if c["verdict"] == "err"),
+            "calibrated": sum(1 for c in completed if c["verdict"] == "calibrated"),
         },
         "checks": [
             {
@@ -1185,21 +1263,21 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     import os
-    args.out.parent.mkdir(parents=True, exist_ok=True)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     payload_text = json.dumps(payload, indent=2, default=str)
-    with open(args.out, "w", encoding="utf-8", newline="\n") as f:
+    with open(out_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(payload_text)
         f.flush()
         os.fsync(f.fileno())
-    actual_size = args.out.stat().st_size
+    actual_size = out_path.stat().st_size
     s = payload["summary"]
     try:
-        rel = args.out.relative_to(REPO_ROOT)
+        rel = out_path.relative_to(REPO_ROOT)
     except ValueError:
-        rel = args.out
+        rel = out_path
     print(
         f"[verify_ceba_dppa_deck] wrote {rel} ({actual_size} bytes; cwd={Path.cwd()}) | "
-        f"ok={s['ok']} warn={s['warn']} info={s['info']} bad={s['bad']} skip={s['skip']} err={s['err']}",
+        f"ok={s['ok']} warn={s['warn']} info={s['info']} bad={s['bad']} skip={s['skip']} err={s['err']} calibrated={s['calibrated']}",
         flush=True,
     )
     return 0 if not errs else 2

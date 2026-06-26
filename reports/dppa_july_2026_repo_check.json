@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-06-26T03:45:26.595591+00:00",
+    "deck": "ceba-review\\DPPA Presentation July 2026 Case Studies.pptx",
+    "deck_title": "DPPA July 2026 Case Studies",
+    "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
+    "registry_size": 50,
+    "executed": 3,
+    "errors": [
+      "J_A04_combined_dppa_fees",
+      "J_B01_simulation_5line_total_evnbill"
+    ]
+  },
+  "summary": {
+    "ok": 1,
+    "warn": 0,
+    "info": 0,
+    "bad": 0,
+    "skip": 0,
+    "err": 2,
+    "calibrated": 0
+  },
+  "checks": [
+    {
+      "id": "J_A03_avg_retail_price",
+      "slide": 8,
+      "bucket": "A",
+      "claim": "Average retail electricity price (residual / P1, 2025)",
+      "deck_value": 2204.0,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "data.vietnam.vn_tariff_2025.data.base_avg_price_vnd_per_kwh",
+      "repo_source_ref": "data/vietnam/vn_tariff_2025.json:22",
+      "assumptions": [],
+      "repo_value": 2204.0655,
+      "delta_pct": 2.9718693285007455e-05,
+      "verdict": "ok",
+      "takeaway": "match within \u00b11% (delta +0.003%)",
+      "notes": {}
+    },
+    {
+      "id": "J_A04_combined_dppa_fees",
+      "slide": 8,
+      "bucket": "A",
+      "claim": "Combined DPPA fees: service (360) + balancing (163.3) = 523.3 VND/kWh",
+      "deck_value": 523.3,
+      "deck_unit": "VND/kWh",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.ContractParams.dppa_adder_vnd_kwh (default)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:26 (default 523.34)",
+      "assumptions": [
+        "The engine takes one combined dppa_adder_vnd_kwh input and does not split it."
+      ],
+      "repo_value": null,
+      "delta_pct": null,
+      "verdict": "err",
+      "takeaway": "no runner registered for repo_fn='reopt_pysam_vn.integration.settlement.ContractParams.dppa_adder_vnd_kwh (default)'",
+      "notes": {}
+    },
+    {
+      "id": "J_B01_simulation_5line_total_evnbill",
+      "slide": 11,
+      "bucket": "B",
+      "claim": "Module-2 simulation EVN bill (lines 1+2+3+4) for Q=6,000,000 kWh",
+      "deck_value": 10586097600.0,
+      "deck_unit": "VND/month",
+      "deck_citation": null,
+      "repo_fn": "reopt_pysam_vn.integration.settlement.compute_hourly_settlement (flat single-month profile)",
+      "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:65",
+      "assumptions": [
+        "Flat profile: load=generation=Q/720h in the relevant hours; tariff=FMP=k*K_pp=1200*1.026*1.008 over all 720h.",
+        "Excess_treatment=curtail (no exports); mode=virtual_cfd."
+      ],
+      "repo_value": null,
+      "delta_pct": null,
+      "verdict": "err",
+      "takeaway": "no runner registered for repo_fn='reopt_pysam_vn.integration.settlement.compute_hourly_settlement (flat single-month profile)'",
+      "notes": {}
+    }
+  ],
+  "known_gaps": []
+}
