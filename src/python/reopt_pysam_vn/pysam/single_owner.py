@@ -73,6 +73,7 @@ def _configure_financial_model(financial_model, inputs: SingleOwnerInputs) -> No
     financial_model.SystemCosts.om_fixed = [float(inputs.fixed_om_usd_per_year)]
     financial_model.SystemCosts.om_capacity = [0.0]
     financial_model.SystemCosts.om_production = [0.0]
+    financial_model.SystemCosts.om_fuel_cost = [0.0]
     financial_model.SystemCosts.om_fixed_escal = (
         float(inputs.om_escalation_rate_fraction) * 100.0
     )

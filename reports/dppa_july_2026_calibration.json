@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-06-26T04:12:48.785702+00:00",
+    "deck": "ceba-review\\DPPA Presentation July 2026 Case Studies.pptx",
+    "deck_title": "DPPA July 2026 Case Studies",
+    "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
+    "phase": "PHASE-03",
+    "duration_seconds": 3.6
+  },
+  "calibration": {
+    "case_5": {
+      "case": "case_5",
+      "label": "Solar + Large BESS",
+      "slide": 23,
+      "framing": {
+        "bess_energy_kwh": 7500.0,
+        "bess_replacement_year": 11,
+        "bess_replacement_usd": 1200000.0,
+        "deck_target_seller_irr": 0.169,
+        "deck_target_project_irr": 0.135,
+        "deck_target_npv_usd": 1520000.0,
+        "deck_target_min_dscr": 1.14,
+        "deck_target_payback_years": 9.1
+      },
+      "model": {
+        "solar_capacity_kw": 5255.898021308981,
+        "annual_generation_kwh": 8287500.000000001,
+        "solar_capacity_factor": 0.18,
+        "ppa_price_input_usd_per_kwh": 0.07575757575757576,
+        "ppa_escalation_rate_fraction": 0.04,
+        "debt_fraction": 0.7,
+        "debt_interest_rate_fraction": 0.085,
+        "debt_tenor_years": 10,
+        "analysis_years": 25,
+        "depreciation_schedule": "vn_sl_15yr"
+      },
+      "solver": {
+        "solved": true,
+        "iterations": 6,
+        "reason": null,
+        "solved_capex_usd": 1703125.0,
+        "modeled_irr_at_solved_capex": 0.17170533817929085,
+        "implied_capex_per_kw": 324.04072398190044
+      },
+      "assumptions": [
+        "Project sized at 85% of Factory A's 9,750 MWh/yr load (\u2248 5,250 kWp at 18% CF).",
+        "BESS energy pinned from deck hints (Q-003): Case 5 7.5 MWh (~$1.2M \u00f7 $160/kWh); Case 6 4 MWh (lean 'minimum').",
+        "BESS replacement modeled as a year-11 cashflow deduction (Case 5 only); Case 6 lean BESS assumed to last the loan tenor.",
+        "Fixed O&M at 1.5% of installed cost per year; 3% escalation.",
+        "Disclosed deal terms: 70% debt / 8.5% VND / 10-yr tenor / 25-yr analysis / vn_sl_15yr depreciation.",
+        "Strike 2,000 VND/kWh ($0.0758 USD/kWh) escalating 4%/yr; 18% solar capacity factor (Vietnam south).",
+        "Calibration target: 1-D bisection on installed_cost_usd so the modeled seller IRR matches the deck's stated seller IRR (Case 5: 16.9%; Case 6: 26.9%) within \u00b10.5pp."
+      ],
+      "metrics_at_solved_capex": {
+        "project_return_aftertax_irr_fraction": 0.17170533817929085,
+        "project_return_pretax_irr_fraction": 0.19314486128059646,
+        "project_return_aftertax_npv_usd": 645790.3886706899,
+        "min_dscr": -2.275206504289146,
+        "payback_years": 1,
+        "fixed_om_usd_per_year": 25546.875
+      },
+      "trace": [
+        {
+          "iter": 0,
+          "capex_usd": 1000000.0,
+          "modeled_irr": 0.22026025825089135
+        },
+        {
+          "iter": 0,
+          "capex_usd": 10000000.0,
+          "modeled_irr": -0.015040186032035597
+        },
+        {
+          "iter": 1,
+          "capex_usd": 5500000.0,
+          "modeled_irr": 0.05121154381441518
+        },
+        {
+          "iter": 2,
+          "capex_usd": 3250000.0,
+          "modeled_irr": 0.10625263097048185
+        },
+        {
+          "iter": 3,
+          "capex_usd": 2125000.0,
+          "modeled_irr": 0.1497702167629634
+        },
+        {
+          "iter": 4,
+          "capex_usd": 1562500.0,
+          "modeled_irr": 0.1800262613476745
+        },
+        {
+          "iter": 5,
+          "capex_usd": 1843750.0,
+          "modeled_irr": 0.16392642258679838
+        },
+        {
+          "iter": 6,
+          "capex_usd": 1703125.0,
+          "modeled_irr": 0.17170533817929085
+        }
+      ]
+    },
+    "case_6": {
+      "case": "case_6",
+      "label": "Solar + Min BESS",
+      "slide": 24,
+      "framing": {
+        "bess_energy_kwh": 4000.0,
+        "bess_replacement_year": null,
+        "bess_replacement_usd": 0.0,
+        "deck_target_seller_irr": 0.269,
+        "deck_target_project_irr": 0.182,
+        "deck_target_npv_usd": 2540000.0,
+        "deck_target_min_dscr": 1.5,
+        "deck_target_payback_years": 4.7
+      },
+      "model": {
+        "solar_capacity_kw": 5255.898021308981,
+        "annual_generation_kwh": 8287500.000000001,
+        "solar_capacity_factor": 0.18,
+        "ppa_price_input_usd_per_kwh": 0.07575757575757576,
+        "ppa_escalation_rate_fraction": 0.04,
+        "debt_fraction": 0.7,
+        "debt_interest_rate_fraction": 0.085,
+        "debt_tenor_years": 10,
+        "analysis_years": 25,
+        "depreciation_schedule": "vn_sl_15yr"
+      },
+      "solver": {
+        "solved": false,
+        "iterations": 20,
+        "reason": "max_iter=20 reached without tol=0.005 convergence",
+        "envelope_lo": {
+          "capex_usd": 1000000.0,
+          "modeled_irr": 0.22026025825089135
+        },
+        "envelope_hi": {
+          "capex_usd": 1000008.5830688477,
+          "modeled_irr": -0.015040186032035597
+        }
+      },
+      "assumptions": [
+        "Project sized at 85% of Factory A's 9,750 MWh/yr load (\u2248 5,250 kWp at 18% CF).",
+        "BESS energy pinned from deck hints (Q-003): Case 5 7.5 MWh (~$1.2M \u00f7 $160/kWh); Case 6 4 MWh (lean 'minimum').",
+        "BESS replacement modeled as a year-11 cashflow deduction (Case 5 only); Case 6 lean BESS assumed to last the loan tenor.",
+        "Fixed O&M at 1.5% of installed cost per year; 3% escalation.",
+        "Disclosed deal terms: 70% debt / 8.5% VND / 10-yr tenor / 25-yr analysis / vn_sl_15yr depreciation.",
+        "Strike 2,000 VND/kWh ($0.0758 USD/kWh) escalating 4%/yr; 18% solar capacity factor (Vietnam south).",
+        "Calibration target: 1-D bisection on installed_cost_usd so the modeled seller IRR matches the deck's stated seller IRR (Case 5: 16.9%; Case 6: 26.9%) within \u00b10.5pp."
+      ],
+      "binding_constraint_note": "The deck's stated seller IRR is unreachable under the disclosed deal terms even at the searched CAPEX bounds. This is the monotonic miss per plan RISK-03-01: the deck's 16.9% / 26.9% values require undisclosed assumptions (higher matched volume, different CF, longer escalation, lower O&M, etc.). The downstream checks (project IRR, NPV, DSCR, payback, buyer-vs-BAU) are therefore not reproducible from the deck disclosures alone.",
+      "trace": [
+        {
+          "iter": 0,
+          "capex_usd": 1000000.0,
+          "modeled_irr": 0.22026025825089135
+        },
+        {
+          "iter": 0,
+          "capex_usd": 10000000.0,
+          "modeled_irr": -0.015040186032035597
+        },
+        {
+          "iter": 1,
+          "capex_usd": 5500000.0,
+          "modeled_irr": 0.05121154381441518
+        },
+        {
+          "iter": 2,
+          "capex_usd": 3250000.0,
+          "modeled_irr": 0.10625263097048185
+        },
+        {
+          "iter": 3,
+          "capex_usd": 2125000.0,
+          "modeled_irr": 0.1497702167629634
+        },
+        {
+          "iter": 4,
+          "capex_usd": 1562500.0,
+          "modeled_irr": 0.1800262613476745
+        },
+        {
+          "iter": 5,
+          "capex_usd": 1281250.0,
+          "modeled_irr": 0.19857510599121897
+        },
+        {
+          "iter": 6,
+          "capex_usd": 1140625.0,
+          "modeled_irr": 0.20897364722885828
+        },
+        {
+          "iter": 7,
+          "capex_usd": 1070312.5,
+          "modeled_irr": 0.21449846623287827
+        },
+        {
+          "iter": 8,
+          "capex_usd": 1035156.25,
+          "modeled_irr": 0.2173487425259681
+        },
+        {
+          "iter": 9,
+          "capex_usd": 1017578.125,
+          "modeled_irr": 0.21879671563427278
+        },
+        {
+          "iter": 10,
+          "capex_usd": 1008789.0625,
+          "modeled_irr": 0.21952653784355305
+        },
+        {
+          "iter": 11,
+          "capex_usd": 1004394.53125,
+          "modeled_irr": 0.21989290546487644
+        },
+        {
+          "iter": 12,
+          "capex_usd": 1002197.265625,
+          "modeled_irr": 0.22007645845180876
+        },
+        {
+          "iter": 13,
+          "capex_usd": 1001098.6328125,
+          "modeled_irr": 0.2201683274671985
+        },
+        {
+          "iter": 14,
+          "capex_usd": 1000549.31640625,
+          "modeled_irr": 0.22021428513392347
+        },
+        {
+          "iter": 15,
+          "capex_usd": 1000274.658203125,
+          "modeled_irr": 0.22023726976061628
+        },
+        {
+          "iter": 16,
+          "capex_usd": 1000137.3291015625,
+          "modeled_irr": 0.2202487635227422
+        },
+        {
+          "iter": 17,
+          "capex_usd": 1000068.6645507812,
+          "modeled_irr": 0.22025451076605576
+        },
+        {
+          "iter": 18,
+          "capex_usd": 1000034.3322753906,
+          "modeled_irr": 0.22025738447828233
+        },
+        {
+          "iter": 19,
+          "capex_usd": 1000017.1661376953,
+          "modeled_irr": 0.22025882135703884
+        },
+        {
+          "iter": 20,
+          "capex_usd": 1000008.5830688477,
+          "modeled_irr": 0.22025953980207805
+        }
+      ]
+    }
+  },
+  "shared_assumptions": {
+    "solar_capacity_kw": 5255.898021308981,
+    "solar_capacity_fraction_of_factory_load": 0.85,
+    "solar_capacity_factor": 0.18,
+    "annual_generation_kwh": 8287500.000000001,
+    "factory_a_annual_load_kwh": 9750000.0,
+    "factory_a_peak_kw": 2430.0,
+    "strike_vnd_per_kwh": 2000.0,
+    "ppa_price_input_usd_per_kwh": 0.07575757575757576,
+    "ppa_escalation_rate_fraction": 0.04,
+    "debt_fraction": 0.7,
+    "debt_interest_rate_fraction": 0.085,
+    "debt_tenor_years": 10,
+    "analysis_years": 25,
+    "depreciation_schedule": "vn_sl_15yr",
+    "exchange_rate_vnd_per_usd": 26400.0,
+    "bess_replacement_year": 11,
+    "bess_replacement_usd": 1200000.0,
+    "bess_usd_per_kwh": 160.0
+  }
+}
