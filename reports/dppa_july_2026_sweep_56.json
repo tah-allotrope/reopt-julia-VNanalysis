@@ -1,16 +1,16 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-26T04:26:30.646145+00:00",
+    "generated_at_utc": "2026-06-26T04:31:34.595552+00:00",
     "deck": "ceba-review\\DPPA Presentation July 2026 Case Studies.pptx",
     "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
     "phase": "PHASE-04",
-    "duration_seconds": 13.04
+    "duration_seconds": 8.88
   },
   "configuration": {
     "fmp_anchor": "deck",
     "fmp_vnd_kwh": 1426.6,
     "load_source": "synthetic",
-    "capex_ref_usd": 3679200.0,
+    "capex_ref_usd": 4000000.0,
     "solar_kwp_basis": 5255.898021308981,
     "annual_gen_kwh_basis": 8287500.000000001,
     "strikes_vnd_kwh": [
@@ -58,9 +58,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.004712885729302108,
-        "npv_usd": -2815458.5280472306,
-        "min_dscr": 0.3332835776877011
+        "seller_irr": -0.001388676209539781,
+        "npv_usd": -3031215.949358484,
+        "min_dscr": 0.31315055158441724
       },
       "gate": {
         "buyer_pass": true,
@@ -69,8 +69,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.14413124727201088,
         "buyer_lifetime_delta_frac": -0.14413124727201088,
-        "seller_irr": 0.004712885729302108,
-        "min_dscr": 0.3332835776877011
+        "seller_irr": -0.001388676209539781,
+        "min_dscr": 0.31315055158441724
       }
     },
     {
@@ -88,9 +88,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.010778380210606776,
-        "npv_usd": -2897598.279917061,
-        "min_dscr": 0.35665620362707207
+        "seller_irr": 0.004255089305414673,
+        "npv_usd": -3144178.1899870615,
+        "min_dscr": 0.3341778781194124
       },
       "gate": {
         "buyer_pass": true,
@@ -99,8 +99,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.16472142545373653,
         "buyer_lifetime_delta_frac": -0.16472142545373658,
-        "seller_irr": 0.010778380210606776,
-        "min_dscr": 0.35665620362707207
+        "seller_irr": 0.004255089305414673,
+        "min_dscr": 0.3341778781194124
       }
     },
     {
@@ -118,9 +118,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.015943299322565566,
-        "npv_usd": -2979738.0317863417,
-        "min_dscr": 0.37723204997924936
+        "seller_irr": 0.009036388371044349,
+        "npv_usd": -3257140.4306150936,
+        "min_dscr": 0.3525923511611936
       },
       "gate": {
         "buyer_pass": true,
@@ -129,8 +129,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.18531160363544794,
         "buyer_lifetime_delta_frac": -0.1853116036354479,
-        "seller_irr": 0.015943299322565566,
-        "min_dscr": 0.37723204997924936
+        "seller_irr": 0.009036388371044349,
+        "min_dscr": 0.3525923511611936
       }
     },
     {
@@ -148,9 +148,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.020404171104332083,
-        "npv_usd": -3061877.7836555773,
-        "min_dscr": 0.39548477370742263
+        "seller_irr": 0.013147005209361257,
+        "npv_usd": -3370102.671243079,
+        "min_dscr": 0.368852492165372
       },
       "gate": {
         "buyer_pass": true,
@@ -159,8 +159,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.20590178181717148,
         "buyer_lifetime_delta_frac": -0.20590178181717148,
-        "seller_irr": 0.020404171104332083,
-        "min_dscr": 0.39548477370742263
+        "seller_irr": 0.013147005209361257,
+        "min_dscr": 0.368852492165372
       }
     },
     {
@@ -178,9 +178,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.014213793798705198,
-        "npv_usd": -2657166.321664812,
-        "min_dscr": 0.3678842377361921
+        "seller_irr": 0.008109557195732583,
+        "npv_usd": -2872923.7429760653,
+        "min_dscr": 0.3463731058356137
       },
       "gate": {
         "buyer_pass": true,
@@ -189,8 +189,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.11276346907699582,
         "buyer_lifetime_delta_frac": -0.11276346907699582,
-        "seller_irr": 0.014213793798705198,
-        "min_dscr": 0.3678842377361921
+        "seller_irr": 0.008109557195732583,
+        "min_dscr": 0.3463731058356137
       }
     },
     {
@@ -208,9 +208,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.02057698001221984,
-        "npv_usd": -2716692.901194308,
-        "min_dscr": 0.39368335072355887
+        "seller_irr": 0.01402467356753211,
+        "npv_usd": -2963272.811264308,
+        "min_dscr": 0.3696312491232287
       },
       "gate": {
         "buyer_pass": true,
@@ -219,8 +219,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.1288725360879653,
         "buyer_lifetime_delta_frac": -0.12887253608796526,
-        "seller_irr": 0.02057698001221984,
-        "min_dscr": 0.39368335072355887
+        "seller_irr": 0.01402467356753211,
+        "min_dscr": 0.3696312491232287
       }
     },
     {
@@ -238,9 +238,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.02600738343057017,
-        "npv_usd": -2776219.480723208,
-        "min_dscr": 0.4163953295242069
+        "seller_irr": 0.01904597142484349,
+        "npv_usd": -3053621.879551959,
+        "min_dscr": 0.38999933785095353
       },
       "gate": {
         "buyer_pass": true,
@@ -249,8 +249,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.14498160309901495,
         "buyer_lifetime_delta_frac": -0.14498160309901498,
-        "seller_irr": 0.02600738343057017,
-        "min_dscr": 0.4163953295242069
+        "seller_irr": 0.01904597142484349,
+        "min_dscr": 0.38999933785095353
       }
     },
     {
@@ -268,9 +268,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.030706764505045926,
-        "npv_usd": -2835746.0602520593,
-        "min_dscr": 0.43654300497204995
+        "seller_irr": 0.023370632808596633,
+        "npv_usd": -3143970.9478395605,
+        "min_dscr": 0.4079845386192284
       },
       "gate": {
         "buyer_pass": true,
@@ -279,8 +279,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.16109067011005404,
         "buyer_lifetime_delta_frac": -0.16109067011005407,
-        "seller_irr": 0.030706764505045926,
-        "min_dscr": 0.43654300497204995
+        "seller_irr": 0.023370632808596633,
+        "min_dscr": 0.4079845386192284
       }
     },
     {
@@ -298,9 +298,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.023202922043593744,
-        "npv_usd": -2498874.115282393,
-        "min_dscr": 0.40248489778468316
+        "seller_irr": 0.01706219674428028,
+        "npv_usd": -2714631.5365936467,
+        "min_dscr": 0.3795956600868101
       },
       "gate": {
         "buyer_pass": true,
@@ -309,8 +309,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.08139569088196182,
         "buyer_lifetime_delta_frac": -0.08139569088196179,
-        "seller_irr": 0.023202922043593744,
-        "min_dscr": 0.40248489778468316
+        "seller_irr": 0.01706219674428028,
+        "min_dscr": 0.3795956600868101
       }
     },
     {
@@ -328,9 +328,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.029869605607378124,
-        "npv_usd": -2535787.522471554,
-        "min_dscr": 0.4307104978200457
+        "seller_irr": 0.023252874682362045,
+        "npv_usd": -2782367.432541555,
+        "min_dscr": 0.4050846201270451
       },
       "gate": {
         "buyer_pass": true,
@@ -339,8 +339,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.0930236467222355,
         "buyer_lifetime_delta_frac": -0.09302364672223555,
-        "seller_irr": 0.029869605607378124,
-        "min_dscr": 0.4307104978200457
+        "seller_irr": 0.023252874682362045,
+        "min_dscr": 0.4050846201270451
       }
     },
     {
@@ -358,9 +358,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.03557168655977359,
-        "npv_usd": -2572700.929660074,
-        "min_dscr": 0.4555586090691644
+        "seller_irr": 0.028518810002072556,
+        "npv_usd": -2850103.328488826,
+        "min_dscr": 0.42740632454071337
       },
       "gate": {
         "buyer_pass": true,
@@ -369,8 +369,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.1046516025625423,
         "buyer_lifetime_delta_frac": -0.10465160256254233,
-        "seller_irr": 0.03557168655977359,
-        "min_dscr": 0.4555586090691644
+        "seller_irr": 0.028518810002072556,
+        "min_dscr": 0.42740632454071337
       }
     },
     {
@@ -388,9 +388,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04051595040431941,
-        "npv_usd": -2609614.3368485407,
-        "min_dscr": 0.4776012362366771
+        "seller_irr": 0.0330623135109846,
+        "npv_usd": -2917839.2244360424,
+        "min_dscr": 0.44711658507308466
       },
       "gate": {
         "buyer_pass": true,
@@ -399,8 +399,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.11627955840287278,
         "buyer_lifetime_delta_frac": -0.11627955840287281,
-        "seller_irr": 0.04051595040431941,
-        "min_dscr": 0.4776012362366771
+        "seller_irr": 0.0330623135109846,
+        "min_dscr": 0.44711658507308466
       }
     },
     {
@@ -418,9 +418,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.031777567027479144,
-        "npv_usd": -2340581.908899974,
-        "min_dscr": 0.43708555783317415
+        "seller_irr": 0.025573323468121162,
+        "npv_usd": -2556339.330211228,
+        "min_dscr": 0.41281821433800653
       },
       "gate": {
         "buyer_pass": true,
@@ -429,8 +429,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.05002791268697884,
         "buyer_lifetime_delta_frac": -0.0500279126869788,
-        "seller_irr": 0.031777567027479144,
-        "min_dscr": 0.43708555783317415
+        "seller_irr": 0.025573323468121162,
+        "min_dscr": 0.41281821433800653
       }
     },
     {
@@ -448,9 +448,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.03875478619284667,
-        "npv_usd": -2354882.1437488003,
-        "min_dscr": 0.4677376449165326
+        "seller_irr": 0.03204501065420475,
+        "npv_usd": -2601462.053818801,
+        "min_dscr": 0.44053799113086145
       },
       "gate": {
         "buyer_pass": true,
@@ -459,8 +459,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.05717475735655055,
         "buyer_lifetime_delta_frac": -0.05717475735655057,
-        "seller_irr": 0.03875478619284667,
-        "min_dscr": 0.4677376449165326
+        "seller_irr": 0.03204501065420475,
+        "min_dscr": 0.44053799113086145
       }
     },
     {
@@ -478,9 +478,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04473588156334492,
-        "npv_usd": -2369182.3785969396,
-        "min_dscr": 0.4947218886141219
+        "seller_irr": 0.03756125452124942,
+        "npv_usd": -2646584.7774256915,
+        "min_dscr": 0.46481331123047337
       },
       "gate": {
         "buyer_pass": true,
@@ -489,8 +489,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.06432160202610368,
         "buyer_lifetime_delta_frac": -0.06432160202610375,
-        "seller_irr": 0.04473588156334492,
-        "min_dscr": 0.4947218886141219
+        "seller_irr": 0.03756125452124942,
+        "min_dscr": 0.46481331123047337
       }
     },
     {
@@ -508,9 +508,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.049932400197956535,
-        "npv_usd": -2383482.6134450226,
-        "min_dscr": 0.5186594675013044
+        "seller_irr": 0.04232933368657754,
+        "npv_usd": -2691707.501032524,
+        "min_dscr": 0.4862486315269411
       },
       "gate": {
         "buyer_pass": true,
@@ -519,8 +519,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.07146844669569888,
         "buyer_lifetime_delta_frac": -0.07146844669569896,
-        "seller_irr": 0.049932400197956535,
-        "min_dscr": 0.5186594675013044
+        "seller_irr": 0.04232933368657754,
+        "min_dscr": 0.4862486315269411
       }
     },
     {
@@ -538,9 +538,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04001270323815776,
-        "npv_usd": -2182289.702517556,
-        "min_dscr": 0.47168621788166526
+        "seller_irr": 0.03372252938372687,
+        "npv_usd": -2398047.1238288092,
+        "min_dscr": 0.44604076858920305
       },
       "gate": {
         "buyer_pass": true,
@@ -549,8 +549,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.01866013449194747,
         "buyer_lifetime_delta_frac": -0.01866013449194746,
-        "seller_irr": 0.04001270323815776,
-        "min_dscr": 0.47168621788166526
+        "seller_irr": 0.03372252938372687,
+        "min_dscr": 0.44604076858920305
       }
     },
     {
@@ -568,9 +568,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04730860258972199,
-        "npv_usd": -2173976.7650260464,
-        "min_dscr": 0.5047647920130193
+        "seller_irr": 0.040481714019373304,
+        "npv_usd": -2420556.675096047,
+        "min_dscr": 0.4759913621346778
       },
       "gate": {
         "buyer_pass": true,
@@ -579,8 +579,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.021325867990794604,
         "buyer_lifetime_delta_frac": -0.021325867990794594,
-        "seller_irr": 0.04730860258972199,
-        "min_dscr": 0.5047647920130193
+        "seller_irr": 0.040481714019373304,
+        "min_dscr": 0.4759913621346778
       }
     },
     {
@@ -598,9 +598,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.0535769820362261,
-        "npv_usd": -2165663.8275338053,
-        "min_dscr": 0.5338851681590794
+        "seller_irr": 0.0462548872924391,
+        "npv_usd": -2443066.226362557,
+        "min_dscr": 0.5022202979202334
       },
       "gate": {
         "buyer_pass": true,
@@ -609,8 +609,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.02399160148962245,
         "buyer_lifetime_delta_frac": -0.023991601489622465,
-        "seller_irr": 0.0535769820362261,
-        "min_dscr": 0.5338851681590794
+        "seller_irr": 0.0462548872924391,
+        "min_dscr": 0.5022202979202334
       }
     },
     {
@@ -628,9 +628,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.05903400788491627,
-        "npv_usd": -2157350.8900415036,
-        "min_dscr": 0.5597176987659318
+        "seller_irr": 0.051254121971846395,
+        "npv_usd": -2465575.7776290053,
+        "min_dscr": 0.5253806779807975
       },
       "gate": {
         "buyer_pass": true,
@@ -639,8 +639,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.026657334988522536,
         "buyer_lifetime_delta_frac": -0.026657334988522543,
-        "seller_irr": 0.05903400788491627,
-        "min_dscr": 0.5597176987659318
+        "seller_irr": 0.051254121971846395,
+        "min_dscr": 0.5253806779807975
       }
     },
     {
@@ -658,9 +658,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04796754253386625,
-        "npv_usd": -2023997.4961351373,
-        "min_dscr": 0.5062868779301563
+        "seller_irr": 0.04157230402268263,
+        "npv_usd": -2239754.9174463907,
+        "min_dscr": 0.47926332284039946
       },
       "gate": {
         "buyer_pass": false,
@@ -669,8 +669,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.012707643703034106,
         "buyer_lifetime_delta_frac": 0.01270764370303404,
-        "seller_irr": 0.04796754253386625,
-        "min_dscr": 0.5062868779301563
+        "seller_irr": 0.04157230402268263,
+        "min_dscr": 0.47926332284039946
       }
     },
     {
@@ -688,9 +688,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.05559117875425492,
-        "npv_usd": -1993071.386303293,
-        "min_dscr": 0.5417919391095062
+        "seller_irr": 0.04862633294623313,
+        "npv_usd": -2239651.2963732937,
+        "min_dscr": 0.5114447331384941
       },
       "gate": {
         "buyer_pass": false,
@@ -699,8 +699,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.014523021374925576,
         "buyer_lifetime_delta_frac": 0.014523021374925548,
-        "seller_irr": 0.05559117875425492,
-        "min_dscr": 0.5417919391095062
+        "seller_irr": 0.04862633294623313,
+        "min_dscr": 0.5114447331384941
       }
     },
     {
@@ -718,9 +718,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.062155987957639984,
-        "npv_usd": -1962145.2764706707,
-        "min_dscr": 0.573048447704037
+        "seller_irr": 0.05466380860209243,
+        "npv_usd": -2239547.675299423,
+        "min_dscr": 0.5396272846099933
       },
       "gate": {
         "buyer_pass": false,
@@ -729,8 +729,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.016338399046847026,
         "buyer_lifetime_delta_frac": 0.016338399046846964,
-        "seller_irr": 0.062155987957639984,
-        "min_dscr": 0.573048447704037
+        "seller_irr": 0.05466380860209243,
+        "min_dscr": 0.5396272846099933
       }
     },
     {
@@ -748,9 +748,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.06788254140772867,
-        "npv_usd": -1931219.1666379855,
-        "min_dscr": 0.600775930030559
+        "seller_irr": 0.05990146522855553,
+        "npv_usd": -2239444.0542254862,
+        "min_dscr": 0.5645127244346537
       },
       "gate": {
         "buyer_pass": false,
@@ -759,8 +759,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.018153776718691682,
         "buyer_lifetime_delta_frac": 0.018153776718691724,
-        "seller_irr": 0.06788254140772867,
-        "min_dscr": 0.600775930030559
+        "seller_irr": 0.05990146522855553,
+        "min_dscr": 0.5645127244346537
       }
     },
     {
@@ -778,9 +778,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.05568979310981943,
-        "npv_usd": -1865705.2897527188,
-        "min_dscr": 0.5408875379786473
+        "seller_irr": 0.04917264791499251,
+        "npv_usd": -2081462.7110639727,
+        "min_dscr": 0.5124858770915959
       },
       "gate": {
         "buyer_pass": false,
@@ -789,8 +789,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.044075421898047244,
         "buyer_lifetime_delta_frac": 0.044075421898047196,
-        "seller_irr": 0.05568979310981943,
-        "min_dscr": 0.5408875379786473
+        "seller_irr": 0.04917264791499251,
+        "min_dscr": 0.5124858770915959
       }
     },
     {
@@ -808,9 +808,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.0636510496779218,
-        "npv_usd": -1812166.0075805397,
-        "min_dscr": 0.578819086205993
+        "seller_irr": 0.056529637190014574,
+        "npv_usd": -2058745.9176505406,
+        "min_dscr": 0.5468981041423104
       },
       "gate": {
         "buyer_pass": false,
@@ -819,8 +819,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.05037191074064856,
         "buyer_lifetime_delta_frac": 0.05037191074064852,
-        "seller_irr": 0.0636510496779218,
-        "min_dscr": 0.578819086205993
+        "seller_irr": 0.056529637190014574,
+        "min_dscr": 0.5468981041423104
       }
     },
     {
@@ -838,9 +838,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07052225626239787,
-        "npv_usd": -1758626.7254075378,
-        "min_dscr": 0.6122117272489944
+        "seller_irr": 0.06283951427032419,
+        "npv_usd": -2036029.124236289,
+        "min_dscr": 0.5770342712997532
       },
       "gate": {
         "buyer_pass": false,
@@ -849,8 +849,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.056668399583228495,
         "buyer_lifetime_delta_frac": 0.05666839958322842,
-        "seller_irr": 0.07052225626239787,
-        "min_dscr": 0.6122117272489944
+        "seller_irr": 0.06283951427032419,
+        "min_dscr": 0.5770342712997532
       }
     },
     {
@@ -868,9 +868,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07652801955890125,
-        "npv_usd": -1705087.4432344667,
-        "min_dscr": 0.6418341612951862
+        "seller_irr": 0.06832360088762475,
+        "npv_usd": -2013312.3308219681,
+        "min_dscr": 0.6036447708885101
       },
       "gate": {
         "buyer_pass": false,
@@ -879,8 +879,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.06296488842577301,
         "buyer_lifetime_delta_frac": 0.06296488842577302,
-        "seller_irr": 0.07652801955890125,
-        "min_dscr": 0.6418341612951862
+        "seller_irr": 0.06832360088762475,
+        "min_dscr": 0.6036447708885101
       }
     },
     {
@@ -898,9 +898,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.06321853358159188,
-        "npv_usd": -1707413.0833702995,
-        "min_dscr": 0.5754881980271385
+        "seller_irr": 0.05656435112021227,
+        "npv_usd": -1923170.5046815535,
+        "min_dscr": 0.5457084313427925
       },
       "gate": {
         "buyer_pass": false,
@@ -909,8 +909,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.07544320009313243,
         "buyer_lifetime_delta_frac": 0.07544320009313242,
-        "seller_irr": 0.06321853358159188,
-        "min_dscr": 0.5754881980271385
+        "seller_irr": 0.05656435112021227,
+        "min_dscr": 0.5457084313427925
       }
     },
     {
@@ -928,9 +928,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.0715281270283693,
-        "npv_usd": -1631260.6288577856,
-        "min_dscr": 0.6158462333024798
+        "seller_irr": 0.0642330958335351,
+        "npv_usd": -1877840.538927786,
+        "min_dscr": 0.5823514751461268
       },
       "gate": {
         "buyer_pass": false,
@@ -939,8 +939,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.08622080010644659,
         "buyer_lifetime_delta_frac": 0.08622080010644653,
-        "seller_irr": 0.0715281270283693,
-        "min_dscr": 0.6158462333024798
+        "seller_irr": 0.0642330958335351,
+        "min_dscr": 0.5823514751461268
       }
     },
     {
@@ -958,9 +958,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07871611011149639,
-        "npv_usd": -1555108.174344403,
-        "min_dscr": 0.6513750067939521
+        "seller_irr": 0.07082416936614558,
+        "npv_usd": -1832510.573173155,
+        "min_dscr": 0.6144412579895132
       },
       "gate": {
         "buyer_pass": false,
@@ -969,8 +969,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.09699840011966993,
         "buyer_lifetime_delta_frac": 0.09699840011966983,
-        "seller_irr": 0.07871611011149639,
-        "min_dscr": 0.6513750067939521
+        "seller_irr": 0.07082416936614558,
+        "min_dscr": 0.6144412579895132
       }
     },
     {
@@ -988,9 +988,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.08501161156314373,
-        "npv_usd": -1478955.7198309475,
-        "min_dscr": 0.6828923925598136
+        "seller_irr": 0.07656296078692677,
+        "npv_usd": -1787180.6074184491,
+        "min_dscr": 0.6427768173423666
       },
       "gate": {
         "buyer_pass": false,
@@ -999,8 +999,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.1077760001330379,
         "buyer_lifetime_delta_frac": 0.10777600013303781,
-        "seller_irr": 0.08501161156314373,
-        "min_dscr": 0.6828923925598136
+        "seller_irr": 0.07656296078692677,
+        "min_dscr": 0.6427768173423666
       }
     },
     {
@@ -1018,9 +1018,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07058630883995858,
-        "npv_usd": -1549120.8769878813,
-        "min_dscr": 0.6100888580756294
+        "seller_irr": 0.06378116973673292,
+        "npv_usd": -1764878.298299135,
+        "min_dscr": 0.5789309855939889
       },
       "gate": {
         "buyer_pass": false,
@@ -1029,8 +1029,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.10681097828810086,
         "buyer_lifetime_delta_frac": 0.10681097828810085,
-        "seller_irr": 0.07058630883995858,
-        "min_dscr": 0.6100888580756294
+        "seller_irr": 0.06378116973673292,
+        "min_dscr": 0.5789309855939889
       }
     },
     {
@@ -1048,9 +1048,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07925550692967305,
-        "npv_usd": -1450355.2501350315,
-        "min_dscr": 0.6528733803989667
+        "seller_irr": 0.0717711278494964,
+        "npv_usd": -1696935.1602050327,
+        "min_dscr": 0.6178048461499432
       },
       "gate": {
         "buyer_pass": false,
@@ -1059,8 +1059,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.12206968947206262,
         "buyer_lifetime_delta_frac": 0.12206968947206266,
-        "seller_irr": 0.07925550692967305,
-        "min_dscr": 0.6528733803989667
+        "seller_irr": 0.0717711278494964,
+        "min_dscr": 0.6178048461499432
       }
     },
     {
@@ -1078,9 +1078,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.08677163167970385,
-        "npv_usd": -1351589.6232812689,
-        "min_dscr": 0.6905382863389097
+        "seller_irr": 0.07865254215315808,
+        "npv_usd": -1628992.0221100205,
+        "min_dscr": 0.6518482446792732
       },
       "gate": {
         "buyer_pass": false,
@@ -1089,8 +1089,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.13732840065619795,
         "buyer_lifetime_delta_frac": 0.137328400656198,
-        "seller_irr": 0.08677163167970385,
-        "min_dscr": 0.6905382863389097
+        "seller_irr": 0.07865254215315808,
+        "min_dscr": 0.6518482446792732
       }
     },
     {
@@ -1108,9 +1108,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.09336782258413191,
-        "npv_usd": -1252823.9964274298,
-        "min_dscr": 0.723950623824441
+        "seller_irr": 0.08465528882768183,
+        "npv_usd": -1561048.8840149306,
+        "min_dscr": 0.681908863796223
       },
       "gate": {
         "buyer_pass": false,
@@ -1119,8 +1119,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.15258711184014148,
         "buyer_lifetime_delta_frac": 0.15258711184014148,
-        "seller_irr": 0.09336782258413191,
-        "min_dscr": 0.723950623824441
+        "seller_irr": 0.08465528882768183,
+        "min_dscr": 0.681908863796223
       }
     },
     {
@@ -1138,9 +1138,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.07782065212850749,
-        "npv_usd": -1390828.6706054625,
-        "min_dscr": 0.6446895181241205
+        "seller_irr": 0.07085153582615955,
+        "npv_usd": -1606586.0919167167,
+        "min_dscr": 0.6121535398451853
       },
       "gate": {
         "buyer_pass": false,
@@ -1149,8 +1149,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.13817875648314695,
         "buyer_lifetime_delta_frac": 0.1381787564831469,
-        "seller_irr": 0.07782065212850749,
-        "min_dscr": 0.6446895181241205
+        "seller_irr": 0.07085153582615955,
+        "min_dscr": 0.6121535398451853
       }
     },
     {
@@ -1168,9 +1168,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.0868612543079141,
-        "npv_usd": -1269449.8714122784,
-        "min_dscr": 0.6899005274954534
+        "seller_irr": 0.07917274154389896,
+        "npv_usd": -1516029.781482279,
+        "min_dscr": 0.6532582171537595
       },
       "gate": {
         "buyer_pass": false,
@@ -1179,8 +1179,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.15791857883783156,
         "buyer_lifetime_delta_frac": 0.15791857883783159,
-        "seller_irr": 0.0868612543079141,
-        "min_dscr": 0.6899005274954534
+        "seller_irr": 0.07917274154389896,
+        "min_dscr": 0.6532582171537595
       }
     },
     {
@@ -1198,9 +1198,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.09471749395112941,
-        "npv_usd": -1148071.072218135,
-        "min_dscr": 0.7297015658838671
+        "seller_irr": 0.0863543891964341,
+        "npv_usd": -1425473.4710468873,
+        "min_dscr": 0.6892552313690331
       },
       "gate": {
         "buyer_pass": false,
@@ -1209,8 +1209,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.17765840119263554,
         "buyer_lifetime_delta_frac": 0.17765840119263548,
-        "seller_irr": 0.09471749395112941,
-        "min_dscr": 0.7297015658838671
+        "seller_irr": 0.0863543891964341,
+        "min_dscr": 0.6892552313690331
       }
     },
     {
@@ -1228,9 +1228,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.10162582659501992,
-        "npv_usd": -1026692.2730239113,
-        "min_dscr": 0.765008855089068
+        "seller_irr": 0.09263054828999931,
+        "npv_usd": -1334917.160611413,
+        "min_dscr": 0.7210409102500791
       },
       "gate": {
         "buyer_pass": false,
@@ -1239,8 +1239,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.19739822354738656,
         "buyer_lifetime_delta_frac": 0.19739822354738645,
-        "seller_irr": 0.10162582659501992,
-        "min_dscr": 0.765008855089068
+        "seller_irr": 0.09263054828999931,
+        "min_dscr": 0.7210409102500791
       }
     },
     {
@@ -1258,9 +1258,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.0849447481210057,
-        "npv_usd": -1232536.4642230445,
-        "min_dscr": 0.6792901781726114
+        "seller_irr": 0.07779935476701992,
+        "npv_usd": -1448293.8855342981,
+        "min_dscr": 0.6453760940963816
       },
       "gate": {
         "buyer_pass": false,
@@ -1269,8 +1269,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.16954653467811995,
         "buyer_lifetime_delta_frac": 0.1695465346781199,
-        "seller_irr": 0.0849447481210057,
-        "min_dscr": 0.6792901781726114
+        "seller_irr": 0.07779935476701992,
+        "min_dscr": 0.6453760940963816
       }
     },
     {
@@ -1288,9 +1288,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.09436959479227801,
-        "npv_usd": -1088544.4926895248,
-        "min_dscr": 0.7269276745919401
+        "seller_irr": 0.0864623945441667,
+        "npv_usd": -1335124.4027595255,
+        "min_dscr": 0.6887115881575758
       },
       "gate": {
         "buyer_pass": false,
@@ -1299,8 +1299,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.19376746820356416,
         "buyer_lifetime_delta_frac": 0.1937674682035641,
-        "seller_irr": 0.09436959479227801,
-        "min_dscr": 0.7269276745919401
+        "seller_irr": 0.0864623945441667,
+        "min_dscr": 0.6887115881575758
       }
     },
     {
@@ -1318,9 +1318,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.10257825746307335,
-        "npv_usd": -944552.5211550016,
-        "min_dscr": 0.7688648454288244
+        "seller_irr": 0.0939546666439808,
+        "npv_usd": -1221954.919983753,
+        "min_dscr": 0.7266622180587927
       },
       "gate": {
         "buyer_pass": false,
@@ -1329,8 +1329,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.21798840172897177,
         "buyer_lifetime_delta_frac": 0.21798840172897183,
-        "seller_irr": 0.10257825746307335,
-        "min_dscr": 0.7688648454288244
+        "seller_irr": 0.0939546666439808,
+        "min_dscr": 0.7266622180587927
       }
     },
     {
@@ -1348,9 +1348,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.10981084299633387,
-        "npv_usd": -800560.5496203934,
-        "min_dscr": 0.8060670863536952
+        "seller_irr": 0.10051420805306019,
+        "npv_usd": -1108785.4372078946,
+        "min_dscr": 0.7601729567039354
       },
       "gate": {
         "buyer_pass": false,
@@ -1359,8 +1359,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.24220933525443353,
         "buyer_lifetime_delta_frac": 0.24220933525443342,
-        "seller_irr": 0.10981084299633387,
-        "min_dscr": 0.8060670863536952
+        "seller_irr": 0.10051420805306019,
+        "min_dscr": 0.7601729567039354
       }
     }
   ],
@@ -1386,9 +1386,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.09336782258413191,
-        "npv_usd": -1252823.9964274298,
-        "min_dscr": 0.723950623824441
+        "seller_irr": 0.08465528882768183,
+        "npv_usd": -1561048.8840149306,
+        "min_dscr": 0.681908863796223
       },
       "gate": {
         "buyer_pass": false,
@@ -1397,8 +1397,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": 0.15258711184014148,
         "buyer_lifetime_delta_frac": 0.15258711184014148,
-        "seller_irr": 0.09336782258413191,
-        "min_dscr": 0.723950623824441
+        "seller_irr": 0.08465528882768183,
+        "min_dscr": 0.681908863796223
       }
     },
     "row_2_1400_100pct": {
@@ -1416,9 +1416,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.04051595040431941,
-        "npv_usd": -2609614.3368485407,
-        "min_dscr": 0.4776012362366771
+        "seller_irr": 0.0330623135109846,
+        "npv_usd": -2917839.2244360424,
+        "min_dscr": 0.44711658507308466
       },
       "gate": {
         "buyer_pass": true,
@@ -1427,8 +1427,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.11627955840287278,
         "buyer_lifetime_delta_frac": -0.11627955840287281,
-        "seller_irr": 0.04051595040431941,
-        "min_dscr": 0.4776012362366771
+        "seller_irr": 0.0330623135109846,
+        "min_dscr": 0.44711658507308466
       }
     },
     "row_3_1300_70pct": {
@@ -1446,9 +1446,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.014213793798705198,
-        "npv_usd": -2657166.321664812,
-        "min_dscr": 0.3678842377361921
+        "seller_irr": 0.008109557195732583,
+        "npv_usd": -2872923.7429760653,
+        "min_dscr": 0.3463731058356137
       },
       "gate": {
         "buyer_pass": true,
@@ -1457,8 +1457,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.11276346907699582,
         "buyer_lifetime_delta_frac": -0.11276346907699582,
-        "seller_irr": 0.014213793798705198,
-        "min_dscr": 0.3678842377361921
+        "seller_irr": 0.008109557195732583,
+        "min_dscr": 0.3463731058356137
       }
     },
     "row_4_1200_100pct": {
@@ -1476,9 +1476,9 @@
         "lifetime_cum_vnd": 906131515891.8073
       },
       "finance": {
-        "seller_irr": 0.020404171104332083,
-        "npv_usd": -3061877.7836555773,
-        "min_dscr": 0.39548477370742263
+        "seller_irr": 0.013147005209361257,
+        "npv_usd": -3370102.671243079,
+        "min_dscr": 0.368852492165372
       },
       "gate": {
         "buyer_pass": true,
@@ -1487,8 +1487,8 @@
         "all_three_pass": false,
         "buyer_y1_delta_frac": -0.20590178181717148,
         "buyer_lifetime_delta_frac": -0.20590178181717148,
-        "seller_irr": 0.020404171104332083,
-        "min_dscr": 0.39548477370742263
+        "seller_irr": 0.013147005209361257,
+        "min_dscr": 0.368852492165372
       }
     }
   }

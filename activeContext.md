@@ -16,7 +16,7 @@ crossing, "0 of 56 scenarios pass", buyer-vs-BAU) survives that calibration.
 - **Plan:** `plans/active/2026-06-26-dppa-july-deck-verification-plan.md` (multi-phase) — see plan for phase status
 - **Deck (untracked binary):** `ceba-review/DPPA Presentation July 2026 Case Studies.pptx`
 
-### Phase status (PHASE-01..04 ✅ done 2026-06-26; PHASE-05 in progress)
+### Phase status (all 5 phases ✅ done 2026-06-26)
 - **PHASE-01 ✅** — `DeckConfig` parametrization + `july_deck_checks.py` registry (50 checks across
   15 slides) + 🔧 "calibrated" verdict tier + extractor's `--deck` flag + new smoke test
   (`test_july_deck_checks.py`, 8 tests passing). CEBA tests still green (13 tests).
@@ -39,10 +39,13 @@ crossing, "0 of 56 scenarios pass", buyer-vs-BAU) survives that calibration.
   return **0 of 44 scenarios passing all three gates at the calibration's $4M CAPEX basis**.
   The deck's qualitative "0 of 56" headline is supported; the deck's quantitative numbers
   (specific deltas, IRRs, DSCRs) are not reproducible from disclosed terms.
-- **PHASE-05 in progress** — `inject_repo_notes.py --deck july` produces
+- **PHASE-05 ✅** — `inject_repo_notes.py --deck july` produces
   `ceba-review/DPPA Presentation July 2026 Case Studies [repo-checked].pptx` with 15 slides
   annotated; idempotency test (`test_inject_idempotency_july.py`) confirms byte-stable notes
-  payload across two runs.
+  payload across two runs. `synthesize_md_report.py --deck july` emits
+  `reports/dppa_july_2026_repo_check.md` (verdict table + bucket breakdown + per-slide notes).
+  All 21 ceba_deck tests still pass (8 July + 13 CEBA). Binary `[repo-checked]` deck stays
+  untracked per CON-002.
 
 ### Final verdict counts (PHASE-04 post-sweep)
 - 13 ✅ ok (≤ ±1%) — A-bucket (10) + worked example B01-B04 (4) + A11 (1, offset by A17 moving to ⚠️)
@@ -108,3 +111,45 @@ crossing, "0 of 56 scenarios pass", buyer-vs-BAU) survives that calibration.
 - `tests/python/integration/test_ninhsim_cppa.py::test_build_extracted_inputs_cleans_load_and_computes_weighted_evn_benchmark`
 
 Both are numeric benchmark/tolerance drift — confirmed failing before recent work (verified at commit `5297f89`).
+
+## July 2026 deck verification — final results summary (2026-06-26)
+
+**Goal achieved.** All 5 PHASE deliverables shipped; calibrate-then-validate
+pipeline returns a defensible verdict for every claim in the 28-slide deck.
+
+**Headline numbers (post-calibration).**
+- **Calibration**: Case 5 capex $1.78M ($339/kW PV), modeled IRR 16.71% (target 16.9%);
+  Case 6 capex $521K ($99/kW PV), modeled IRR 26.73% (target 26.9%). Implied $/kW
+  is plausible for Case 5; Case 6's $99/kW is at-cost — the deck's 26.9% is reachable
+  only with the lean BESS (no year-11 shock) and a low PV capex assumption.
+- **Worked example (slides 10-12)**: engine reproduces the deck's five-line
+  settlement to ≤0.02% (EVN bill 10,586,097,600; CfD 600,000,000; effective 1,864;
+  pre-CfD 2,027). All 4 ✅.
+- **56-scenario sweep (slide 25)**: at FMP 1,426.6 + synthetic factory load + the
+  calibration's $4M CAPEX basis, **0 of 44 scenarios pass all three gates** —
+  supports the deck's "0 of 56" headline. Sweep grid:
+  - Buyer cumulative ≤ BAU: 5/44 (low strikes only)
+  - Seller IRR ≥ 12%: 28/44 (most strikes)
+  - Lender min DSCR ≥ 1.20x: 0/44 (lender gate is the binding constraint)
+- **Sensitivities**: 3 configurations (deck synthetic, deck Emivest real meter,
+  repo center 1,700) all return 0/44. The Emivest 9,315 MWh real meter is **only
+  4% smaller** than the synthetic 9,750 MWh anchor — the headline finding (0/44
+  at the binding lender gate) is insensitive to load source.
+
+**Calibration ledger:** `reports/dppa_july_2026_calibration.json` (solved CAPEX +
+modeled metrics + assumption list per case). **Sweep output:**
+`reports/dppa_july_2026_sweep_56.json` + 3 config variants. **Markdown report:**
+`reports/dppa_july_2026_repo_check.md`. **Annotated deck** (untracked):
+`ceba-review/DPPA Presentation July 2026 Case Studies [repo-checked].pptx`.
+
+**Final verdict counts (50 checks):** 13 ✅ / 4 ⚠️ / 15 ℹ️ / 4 ❌ / 0 ➖ / 0 💥 / 14 🔧
+- 4 ❌ (B21-B24) are the four slide-25 gate rows — the deck's specific PASS/FAIL
+  numbers don't reproduce under disclosed terms (the qualitative "0 of 56"
+  headline does reproduce).
+- 14 🔧 are the Case 5/6 family — the seller IRR hits the deck value ±0.2pp at
+  the solved CAPEX (the solver's target by construction); the other 5 metrics
+  per case are independent consistency checks (NPV, DSCR, payback, project IRR,
+  buyer-vs-BAU) and most diverge — the report foregrounds these as findings.
+
+**CEBA tests stay green** (16 ok / 5 warn / 14 info / 0 bad); 8 new July tests
+all pass. No code in the committed CEBA path was changed.
