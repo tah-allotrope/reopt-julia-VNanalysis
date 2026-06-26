@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-26T04:16:52.300580+00:00",
+    "generated_at_utc": "2026-06-26T04:24:43.398401+00:00",
     "deck": "ceba-review\\DPPA Presentation July 2026 Case Studies.pptx",
     "deck_title": "DPPA July 2026 Case Studies",
     "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
     "phase": "PHASE-03",
-    "duration_seconds": 3.21
+    "duration_seconds": 3.92
   },
   "calibration": {
     "case_5": {
@@ -36,11 +36,11 @@
       },
       "solver": {
         "solved": true,
-        "iterations": 5,
+        "iterations": 6,
         "reason": null,
-        "solved_capex_usd": 1784375.0,
-        "modeled_irr_at_solved_capex": 0.16714863779270625,
-        "implied_capex_per_kw": 339.4995475113122
+        "solved_capex_usd": 1801562.5,
+        "modeled_irr_at_solved_capex": 0.1662068000380964,
+        "implied_capex_per_kw": 342.76968325791853
       },
       "assumptions": [
         "Project sized at 85% of Factory A's 9,750 MWh/yr load (\u2248 5,250 kWp at 18% CF).",
@@ -52,12 +52,12 @@
         "Calibration target: 1-D bisection on installed_cost_usd so the modeled seller IRR matches the deck's stated seller IRR (Case 5: 16.9%; Case 6: 26.9%) within \u00b10.5pp."
       ],
       "metrics_at_solved_capex": {
-        "project_return_aftertax_irr_fraction": 0.16714863779270625,
-        "project_return_pretax_irr_fraction": 0.18772552449591765,
-        "project_return_aftertax_npv_usd": 567725.3259634406,
-        "min_dscr": -2.235214989752481,
+        "project_return_aftertax_irr_fraction": 0.1662068000380964,
+        "project_return_pretax_irr_fraction": 0.18660781204599047,
+        "project_return_aftertax_npv_usd": 551211.5626984471,
+        "min_dscr": -2.226934731895547,
         "payback_years": 1,
-        "fixed_om_usd_per_year": 26765.625
+        "fixed_om_usd_per_year": 27023.4375
       },
       "trace": [
         {
@@ -67,33 +67,38 @@
         },
         {
           "iter": 0,
-          "capex_usd": 5000000.0,
-          "modeled_irr": 0.06127524368936176
+          "capex_usd": 10000000.0,
+          "modeled_irr": -0.015040186032035597
         },
         {
           "iter": 1,
-          "capex_usd": 2550000.0,
-          "modeled_irr": 0.13125448609592472
+          "capex_usd": 5050000.0,
+          "modeled_irr": 0.060227310385804825
         },
         {
           "iter": 2,
-          "capex_usd": 1325000.0,
-          "modeled_irr": 0.19550369577514676
+          "capex_usd": 2575000.0,
+          "modeled_irr": 0.13025556774384806
         },
         {
           "iter": 3,
-          "capex_usd": 1937500.0,
-          "modeled_irr": 0.15901259573660048
+          "capex_usd": 1337500.0,
+          "modeled_irr": 0.19463960229915395
         },
         {
           "iter": 4,
-          "capex_usd": 1631250.0,
-          "modeled_irr": 0.17588653056100256
+          "capex_usd": 1956250.0,
+          "modeled_irr": 0.1580542346023974
         },
         {
           "iter": 5,
-          "capex_usd": 1784375.0,
-          "modeled_irr": 0.16714863779270625
+          "capex_usd": 1646875.0,
+          "modeled_irr": 0.17496509806829136
+        },
+        {
+          "iter": 6,
+          "capex_usd": 1801562.5,
+          "modeled_irr": 0.1662068000380964
         }
       ]
     },
@@ -127,9 +132,9 @@
         "solved": true,
         "iterations": 7,
         "reason": null,
-        "solved_capex_usd": 521093.75,
-        "modeled_irr_at_solved_capex": 0.26728075426530784,
-        "implied_capex_per_kw": 99.14457013574659
+        "solved_capex_usd": 486718.75,
+        "modeled_irr_at_solved_capex": 0.2712911237067689,
+        "implied_capex_per_kw": 92.60429864253393
       },
       "assumptions": [
         "Project sized at 85% of Factory A's 9,750 MWh/yr load (\u2248 5,250 kWp at 18% CF).",
@@ -141,12 +146,12 @@
         "Calibration target: 1-D bisection on installed_cost_usd so the modeled seller IRR matches the deck's stated seller IRR (Case 5: 16.9%; Case 6: 26.9%) within \u00b10.5pp."
       ],
       "metrics_at_solved_capex": {
-        "project_return_aftertax_irr_fraction": 0.26728075426530784,
+        "project_return_aftertax_irr_fraction": 0.2712911237067689,
         "project_return_pretax_irr_fraction": null,
-        "project_return_aftertax_npv_usd": 1781486.9259405322,
-        "min_dscr": 1.5664555000728275,
+        "project_return_aftertax_npv_usd": 1814514.4524705224,
+        "min_dscr": 1.5844312462360588,
         "payback_years": 1,
-        "fixed_om_usd_per_year": 7816.40625
+        "fixed_om_usd_per_year": 7300.78125
       },
       "trace": [
         {
@@ -156,43 +161,43 @@
         },
         {
           "iter": 0,
-          "capex_usd": 5000000.0,
-          "modeled_irr": 0.06127524368936176
+          "capex_usd": 10000000.0,
+          "modeled_irr": -0.015040186032035597
         },
         {
           "iter": 1,
-          "capex_usd": 2550000.0,
-          "modeled_irr": 0.13125448609592472
+          "capex_usd": 5050000.0,
+          "modeled_irr": 0.060227310385804825
         },
         {
           "iter": 2,
-          "capex_usd": 1325000.0,
-          "modeled_irr": 0.19550369577514676
+          "capex_usd": 2575000.0,
+          "modeled_irr": 0.13025556774384806
         },
         {
           "iter": 3,
-          "capex_usd": 712500.0,
-          "modeled_irr": 0.24665874466077894
+          "capex_usd": 1337500.0,
+          "modeled_irr": 0.19463960229915395
         },
         {
           "iter": 4,
-          "capex_usd": 406250.0,
-          "modeled_irr": null
+          "capex_usd": 718750.0,
+          "modeled_irr": 0.24603038230423194
         },
         {
           "iter": 5,
-          "capex_usd": 559375.0,
-          "modeled_irr": 0.26293055501106594
-        },
-        {
-          "iter": 6,
-          "capex_usd": 482812.5,
+          "capex_usd": 409375.0,
           "modeled_irr": null
         },
         {
+          "iter": 6,
+          "capex_usd": 564062.5,
+          "modeled_irr": 0.2624060559417829
+        },
+        {
           "iter": 7,
-          "capex_usd": 521093.75,
-          "modeled_irr": 0.26728075426530784
+          "capex_usd": 486718.75,
+          "modeled_irr": 0.2712911237067689
         }
       ]
     }
