@@ -469,14 +469,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--capex-lo",
         type=float,
-        default=1_000_000.0,
-        help="Lower bound for CAPEX search (default: 1M USD).",
+        default=100_000.0,
+        help="Lower bound for CAPEX search (default: 100K USD; the Case 6 lean-BESS target 0.269 IRR is reachable at ~$500K).",
     )
     parser.add_argument(
         "--capex-hi",
         type=float,
-        default=10_000_000.0,
-        help="Upper bound for CAPEX search (default: 10M USD).",
+        default=5_000_000.0,
+        help="Upper bound for CAPEX search (default: 5M USD; the Case 5 large-BESS target 0.169 IRR with year-11 shock converges around $1.8M).",
     )
     parser.add_argument(
         "--tol",

@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-06-26T04:21:05.989838+00:00",
+    "phase": "PHASE-04",
+    "duration_seconds": 54.24
+  },
+  "configurations": {
+    "baseline": {
+      "fmp_anchor": "deck",
+      "fmp_vnd_kwh": 1426.6,
+      "load_source": "synthetic",
+      "capex_ref_usd": 4000000.0,
+      "summary": {
+        "n_total": 44,
+        "n_passing_all_three_gates": 0,
+        "pass_rate_frac": 0.0,
+        "headline": "0 of 44 scenarios pass all three gates (matches deck '0 of 56' headline)"
+      },
+      "n_passing": 0
+    },
+    "fmp_sensitivity": {
+      "fmp_anchor": "repo",
+      "fmp_vnd_kwh": 1700.0,
+      "load_source": "synthetic",
+      "capex_ref_usd": 4000000.0,
+      "summary": {
+        "n_total": 44,
+        "n_passing_all_three_gates": 0,
+        "pass_rate_frac": 0.0,
+        "headline": "0 of 44 scenarios pass all three gates (matches deck '0 of 56' headline)"
+      },
+      "n_passing": 0
+    },
+    "load_sensitivity": {
+      "fmp_anchor": "deck",
+      "fmp_vnd_kwh": 1426.6,
+      "load_source": "emivest",
+      "capex_ref_usd": 4000000.0,
+      "summary": {
+        "n_total": 44,
+        "n_passing_all_three_gates": 0,
+        "pass_rate_frac": 0.0,
+        "headline": "0 of 44 scenarios pass all three gates (matches deck '0 of 56' headline)"
+      },
+      "n_passing": 0
+    }
+  },
+  "interpretation": "All three configurations return 0 of N scenarios passing all three gates at the calibration's project basis (~$4M CAPEX). The '0 of 56' finding is robust to the FMP anchor (deck 1,426.6 vs repo sensitivity center 1,700) and the load source (synthetic 9,750 MWh anchor vs real 2024 Emivest meter ~9,315 MWh). The deck's qualitative conclusion \u2014 'the negotiation window may be empty at current market prices and fee levels' \u2014 is supported by the repo model; the deck's quantitative numbers (16.9% / 26.9% seller IRR, etc.) are not reproducible from disclosed terms (PHASE-03 monotonic miss)."
+}

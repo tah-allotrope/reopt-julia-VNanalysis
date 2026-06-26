@@ -1,0 +1,1495 @@
+{
+  "metadata": {
+    "generated_at_utc": "2026-06-26T04:20:23.727499+00:00",
+    "deck": "ceba-review\\DPPA Presentation July 2026 Case Studies.pptx",
+    "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
+    "phase": "PHASE-04",
+    "duration_seconds": 10.87
+  },
+  "configuration": {
+    "fmp_anchor": "deck",
+    "fmp_vnd_kwh": 1426.6,
+    "load_source": "synthetic",
+    "capex_ref_usd": 4000000.0,
+    "solar_kwp_basis": 5255.898021308981,
+    "annual_gen_kwh_basis": 8287500.000000001,
+    "strikes_vnd_kwh": [
+      1200,
+      1300,
+      1400,
+      1500,
+      1600,
+      1700,
+      1800,
+      1900,
+      2000,
+      2100,
+      2200
+    ],
+    "volumes_pct": [
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "seller_irr_min": 0.12,
+    "lender_dscr_min": 1.2,
+    "kpp_product": 1.034208
+  },
+  "calibration_note": "PHASE-03 calibration did not converge (monotonic miss: model returns null IRR across the entire CAPEX range explored). Sweep runs at a reference CAPEX of ${args.capex:,.0f} USD (scaled by contract_volume_pct). The gate behavior reported below characterizes the project at this basis; it does NOT match the deck's Case 5/6 framing because the deck's stated seller IRR / NPV / DSCR are unreachable under the disclosed deal terms. The '0 of 56' finding here is the repo's characterization, not the deck's. PHASE-04 exit criterion fulfilled: every scenario carries a verdict; the four disclosed gate rows are present; sensitivities (load-source + fmp-anchor) are tabulated.",
+  "bau_baseline": {
+    "y1_vnd": 21757996239.22777,
+    "y10_cum_vnd": 261228833629.099,
+    "lifetime_cum_vnd": 906131515891.8073
+  },
+  "sweep": [
+    {
+      "strike_vnd_kwh": 1200,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 18621989103.12815,
+        "y10_cum_vnd": 223577596014.72433,
+        "lifetime_cum_vnd": 775529650313.8431
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": -0.001388676209539781,
+        "npv_usd": -3031215.949358484,
+        "min_dscr": 0.31315055158441724
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.14413124727201088,
+        "buyer_lifetime_delta_frac": -0.14413124727201088,
+        "seller_irr": -0.001388676209539781,
+        "min_dscr": 0.31315055158441724
+      }
+    },
+    {
+      "strike_vnd_kwh": 1200,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 18173988083.685135,
+        "y10_cum_vnd": 218198847784.0968,
+        "lifetime_cum_vnd": 756872240945.5536
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.004255089305414673,
+        "npv_usd": -3144178.1899870615,
+        "min_dscr": 0.3341778781194124
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.16472142545373653,
+        "buyer_lifetime_delta_frac": -0.16472142545373658,
+        "seller_irr": 0.004255089305414673,
+        "min_dscr": 0.3341778781194124
+      }
+    },
+    {
+      "strike_vnd_kwh": 1200,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 17725987064.242428,
+        "y10_cum_vnd": 212820099553.47302,
+        "lifetime_cum_vnd": 738214831577.2771
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.009036388371044349,
+        "npv_usd": -3257140.4306150936,
+        "min_dscr": 0.3525923511611936
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.18531160363544794,
+        "buyer_lifetime_delta_frac": -0.1853116036354479,
+        "seller_irr": 0.009036388371044349,
+        "min_dscr": 0.3525923511611936
+      }
+    },
+    {
+      "strike_vnd_kwh": 1200,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 17277986044.799458,
+        "y10_cum_vnd": 207441351322.84607,
+        "lifetime_cum_vnd": 719557422208.9895
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.013147005209361257,
+        "npv_usd": -3370102.671243079,
+        "min_dscr": 0.368852492165372
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.20590178181717148,
+        "buyer_lifetime_delta_frac": -0.20590178181717148,
+        "seller_irr": 0.013147005209361257,
+        "min_dscr": 0.368852492165372
+      }
+    },
+    {
+      "strike_vnd_kwh": 1300,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19304489103.12822,
+        "y10_cum_vnd": 231771764126.1444,
+        "lifetime_cum_vnd": 803952982719.8501
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.008109557195732583,
+        "npv_usd": -2872923.7429760653,
+        "min_dscr": 0.3463731058356137
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.11276346907699582,
+        "buyer_lifetime_delta_frac": -0.11276346907699582,
+        "seller_irr": 0.008109557195732583,
+        "min_dscr": 0.3463731058356137
+      }
+    },
+    {
+      "strike_vnd_kwh": 1300,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 18953988083.686077,
+        "y10_cum_vnd": 227563611340.01584,
+        "lifetime_cum_vnd": 789356049409.5977
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.01402467356753211,
+        "npv_usd": -2963272.811264308,
+        "min_dscr": 0.3696312491232287
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.1288725360879653,
+        "buyer_lifetime_delta_frac": -0.12887253608796526,
+        "seller_irr": 0.01402467356753211,
+        "min_dscr": 0.3696312491232287
+      }
+    },
+    {
+      "strike_vnd_kwh": 1300,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 18603487064.24219,
+        "y10_cum_vnd": 223355458553.86636,
+        "lifetime_cum_vnd": 774759116099.2725
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.01904597142484349,
+        "npv_usd": -3053621.879551959,
+        "min_dscr": 0.38999933785095353
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.14498160309901495,
+        "buyer_lifetime_delta_frac": -0.14498160309901498,
+        "seller_irr": 0.01904597142484349,
+        "min_dscr": 0.38999933785095353
+      }
+    },
+    {
+      "strike_vnd_kwh": 1300,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 18252986044.798534,
+        "y10_cum_vnd": 219147305767.7196,
+        "lifetime_cum_vnd": 760162182788.9569
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.023370632808596633,
+        "npv_usd": -3143970.9478395605,
+        "min_dscr": 0.4079845386192284
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.16109067011005404,
+        "buyer_lifetime_delta_frac": -0.16109067011005407,
+        "seller_irr": 0.023370632808596633,
+        "min_dscr": 0.4079845386192284
+      }
+    },
+    {
+      "strike_vnd_kwh": 1400,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19986989103.1287,
+        "y10_cum_vnd": 239965932237.5694,
+        "lifetime_cum_vnd": 832376315125.8743
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.01706219674428028,
+        "npv_usd": -2714631.5365936467,
+        "min_dscr": 0.3795956600868101
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.08139569088196182,
+        "buyer_lifetime_delta_frac": -0.08139569088196179,
+        "seller_irr": 0.01706219674428028,
+        "min_dscr": 0.3795956600868101
+      }
+    },
+    {
+      "strike_vnd_kwh": 1400,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19733988083.68612,
+        "y10_cum_vnd": 236928374895.92404,
+        "lifetime_cum_vnd": 821839857873.604
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.023252874682362045,
+        "npv_usd": -2782367.432541555,
+        "min_dscr": 0.4050846201270451
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.0930236467222355,
+        "buyer_lifetime_delta_frac": -0.09302364672223555,
+        "seller_irr": 0.023252874682362045,
+        "min_dscr": 0.4050846201270451
+      }
+    },
+    {
+      "strike_vnd_kwh": 1400,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19480987064.242817,
+        "y10_cum_vnd": 233890817554.27002,
+        "lifetime_cum_vnd": 811303400621.3038
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.028518810002072556,
+        "npv_usd": -2850103.328488826,
+        "min_dscr": 0.42740632454071337
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.1046516025625423,
+        "buyer_lifetime_delta_frac": -0.10465160256254233,
+        "seller_irr": 0.028518810002072556,
+        "min_dscr": 0.42740632454071337
+      }
+    },
+    {
+      "strike_vnd_kwh": 1400,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19227986044.799,
+        "y10_cum_vnd": 230853260212.60983,
+        "lifetime_cum_vnd": 800766943368.9822
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0330623135109846,
+        "npv_usd": -2917839.2244360424,
+        "min_dscr": 0.44711658507308466
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.11627955840287278,
+        "buyer_lifetime_delta_frac": -0.11627955840287281,
+        "seller_irr": 0.0330623135109846,
+        "min_dscr": 0.44711658507308466
+      }
+    },
+    {
+      "strike_vnd_kwh": 1500,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 20669489103.12807,
+        "y10_cum_vnd": 248160100348.9811,
+        "lifetime_cum_vnd": 860799647531.8522
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.025573323468121162,
+        "npv_usd": -2556339.330211228,
+        "min_dscr": 0.41281821433800653
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.05002791268697884,
+        "buyer_lifetime_delta_frac": -0.0500279126869788,
+        "seller_irr": 0.025573323468121162,
+        "min_dscr": 0.41281821433800653
+      }
+    },
+    {
+      "strike_vnd_kwh": 1500,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 20513988083.685184,
+        "y10_cum_vnd": 246293138451.82053,
+        "lifetime_cum_vnd": 854323666337.5698
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.03204501065420475,
+        "npv_usd": -2601462.053818801,
+        "min_dscr": 0.44053799113086145
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.05717475735655055,
+        "buyer_lifetime_delta_frac": -0.05717475735655057,
+        "seller_irr": 0.03204501065420475,
+        "min_dscr": 0.44053799113086145
+      }
+    },
+    {
+      "strike_vnd_kwh": 1500,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 20358487064.242702,
+        "y10_cum_vnd": 244426176554.66483,
+        "lifetime_cum_vnd": 847847685143.3043
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.03756125452124942,
+        "npv_usd": -2646584.7774256915,
+        "min_dscr": 0.46481331123047337
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.06432160202610368,
+        "buyer_lifetime_delta_frac": -0.06432160202610375,
+        "seller_irr": 0.03756125452124942,
+        "min_dscr": 0.46481331123047337
+      }
+    },
+    {
+      "strike_vnd_kwh": 1500,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 20202986044.799305,
+        "y10_cum_vnd": 242559214657.49814,
+        "lifetime_cum_vnd": 841371703949.0007
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.04232933368657754,
+        "npv_usd": -2691707.501032524,
+        "min_dscr": 0.4862486315269411
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.07146844669569888,
+        "buyer_lifetime_delta_frac": -0.07146844669569896,
+        "seller_irr": 0.04232933368657754,
+        "min_dscr": 0.4862486315269411
+      }
+    },
+    {
+      "strike_vnd_kwh": 1600,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 21351989103.128494,
+        "y10_cum_vnd": 256354268460.40543,
+        "lifetime_cum_vnd": 889222979937.8739
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.03372252938372687,
+        "npv_usd": -2398047.1238288092,
+        "min_dscr": 0.44604076858920305
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.01866013449194747,
+        "buyer_lifetime_delta_frac": -0.01866013449194746,
+        "seller_irr": 0.03372252938372687,
+        "min_dscr": 0.44604076858920305
+      }
+    },
+    {
+      "strike_vnd_kwh": 1600,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 21293988083.685795,
+        "y10_cum_vnd": 255657902007.73557,
+        "lifetime_cum_vnd": 886807474801.6
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.040481714019373304,
+        "npv_usd": -2420556.675096047,
+        "min_dscr": 0.4759913621346778
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.021325867990794604,
+        "buyer_lifetime_delta_frac": -0.021325867990794594,
+        "seller_irr": 0.040481714019373304,
+        "min_dscr": 0.4759913621346778
+      }
+    },
+    {
+      "strike_vnd_kwh": 1600,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 21235987064.243515,
+        "y10_cum_vnd": 254961535555.07074,
+        "lifetime_cum_vnd": 884391969665.3435
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0462548872924391,
+        "npv_usd": -2443066.226362557,
+        "min_dscr": 0.5022202979202334
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.02399160148962245,
+        "buyer_lifetime_delta_frac": -0.023991601489622465,
+        "seller_irr": 0.0462548872924391,
+        "min_dscr": 0.5022202979202334
+      }
+    },
+    {
+      "strike_vnd_kwh": 1600,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 21177986044.799664,
+        "y10_cum_vnd": 254265169102.3871,
+        "lifetime_cum_vnd": 881976464529.0216
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.051254121971846395,
+        "npv_usd": -2465575.7776290053,
+        "min_dscr": 0.5253806779807975
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.026657334988522536,
+        "buyer_lifetime_delta_frac": -0.026657334988522543,
+        "seller_irr": 0.051254121971846395,
+        "min_dscr": 0.5253806779807975
+      }
+    },
+    {
+      "strike_vnd_kwh": 1700,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22034489103.127834,
+        "y10_cum_vnd": 264548436571.81674,
+        "lifetime_cum_vnd": 917646312343.8505
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.04157230402268263,
+        "npv_usd": -2239754.9174463907,
+        "min_dscr": 0.47926332284039946
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.012707643703034106,
+        "buyer_lifetime_delta_frac": 0.01270764370303404,
+        "seller_irr": 0.04157230402268263,
+        "min_dscr": 0.47926332284039946
+      }
+    },
+    {
+      "strike_vnd_kwh": 1700,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22073988083.685627,
+        "y10_cum_vnd": 265022665563.64127,
+        "lifetime_cum_vnd": 919291283265.5977
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.04862633294623313,
+        "npv_usd": -2239651.2963732937,
+        "min_dscr": 0.5114447331384941
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.014523021374925576,
+        "buyer_lifetime_delta_frac": 0.014523021374925548,
+        "seller_irr": 0.04862633294623313,
+        "min_dscr": 0.5114447331384941
+      }
+    },
+    {
+      "strike_vnd_kwh": 1700,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22113487064.244072,
+        "y10_cum_vnd": 265496894555.4736,
+        "lifetime_cum_vnd": 920936254187.372
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.05466380860209243,
+        "npv_usd": -2239547.675299423,
+        "min_dscr": 0.5396272846099933
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.016338399046847026,
+        "buyer_lifetime_delta_frac": 0.016338399046846964,
+        "seller_irr": 0.05466380860209243,
+        "min_dscr": 0.5396272846099933
+      }
+    },
+    {
+      "strike_vnd_kwh": 1700,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22152986044.800846,
+        "y10_cum_vnd": 265971123547.28592,
+        "lifetime_cum_vnd": 922581225109.0768
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.05990146522855553,
+        "npv_usd": -2239444.0542254862,
+        "min_dscr": 0.5645127244346537
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.018153776718691682,
+        "buyer_lifetime_delta_frac": 0.018153776718691724,
+        "seller_irr": 0.05990146522855553,
+        "min_dscr": 0.5645127244346537
+      }
+    },
+    {
+      "strike_vnd_kwh": 1800,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22716989103.12786,
+        "y10_cum_vnd": 272742604683.2363,
+        "lifetime_cum_vnd": 946069644749.8557
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.04917264791499251,
+        "npv_usd": -2081462.7110639727,
+        "min_dscr": 0.5124858770915959
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.044075421898047244,
+        "buyer_lifetime_delta_frac": 0.044075421898047196,
+        "seller_irr": 0.04917264791499251,
+        "min_dscr": 0.5124858770915959
+      }
+    },
+    {
+      "strike_vnd_kwh": 1800,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22853988083.68552,
+        "y10_cum_vnd": 274387429119.54767,
+        "lifetime_cum_vnd": 951775091729.5979
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.056529637190014574,
+        "npv_usd": -2058745.9176505406,
+        "min_dscr": 0.5468981041423104
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.05037191074064856,
+        "buyer_lifetime_delta_frac": 0.05037191074064852,
+        "seller_irr": 0.056529637190014574,
+        "min_dscr": 0.5468981041423104
+      }
+    },
+    {
+      "strike_vnd_kwh": 1800,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 22990987064.242714,
+        "y10_cum_vnd": 276032253555.85345,
+        "lifetime_cum_vnd": 957480538709.3207
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.06283951427032419,
+        "npv_usd": -2036029.124236289,
+        "min_dscr": 0.5770342712997532
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.056668399583228495,
+        "buyer_lifetime_delta_frac": 0.05666839958322842,
+        "seller_irr": 0.06283951427032419,
+        "min_dscr": 0.5770342712997532
+      }
+    },
+    {
+      "strike_vnd_kwh": 1800,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 23127986044.799137,
+        "y10_cum_vnd": 277677077992.15,
+        "lifetime_cum_vnd": 963185985689.0115
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.06832360088762475,
+        "npv_usd": -2013312.3308219681,
+        "min_dscr": 0.6036447708885101
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.06296488842577301,
+        "buyer_lifetime_delta_frac": 0.06296488842577302,
+        "seller_irr": 0.06832360088762475,
+        "min_dscr": 0.6036447708885101
+      }
+    },
+    {
+      "strike_vnd_kwh": 1900,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 23399489103.129456,
+        "y10_cum_vnd": 280936772794.6747,
+        "lifetime_cum_vnd": 974492977155.9263
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.05656435112021227,
+        "npv_usd": -1923170.5046815535,
+        "min_dscr": 0.5457084313427925
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.07544320009313243,
+        "buyer_lifetime_delta_frac": 0.07544320009313242,
+        "seller_irr": 0.05656435112021227,
+        "min_dscr": 0.5457084313427925
+      }
+    },
+    {
+      "strike_vnd_kwh": 1900,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 23633988083.687046,
+        "y10_cum_vnd": 283752192675.47375,
+        "lifetime_cum_vnd": 984258900193.6661
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0642330958335351,
+        "npv_usd": -1877840.538927786,
+        "min_dscr": 0.5823514751461268
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.08622080010644659,
+        "buyer_lifetime_delta_frac": 0.08622080010644653,
+        "seller_irr": 0.0642330958335351,
+        "min_dscr": 0.5823514751461268
+      }
+    },
+    {
+      "strike_vnd_kwh": 1900,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 23868487064.24266,
+        "y10_cum_vnd": 286567612556.249,
+        "lifetime_cum_vnd": 994024823231.3237
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07082416936614558,
+        "npv_usd": -1832510.573173155,
+        "min_dscr": 0.6144412579895132
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.09699840011966993,
+        "buyer_lifetime_delta_frac": 0.09699840011966983,
+        "seller_irr": 0.07082416936614558,
+        "min_dscr": 0.6144412579895132
+      }
+    },
+    {
+      "strike_vnd_kwh": 1900,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 24102986044.801422,
+        "y10_cum_vnd": 289383032437.0621,
+        "lifetime_cum_vnd": 1003790746269.1124
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07656296078692677,
+        "npv_usd": -1787180.6074184491,
+        "min_dscr": 0.6427768173423666
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.1077760001330379,
+        "buyer_lifetime_delta_frac": 0.10777600013303781,
+        "seller_irr": 0.07656296078692677,
+        "min_dscr": 0.6427768173423666
+      }
+    },
+    {
+      "strike_vnd_kwh": 2000,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 24081989103.12851,
+        "y10_cum_vnd": 289130940906.0826,
+        "lifetime_cum_vnd": 1002916309561.891
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.06378116973673292,
+        "npv_usd": -1764878.298299135,
+        "min_dscr": 0.5789309855939889
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.10681097828810086,
+        "buyer_lifetime_delta_frac": 0.10681097828810085,
+        "seller_irr": 0.06378116973673292,
+        "min_dscr": 0.5789309855939889
+      }
+    },
+    {
+      "strike_vnd_kwh": 2000,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 24413988083.684612,
+        "y10_cum_vnd": 293116956231.3522,
+        "lifetime_cum_vnd": 1016742708657.5696
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0717711278494964,
+        "npv_usd": -1696935.1602050327,
+        "min_dscr": 0.6178048461499432
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.12206968947206262,
+        "buyer_lifetime_delta_frac": 0.12206968947206266,
+        "seller_irr": 0.0717711278494964,
+        "min_dscr": 0.6178048461499432
+      }
+    },
+    {
+      "strike_vnd_kwh": 2000,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 24745987064.24449,
+        "y10_cum_vnd": 297102971556.6672,
+        "lifetime_cum_vnd": 1030569107753.4054
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07865254215315808,
+        "npv_usd": -1628992.0221100205,
+        "min_dscr": 0.6518482446792732
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.13732840065619795,
+        "buyer_lifetime_delta_frac": 0.137328400656198,
+        "seller_irr": 0.07865254215315808,
+        "min_dscr": 0.6518482446792732
+      }
+    },
+    {
+      "strike_vnd_kwh": 2000,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25077986044.800198,
+        "y10_cum_vnd": 301088986881.932,
+        "lifetime_cum_vnd": 1044395506849.0674
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.08465528882768183,
+        "npv_usd": -1561048.8840149306,
+        "min_dscr": 0.681908863796223
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.15258711184014148,
+        "buyer_lifetime_delta_frac": 0.15258711184014148,
+        "seller_irr": 0.08465528882768183,
+        "min_dscr": 0.681908863796223
+      }
+    },
+    {
+      "strike_vnd_kwh": 2100,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 24764489103.129253,
+        "y10_cum_vnd": 297325109017.51074,
+        "lifetime_cum_vnd": 1031339641967.926
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07085153582615955,
+        "npv_usd": -1606586.0919167167,
+        "min_dscr": 0.6121535398451853
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.13817875648314695,
+        "buyer_lifetime_delta_frac": 0.1381787564831469,
+        "seller_irr": 0.07085153582615955,
+        "min_dscr": 0.6121535398451853
+      }
+    },
+    {
+      "strike_vnd_kwh": 2100,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25193988083.685505,
+        "y10_cum_vnd": 302481719787.2706,
+        "lifetime_cum_vnd": 1049226517121.6115
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07917274154389896,
+        "npv_usd": -1516029.781482279,
+        "min_dscr": 0.6532582171537595
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.15791857883783156,
+        "buyer_lifetime_delta_frac": 0.15791857883783159,
+        "seller_irr": 0.07917274154389896,
+        "min_dscr": 0.6532582171537595
+      }
+    },
+    {
+      "strike_vnd_kwh": 2100,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25623487064.244354,
+        "y10_cum_vnd": 307638330557.0617,
+        "lifetime_cum_vnd": 1067113392275.4049
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0863543891964341,
+        "npv_usd": -1425473.4710468873,
+        "min_dscr": 0.6892552313690331
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.17765840119263554,
+        "buyer_lifetime_delta_frac": 0.17765840119263548,
+        "seller_irr": 0.0863543891964341,
+        "min_dscr": 0.6892552313690331
+      }
+    },
+    {
+      "strike_vnd_kwh": 2100,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 26052986044.80205,
+        "y10_cum_vnd": 312794941326.8389,
+        "lifetime_cum_vnd": 1085000267429.1504
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.09263054828999931,
+        "npv_usd": -1334917.160611413,
+        "min_dscr": 0.7210409102500791
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.19739822354738656,
+        "buyer_lifetime_delta_frac": 0.19739822354738645,
+        "seller_irr": 0.09263054828999931,
+        "min_dscr": 0.7210409102500791
+      }
+    },
+    {
+      "strike_vnd_kwh": 2200,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25446989103.128407,
+        "y10_cum_vnd": 305519277128.91986,
+        "lifetime_cum_vnd": 1059762974373.8949
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.07779935476701992,
+        "npv_usd": -1448293.8855342981,
+        "min_dscr": 0.6453760940963816
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.16954653467811995,
+        "buyer_lifetime_delta_frac": 0.1695465346781199,
+        "seller_irr": 0.07779935476701992,
+        "min_dscr": 0.6453760940963816
+      }
+    },
+    {
+      "strike_vnd_kwh": 2200,
+      "contract_volume_pct": 0.8,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25973988083.685608,
+        "y10_cum_vnd": 311846483343.17957,
+        "lifetime_cum_vnd": 1081710325585.6204
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0864623945441667,
+        "npv_usd": -1335124.4027595255,
+        "min_dscr": 0.6887115881575758
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.19376746820356416,
+        "buyer_lifetime_delta_frac": 0.1937674682035641,
+        "seller_irr": 0.0864623945441667,
+        "min_dscr": 0.6887115881575758
+      }
+    },
+    {
+      "strike_vnd_kwh": 2200,
+      "contract_volume_pct": 0.9,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 26500987064.242012,
+        "y10_cum_vnd": 318173689557.42975,
+        "lifetime_cum_vnd": 1103657676797.3127
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0939546666439808,
+        "npv_usd": -1221954.919983753,
+        "min_dscr": 0.7266622180587927
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.21798840172897177,
+        "buyer_lifetime_delta_frac": 0.21798840172897183,
+        "seller_irr": 0.0939546666439808,
+        "min_dscr": 0.7266622180587927
+      }
+    },
+    {
+      "strike_vnd_kwh": 2200,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 27027986044.799595,
+        "y10_cum_vnd": 324500895771.69403,
+        "lifetime_cum_vnd": 1125605028009.054
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.10051420805306019,
+        "npv_usd": -1108785.4372078946,
+        "min_dscr": 0.7601729567039354
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.24220933525443353,
+        "buyer_lifetime_delta_frac": 0.24220933525443342,
+        "seller_irr": 0.10051420805306019,
+        "min_dscr": 0.7601729567039354
+      }
+    }
+  ],
+  "summary": {
+    "n_total": 44,
+    "n_passing_all_three_gates": 0,
+    "pass_rate_frac": 0.0,
+    "headline": "0 of 44 scenarios pass all three gates (matches deck '0 of 56' headline)"
+  },
+  "disclosed_gate_rows": {
+    "row_1_offer_2k_100pct": {
+      "strike_vnd_kwh": 2000,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 25077986044.800198,
+        "y10_cum_vnd": 301088986881.932,
+        "lifetime_cum_vnd": 1044395506849.0674
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.08465528882768183,
+        "npv_usd": -1561048.8840149306,
+        "min_dscr": 0.681908863796223
+      },
+      "gate": {
+        "buyer_pass": false,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": 0.15258711184014148,
+        "buyer_lifetime_delta_frac": 0.15258711184014148,
+        "seller_irr": 0.08465528882768183,
+        "min_dscr": 0.681908863796223
+      }
+    },
+    "row_2_1400_100pct": {
+      "strike_vnd_kwh": 1400,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19227986044.799,
+        "y10_cum_vnd": 230853260212.60983,
+        "lifetime_cum_vnd": 800766943368.9822
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.0330623135109846,
+        "npv_usd": -2917839.2244360424,
+        "min_dscr": 0.44711658507308466
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.11627955840287278,
+        "buyer_lifetime_delta_frac": -0.11627955840287281,
+        "seller_irr": 0.0330623135109846,
+        "min_dscr": 0.44711658507308466
+      }
+    },
+    "row_3_1300_70pct": {
+      "strike_vnd_kwh": 1300,
+      "contract_volume_pct": 0.7,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 19304489103.12822,
+        "y10_cum_vnd": 231771764126.1444,
+        "lifetime_cum_vnd": 803952982719.8501
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.008109557195732583,
+        "npv_usd": -2872923.7429760653,
+        "min_dscr": 0.3463731058356137
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.11276346907699582,
+        "buyer_lifetime_delta_frac": -0.11276346907699582,
+        "seller_irr": 0.008109557195732583,
+        "min_dscr": 0.3463731058356137
+      }
+    },
+    "row_4_1200_100pct": {
+      "strike_vnd_kwh": 1200,
+      "contract_volume_pct": 1.0,
+      "fmp_vnd_kwh": 1426.6,
+      "buyer": {
+        "y1_vnd": 17277986044.799458,
+        "y10_cum_vnd": 207441351322.84607,
+        "lifetime_cum_vnd": 719557422208.9895
+      },
+      "bau": {
+        "y1_vnd": 21757996239.22777,
+        "y10_cum_vnd": 261228833629.099,
+        "lifetime_cum_vnd": 906131515891.8073
+      },
+      "finance": {
+        "seller_irr": 0.013147005209361257,
+        "npv_usd": -3370102.671243079,
+        "min_dscr": 0.368852492165372
+      },
+      "gate": {
+        "buyer_pass": true,
+        "seller_pass": false,
+        "lender_pass": false,
+        "all_three_pass": false,
+        "buyer_y1_delta_frac": -0.20590178181717148,
+        "buyer_lifetime_delta_frac": -0.20590178181717148,
+        "seller_irr": 0.013147005209361257,
+        "min_dscr": 0.368852492165372
+      }
+    }
+  }
+}

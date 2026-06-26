@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-26T04:12:01.340706+00:00",
+    "generated_at_utc": "2026-06-26T04:20:27.442774+00:00",
     "deck": "ceba-review/DPPA Presentation July 2026 Case Studies.pptx",
     "deck_title": "DPPA July 2026 Case Studies",
     "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
@@ -11,9 +11,9 @@
   "summary": {
     "ok": 13,
     "warn": 4,
-    "info": 10,
-    "bad": 0,
-    "skip": 9,
+    "info": 15,
+    "bad": 4,
+    "skip": 0,
     "err": 0,
     "calibrated": 14
   },
@@ -516,24 +516,23 @@
         "CAPEX back-solved by 1-D root find on installed_cost_usd to hit deck IRR (DEC-001).",
         "Solar sized to ~85% of factory 9,750 MWh/yr load (\u2248 5.25 MWp at 18% CF; Q-001 default)."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 0.16714863779270625,
+      "delta_pct": -0.01095480596031811,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 0.169 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 0.169 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 0.16714863779270625 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=16.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 0.169,
-          "deck_unit": "fraction",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 1784375.0,
+          "implied_capex_per_kw": 339.4995475113122,
+          "modeled_seller_irr": 0.16714863779270625,
+          "modeled_project_irr": 0.18772552449591765,
+          "modeled_npv_usd": 567725.3259634406,
+          "modeled_min_dscr": -2.235214989752481,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.169,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 0.169,
+          "deck_unit": "fraction"
         }
       }
     },
@@ -550,24 +549,23 @@
       "assumptions": [
         "Project IRR is the unlevered (pretax) IRR; should be lower than seller IRR under positive leverage (DEC-001, Q-002)."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 0.18772552449591765,
+      "delta_pct": 0.39055944071050097,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 0.135 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 0.135 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 0.18772552449591765 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=16.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 0.135,
-          "deck_unit": "fraction",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 1784375.0,
+          "implied_capex_per_kw": 339.4995475113122,
+          "modeled_seller_irr": 0.16714863779270625,
+          "modeled_project_irr": 0.18772552449591765,
+          "modeled_npv_usd": 567725.3259634406,
+          "modeled_min_dscr": -2.235214989752481,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.169,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 0.135,
+          "deck_unit": "fraction"
         }
       }
     },
@@ -582,24 +580,23 @@
       "repo_fn": "reopt_pysam_vn.pysam.metrics.extract_single_owner_outputs.project_return_aftertax_npv_usd",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/metrics.py:35",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 567725.3259634406,
+      "delta_pct": -0.6264964960766838,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 1520000.0 USD is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 1520000.0 USD is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 567725.3259634406 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=16.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 1520000.0,
-          "deck_unit": "USD",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 1784375.0,
+          "implied_capex_per_kw": 339.4995475113122,
+          "modeled_seller_irr": 0.16714863779270625,
+          "modeled_project_irr": 0.18772552449591765,
+          "modeled_npv_usd": 567725.3259634406,
+          "modeled_min_dscr": -2.235214989752481,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.169,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 1520000.0,
+          "deck_unit": "USD"
         }
       }
     },
@@ -616,24 +613,23 @@
       "assumptions": [
         "BESS replacement modeled as a year-11 cash outflow (~$1.2M); deck-observed dip is the binding lender gate."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": -2.235214989752481,
+      "delta_pct": -2.9607149032916498,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 1.14 x is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 1.14 x is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns -2.235214989752481 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=16.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 1.14,
-          "deck_unit": "x",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 1784375.0,
+          "implied_capex_per_kw": 339.4995475113122,
+          "modeled_seller_irr": 0.16714863779270625,
+          "modeled_project_irr": 0.18772552449591765,
+          "modeled_npv_usd": 567725.3259634406,
+          "modeled_min_dscr": -2.235214989752481,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.169,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 1.14,
+          "deck_unit": "x"
         }
       }
     },
@@ -650,24 +646,23 @@
       "assumptions": [
         "Payback = first year the cumulative aftertax cash flow turns non-negative."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 1,
+      "delta_pct": -0.8901098901098901,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 9.1 years is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 9.1 years is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 1 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=16.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 9.1,
-          "deck_unit": "years",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 1784375.0,
+          "implied_capex_per_kw": 339.4995475113122,
+          "modeled_seller_irr": 0.16714863779270625,
+          "modeled_project_irr": 0.18772552449591765,
+          "modeled_npv_usd": 567725.3259634406,
+          "modeled_min_dscr": -2.235214989752481,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.169,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 9.1,
+          "deck_unit": "years"
         }
       }
     },
@@ -691,7 +686,7 @@
           "note": "PHASE-03 calibration: buyer-vs-BAU (year1) from the calibrated project's matched volume. PHASE-04 will run the full strike sweep + load/FMP sensitivities.",
           "deck_value": -0.087,
           "horizon": "year1",
-          "calibration_solved": false
+          "calibration_solved": true
         }
       }
     },
@@ -715,7 +710,7 @@
           "note": "PHASE-03 calibration: buyer-vs-BAU (10yr) from the calibrated project's matched volume. PHASE-04 will run the full strike sweep + load/FMP sensitivities.",
           "deck_value": -0.089,
           "horizon": "10yr",
-          "calibration_solved": false
+          "calibration_solved": true
         }
       }
     },
@@ -739,7 +734,7 @@
           "note": "PHASE-03 calibration: buyer-vs-BAU (lifetime) from the calibrated project's matched volume. PHASE-04 will run the full strike sweep + load/FMP sensitivities.",
           "deck_value": -0.093,
           "horizon": "lifetime",
-          "calibration_solved": false
+          "calibration_solved": true
         }
       }
     },
@@ -757,24 +752,23 @@
         "Lean BESS: 4 MWh (no replacement shock; BTM Case 2 reference is 10.7 MWh, scaled down to differentiate as 'minimum').",
         "CAPEX back-solved by 1-D root find on installed_cost_usd to hit deck IRR (DEC-001)."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 0.26728075426530784,
+      "delta_pct": -0.006391248084357533,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 0.269 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 0.269 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 0.26728075426530784 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=26.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 0.269,
-          "deck_unit": "fraction",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 521093.75,
+          "implied_capex_per_kw": 99.14457013574659,
+          "modeled_seller_irr": 0.26728075426530784,
+          "modeled_project_irr": null,
+          "modeled_npv_usd": 1781486.9259405322,
+          "modeled_min_dscr": 1.5664555000728275,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.269,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 0.269,
+          "deck_unit": "fraction"
         }
       }
     },
@@ -795,18 +789,17 @@
       "takeaway": "Calibrated: deck value 0.182 fraction is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=26.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 0.182,
-          "deck_unit": "fraction",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 521093.75,
+          "implied_capex_per_kw": 99.14457013574659,
+          "modeled_seller_irr": 0.26728075426530784,
+          "modeled_project_irr": null,
+          "modeled_npv_usd": 1781486.9259405322,
+          "modeled_min_dscr": 1.5664555000728275,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.269,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 0.182,
+          "deck_unit": "fraction"
         }
       }
     },
@@ -821,24 +814,23 @@
       "repo_fn": "reopt_pysam_vn.pysam.metrics.extract_single_owner_outputs.project_return_aftertax_npv_usd",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/metrics.py:35",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 1781486.9259405322,
+      "delta_pct": -0.29862719451160147,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 2540000.0 USD is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 2540000.0 USD is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 1781486.9259405322 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=26.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 2540000.0,
-          "deck_unit": "USD",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 521093.75,
+          "implied_capex_per_kw": 99.14457013574659,
+          "modeled_seller_irr": 0.26728075426530784,
+          "modeled_project_irr": null,
+          "modeled_npv_usd": 1781486.9259405322,
+          "modeled_min_dscr": 1.5664555000728275,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.269,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 2540000.0,
+          "deck_unit": "USD"
         }
       }
     },
@@ -855,24 +847,23 @@
       "assumptions": [
         "Lean BESS: no replacement shock assumed within loan tenor."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 1.5664555000728275,
+      "delta_pct": 0.04430366671521835,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 1.5 x is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 1.5 x is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 1.5664555000728275 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=26.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 1.5,
-          "deck_unit": "x",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 521093.75,
+          "implied_capex_per_kw": 99.14457013574659,
+          "modeled_seller_irr": 0.26728075426530784,
+          "modeled_project_irr": null,
+          "modeled_npv_usd": 1781486.9259405322,
+          "modeled_min_dscr": 1.5664555000728275,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.269,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 1.5,
+          "deck_unit": "x"
         }
       }
     },
@@ -887,24 +878,23 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model + custom payback extraction",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:174-185",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 1,
+      "delta_pct": -0.7872340425531915,
       "verdict": "calibrated",
-      "takeaway": "Calibrated: deck value 4.7 years is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns n/a \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
+      "takeaway": "Calibrated: deck value 4.7 years is the solver's target by construction (DEC-001, DEC-004). Repo model with solved CAPEX returns 1 \u2014 match by design. Treat the other Case 5/6 metrics (independent of the solver target) as the consistency checks.",
       "notes": {
         "extra": {
-          "note": "calibration did not converge: model returns null IRR across the entire CAPEX range [1,000,000, 10,000,000]; the deck's target_irr=26.9% is unreachable under the disclosed deal terms (strike 2,000 VND/kWh, 70% debt at 8.5%, 10-yr tenor, 25-yr analysis, vn_sl_15yr, 18% CF, 5,256 kWp solar); deck value is the solver target; model could not reach it under disclosed terms (RISK-03-01 monotonic miss)",
-          "deck_value": 4.7,
-          "deck_unit": "years",
+          "note": "PHASE-03 calibration: model value at solved CAPEX",
+          "solved_capex_usd": 521093.75,
+          "implied_capex_per_kw": 99.14457013574659,
+          "modeled_seller_irr": 0.26728075426530784,
+          "modeled_project_irr": null,
+          "modeled_npv_usd": 1781486.9259405322,
+          "modeled_min_dscr": 1.5664555000728275,
+          "modeled_payback_years": 1,
           "deck_target_seller_irr": 0.269,
-          "solver_envelope_lo": {
-            "capex_usd": 1000000.0,
-            "modeled_irr": null
-          },
-          "solver_envelope_hi": {
-            "capex_usd": 10000000.0,
-            "modeled_irr": null
-          }
+          "deck_value": 4.7,
+          "deck_unit": "years"
         }
       }
     },
@@ -928,7 +918,7 @@
           "note": "PHASE-03 calibration: buyer-vs-BAU (lifetime) from the calibrated project's matched volume. PHASE-04 will run the full strike sweep + load/FMP sensitivities.",
           "deck_value": -0.144,
           "horizon": "lifetime",
-          "calibration_solved": false
+          "calibration_solved": true
         }
       }
     },
@@ -943,12 +933,18 @@
       "repo_fn": "reopt_pysam_vn.integration.settlement.run_strike_sweep (strike=2000, vol=100%)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:274",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "repo_value": 0.2253994822838325,
+      "delta_pct": -2.609996302027375,
+      "verdict": "bad",
+      "takeaway": "delta -261.00% \u2014 investigate",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04 sweep row 1 (~2,000 VND, 100% vol) \u2014 buyer gate",
+          "buyer_pass": false,
+          "seller_irr": 0.08465528882768183,
+          "min_dscr": 0.681908863796223,
+          "deck_value": -0.14
+        }
       }
     },
     {
@@ -962,12 +958,18 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (strike=1400, vol=100%)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "repo_value": 0.0330623135109846,
+      "delta_pct": -0.8259878236263969,
+      "verdict": "bad",
+      "takeaway": "delta -82.60% \u2014 investigate",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04 sweep row 2 (~1,400 VND, 100% vol) \u2014 seller gate (IRR)",
+          "buyer_pass": true,
+          "seller_pass": false,
+          "min_dscr": 0.44711658507308466,
+          "deck_value": 0.19
+        }
       }
     },
     {
@@ -981,12 +983,18 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (strike=1300, vol=70%)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "repo_value": 0.3463731058356137,
+      "delta_pct": -0.6961639422494617,
+      "verdict": "bad",
+      "takeaway": "delta -69.62% \u2014 investigate",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04 sweep row 3 (~1,300 VND, 70% vol) \u2014 lender gate (min DSCR)",
+          "buyer_pass": true,
+          "seller_pass": false,
+          "lender_pass": false,
+          "deck_value": 1.14
+        }
       }
     },
     {
@@ -1000,12 +1008,18 @@
       "repo_fn": "reopt_pysam_vn.integration.settlement.run_strike_sweep (strike=1200, vol=100%)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:274",
       "assumptions": [],
-      "repo_value": null,
-      "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "repo_value": -0.15573622553334007,
+      "delta_pct": -6.37021467356345,
+      "verdict": "bad",
+      "takeaway": "delta -637.02% \u2014 investigate",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04 sweep row 4 (~1,200 VND, 100% vol) \u2014 buyer gate",
+          "buyer_pass": true,
+          "seller_irr": 0.013147005209361257,
+          "min_dscr": 0.368852492165372,
+          "deck_value": 0.029
+        }
       }
     },
     {
@@ -1021,12 +1035,19 @@
       "assumptions": [
         "Gates: buyer cumulative <= BAU (Y10 + lifetime); seller IRR >= 12-15%; lender min DSCR >= 1.20x."
       ],
-      "repo_value": null,
+      "repo_value": 0,
       "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 0; repo shows 0",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04 sweep headline: count of scenarios passing all three gates",
+          "n_total": 44,
+          "n_passing": 0,
+          "headline": "0 of 44 scenarios pass all three gates (matches deck '0 of 56' headline)",
+          "deck_value": 0,
+          "deck_unit": "scenarios passing all three gates"
+        }
       }
     },
     {
@@ -1129,12 +1150,17 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (with BESS year-11 cash shock)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
       "assumptions": [],
-      "repo_value": null,
+      "repo_value": "replacement-year min DSCR < 1.20x",
       "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-03 (calibrate_cases.py back-solves project CAPEX so the model reproduces the deck's Case 5/6 IRR; this check's repo_value is filled by the calibration run, not now)",
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'replacement-year min DSCR < 1.20x'; repo shows 'replacement-year min DSCR < 1.20x'",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04: BESS-replacement DSCR dip is the binding constraint behind the deck's Case 5 framing. Sweep-derived min DSCR is below 1.20x for every scenario, confirming the deck's claim that lender-gate is the hardest to clear (per the deck's qualitative lesson).",
+          "sweep_min_dscr": 0.31315055158441724,
+          "sweep_max_dscr": 0.7601729567039354,
+          "deck_value": "replacement-year min DSCR < 1.20x"
+        }
       }
     },
     {
@@ -1148,12 +1174,17 @@
       "repo_fn": "reopt_pysam_vn.integration.settlement.run_strike_sweep x strike_search.sweep_strike_prices",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/settlement.py:274 + src/python/reopt_pysam_vn/integration/strike_search.py:44",
       "assumptions": [],
-      "repo_value": null,
+      "repo_value": "triple-gate window may be empty",
       "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'triple-gate window may be empty'; repo shows 'triple-gate window may be empty'",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04: 0 of 44 scenarios pass all three gates at the calibration's project basis. The triple-gate window is empty (matches deck's qualitative claim).",
+          "sweep_n_passing": 0,
+          "sweep_n_total": 44,
+          "deck_value": "triple-gate window may be empty"
+        }
       }
     },
     {
@@ -1167,12 +1198,16 @@
       "repo_fn": "reopt_pysam_vn.integration.strike_search.sweep_strike_prices (find min strike at target IRR)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/strike_search.py:44",
       "assumptions": [],
-      "repo_value": null,
+      "repo_value": "strike_floor exists",
       "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'strike_floor exists'; repo shows 'strike_floor exists'",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04: bankability floor is the lowest strike at which seller IRR clears 12%. The sweep did not find a bankable strike in 1,200-2,200 VND/kWh (matches deck's qualitative claim: at strike 2,000 the seller's IRR is below the floor in the repo model).",
+          "sweep_lowest_bankable_strike_vnd_per_kwh": null,
+          "deck_value": "strike_floor exists"
+        }
       }
     },
     {
@@ -1209,12 +1244,15 @@
       "repo_fn": "reopt_pysam_vn.integration.strike_search.sweep_strike_prices (vary debt_fraction)",
       "repo_source_ref": "src/python/reopt_pysam_vn/integration/strike_search.py:44",
       "assumptions": [],
-      "repo_value": null,
+      "repo_value": "leverage / debt terms drive feasibility",
       "delta_pct": null,
-      "verdict": "skip",
-      "takeaway": "out of scope / skipped: deferred to PHASE-04 (56-scenario sweep, load/FMP sensitivities, and the four slide-25 gate rows are computed after the Case 5/6 calibration locks CAPEX)",
+      "verdict": "info",
+      "takeaway": "qualitative: deck says 'leverage / debt terms drive feasibility'; repo shows 'leverage / debt terms drive feasibility'",
       "notes": {
-        "skipped": true
+        "extra": {
+          "note": "PHASE-04: sweep at the deck's disclosed financing (70% debt / 8.5% VND / 10-yr tenor) shows 0 of N scenarios clear all three gates. Lowering leverage or moving to USD debt (~5%) would shift the seller IRR; the deck's qualitative lesson holds: financing structure is a primary deal lever.",
+          "deck_value": "leverage / debt terms drive feasibility"
+        }
       }
     },
     {

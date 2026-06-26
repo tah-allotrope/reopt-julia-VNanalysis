@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-26T03:59:35.979053+00:00",
+    "generated_at_utc": "2026-06-26T04:21:02.796674+00:00",
     "deck": "ceba-review/CEBA DPPA 2026.pptx",
     "deck_title": "CEBA DPPA 2026",
     "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
@@ -572,14 +572,14 @@
         "Undisclosed sizing/finance; uses repo 49 MWp-class defaults + deck's stated 70/8.5/10/25-yr inputs.",
         "Method+directional (DEC-007), not exact reproduction."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 3.2033794526592607,
+      "delta_pct": 17.95490800390095,
       "verdict": "info",
-      "takeaway": "Method-level (DEC-007): deck claim 0.169 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: n/a.",
+      "takeaway": "Method-level (DEC-007): deck claim 0.169 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: 3.2033794526592607.",
       "notes": {
         "extra": {
-          "min_dscr": -2.424609839998913,
-          "npv_usd": -18585676.29471799
+          "min_dscr": 12.137288403066956,
+          "npv_usd": 38717716.811665
         }
       }
     },
@@ -596,13 +596,13 @@
       "assumptions": [
         "BESS replacement year ~11 modeled as a -$1.2M capex shock; DSCR may register < 1.20x."
       ],
-      "repo_value": -2.424609839998913,
-      "delta_pct": -3.1268507368411522,
+      "repo_value": 12.137288403066956,
+      "delta_pct": 9.646744213216628,
       "verdict": "info",
-      "takeaway": "Method-level (DEC-007): deck claim 1.14 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: -2.424609839998913.",
+      "takeaway": "Method-level (DEC-007): deck claim 1.14 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: 12.137288403066956.",
       "notes": {
         "extra": {
-          "irr": null
+          "irr": 3.2033794526592607
         }
       }
     },
@@ -619,13 +619,13 @@
       "assumptions": [
         "Method+directional per DEC-007."
       ],
-      "repo_value": null,
-      "delta_pct": null,
+      "repo_value": 4.6526349740497555,
+      "delta_pct": 16.296040795723997,
       "verdict": "info",
-      "takeaway": "Method-level (DEC-007): deck claim 0.269 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: n/a.",
+      "takeaway": "Method-level (DEC-007): deck claim 0.269 fraction cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: 4.6526349740497555.",
       "notes": {
         "extra": {
-          "min_dscr": -2.8087539805226376
+          "min_dscr": 17.243198357880342
         }
       }
     },
@@ -642,13 +642,13 @@
       "assumptions": [
         "Lean BESS: no replacement shock assumed within loan tenor."
       ],
-      "repo_value": -2.8087539805226376,
-      "delta_pct": -2.8725026536817584,
+      "repo_value": 17.243198357880342,
+      "delta_pct": 10.495465571920228,
       "verdict": "info",
-      "takeaway": "Method-level (DEC-007): deck claim 1.5 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: -2.8087539805226376.",
+      "takeaway": "Method-level (DEC-007): deck claim 1.5 x cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: 17.243198357880342.",
       "notes": {
         "extra": {
-          "irr": null
+          "irr": 4.6526349740497555
         }
       }
     },
@@ -791,18 +791,18 @@
       "repo_fn": "reopt_pysam_vn.pysam.single_owner.run_single_owner_model (with BESS capex shock)",
       "repo_source_ref": "src/python/reopt_pysam_vn/pysam/single_owner.py:141",
       "assumptions": [],
-      "repo_value": "directional NOT confirmed: oversized BESS min DSCR (-2.425) >= lean BESS (-2.809)",
+      "repo_value": "directional confirmed: oversized BESS min DSCR (12.137) < lean BESS min DSCR (17.243)",
       "delta_pct": null,
       "verdict": "info",
-      "takeaway": "Method-level (DEC-007): deck claim min DSCR < 1.20x in BESS replacement year qualitative cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: directional NOT confirmed: oversized BESS min DSCR (-2.425) >= lean BESS (-2.809).",
+      "takeaway": "Method-level (DEC-007): deck claim min DSCR < 1.20x in BESS replacement year qualitative cannot be reproduced exactly from disclosed inputs. PySAM proxy with proxy CAPEX does not cashflow at the deck's stated strike 2,000 VND/kWh; the deck's exact figures require undisclosed CAPEX / BESS sizing / FMP / revenue assumptions. Repo observation: directional confirmed: oversized BESS min DSCR (12.137) < lean BESS min DSCR (17.243).",
       "notes": {
         "extra": {
-          "lean_min_dscr": -2.8087539805226376,
-          "oversized_min_dscr": -2.424609839998913,
-          "lean_irr": null,
-          "oversized_irr": null,
+          "lean_min_dscr": 17.243198357880342,
+          "oversized_min_dscr": 12.137288403066956,
+          "lean_irr": 4.6526349740497555,
+          "oversized_irr": 3.2033794526592607,
           "directional_check": "oversized_min_dscr < lean_min_dscr",
-          "directional_passed": false,
+          "directional_passed": true,
           "numeric_dscr_values_note": "absolute DSCR values are not authoritative (proxy CAPEX; deck numbers require undisclosed inputs)"
         }
       }
@@ -853,13 +853,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -64671174.589007154,
-                  "project_return_aftertax_irr_fraction": null,
-                  "project_return_pretax_npv_usd": -77259866.13451037,
-                  "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -1.28800834323753,
+                  "project_return_aftertax_npv_usd": -7367781.482626287,
+                  "project_return_aftertax_irr_fraction": 0.09149238878637553,
+                  "project_return_pretax_npv_usd": -6477624.852023337,
+                  "project_return_pretax_irr_fraction": 0.10078039196510337,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 0.7276466851253675,
                   "npv_ppa_revenue_usd": 34785206.56802192
                 },
                 "case": {
@@ -888,13 +888,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -59105541.53812365,
-                  "project_return_aftertax_irr_fraction": null,
-                  "project_return_pretax_npv_usd": -70302824.82090595,
-                  "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -1.0589553489411674,
+                  "project_return_aftertax_npv_usd": -1802148.4317427818,
+                  "project_return_aftertax_irr_fraction": 0.12710287723997804,
+                  "project_return_pretax_npv_usd": 479416.46158104204,
+                  "project_return_pretax_irr_fraction": 0.14129795228667985,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 0.9049849187018376,
                   "npv_ppa_revenue_usd": 41742247.8816263
                 },
                 "case": {
@@ -907,7 +907,7 @@
                 "index": 2,
                 "strike_price_us_cents_per_kwh": 7.0,
                 "strike_price_usd_per_kwh": 0.07,
-                "is_viable": false,
+                "is_viable": true,
                 "inputs": {
                   "system_capacity_kw": 49000.0,
                   "annual_generation_kwh": 77263200.0,
@@ -923,13 +923,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -53539908.487240136,
-                  "project_return_aftertax_irr_fraction": null,
-                  "project_return_pretax_npv_usd": -63345783.50730158,
-                  "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -0.8299023546448044,
+                  "project_return_aftertax_npv_usd": 3763484.6191407368,
+                  "project_return_aftertax_irr_fraction": 0.16237242730622017,
+                  "project_return_pretax_npv_usd": 7436457.775185436,
+                  "project_return_pretax_irr_fraction": 0.1825719761409617,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.0823231522783079,
                   "npv_ppa_revenue_usd": 48699289.19523069
                 },
                 "case": {
@@ -942,7 +942,7 @@
                 "index": 3,
                 "strike_price_us_cents_per_kwh": 8.0,
                 "strike_price_usd_per_kwh": 0.08,
-                "is_viable": false,
+                "is_viable": true,
                 "inputs": {
                   "system_capacity_kw": 49000.0,
                   "annual_generation_kwh": 77263200.0,
@@ -958,13 +958,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -47974275.43635664,
-                  "project_return_aftertax_irr_fraction": null,
-                  "project_return_pretax_npv_usd": -56388742.193697184,
-                  "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -0.6008493603484419,
+                  "project_return_aftertax_npv_usd": 9329117.670024235,
+                  "project_return_aftertax_irr_fraction": 0.1983334957044975,
+                  "project_return_pretax_npv_usd": 14393499.088789806,
+                  "project_return_pretax_irr_fraction": 0.22586688425483362,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.2596613858547778,
                   "npv_ppa_revenue_usd": 55656330.50883507
                 },
                 "case": {
@@ -977,7 +977,7 @@
                 "index": 4,
                 "strike_price_us_cents_per_kwh": 9.0,
                 "strike_price_usd_per_kwh": 0.09,
-                "is_viable": false,
+                "is_viable": true,
                 "inputs": {
                   "system_capacity_kw": 49000.0,
                   "annual_generation_kwh": 77263200.0,
@@ -993,13 +993,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -42408642.38547313,
-                  "project_return_aftertax_irr_fraction": null,
-                  "project_return_pretax_npv_usd": -49431700.88009281,
+                  "project_return_aftertax_npv_usd": 14894750.720907748,
+                  "project_return_aftertax_irr_fraction": 0.2356047258764763,
+                  "project_return_pretax_npv_usd": 21350540.402394205,
                   "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -0.37179636605207933,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.4369996194312478,
                   "npv_ppa_revenue_usd": 62613371.82243945
                 },
                 "case": {
@@ -1028,13 +1028,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -36843009.334589615,
-                  "project_return_aftertax_irr_fraction": -0.10593294888492365,
-                  "project_return_pretax_npv_usd": -42474659.56648842,
+                  "project_return_aftertax_npv_usd": 20460383.771791257,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 28307581.715998583,
                   "project_return_pretax_irr_fraction": null,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": -0.14477719165389,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.6143378530077184,
                   "npv_ppa_revenue_usd": 69570413.13604385
                 },
                 "case": {
@@ -1063,13 +1063,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -31277376.283706114,
-                  "project_return_aftertax_irr_fraction": -0.04695451811217827,
-                  "project_return_pretax_npv_usd": -35517618.25288403,
-                  "project_return_pretax_irr_fraction": -0.05211045299229761,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": 0.016601078407435407,
+                  "project_return_aftertax_npv_usd": 26026016.822674766,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 35264623.029602975,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.7916760865841885,
                   "npv_ppa_revenue_usd": 76527454.44964823
                 },
                 "case": {
@@ -1098,13 +1098,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -25711743.232822604,
-                  "project_return_aftertax_irr_fraction": -0.004551954384656723,
-                  "project_return_pretax_npv_usd": -28560576.939279653,
-                  "project_return_pretax_irr_fraction": -0.004751903496568109,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": 0.17753067394467328,
+                  "project_return_aftertax_npv_usd": 31591649.873558268,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 42221664.34320735,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 1.9690143201606585,
                   "npv_ppa_revenue_usd": 83484495.7632526
                 },
                 "case": {
@@ -1133,13 +1133,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -20146110.181939103,
-                  "project_return_aftertax_irr_fraction": 0.030396393559128237,
-                  "project_return_pretax_npv_usd": -21603535.625675272,
-                  "project_return_pretax_irr_fraction": 0.033772934425635726,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": 0.33846026948191116,
+                  "project_return_aftertax_npv_usd": 37157282.924441755,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 49178705.65681173,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 2.1463525537371284,
                   "npv_ppa_revenue_usd": 90441537.07685702
                 },
                 "case": {
@@ -1168,13 +1168,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -14580477.131055582,
-                  "project_return_aftertax_irr_fraction": 0.0617104537261018,
-                  "project_return_pretax_npv_usd": -14646494.312070874,
-                  "project_return_pretax_irr_fraction": 0.0684401106933826,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": 0.49938986501914945,
+                  "project_return_aftertax_npv_usd": 42722915.975325294,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 56135746.970416136,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 2.3236907873135992,
                   "npv_ppa_revenue_usd": 97398578.39046139
                 },
                 "case": {
@@ -1203,13 +1203,13 @@
                   "debt_tenor_years": 10
                 },
                 "outputs": {
-                  "project_return_aftertax_npv_usd": -9014844.080172088,
-                  "project_return_aftertax_irr_fraction": 0.09132815907614868,
-                  "project_return_pretax_npv_usd": -7689452.998466499,
-                  "project_return_pretax_irr_fraction": 0.10167911832690678,
-                  "size_of_debt_usd": 31186385.45982632,
-                  "debt_fraction": 0.6997455977648072,
-                  "min_dscr": 0.6603194605563873,
+                  "project_return_aftertax_npv_usd": 48288549.02620878,
+                  "project_return_aftertax_irr_fraction": null,
+                  "project_return_pretax_npv_usd": 63092788.284020506,
+                  "project_return_pretax_irr_fraction": null,
+                  "size_of_debt_usd": 28300791.640366055,
+                  "debt_fraction": 0.699745597764807,
+                  "min_dscr": 2.501029020890069,
                   "npv_ppa_revenue_usd": 104355619.7040658
                 },
                 "case": {
@@ -1222,14 +1222,14 @@
             "viability": {
               "target_irr_fraction": 0.15,
               "phase4_baseline_strike_us_cents_per_kwh": 7.575757575757576,
-              "phase4_baseline_irr_fraction": null,
-              "minimum_viable_found": false,
-              "minimum_viable_index": null,
-              "minimum_viable_strike_us_cents_per_kwh": null,
-              "minimum_viable_strike_usd_per_kwh": null,
-              "minimum_viable_irr_fraction": null,
-              "minimum_viable_npv_usd": null,
-              "minimum_viable_min_dscr": null
+              "phase4_baseline_irr_fraction": 0.18294568492787333,
+              "minimum_viable_found": true,
+              "minimum_viable_index": 2,
+              "minimum_viable_strike_us_cents_per_kwh": 7.0,
+              "minimum_viable_strike_usd_per_kwh": 0.07,
+              "minimum_viable_irr_fraction": 0.16237242730622017,
+              "minimum_viable_npv_usd": 3763484.6191407368,
+              "minimum_viable_min_dscr": 1.0823231522783079
             }
           },
           "note": "deck's exact 2,000 VND/kWh strike may be the floor or below the floor with proxy CAPEX; deck's exact figures require undisclosed inputs (DEC-007)"
