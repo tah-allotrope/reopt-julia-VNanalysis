@@ -16,6 +16,27 @@ crossing, "0 of 56 scenarios pass", buyer-vs-BAU) survives that calibration.
 - **Plan:** `plans/active/2026-06-26-dppa-july-deck-verification-plan.md` (multi-phase) — see plan for phase status
 - **Deck (untracked binary):** `ceba-review/DPPA Presentation July 2026 Case Studies.pptx`
 
+### Phase status (PHASE-01 ✅ done 2026-06-26; PHASE-02..05 pending)
+- **PHASE-01 ✅** — `DeckConfig` parametrization + `july_deck_checks.py` registry (50 checks across
+  15 slides) + 🔧 "calibrated" verdict tier + extractor's `--deck` flag + new smoke test
+  (`test_july_deck_checks.py`, 8 tests passing). CEBA tests still green (13 tests). Exit
+  criteria met.
+- **PHASE-02** — wire A-bucket + worked-example (B01-B04) runners to the July registry
+  (registry carries J_* ids; runners need J_*-keyed entries or a prefix-aware dispatch).
+- **PHASE-03** — back-solve CAPEX for Case 5/6 (pin BESS at 7.5 MWh / 4 MWh; solve to seller IRR).
+- **PHASE-04** — 5 remaining Case 5/6 metrics + 56-sweep + load/FMP sensitivities.
+- **PHASE-05** — delta report + annotated `[repo-checked]` deck + idempotency test extension.
+
+### Grill Me decisions (locked 2026-06-26)
+- **Q-001** ✅ Solar sized to ~85% of factory 9,750 MWh/yr load (≈ 5.25 MWp at 18% CF,
+  per the 56-sweep volume axis).
+- **Q-002** ✅ Seller equity IRR = `project_return_aftertax_irr_fraction` (levered, aftertax);
+  Project IRR = unlevered/pretax IRR (`project_return_pretax_irr_fraction`), consistency
+  check only.
+- **Q-003** ✅ ~$160/kWh → Case 5 BESS = 7.5 MWh (pin from "~$1.2M year-11 replacement"
+  hint); Case 6 = 4 MWh (lean "minimum" sizing, scaled down from the 10.7 MWh on-site
+  reference).
+
 ### Key decisions locked in the brainstorm
 - **DEC-001** Calibrate-then-validate (not flag-gaps-only).
 - **DEC-002** Load = synthetic 9,750 MWh anchor (Emivest/Factory A "same factory") + real 2024 meter

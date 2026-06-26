@@ -87,3 +87,14 @@ tests/.stdout.tmp
 research/TOU-Analysis_SolarBESS-ENG.pdf
 research/fmp_modeling.csv
 data/raw/saigon18/2026-01-29_saigon18_excel_model_v2.xlsm
+
+# === July 2026 deck verification (PHASE-01+): deck binaries stay untracked ===
+# Per CON-002 of plans/active/2026-06-26-dppa-july-deck-verification-plan.md:
+# deck binaries (source + [repo-checked] copy) are not version-controlled.
+# The orchestrator + registry + reports are the tracked artifacts.
+ceba-review/DPPA Presentation July 2026 Case Studies.pptx
+ceba-review/*[repo-checked].pptx
+ceba-review/*.idempotency-test.pptx
+ceba-review/*[*reviewed*].pptx
+ceba-review/cong bess session.pptx
+ceba-review/CEBA DPPA 2026.pptx
