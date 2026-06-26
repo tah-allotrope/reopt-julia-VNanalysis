@@ -1,7 +1,8 @@
 {
   "metadata": {
-    "generated_at_utc": "2026-06-23T05:28:58.030752+00:00",
+    "generated_at_utc": "2026-06-26T03:59:35.979053+00:00",
     "deck": "ceba-review/CEBA DPPA 2026.pptx",
+    "deck_title": "CEBA DPPA 2026",
     "plan": "plans/2026-06-23-ceba-deck-repo-verification-plan.md",
     "registry_size": 35,
     "executed": 35,
@@ -13,7 +14,8 @@
     "info": 14,
     "bad": 0,
     "skip": 0,
-    "err": 0
+    "err": 0,
+    "calibrated": 0
   },
   "checks": [
     {

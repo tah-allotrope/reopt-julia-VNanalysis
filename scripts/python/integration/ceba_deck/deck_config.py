@@ -44,6 +44,7 @@ class DeckConfig:
     report_md: Path
     calibration_json: Optional[Path]
     deck_title: str
+    plan_path: str
 
 
 CEBA_2026 = DeckConfig(
@@ -56,6 +57,7 @@ CEBA_2026 = DeckConfig(
     report_md=REPO_ROOT / "reports" / "ceba_dppa_2026_repo_check.md",
     calibration_json=None,
     deck_title="CEBA DPPA 2026",
+    plan_path="plans/2026-06-23-ceba-deck-repo-verification-plan.md",
 )
 
 JULY_2026 = DeckConfig(
@@ -68,6 +70,7 @@ JULY_2026 = DeckConfig(
     report_md=REPO_ROOT / "reports" / "dppa_july_2026_repo_check.md",
     calibration_json=REPO_ROOT / "reports" / "dppa_july_2026_calibration.json",
     deck_title="DPPA July 2026 Case Studies",
+    plan_path="plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
 )
 
 DECKS: dict[str, DeckConfig] = {

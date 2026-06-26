@@ -65,6 +65,21 @@ def _load_registry(config):
     KNOWN_GAPS = getattr(module, "KNOWN_GAPS", [])
     return Check, CHECKS, all_rows, KNOWN_GAPS
 
+
+def _load_july_runners():
+    """Return the July-deck runner dispatch, or an empty dict.
+
+    The July registry's check ids (J_A*, J_B*, J_C*) live in
+    ``ceba_deck.july_runners.JULY_RUNNERS``. For non-July decks the orchestrator
+    never consults this dict (the J_* ids are not in any other registry), so
+    the dict is empty for those runs.
+    """
+    try:
+        from integration.ceba_deck.july_runners import JULY_RUNNERS as JR
+    except Exception:  # noqa: BLE001
+        return {}
+    return dict(JR)
+
 # --------------------------------------------------------------------------
 # Pure data resolvers (A-bucket)
 # --------------------------------------------------------------------------
@@ -1116,12 +1131,22 @@ def _safe_pct(numerator: float, denominator: float) -> float | None:
 # --------------------------------------------------------------------------
 # Per-check execution
 # --------------------------------------------------------------------------
-def run_check(check: Check) -> Check:
-    """Resolve repo_fn, compute repo_value, classify verdict."""
+def run_check(check: Check, extra_runners: dict | None = None) -> Check:
+    """Resolve repo_fn, compute repo_value, classify verdict.
+
+    ``extra_runners`` is the per-deck runner dispatch loaded by the caller —
+    for the July deck, this is ``JULY_RUNNERS`` from ``july_runners.py``; for
+    the CEBA deck, this is empty. The merged lookup is
+    ``_SCENARIO_RUNNERS | extra_runners`` so CEBA check ids resolve via the
+    inline CEBA runners and J_* ids resolve via the July module.
+    """
+    merged_runners: dict = _SCENARIO_RUNNERS
+    if extra_runners:
+        merged_runners = {**_SCENARIO_RUNNERS, **extra_runners}
     # Known scenario runner
-    if check.id in _SCENARIO_RUNNERS:
+    if check.id in merged_runners:
         try:
-            outcome = _SCENARIO_RUNNERS[check.id](check)
+            outcome = merged_runners[check.id](check)
         except Exception as exc:  # noqa: BLE001
             check.verdict = "err"
             check.takeaway = f"runner raised: {exc.__class__.__name__}: {exc}"
@@ -1191,15 +1216,20 @@ def main(argv: list[str] | None = None) -> int:
     config = get_deck(args.deck)
     Check, CHECKS, all_rows, KNOWN_GAPS = _load_registry(config)
     out_path = args.out or config.results_json
+    extra_runners = _load_july_runners() if config.key == "july" else {}
 
     targets = [c for c in CHECKS if not args.ids or c.id in args.ids]
-    print(f"[verify_ceba_dppa_deck] deck={config.key} running {len(targets)} of {len(CHECKS)} checks", flush=True)
+    print(
+        f"[verify_ceba_dppa_deck] deck={config.key} running {len(targets)} of {len(CHECKS)} checks "
+        f"(july_runners={len(extra_runners)})",
+        flush=True,
+    )
 
     completed: list[dict] = []
     errs: list[str] = []
     for c in targets:
         before = c.verdict
-        c = run_check(c)
+        c = run_check(c, extra_runners=extra_runners)
         if c.verdict == "err" and before != "err":
             errs.append(c.id)
         completed.append({
@@ -1214,9 +1244,9 @@ def main(argv: list[str] | None = None) -> int:
     payload = {
         "metadata": {
             "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-            "deck": str(config.source_pptx.relative_to(REPO_ROOT)),
+            "deck": str(config.source_pptx.relative_to(REPO_ROOT)).replace("\\", "/"),
             "deck_title": config.deck_title,
-            "plan": "plans/active/2026-06-26-dppa-july-deck-verification-plan.md",
+            "plan": config.plan_path,
             "registry_size": len(CHECKS),
             "executed": len(targets),
             "errors": errs,
