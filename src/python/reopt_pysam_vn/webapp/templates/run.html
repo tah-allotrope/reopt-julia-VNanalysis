@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Run {{ run_id }}{% endblock %}
+{% block content %}
+<h1>{{ status.title or status.case }}</h1>
+<p><span class="status-badge status-{{ status.state }}">{{ status.state }}</span>
+  {% if status.message %}&mdash; {{ status.message }}{% endif %}</p>
+
+{% if status.state == 'done' %}
+<p>
+  <a href="/api/runs/{{ run_id }}/result.json">Download result JSON</a> &middot;
+  <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a> &middot;
+  <a href="/deals/new?from={{ run_id }}">Duplicate as new deal</a>
+</p>
+
+{% macro render_section(section) %}
+<div class="metric-grid">
+  {% for m in section.metrics %}
+  <div class="metric"><div class="label">{{ m.label }}</div><div class="value">{{ m.value }}</div></div>
+  {% endfor %}
+</div>
+{% for chart in section.charts %}
+<div class="card"><div id="chart-{{ loop.index }}-{{ section.mode }}" style="height:320px;"></div></div>
+<script>
+try {
+  Plotly.newPlot("chart-{{ loop.index }}-{{ section.mode }}", [{
+    x: {{ chart.data['labels'] | tojson }},
+    y: {{ chart.data['values'] | tojson }},
+    type: "{{ chart.type }}"
+  }], { title: {{ chart.title | tojson }}, margin: {t: 40} });
+} catch (e) { document.getElementById("chart-{{ loop.index }}-{{ section.mode }}").innerText = "chart unavailable"; }
+</script>
+{% endfor %}
+{% endmacro %}
+
+{% if view.mode == 'both' %}
+<h2>Onsite</h2>
+{{ render_section(view.onsite) }}
+<h2>Offsite DPPA</h2>
+{{ render_section(view.offsite_dppa) }}
+{% else %}
+{{ render_section(view) }}
+{% endif %}
+
+{% else %}
+<p id="poll-status">Waiting for this run to finish&hellip;</p>
+<script>
+(function poll() {
+  fetch("/api/runs/{{ run_id }}").then(r => r.json()).then(body => {
+    if (body.status.state === "done" || body.status.state === "error") {
+      window.location.reload();
+    } else {
+      setTimeout(poll, 4000);
+    }
+  }).catch(() => setTimeout(poll, 8000));
+})();
+</script>
+{% endif %}
+{% endblock %}

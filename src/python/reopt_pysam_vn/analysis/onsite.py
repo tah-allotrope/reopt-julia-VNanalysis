@@ -108,8 +108,13 @@ def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
 
     site = deal_config.site
     plant = deal_config.plant
+    site_block: Dict[str, Any] = {}
+    if site.get("latitude") is not None:
+        site_block["latitude"] = float(site["latitude"])
+    if site.get("longitude") is not None:
+        site_block["longitude"] = float(site["longitude"])
     scenario: Dict[str, Any] = {
-        "Site": {},
+        "Site": site_block,
         "ElectricLoad": {},
         "PV": {"max_kw": float(plant.get("capacity_mwp", 0.0)) * 1000.0},
         "ElectricStorage": {

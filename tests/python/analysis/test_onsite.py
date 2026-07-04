@@ -97,3 +97,46 @@ def test_run_onsite_requires_solver_when_no_results():
     # No pre-solved results and no solve_fn → explicit error, never silently hits Julia.
     with pytest.raises(ValueError, match="solve"):
         run_onsite(_deal_config())
+
+
+def test_build_onsite_scenario_carries_site_lat_long():
+    # REopt's API rejects a Site with no coordinates; the webapp's live-solve
+    # path depends on these making it into the scenario dict (PHASE-02).
+    from reopt_pysam_vn.analysis.onsite import build_onsite_scenario
+
+    deal = DealConfig.from_dict(
+        {
+            "case": "LATLONG_TEST",
+            "mode": "onsite",
+            "site": {
+                "latitude": 10.9577,
+                "longitude": 106.8426,
+                "customer_type": "industrial",
+                "region": "south",
+                "voltage_level": "medium_voltage_22kv_to_110kv",
+            },
+            "plant": {"capacity_mwp": 2.0},
+        }
+    )
+    scenario = build_onsite_scenario(deal)
+    assert scenario["Site"]["latitude"] == pytest.approx(10.9577)
+    assert scenario["Site"]["longitude"] == pytest.approx(106.8426)
+
+
+def test_build_onsite_scenario_omits_lat_long_when_absent():
+    from reopt_pysam_vn.analysis.onsite import build_onsite_scenario
+
+    deal = DealConfig.from_dict(
+        {
+            "case": "NO_LATLONG",
+            "mode": "onsite",
+            "site": {
+                "customer_type": "commercial",
+                "region": "south",
+                "voltage_level": "medium_voltage_22kv_to_110kv",
+            },
+        }
+    )
+    scenario = build_onsite_scenario(deal)
+    assert "latitude" not in scenario["Site"]
+    assert "longitude" not in scenario["Site"]

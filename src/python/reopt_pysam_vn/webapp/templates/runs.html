@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Run history{% endblock %}
+{% block content %}
+<h1>Run history</h1>
+<p><a href="/deals/new">+ New deal</a></p>
+{% if not runs %}
+<p>No runs yet. <a href="/deals/new">Create your first deal</a>.</p>
+{% else %}
+<table>
+  <thead>
+    <tr><th>Title</th><th>Case</th><th>Mode</th><th>Status</th><th>Created</th><th></th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for run in runs %}
+    <tr>
+      <td>{{ run.title or "(untitled)" }}</td>
+      <td>{{ run.case }}</td>
+      <td>{{ run.mode }}</td>
+      <td><span class="status-badge status-{{ run.state }}">{{ run.state }}</span></td>
+      <td>{{ run.created_at }}</td>
+      <td><a href="/runs/{{ run.run_id }}">Open</a></td>
+      <td><a href="/deals/new?from={{ run.run_id }}">Duplicate</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p><a href="/compare">Compare two runs &rarr;</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Compare runs{% endblock %}
+{% block content %}
+<h1>Compare runs</h1>
+<form method="get" action="/compare">
+  <div class="field"><label for="a">Run A</label>
+    <select id="a" name="a">
+      {% for run in runs %}<option value="{{ run.run_id }}" {% if run.run_id == a_id %}selected{% endif %}>{{ run.title or run.case }} ({{ run.created_at }})</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field"><label for="b">Run B</label>
+    <select id="b" name="b">
+      {% for run in runs %}<option value="{{ run.run_id }}" {% if run.run_id == b_id %}selected{% endif %}>{{ run.title or run.case }} ({{ run.created_at }})</option>{% endfor %}
+    </select>
+  </div>
+  <button type="submit">Compare</button>
+</form>
+
+{% if model %}
+<table>
+  <thead><tr><th>Metric</th><th>A</th><th>B</th><th>Delta (B - A)</th></tr></thead>
+  <tbody>
+    {% for row in model.rows %}
+    <tr><td>{{ row.label }}</td><td>{{ row.a }}</td><td>{{ row.b }}</td><td>{{ row.delta if row.delta is not none else "-" }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not model.rows %}<p>No shared metrics between these two runs (different modes).</p>{% endif %}
+{% endif %}
+{% endblock %}

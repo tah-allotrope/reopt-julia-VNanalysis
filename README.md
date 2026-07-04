@@ -17,6 +17,8 @@ from reopt_pysam_vn.analysis import DealConfig, run_onsite, run_offsite_dppa
 
 The bespoke per-deal modules under `integration/` (`dppa_case_1/2/3`, `dppa_samsung_ttc`, `ninhsim_solar_storage_60pct`) remain the orchestration engines behind a registry and are **deprecated as direct entry points** — new work should call `reopt_pysam_vn.analysis`. Samsung-TTC is parity-gated bit-for-bit (`tests/python/analysis/test_samsung_ttc_parity.py`).
 
+There is also an internal, localhost-only web UI over this package — see [`src/python/reopt_pysam_vn/webapp/README.md`](src/python/reopt_pysam_vn/webapp/README.md).
+
 ## Tech Stack
 
 - **Julia 1.10+** with REopt.jl v0.56.4, JuMP, HiGHS
