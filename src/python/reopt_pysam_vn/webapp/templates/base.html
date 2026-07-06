@@ -28,7 +28,13 @@
     .field { margin-bottom: 0.6rem; }
     .readonly-defaults { opacity: 0.6; font-size: 0.85rem; }
     a.button, button { cursor: pointer; }
+    #site-map, #context-map { width: 100%; height: 100%; min-height: 280px; }
+    .map-hint { font-size: 0.85rem; opacity: 0.8; margin: 0.25rem 0 0.5rem; }
+    .map-search { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .map-search input { flex: 1; }
+    .map-search-msg { font-size: 0.85rem; color: #ff8080; min-height: 1.2rem; }
   </style>
+  {% block head_extra %}{% endblock %}
 </head>
 <body>
   <header>

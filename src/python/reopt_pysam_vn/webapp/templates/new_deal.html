@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}New deal{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}
 {% block content %}
 <h1>New deal</h1>
 <form id="new-deal-form" enctype="multipart/form-data">
@@ -54,6 +58,13 @@
       <input id="site_latitude" name="site.latitude" type="number" step="0.0001" value="{{ prefill.site.latitude or '' }}"></div>
     <div class="field"><label for="site_longitude">Longitude</label>
       <input id="site_longitude" name="site.longitude" type="number" step="0.0001" value="{{ prefill.site.longitude or '' }}"></div>
+    <p class="map-hint">Click the map or drag the marker to set coordinates.</p>
+    <div class="map-search">
+      <input id="site-search" type="text" placeholder="Search place (e.g. Bac Ninh)" autocomplete="off">
+      <button id="site-search-btn" type="button">Search</button>
+    </div>
+    <p id="site-search-msg" class="map-search-msg"></p>
+    <div id="site-map" style="height:360px;border-radius:8px;border:1px solid rgba(128,128,128,0.25);"></div>
   </section>
 
   <section>
@@ -98,4 +109,16 @@
 </form>
 
 <script src="/static/app.js"></script>
+<script src="/static/map.js"></script>
+<script>
+initSitePicker({
+  latInputId: "site_latitude",
+  lonInputId: "site_longitude",
+  regionSelectId: "site_region",
+  mapElementId: "site-map",
+  searchInputId: "site-search",
+  searchButtonId: "site-search-btn",
+  searchMessageId: "site-search-msg"
+});
+</script>
 {% endblock %}
