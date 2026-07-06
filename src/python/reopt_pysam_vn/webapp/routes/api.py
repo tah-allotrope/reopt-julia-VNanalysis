@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.webapp import service
 from reopt_pysam_vn.webapp.forms import deal_config_from_form
+from reopt_pysam_vn.webapp.projects import list_projects
 from reopt_pysam_vn.webapp.uploads import UploadError, parse_load_csv, parse_load_xlsx
 
 router = APIRouter()
@@ -19,6 +20,11 @@ router = APIRouter()
 @router.get("/health")
 def health() -> Dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/projects")
+def get_projects() -> Dict[str, Any]:
+    return {"projects": list_projects()}
 
 
 def _submit_deal_config(
