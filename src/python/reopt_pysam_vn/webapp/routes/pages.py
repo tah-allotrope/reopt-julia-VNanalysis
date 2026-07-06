@@ -72,8 +72,13 @@ def run_detail(run_id: str, request: Request) -> HTMLResponse:
         raise HTTPException(status_code=404, detail="no such run") from exc
     result = storage.get_result(run_id)
     view = build_view_model(status.get("mode", ""), result)
+    try:
+        deal_config = storage.get_deal_config(run_id)
+    except KeyError:
+        deal_config = {}
+    site = deal_config.get("site", {})
     return templates_engine.TemplateResponse(
-        request, "run.html", {"run_id": run_id, "status": status, "view": view}
+        request, "run.html", {"run_id": run_id, "status": status, "view": view, "site": site}
     )
 
 

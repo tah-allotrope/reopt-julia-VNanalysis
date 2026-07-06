@@ -94,3 +94,42 @@ def test_run_detail_unknown_id_is_404(client):
 def test_compare_page_renders_with_no_selection(client):
     resp = client.get("/compare")
     assert resp.status_code == 200
+
+
+def test_run_page_shows_context_map_when_site_coords_exist(client):
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": {
+                "case": "MAP_TEST",
+                "mode": "onsite",
+                "title": "Map context test",
+                "site": {"latitude": 10.82, "longitude": 106.63, "region": "south"},
+            },
+            "results": _onsite_results(),
+        },
+    )
+    assert resp.status_code == 202
+    run_id = resp.json()["run_id"]
+
+    run_page = client.get(f"/runs/{run_id}")
+    assert run_page.status_code == 200
+    assert 'id="context-map"' in run_page.text
+    assert "initContextMap" in run_page.text
+
+
+def test_run_page_hides_context_map_when_site_coords_missing(client):
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": {"case": "NO_MAP_TEST", "mode": "onsite", "title": "No map test"},
+            "results": _onsite_results(),
+        },
+    )
+    assert resp.status_code == 202
+    run_id = resp.json()["run_id"]
+
+    run_page = client.get(f"/runs/{run_id}")
+    assert run_page.status_code == 200
+    assert 'id="context-map"' not in run_page.text
+    assert "initContextMap" not in run_page.text

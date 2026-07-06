@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Run {{ run_id }}{% endblock %}
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}
 {% block content %}
 <h1>{{ status.title or status.case }}</h1>
 <p><span class="status-badge status-{{ status.state }}">{{ status.state }}</span>
@@ -11,6 +15,13 @@
   <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a> &middot;
   <a href="/deals/new?from={{ run_id }}">Duplicate as new deal</a>
 </p>
+
+{% if site.get('latitude') is not none and site.get('longitude') is not none %}
+<div class="card">
+  <h3>Site context</h3>
+  <div id="context-map" style="height:280px;border-radius:8px;border:1px solid rgba(128,128,128,0.25);"></div>
+</div>
+{% endif %}
 
 {% macro render_section(section) %}
 <div class="metric-grid">
@@ -53,6 +64,13 @@ try {
     }
   }).catch(() => setTimeout(poll, 8000));
 })();
+</script>
+{% endif %}
+
+{% if site.get('latitude') is not none and site.get('longitude') is not none %}
+<script src="/static/map.js"></script>
+<script>
+initContextMap({ lat: {{ site.latitude | tojson }}, lon: {{ site.longitude | tojson }} });
 </script>
 {% endif %}
 {% endblock %}
