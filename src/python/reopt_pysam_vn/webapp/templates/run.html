@@ -9,19 +9,19 @@
 <p><span class="status-badge status-{{ status.state }}">{{ status.state }}</span>
   {% if status.message %}&mdash; {{ status.message }}{% endif %}</p>
 
-{% if status.state == 'done' %}
-<p>
-  <a href="/api/runs/{{ run_id }}/result.json">Download result JSON</a> &middot;
-  <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a> &middot;
-  <a href="/deals/new?from={{ run_id }}">Duplicate as new deal</a>
-</p>
-
 {% if site.get('latitude') is not none and site.get('longitude') is not none %}
 <div class="card">
   <h3>Site context</h3>
   <div id="context-map" style="height:280px;border-radius:8px;border:1px solid rgba(128,128,128,0.25);"></div>
 </div>
 {% endif %}
+
+{% if status.state == 'done' %}
+<p>
+  <a href="/api/runs/{{ run_id }}/result.json">Download result JSON</a> &middot;
+  <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a> &middot;
+  <a href="/deals/new?from={{ run_id }}">Duplicate as new deal</a>
+</p>
 
 {% macro render_section(section) %}
 <div class="metric-grid">

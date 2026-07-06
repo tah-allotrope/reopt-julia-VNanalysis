@@ -64,3 +64,37 @@ with Plotly charts, run history with clone-and-edit, and two-run compare.
 
 All five are numeric benchmark/tolerance drift, confirmed failing on unmodified `main` via
 `git stash` (2026-07-04). The last one was not previously logged in this file.
+
+## Map site picker — implemented 2026-07-06
+
+Plan: `plans/2026-07-06-map-site-picker-webapp-plan.md` (Q-001 default accepted: OSM defaults).
+Adds an interactive Leaflet site picker to `/deals/new` and a read-only context map to `/runs/{run_id}`.
+
+### Phase summary
+- **PHASE-01** — `webapp/projects.py` catalog loader reads `data/projects/*.json`, skips schema/missing coords;
+  `GET /api/projects` endpoint in `webapp/routes/api.py`; TDD tests in `tests/python/webapp/test_projects.py`.
+- **PHASE-02** — `webapp/static/map.js` with `initSitePicker` (OSM tiles, draggable marker, two-way lat/lon sync,
+  latitude-band region auto-set ≥20°N north / 14–20°N central / <14°N south, Nominatim search,
+  catalog project markers with popups); `base.html` `head_extra` block; `new_deal.html` Leaflet CDN + map container.
+- **PHASE-03** — `routes/pages.py` passes `site` coords to `run.html`; context map card with `initContextMap`
+  (non-interactive, site highlighted, catalog projects muted, auto-fit bounds); tests added to `test_pages.py`.
+- **PHASE-04** — Full `pytest tests/python/webapp/` green; manual curl submission confirmed picked lat/lon
+  (21.0285, 105.8542) and derived region (`north`) persisted to `deal_config.json`. Playwright browser
+  automation was abandoned because the localhost dev server became unresponsive during map tile loading;
+  the form and map degrade gracefully when Leaflet/Nominatim/tiles are unavailable.
+
+### Verification
+- `pytest tests/python/webapp/` — **50/50 passed** (3 new project tests + 2 new run-page map tests).
+- Map click via browser console hook (`window._sitePickerMap.fire`) wrote lat/lon/region correctly.
+- Curl deal submission wrote `site.latitude=21.0285`, `site.longitude=105.8542`, `site.region=north`.
+
+### Files changed
+- `src/python/reopt_pysam_vn/webapp/projects.py` (new)
+- `src/python/reopt_pysam_vn/webapp/routes/api.py`
+- `src/python/reopt_pysam_vn/webapp/routes/pages.py`
+- `src/python/reopt_pysam_vn/webapp/static/map.js` (new)
+- `src/python/reopt_pysam_vn/webapp/templates/base.html`
+- `src/python/reopt_pysam_vn/webapp/templates/new_deal.html`
+- `src/python/reopt_pysam_vn/webapp/templates/run.html`
+- `tests/python/webapp/test_projects.py` (new)
+- `tests/python/webapp/test_pages.py`

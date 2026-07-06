@@ -103,6 +103,8 @@
     }
 
     var map = L.map(mapEl).setView(center, zoom);
+    window._sitePickerMap = map;
+    window._sitePickerMarker = null;
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -112,6 +114,7 @@
     var marker = null;
     if (initial) {
       marker = L.marker(initial, { draggable: true }).addTo(map);
+      window._sitePickerMarker = marker;
       marker.on("dragend", function (e) {
         var ll = e.target.getLatLng();
         latInput.value = formatCoord(ll.lat);
@@ -130,6 +133,7 @@
         marker.setLatLng([lat, lon]);
       } else {
         marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+        window._sitePickerMarker = marker;
         marker.on("dragend", function (ev) {
           var ll = ev.target.getLatLng();
           latInput.value = formatCoord(ll.lat);
@@ -146,6 +150,7 @@
         marker.setLatLng(coords);
       } else {
         marker = L.marker(coords, { draggable: true }).addTo(map);
+        window._sitePickerMarker = marker;
         marker.on("dragend", function (e) {
           var ll = e.target.getLatLng();
           latInput.value = formatCoord(ll.lat);
@@ -188,6 +193,7 @@
             marker.setLatLng([lat, lon]);
           } else {
             marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+        window._sitePickerMarker = marker;
             marker.on("dragend", function (e) {
               var ll = e.target.getLatLng();
               latInput.value = formatCoord(ll.lat);
@@ -235,6 +241,7 @@
       keyboard: false,
       tap: false,
     }).setView([opts.lat, opts.lon], 6);
+    window._contextMap = map;
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
