@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: reopt-pysam Strategic Lens — Phases 1 &amp; 2</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 14ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.4rem, 4.4vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .subcard p:first-child, .subcard ul:first-child, .subcard ol:first-child { margin-top: 0; }
+
+    .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame, .viz-frame { overflow: hidden; }
+
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+
+    .technical-frame th, .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .status-done { background: rgba(59, 111, 118, 0.16); color: #245257; }
+    .status-notstarted { background: rgba(159, 123, 79, 0.16); color: var(--accent); }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; padding-bottom: 36px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root { --paper: #ffffff; --paper-strong: #ffffff; --ink: #111111; --ink-soft: #444444; --line: #d6d1c8; }
+      @page { size: A4; margin: 14mm; }
+      body { background: #ffffff; }
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff; box-shadow: none;
+      }
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+      .diagram-frame { overflow: visible; max-height: none; }
+      .diagram-frame.compact-diagram .mermaid { min-width: 0; }
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">reopt-pysam Strategic Lens — Phases 1 &amp; 2</h1>
+          <p class="lede">
+            A synthesis of the first two phases of the six-phase strategic-lens plan: web-app operational
+            readiness and a type-checking gate for the DPPA analysis toolkit's public API.
+          </p>
+          <div class="takeaway">
+            Phases 1–2 of 6 are complete and pushed to <code>main</code>: the web app now has structured
+            logging, per-run provenance, and analyst-facing error messages, and <code>analysis</code> +
+            <code>webapp</code> pass a real <code>mypy</code> gate wired into new CI. Fixing the type errors
+            also caught one latent bug — a site with no configured voltage level was silently discarding
+            the toolkit's documented default. Phases 3–6 (webapp hardening, offline solve mode, the Julia
+            archive decision, and the config-driven case runner) are not started.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">Vietnam DPPA Toolkit</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-07-15</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>
+            Two of the six phases in <code>plans/2026-07-14-reopt-pysam-strategic-lens-plan.md</code> were
+            implemented, verified, and pushed to <code>main</code> as commits
+            <code>d8349e6</code> (Phase 1) and <code>7255ca9</code> (Phase 2). Phase 1 gave the internal
+            web app — now the primary way non-technical colleagues run deals — an operator story:
+            structured logging, a per-run <code>provenance.json</code> record, analyst-facing error
+            messages instead of raw stack-trace text, and a manual run-pruning command. Phase 2 turned the
+            toolkit's existing type hints into an enforced contract: a <code>mypy</code> gate on the
+            <code>analysis</code> and <code>webapp</code> packages, a <code>py.typed</code> marker, and a
+            new GitHub Actions CI workflow.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Why it matters now</h3>
+          <p>
+            The web app recently became the primary interface for Allotrope colleagues who are not
+            software engineers. Before this work, a failed run showed them a raw Python exception message,
+            nobody could tell which NREL API key or policy-data vintage produced a given result, and the
+            type hints throughout <code>analysis</code>/<code>webapp</code> were decorative — nothing
+            enforced them, so a refactor could silently violate a function's own contract. Phase 2's type
+            check caught exactly that: a real, previously-invisible bug in the onsite scenario builder.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>
+          <strong>reopt-pysam</strong> is a Vietnam DPPA (direct power purchase agreement) techno-economic
+          toolkit: it models onsite behind-the-meter solar+storage economics via the NREL REopt API, and
+          offsite/DPPA developer finance via PySAM, behind a shared <code>DealConfig</code> descriptor. A
+          FastAPI web app shipped on top of it in July 2026 so deal analysts could run the whole workflow
+          without a terminal.
+        </p>
+        <p>
+          A prior brainstorm and plan (dated 2026-07-11) had already diagnosed the toolkit's foundational
+          debt — an unrotated leaked API key, no CI, five known-failing tests, and a single-tenant offsite
+          path — but that plan remained unexecuted. Rather than duplicate it, a follow-on strategic-lens
+          brainstorm (2026-07-14) looked past that debt-paydown work to four higher-altitude questions:
+          is the web app operable day-to-day, are the type hints actually enforced, can the toolkit run
+          offline, and is Julia still a load-bearing part of the stack or a stale artifact. This report
+          covers the first two of those four themes, translated into the strategic-lens plan's Phase 1
+          (operational readiness) and Phase 2 (type gate).
+        </p>
+        <p>
+          <strong>Objective for this session:</strong> implement Phases 1 and 2 of that plan end-to-end —
+          code, tests, and verification — commit each phase separately only once its tests are green, and
+          push both to <code>main</code>.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Plan inputs</h3>
+          <ul>
+            <li><code>plans/2026-07-14-reopt-pysam-strategic-lens-plan.md</code> — the executed plan (6 phases; this report covers Phase 1 and Phase 2)</li>
+            <li><code>research/2026-07-14-reopt-pysam-strategic-lens-brainstorm.md</code> — the brainstorm the plan formalized</li>
+            <li><code>research/2026-07-11-reopt-pysam-next-level-brainstorm.md</code> + its companion plan — the separate, still-unexecuted foundation/security/CI plan this work deliberately does not duplicate</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>In scope for this report</h3>
+          <ul>
+            <li><strong>Phase 1:</strong> structured logging, per-run provenance, a friendly error taxonomy, and a run-pruning command for the FastAPI web app</li>
+            <li><strong>Phase 2:</strong> a <code>mypy</code> type gate scoped to <code>analysis</code>/<code>webapp</code>, a <code>py.typed</code> marker, a documented public-API boundary, and new CI</li>
+          </ul>
+          <h3 style="margin-top:14px;">Explicitly out of scope here</h3>
+          <ul>
+            <li>Phases 3–6 of the same plan (webapp hardening, offline solve mode, the Julia archive-or-keep decision, and the config-driven case runner) — not started</li>
+            <li>The separate 2026-07-11 plan's security/CI/red-test work — untouched by design</li>
+            <li>Configuring <code>ruff</code> or fixing its 181 pre-existing lint findings — that plan's task, not this one's</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Constraints honored</h3>
+          <ul>
+            <li>Samsung/TTC settlement output is bit-exact gated by two test files; neither Phase 1 nor Phase 2 touches settlement math, and both parity tests were re-run and show the identical, unchanged pre-existing failure signature before and after this work.</li>
+            <li>The web app must never fork analytics logic into itself — Phase 1's provenance/error work only wraps existing <code>analysis</code>/<code>service</code> calls, it does not duplicate them.</li>
+            <li>PySAM only exists in the repo's own <code>.venv</code> (Python 3.12); all verification ran through that interpreter.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Judgment calls made in-session</h3>
+          <ul>
+            <li>The plan's literal error-taxonomy table would have genericized REopt solve-failure messages (e.g. "infeasible"); that was deliberately narrowed to keep those diagnostics visible, since a pinned existing test asserts on that exact text and hiding it would be a UX regression, not an improvement.</li>
+            <li>The CI workflow's <code>ruff check</code> step was intentionally deferred rather than added red — ruff has no project configuration yet and currently reports 181 pre-existing findings plus a hard crash parsing a malformed <code>.gitignore</code> glob, both squarely inside the separate 2026-07-11 plan's scope.</li>
+            <li>A minimal <code>.github/workflows/ci.yml</code> was created from scratch (per the plan's own binding-default instruction) since the separate foundation plan that would otherwise own CI setup has not yet run.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>
+          Each phase followed the same loop: implement the code change, write or extend tests for it,
+          run the relevant test suite, fix any failures, then run progressively wider verification before
+          committing. "Never commit red" was treated literally — every failure encountered was individually
+          triaged to determine whether it was caused by this session's changes or was a pre-existing
+          condition, using <code>git stash</code> and a disposable <code>git worktree</code> at the
+          pre-Phase-1 baseline commit (<code>fd8ceaf</code>) to reproduce failures in isolation before
+          concluding they were unrelated.
+        </p>
+        <p>
+          That discipline surfaced two genuine surprises along the way (detailed in Section 07): a real,
+          previously-latent bug that <code>mypy</code> caught in the onsite scenario builder, and a
+          previously-undiscovered hang in an unrelated smoke test that both predates this session's work
+          and was confirmed to reproduce identically on the original baseline commit.
+        </p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Phase 1 — Web-App Operational Readiness <span class="status-pill status-done">Done</span></h3>
+          <p>Commit <code>d8349e6</code>. Delivered:</p>
+          <ul>
+            <li><strong>Structured logging</strong> — a shared <code>configure_logging()</code> replaces the app's mix of unconfigured loggers and 14 bare <code>print()</code> calls in library code (the 3 that actually fire during normal execution, inside the NREL solve poll loop, were converted; the rest were confirmed to be script-only or docstring examples and left alone).</li>
+            <li><strong>Per-run provenance</strong> — every completed run now writes a <code>provenance.json</code> recording which solver ran (live NREL API, cache hit, or offline), a SHA-256 fingerprint of the API key used (never the key itself), cache hit/miss, wall-clock solve time, and the active Vietnam policy-data version for every file in <code>data/vietnam/manifest.json</code>.</li>
+            <li><strong>Friendly errors</strong> — internal exceptions now map to a <code>{code, message, hint}</code> triple shown on the run page, instead of a raw Python exception string. Known, actionable failures (missing inputs, no registered orchestrator, no API key, a REopt solve rejection) keep their specific, useful message; only genuinely unexpected exceptions get a generic message pointing at the server log.</li>
+            <li><strong>Run pruning</strong> — a new <code>python -m reopt_pysam_vn.webapp.prune</code> command lists (dry-run by default) or deletes terminal-state runs older than a given age; it never touches a run that is still queued, solving, or analyzing.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Phase 2 — Type Gate &amp; Public-API Boundary <span class="status-pill status-done">Done</span></h3>
+          <p>Commit <code>7255ca9</code>. Delivered:</p>
+          <ul>
+            <li>A <code>[tool.mypy]</code> configuration with <code>disallow_untyped_defs</code> scoped specifically to the <code>analysis</code> and <code>webapp</code> packages — the toolkit's supported public surface — leaving the internal <code>integration</code>/<code>reopt</code>/<code>pysam</code> engines lenient for now.</li>
+            <li>A <code>py.typed</code> marker so downstream consumers of the package get real type information.</li>
+            <li>A documented public-API boundary: <code>analysis</code> and <code>webapp</code> are supported; everything else may change shape without notice. Recorded in both the <code>analysis</code> package docstring and <code>AGENTS.md</code>.</li>
+            <li>A new <code>.github/workflows/ci.yml</code> running the <code>mypy</code> gate and the non-network pytest suite on every push and pull request.</li>
+          </ul>
+          <p>16 real type errors were found and fixed at their root cause — no blanket <code># type: ignore</code> suppressions were used. One of those fixes corrected an actual latent bug (see Section 07).</p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+        <div class="mermaid">
+flowchart LR
+  A["Phase 1<br/>Web-app ops readiness"] --> B["Full test suite<br/>+ triage"]
+  B --> C["Commit d8349e6"]
+  C --> D["Phase 2<br/>mypy type gate"]
+  D --> E{"mypy errors<br/>found: 16"}
+  E --> F["Fix at root cause<br/>(no ignores)"]
+  F --> G["Discovered: onsite.py<br/>voltage_level bug"]
+  F --> H["Full test suite<br/>+ worktree triage"]
+  H --> I{"New regressions?"}
+  I -->|"No — all failures<br/>pre-existing"| J["Commit 7255ca9"]
+  J --> K["Push to main"]
+      </div>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p><strong>Finding 1 — a real bug, found by adding types, not by looking for bugs.</strong>
+        <code>analysis/onsite.py</code> was passing <code>voltage_level=site.get("voltage_level")</code> —
+        which evaluates to <code>None</code> whenever a deal's site data has no voltage level set — directly
+        into <code>apply_vietnam_defaults()</code>. That function has a real, documented default
+        (<code>medium_voltage_22kv_to_110kv</code>) for exactly this situation, but passing an explicit
+        <code>None</code> argument silently overrides the default instead of triggering it. Every onsite
+        deal submitted without an explicit site voltage was quietly getting <code>None</code> where the
+        toolkit's own documented convention says it should fall back to a sensible default. The fix (three
+        lines: only pass the argument when a value is actually present) is committed in
+        <code>7255ca9</code>.</p>
+        <p><strong>Finding 2 — a previously undiscovered, pre-existing test hang, unrelated to this work.</strong>
+        While tracing why a full-suite run was taking far longer than the ~15s/~60s the project's own docs
+        describe, a specific test — <code>test_regime_matrix_no_solve_writes_complete_artifacts</code> in
+        <code>tests/python/integration/test_regime_engine_smoke.py</code> — was found to hang indefinitely
+        (confirmed past 3 minutes with no completion). This was verified to be <strong>completely
+        unrelated to Phases 1–2</strong>: it was reproduced identically in a disposable
+        <code>git worktree</code> checked out at <code>fd8ceaf</code>, the commit immediately before any of
+        this session's work. It is a genuine, previously-unknown issue in the regime-matrix scenario
+        builder (called with <code>solve=False</code>, so it is not a live-network hang) that this session
+        did not introduce and did not attempt to fix, since root-causing it is outside Phase 1/2's scope.</p>
+        <p><strong>Finding 3 — the known red-test backlog is unchanged.</strong> All five test failures
+        documented as pre-existing in <code>activeContext.md</code> (two Samsung/TTC parity assertions, one
+        PVWatts capacity-factor benchmark, one ninhsim benchmark, and one strike-price-discovery test) were
+        individually reproduced during this session's verification, with identical failure values both
+        before and after Phases 1–2. Neither phase changed, fixed, or worsened any of them — they remain
+        exactly where the separate, unexecuted 2026-07-11 plan left them for its own remediation pass.</p>
+      </div>
+      <div class="viz-frame">
+        <canvas id="test-verification-chart" role="img" aria-label="Test suite verification results by area"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Already shipped (this session)</h3>
+          <ol>
+            <li>Phase 1 — web-app operational readiness — commit <code>d8349e6</code></li>
+            <li>Phase 2 — type gate &amp; public-API boundary — commit <code>7255ca9</code></li>
+            <li>Both pushed to <code>origin/main</code></li>
+          </ol>
+        </div>
+        <div class="subcard">
+          <h3>Recommended next steps</h3>
+          <ol>
+            <li><strong>Phase 3</strong> — webapp input hardening (form-key allowlist) and restart-safe run ordering.</li>
+            <li><strong>Phase 4</strong> — a frozen-resource offline solve mode, so CI and demos can exercise the full onsite pipeline with no NREL key.</li>
+            <li><strong>Phase 5</strong> — resolve the Julia archive-or-keep decision (Q-101 in the plan): confirm nobody still solves locally in Julia, then archive it in place under <code>legacy/julia/</code> and correct the README's stack description.</li>
+            <li><strong>Phase 6</strong> — the config-driven case runner, proven on <code>dppa_case_2.py</code> behind characterization tests, so a new deal becomes a config rather than a new hand-written module.</li>
+            <li><strong>Separately:</strong> the still-unexecuted 2026-07-11 foundation plan (key rotation, ruff configuration, the five red tests, offsite generalization) — Phase 2's CI workflow deliberately left a slot for a <code>ruff check</code> step once that plan lands.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Open questions carried forward</h3>
+          <ul>
+            <li>Is anyone still solving locally in Julia? This gates whether Phase 5 (archive-in-place) can proceed as planned.</li>
+            <li>The <code>test_regime_engine_smoke.py</code> hang (Finding 2) has not been root-caused — it needs its own investigation, separate from this plan.</li>
+            <li>The new CI workflow has not yet been observed running on GitHub Actions itself (this session verified all steps locally); its first real run should be watched once pushed.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Risks and mitigations already applied</h3>
+          <ul>
+            <li><strong>Risk:</strong> a type-safety fix could silently change Samsung/TTC's bit-exact output. <strong>Mitigation:</strong> the parity tests were re-run after every touch to <code>dppa_samsung_ttc.py</code> and <code>onsite.py</code>, and produced byte-identical (still pre-existing-failing) results before and after.</li>
+            <li><strong>Risk:</strong> shipping a CI workflow that is red on day one. <strong>Mitigation:</strong> the <code>ruff check</code> step was deliberately omitted rather than added broken; only the verified-green <code>mypy</code> and <code>pytest</code> steps are included.</li>
+            <li><strong>Risk:</strong> mistaking a pre-existing failure for a regression (or vice versa). <strong>Mitigation:</strong> every failure encountered was checked against a disposable <code>git worktree</code> at the pre-session baseline commit before being classified.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard">
+          <h3>Commits</h3>
+          <div class="technical-frame">
+            <table>
+              <thead><tr><th>Commit</th><th>Phase</th><th>Summary</th></tr></thead>
+              <tbody>
+                <tr><td><code>d8349e6</code></td><td>1</td><td>Web-app operational readiness (logging, provenance, friendly errors, run pruning)</td></tr>
+                <tr><td><code>7255ca9</code></td><td>2</td><td>Type gate and public-API boundary (mypy, py.typed, CI)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="subcard">
+          <h3>Files touched (new)</h3>
+          <ul>
+            <li><code>src/python/reopt_pysam_vn/webapp/logging_config.py</code></li>
+            <li><code>src/python/reopt_pysam_vn/webapp/errors.py</code></li>
+            <li><code>src/python/reopt_pysam_vn/webapp/prune.py</code></li>
+            <li><code>src/python/reopt_pysam_vn/py.typed</code></li>
+            <li><code>.github/workflows/ci.yml</code></li>
+            <li><code>tests/python/webapp/test_errors.py</code></li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Verification commands (copy-paste runnable)</h3>
+          <div class="technical-frame">
+            <table>
+              <tbody>
+                <tr><td><code>mypy</code> gate</td><td><code>mypy src/python/reopt_pysam_vn/analysis src/python/reopt_pysam_vn/webapp</code> → exit 0</td></tr>
+                <tr><td>webapp suite</td><td><code>pytest tests/python/webapp -q</code> → 64 passed</td></tr>
+                <tr><td>analysis suite</td><td><code>pytest tests/python/analysis -q</code> → 35 passed, 2 pre-existing failures</td></tr>
+                <tr><td>integration suite</td><td><code>pytest tests/python/integration -q</code> (excl. known hang) → 212 passed, 2 pre-existing failures</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="subcard">
+          <h3>Glossary</h3>
+          <ul>
+            <li><strong>DealConfig</strong> — the shared descriptor for a Vietnam solar/storage/DPPA deal that both the onsite and offsite analysis pipelines consume.</li>
+            <li><strong>Provenance</strong> — the per-run metadata record (solver, key fingerprint, cache status, policy-data version, wall time) introduced in Phase 1.</li>
+            <li><strong>Parity gate</strong> — the bit-exact comparison tests that pin the Samsung/TTC deal's numeric output; any change nearby must leave them untouched.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+
+    (function () {
+      const el = document.getElementById('test-verification-chart');
+      if (!el || !window.Chart) return;
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: ['webapp', 'analysis', 'reopt', 'integration'],
+          datasets: [
+            {
+              label: 'Passed',
+              data: [64, 35, 136, 212],
+              backgroundColor: '#3b6f76'
+            },
+            {
+              label: 'Pre-existing failures (unchanged)',
+              data: [0, 2, 0, 2],
+              backgroundColor: '#9d6b37'
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true, title: { display: true, text: 'test count' } }
+          },
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'Test verification by area (post Phase 1 + 2)' }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
