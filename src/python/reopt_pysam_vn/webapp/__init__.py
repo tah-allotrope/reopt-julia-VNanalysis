@@ -6,10 +6,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, AsyncIterator
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
+
 __all__ = ["create_app", "app"]
 
 
-def create_app():
+def create_app() -> "FastAPI":
     from contextlib import asynccontextmanager
 
     from fastapi import FastAPI
@@ -26,7 +31,7 @@ def create_app():
     jobs = JobManager(storage)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI):
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         jobs.start()
         try:
             yield
@@ -49,7 +54,7 @@ def create_app():
     return app
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name == "app":
         return create_app()
     raise AttributeError(name)

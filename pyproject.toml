@@ -32,6 +32,9 @@ package-dir = {"" = "src/python"}
 [tool.setuptools.packages.find]
 where = ["src/python"]
 
+[tool.setuptools.package-data]
+"reopt_pysam_vn" = ["py.typed"]
+
 [tool.pytest.ini_options]
 pythonpath = [
   "src/python",
@@ -39,3 +42,12 @@ pythonpath = [
 testpaths = [
   "tests",
 ]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["reopt_pysam_vn.analysis.*", "reopt_pysam_vn.webapp.*"]
+disallow_untyped_defs = true

@@ -33,6 +33,7 @@ import math
 from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Dict
 
 from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
@@ -185,7 +186,7 @@ def build_samsung_ttc_extracted_inputs(
     """
     vn = load_vietnam_data()
     tariff_data = vn.tariff
-    site = dict(SAMSUNG_TTC_SOLAR_SITE)
+    site: Dict[str, Any] = dict(SAMSUNG_TTC_SOLAR_SITE)
     customer_type = site["customer_type"]
     voltage_level = site["voltage_level"]
 
@@ -457,11 +458,12 @@ def _pvwatts_south_solar_8760(
         import PySAM.Pvwattsv8 as pv
     except Exception:
         return None
+    default_resource_file: Path | None = None
     try:
-        from reopt_pysam_vn.pysam.pvwatts_battery import DEFAULT_SOLAR_RESOURCE_FILE
+        from reopt_pysam_vn.pysam.pvwatts_battery import DEFAULT_SOLAR_RESOURCE_FILE as default_resource_file
     except Exception:
-        DEFAULT_SOLAR_RESOURCE_FILE = None
-    resource = Path(resource_file) if resource_file else DEFAULT_SOLAR_RESOURCE_FILE
+        pass
+    resource = Path(resource_file) if resource_file else default_resource_file
     if resource is None or not Path(resource).is_file():
         return None
     try:

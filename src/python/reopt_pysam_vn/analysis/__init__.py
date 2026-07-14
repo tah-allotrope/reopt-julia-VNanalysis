@@ -5,6 +5,15 @@ This package is the first-class home for the repo's key function: take a project
 optimization) and/or offsite/DPPA (PySAM developer finance + settlement + strike
 search) — replacing the bespoke per-deal modules under ``integration/``.
 
+**Public API boundary (strategic-lens PHASE-02, DEC-106):**
+``reopt_pysam_vn.analysis`` (this package: ``DealConfig``, ``run_onsite``,
+``run_offsite_dppa``, ``register_orchestrator``) is the supported, type-checked
+surface for callers outside this repo (the web app, external scripts). It ships
+with a ``py.typed`` marker and is covered by a ``mypy`` gate. ``integration``,
+``reopt``, and ``pysam`` are internal engines this package composes — they may
+change shape between commits without a deprecation cycle. Code outside
+``reopt_pysam_vn`` should depend on ``analysis``, not on those internals.
+
 Public surface (built across Sprint 3 phases):
 - ``types``        — shared contract: ``DealConfig``, ``OnsiteResult``,
                      ``OffsiteDppaResult``, ``CombinedDecision`` (PHASE-01).

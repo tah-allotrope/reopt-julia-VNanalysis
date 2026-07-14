@@ -125,13 +125,14 @@ def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
     if deal_config.load.get("loads_kw"):
         scenario["ElectricLoad"]["loads_kw"] = list(deal_config.load["loads_kw"])
     vn = load_vietnam_data()
-    apply_vietnam_defaults(
-        scenario,
-        vn,
-        customer_type=site.get("customer_type", "industrial"),
-        region=site.get("region", "south"),
-        voltage_level=site.get("voltage_level"),
-    )
+    voltage_level = site.get("voltage_level")
+    defaults_kwargs: Dict[str, Any] = {
+        "customer_type": site.get("customer_type", "industrial"),
+        "region": site.get("region", "south"),
+    }
+    if voltage_level is not None:
+        defaults_kwargs["voltage_level"] = voltage_level
+    apply_vietnam_defaults(scenario, vn, **defaults_kwargs)
     return scenario
 
 

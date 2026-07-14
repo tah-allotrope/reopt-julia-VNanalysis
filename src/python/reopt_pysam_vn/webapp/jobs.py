@@ -143,6 +143,10 @@ class JobManager:
         key_fingerprint: Optional[str] = None
         if cached_run_id is not None:
             reopt_results = self.storage.get_reopt_results(cached_run_id)
+            assert reopt_results is not None, (
+                f"cache invariant violated: run {cached_run_id!r} matched solve_hash "
+                f"{solve_hash!r} in state 'done' but has no saved reopt_results"
+            )
             solver = "cached"
         else:
             api_key = service.load_nrel_api_key()

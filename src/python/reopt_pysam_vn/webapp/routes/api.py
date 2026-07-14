@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
+from starlette.datastructures import FormData, UploadFile
 
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.webapp import service
@@ -82,18 +83,19 @@ def create_run(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
     return {"run_id": run_id}
 
 
-def _nest_form_fields(form_data) -> Dict[str, Any]:
+def _nest_form_fields(form_data: FormData) -> Dict[str, Any]:
     result: Dict[str, Any] = {}
     for key in form_data.keys():
         if key in ("load_file", "extracted_file", "force_resolve"):
             continue
-        value = form_data.get(key)
+        value: Any = form_data.get(key)
         if value == "" or value is None:
             continue
-        try:
-            value = float(value)
-        except (TypeError, ValueError):
-            pass
+        if isinstance(value, str):
+            try:
+                value = float(value)
+            except ValueError:
+                pass
         parts = key.split(".")
         node = result
         for part in parts[:-1]:
@@ -109,7 +111,7 @@ async def create_deal(request: Request) -> Dict[str, Any]:
 
     load_file = form_data.get("load_file")
     loads_kw = None
-    if load_file is not None and getattr(load_file, "filename", ""):
+    if isinstance(load_file, UploadFile) and load_file.filename:
         content = await load_file.read()
         try:
             if load_file.filename.lower().endswith(".xlsx"):
@@ -123,7 +125,7 @@ async def create_deal(request: Request) -> Dict[str, Any]:
 
     extracted = None
     extracted_file = form_data.get("extracted_file")
-    if extracted_file is not None and getattr(extracted_file, "filename", ""):
+    if isinstance(extracted_file, UploadFile) and extracted_file.filename:
         import json
 
         content = await extracted_file.read()
