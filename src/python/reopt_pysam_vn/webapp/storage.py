@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -112,6 +113,51 @@ class RunStorage:
         if not path.exists():
             return None
         return json.loads(path.read_text(encoding="utf-8"))
+
+    def write_provenance(self, run_id: str, provenance: Dict[str, Any]) -> None:
+        run_dir = self._run_dir(run_id)
+        (run_dir / "provenance.json").write_text(
+            json.dumps(provenance, indent=2), encoding="utf-8"
+        )
+
+    def get_provenance(self, run_id: str) -> Optional[Dict[str, Any]]:
+        run_dir = self._run_dir(run_id)
+        path = run_dir / "provenance.json"
+        if not path.exists():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    _TERMINAL_STATES = frozenset({"done", "error"})
+
+    def prune(self, older_than_days: int, *, dry_run: bool = True) -> List[str]:
+        """Return run_ids in a terminal state older than ``older_than_days``.
+
+        Never selects a run whose state is not terminal (``queued``/``solving``/
+        ``analyzing`` are always kept regardless of age). When ``dry_run`` is
+        False, the selected run directories are deleted.
+        """
+        if not self.root.exists():
+            return []
+        cutoff = datetime.now(timezone.utc) - timedelta(days=older_than_days)
+        stale: List[str] = []
+        for run in self.list_runs():
+            if run.get("state") not in self._TERMINAL_STATES:
+                continue
+            created_at = run.get("created_at", "")
+            try:
+                created = datetime.strptime(created_at, "%Y%m%dT%H%M%S%f").replace(
+                    tzinfo=timezone.utc
+                )
+            except ValueError:
+                continue
+            if created < cutoff:
+                stale.append(run["run_id"])
+        if not dry_run:
+            for run_id in stale:
+                run_dir = self.root / run_id
+                if run_dir.exists():
+                    shutil.rmtree(run_dir)
+        return stale
 
     def list_runs(self) -> List[Dict[str, Any]]:
         if not self.root.exists():

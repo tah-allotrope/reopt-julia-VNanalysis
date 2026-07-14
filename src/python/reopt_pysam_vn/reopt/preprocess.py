@@ -19,6 +19,7 @@ Usage:
 """
 
 import json
+import logging
 import os
 import time
 import warnings
@@ -29,6 +30,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -858,7 +861,7 @@ def run_vietnam_reopt(
     if not run_uuid:
         raise RuntimeError(f"REopt API did not return run_uuid. Response: {post_data}")
 
-    print(f"REopt job submitted: run_uuid={run_uuid}")
+    logger.info("REopt job submitted: run_uuid=%s", run_uuid)
 
     # Poll for results
     results_url = f"{REOPT_API_BASE_URL}/job/{run_uuid}/results/?api_key={api_key}"
@@ -870,14 +873,14 @@ def run_vietnam_reopt(
 
         status = results.get("status", "")
         if status == "optimal":
-            print(f"REopt job completed: optimal (poll {i + 1})")
+            logger.info("REopt job completed: optimal (poll %d)", i + 1)
             return results
         elif status in ("error", "infeasible", "timed_out"):
             raise RuntimeError(
                 f"REopt job failed with status: {status}. Messages: {results.get('messages', {})}"
             )
         else:
-            print(f"  Poll {i + 1}/{max_polls}: status={status}")
+            logger.info("Poll %d/%d: status=%s", i + 1, max_polls, status)
 
     raise TimeoutError(
         f"REopt job {run_uuid} did not complete within {max_polls * poll_interval}s"

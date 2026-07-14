@@ -1,5 +1,7 @@
 """PHASE-01: filesystem run storage."""
 
+from datetime import datetime, timedelta, timezone
+
 from reopt_pysam_vn.webapp.storage import RunStorage
 
 
@@ -80,3 +82,69 @@ def test_unknown_run_id_raises_key_error(storage_root):
 
     with pytest.raises(KeyError):
         store.get_status("does-not-exist")
+
+
+def test_write_and_get_provenance_roundtrips(storage_root):
+    store = RunStorage(storage_root)
+    run_id = store.create_run({"case": "TEST", "mode": "onsite"})
+    prov = {"run_id": run_id, "solver": "nrel_api", "wall_time_seconds": 1.5}
+    store.write_provenance(run_id, prov)
+    got = store.get_provenance(run_id)
+    assert got == prov
+
+
+def test_get_provenance_returns_none_when_absent(storage_root):
+    store = RunStorage(storage_root)
+    run_id = store.create_run({"case": "TEST", "mode": "onsite"})
+    assert store.get_provenance(run_id) is None
+
+
+def _backdate_run(storage_root, run_id, days_ago):
+    status_path = storage_root / run_id / "status.json"
+    import json
+
+    status = json.loads(status_path.read_text(encoding="utf-8"))
+    old_ts = (datetime.now(timezone.utc) - timedelta(days=days_ago)).strftime("%Y%m%dT%H%M%S%f")
+    status["created_at"] = old_ts
+    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+
+
+def test_prune_dry_run_selects_but_does_not_delete_stale_done_runs(storage_root):
+    store = RunStorage(storage_root)
+    old_id = store.create_run({"case": "OLD", "mode": "onsite"})
+    store.set_status(old_id, state="done")
+    _backdate_run(storage_root, old_id, days_ago=40)
+
+    fresh_id = store.create_run({"case": "FRESH", "mode": "onsite"})
+    store.set_status(fresh_id, state="done")
+
+    stale = store.prune(30, dry_run=True)
+    assert stale == [old_id]
+    assert (storage_root / old_id).exists()
+    assert (storage_root / fresh_id).exists()
+
+
+def test_prune_apply_deletes_only_stale_runs(storage_root):
+    store = RunStorage(storage_root)
+    old_id = store.create_run({"case": "OLD", "mode": "onsite"})
+    store.set_status(old_id, state="done")
+    _backdate_run(storage_root, old_id, days_ago=40)
+
+    fresh_id = store.create_run({"case": "FRESH", "mode": "onsite"})
+    store.set_status(fresh_id, state="done")
+
+    stale = store.prune(30, dry_run=False)
+    assert stale == [old_id]
+    assert not (storage_root / old_id).exists()
+    assert (storage_root / fresh_id).exists()
+
+
+def test_prune_never_selects_non_terminal_runs_even_if_old(storage_root):
+    store = RunStorage(storage_root)
+    run_id = store.create_run({"case": "SOLVING", "mode": "onsite"})
+    store.set_status(run_id, state="solving")
+    _backdate_run(storage_root, run_id, days_ago=999)
+
+    stale = store.prune(30, dry_run=False)
+    assert stale == []
+    assert (storage_root / run_id).exists()

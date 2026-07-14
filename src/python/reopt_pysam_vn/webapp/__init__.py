@@ -15,9 +15,12 @@ def create_app():
     from fastapi import FastAPI
 
     from reopt_pysam_vn.webapp.jobs import JobManager
+    from reopt_pysam_vn.webapp.logging_config import configure_logging
     from reopt_pysam_vn.webapp.routes.api import router as api_router
     from reopt_pysam_vn.webapp.routes.pages import router as pages_router
     from reopt_pysam_vn.webapp.storage import RunStorage, default_runs_dir
+
+    configure_logging()
 
     storage = RunStorage(default_runs_dir())
     jobs = JobManager(storage)

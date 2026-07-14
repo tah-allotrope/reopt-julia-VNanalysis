@@ -113,9 +113,67 @@ def test_solve_failure_marks_run_error_and_worker_survives(client, monkeypatch):
     status = _wait_for_terminal(client, run_id)
     assert status["state"] == "error"
     assert "infeasible" in status["message"]
+    assert status["error_code"] == "SOLVER_ERROR"
+    assert status["error_hint"]
 
     # worker thread must still process the next job after an error
     monkeypatch.setattr(service, "solve_onsite_via_nrel", lambda deal: _fake_reopt_results())
     resp2 = client.post("/api/runs", json={"deal_config": _deal_config("AFTER_FAIL")})
     status2 = _wait_for_terminal(client, resp2.json()["run_id"])
     assert status2["state"] == "done"
+
+
+def test_completed_run_writes_provenance_with_key_fingerprint(client, monkeypatch):
+    from reopt_pysam_vn.webapp import service
+
+    monkeypatch.setattr(service, "solve_onsite_via_nrel", lambda deal: _fake_reopt_results())
+    monkeypatch.setattr(service, "load_nrel_api_key", lambda: "fake-secret-key")
+
+    resp = client.post("/api/runs", json={"deal_config": _deal_config("PROV_CASE")})
+    run_id = resp.json()["run_id"]
+    _wait_for_terminal(client, run_id)
+
+    storage = client.app.state.storage
+    prov = storage.get_provenance(run_id)
+    assert prov is not None
+    assert prov["solver"] == "nrel_api"
+    assert prov["cache_hit"] is False
+    assert prov["cached_from_run_id"] is None
+    assert isinstance(prov["wall_time_seconds"], float)
+    assert prov["nrel_key_fingerprint"] is not None
+    assert prov["nrel_key_fingerprint"] != "fake-secret-key"
+    assert len(prov["nrel_key_fingerprint"]) == 12
+    assert isinstance(prov["policy_data_versions"], dict)
+
+
+def test_cached_run_provenance_marks_cache_hit(client, monkeypatch):
+    from reopt_pysam_vn.webapp import service
+
+    monkeypatch.setattr(service, "solve_onsite_via_nrel", lambda deal: _fake_reopt_results())
+    monkeypatch.setattr(service, "load_nrel_api_key", lambda: "fake-secret-key")
+
+    resp1 = client.post("/api/runs", json={"deal_config": _deal_config("PROV_CACHE")})
+    run_id_1 = resp1.json()["run_id"]
+    _wait_for_terminal(client, run_id_1)
+
+    resp2 = client.post("/api/runs", json={"deal_config": _deal_config("PROV_CACHE")})
+    run_id_2 = resp2.json()["run_id"]
+    _wait_for_terminal(client, run_id_2)
+
+    storage = client.app.state.storage
+    prov2 = storage.get_provenance(run_id_2)
+    assert prov2["solver"] == "cached"
+    assert prov2["cache_hit"] is True
+    assert prov2["cached_from_run_id"] == run_id_1
+    assert prov2["nrel_key_fingerprint"] is None
+
+
+def test_offsite_mode_error_has_friendly_code(client):
+    deal = _deal_config("OFFSITE_NOT_ONSITE")
+    deal["mode"] = "offsite_dppa"
+    resp = client.post("/api/runs", json={"deal_config": deal})
+    run_id = resp.json()["run_id"]
+    status = _wait_for_terminal(client, run_id)
+    assert status["state"] == "error"
+    assert status["error_code"] == "MISSING_INPUTS"
+    assert status["error_hint"]

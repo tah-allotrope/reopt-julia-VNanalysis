@@ -10,6 +10,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.webapp import service
+from reopt_pysam_vn.webapp.errors import to_user_error
 from reopt_pysam_vn.webapp.forms import deal_config_from_form
 from reopt_pysam_vn.webapp.projects import list_projects
 from reopt_pysam_vn.webapp.uploads import UploadError, parse_load_csv, parse_load_xlsx
@@ -54,7 +55,14 @@ def _submit_deal_config(
             storage.save_result(run_id, result)
             storage.set_status(run_id, state="done")
         except service.AnalysisError as exc:
-            storage.set_status(run_id, state="error", message=str(exc))
+            user_error = to_user_error(exc)
+            storage.set_status(
+                run_id,
+                state="error",
+                message=user_error["message"],
+                error_code=user_error["code"],
+                error_hint=user_error["hint"],
+            )
 
     return run_id
 

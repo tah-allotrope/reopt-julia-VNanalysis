@@ -9,6 +9,14 @@
 <p><span class="status-badge status-{{ status.state }}">{{ status.state }}</span>
   {% if status.message %}&mdash; {{ status.message }}{% endif %}</p>
 
+{% if status.state == 'error' %}
+<div class="card" style="border-color:rgba(220,50,50,0.4);">
+  <p><strong>{{ status.message }}</strong></p>
+  {% if status.error_hint %}<p>{{ status.error_hint }}</p>{% endif %}
+  {% if status.error_code %}<p><small>Error code: {{ status.error_code }}</small></p>{% endif %}
+</div>
+{% endif %}
+
 {% if site.get('latitude') is not none and site.get('longitude') is not none %}
 <div class="card">
   <h3>Site context</h3>
