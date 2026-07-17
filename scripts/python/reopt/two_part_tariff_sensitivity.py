@@ -13,6 +13,26 @@ dispatch is therefore not tuned for demand shaving. Two scenarios are compared:
     highest grid-import hour in each month down to the 95th-percentile hourly
     demand — an upper bound on achievable demand reduction without re-solving.
 
+!!!!! KNOWN MODELING GAP — Energy rate reduction not applied !!!!!
+Under the actual two-part tariff (per Decree 146), the single-component
+TOU energy rates are replaced by lower trial energy rates (~30-38% below
+baseline). This script DOES NOT swap in the lower trial energy rates — it
+only adds the demand charge on top of the existing (higher) baseline TOU
+energy rates. As a result, the output OVERSTATES the cost impact of the
+two-part tariff.
+
+Cross-reference: XanhTerra's two-component tariff case study
+(https://xanhterra.com/twocomponent-tariff) shows that after accounting
+for the energy rate reduction, medium-to-high load-factor profiles can
+save money under the trial tariff. The repo's Factory A case (~46% LF)
+is approximately breakeven when the energy reduction is included.
+
+Fix required: Before applying the demand charge, re-price the 8760 energy
+series using the two-part trial rates (Ca) from
+data/vietnam/vn_tariff_2025.json → demand_charge → two_part_tariff_trial →
+energy_charge_vnd_per_kwh, rather than the baseline single-component TOU
+rates. See also: docs/pitfalls.md "two-part tariff energy rates".
+
 Usage:
     python scripts/python/two_part_tariff_sensitivity.py \
         --reopt artifacts/results/saigon18/2026-03-23_scenario-a_fixed-sizing_evntou_reopt-results.json \

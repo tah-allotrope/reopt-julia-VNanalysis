@@ -165,7 +165,7 @@
     },
 
     "demand_charge": {
-      "notes": "Vietnam is transitioning to a two-part tariff (capacity + energy) per Electricity Law 2024 Art. 50 and Decree 146/2025/ND-CP. Paper-based pilot Jan-Jun 2026 for large industrial customers (≥200,000 kWh/month avg). Not yet applied to actual bills. Set to 0 for current modeling; use trial values for forward-looking scenarios.",
+      "notes": "Vietnam is transitioning to a two-part tariff (capacity + energy) per Electricity Law 2024 Art. 50 and Decree 146/2025/ND-CP. Paper-based pilot Jan-Jun 2026 for large industrial customers (≥200,000 kWh/month avg). Not yet applied to actual bills. Set to 0 for current modeling; use trial values for forward-looking scenarios.\n\nWARNING: The repo's two-part tariff sensitivity script (scripts/python/reopt/two_part_tariff_sensitivity.py) only adds the demand charge on top of baseline single-component TOU energy rates. It does NOT swap in the lower trial energy rates stored below (~30-38% below baseline). This overstates the net cost impact. See activeContext.md 'Known model gaps' and the script docstring.",
       "monthly_demand_rate_vnd_per_kw": 0,
 
       "two_part_tariff_trial": {
