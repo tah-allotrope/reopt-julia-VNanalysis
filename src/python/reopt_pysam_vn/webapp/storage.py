@@ -19,6 +19,8 @@ from typing import Any, Dict, List, Optional, Union
 __all__ = ["RunStorage", "default_runs_dir"]
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
+_RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+_NON_TERMINAL_STATES = frozenset({"queued", "solving", "analyzing"})
 
 
 def default_runs_dir() -> Path:
@@ -44,6 +46,8 @@ class RunStorage:
         self._lock = threading.Lock()
 
     def _run_dir(self, run_id: str) -> Path:
+        if not _RUN_ID_RE.match(run_id):
+            raise KeyError(f"no such run: {run_id!r}")
         path = self.root / run_id
         if not path.exists():
             raise KeyError(f"no such run: {run_id!r}")
@@ -172,6 +176,26 @@ class RunStorage:
             runs.append(json.loads(status_path.read_text(encoding="utf-8")))
         runs.sort(key=lambda r: r.get("seq", 0), reverse=True)
         return runs
+
+    def mark_interrupted_runs(self) -> List[str]:
+        """Mark every run whose state is non-terminal (``queued``/``solving``/
+        ``analyzing``) as ``error``. Called on app startup: a non-terminal run
+        found at that point was orphaned by a previous process exiting mid-solve
+        and can never progress on its own. Never auto-requeued (would silently
+        re-spend NREL API quota on a run the user may have abandoned)."""
+        interrupted: List[str] = []
+        for run in self.list_runs():
+            if run.get("state") in _NON_TERMINAL_STATES:
+                run_id = run["run_id"]
+                self.set_status(
+                    run_id,
+                    state="error",
+                    message="Run was interrupted by an app restart before it finished.",
+                    error_code="interrupted_restart",
+                    error_hint="Clone this run from the history page and submit it again.",
+                )
+                interrupted.append(run_id)
+        return interrupted
 
     def find_cached_run_id(self, solve_hash: str) -> Optional[str]:
         for run in self.list_runs():

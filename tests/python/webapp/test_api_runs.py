@@ -94,6 +94,11 @@ def test_get_unknown_run_returns_404(client):
     assert resp.status_code == 404
 
 
+def test_get_run_with_traversal_run_id_returns_404(client):
+    resp = client.get("/api/runs/%2e%2e%2f%2e%2e")
+    assert resp.status_code == 404
+
+
 def test_onsite_without_results_or_solve_queues_for_background_solve(client):
     deal_config = {"case": "TEST_ONSITE_FRESH", "mode": "onsite", "title": "Fresh deal"}
     resp = client.post("/api/runs", json={"deal_config": deal_config})

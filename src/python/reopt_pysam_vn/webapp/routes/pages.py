@@ -77,8 +77,11 @@ def run_detail(run_id: str, request: Request) -> HTMLResponse:
     except KeyError:
         deal_config = {}
     site = deal_config.get("site", {})
+    provenance = storage.get_provenance(run_id)
     return templates_engine.TemplateResponse(
-        request, "run.html", {"run_id": run_id, "status": status, "view": view, "site": site}
+        request,
+        "run.html",
+        {"run_id": run_id, "status": status, "view": view, "site": site, "provenance": provenance},
     )
 
 

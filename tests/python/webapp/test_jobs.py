@@ -168,6 +168,24 @@ def test_cached_run_provenance_marks_cache_hit(client, monkeypatch):
     assert prov2["nrel_key_fingerprint"] is None
 
 
+def test_job_manager_start_marks_interrupted_runs_as_error(storage_root):
+    from reopt_pysam_vn.webapp.jobs import JobManager
+    from reopt_pysam_vn.webapp.storage import RunStorage
+
+    storage = RunStorage(storage_root)
+    run_id = storage.create_run({"case": "STRANDED", "mode": "onsite"})
+    storage.set_status(run_id, state="solving")
+
+    manager = JobManager(storage)
+    manager.start()
+    try:
+        status = storage.get_status(run_id)
+        assert status["state"] == "error"
+        assert status["error_code"] == "interrupted_restart"
+    finally:
+        manager.stop()
+
+
 def test_offsite_mode_error_has_friendly_code(client):
     deal = _deal_config("OFFSITE_NOT_ONSITE")
     deal["mode"] = "offsite_dppa"

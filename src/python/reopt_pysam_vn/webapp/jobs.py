@@ -85,6 +85,9 @@ class JobManager:
     def start(self) -> None:
         if self._thread is not None:
             return
+        interrupted = self.storage.mark_interrupted_runs()
+        if interrupted:
+            logger.warning("marked %d interrupted run(s) as error on startup: %s", len(interrupted), interrupted)
         self._thread = threading.Thread(target=self._worker_loop, daemon=True, name="webapp-solve-worker")
         self._thread.start()
 

@@ -60,6 +60,29 @@ try {
 {{ render_section(view) }}
 {% endif %}
 
+{% if provenance %}
+<div class="card">
+  <h3>About this run</h3>
+  <table>
+    <tr><td>Solver</td><td>{{ provenance.solver }}</td></tr>
+    <tr><td>Cache</td><td>
+      {% if provenance.cache_hit %}yes &mdash; reused run {{ provenance.cached_from_run_id }}{% else %}no{% endif %}
+    </td></tr>
+    <tr><td>Wall time</td><td>{{ "%.1f"|format(provenance.wall_time_seconds) }}s</td></tr>
+    <tr><td>Package version</td><td>{{ provenance.package_version }}</td></tr>
+    <tr><td>PySAM available</td><td>{{ provenance.pysam_available }}</td></tr>
+  </table>
+  {% if provenance.policy_data_versions %}
+  <h4>Policy data versions</h4>
+  <table>
+    {% for key, version in provenance.policy_data_versions.items() %}
+    <tr><td>{{ key }}</td><td>{{ version }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endif %}
+
 {% else %}
 <p id="poll-status">Waiting for this run to finish&hellip;</p>
 <script>

@@ -84,6 +84,27 @@ def test_unknown_run_id_raises_key_error(storage_root):
         store.get_status("does-not-exist")
 
 
+def test_run_id_with_path_traversal_raises_key_error(storage_root):
+    store = RunStorage(storage_root)
+    import pytest
+
+    with pytest.raises(KeyError):
+        store.get_status("../evil")
+    with pytest.raises(KeyError):
+        store.get_status("..")
+    with pytest.raises(KeyError):
+        store.get_status("a/b")
+    with pytest.raises(KeyError):
+        store.get_status(".hidden")
+
+
+def test_real_run_id_still_round_trips(storage_root):
+    store = RunStorage(storage_root)
+    run_id = store.create_run({"case": "TEST", "mode": "onsite"})
+    status = store.get_status(run_id)
+    assert status["state"] == "queued"
+
+
 def test_write_and_get_provenance_roundtrips(storage_root):
     store = RunStorage(storage_root)
     run_id = store.create_run({"case": "TEST", "mode": "onsite"})
@@ -148,3 +169,25 @@ def test_prune_never_selects_non_terminal_runs_even_if_old(storage_root):
     stale = store.prune(30, dry_run=False)
     assert stale == []
     assert (storage_root / run_id).exists()
+
+
+def test_mark_interrupted_runs_flags_only_non_terminal_states(storage_root):
+    store = RunStorage(storage_root)
+    solving_id = store.create_run({"case": "A", "mode": "onsite"})
+    store.set_status(solving_id, state="solving")
+
+    done_id = store.create_run({"case": "B", "mode": "onsite"})
+    store.set_status(done_id, state="done")
+
+    queued_id = store.create_run({"case": "C", "mode": "onsite"})  # left at default "queued"
+
+    interrupted = store.mark_interrupted_runs()
+
+    assert set(interrupted) == {solving_id, queued_id}
+
+    solving_status = store.get_status(solving_id)
+    assert solving_status["state"] == "error"
+    assert solving_status["error_code"] == "interrupted_restart"
+
+    done_status = store.get_status(done_id)
+    assert done_status["state"] == "done"

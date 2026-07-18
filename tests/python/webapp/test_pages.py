@@ -118,6 +118,58 @@ def test_run_page_shows_context_map_when_site_coords_exist(client):
     assert "initContextMap" in run_page.text
 
 
+def test_run_page_shows_provenance_card_when_present(client):
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": {"case": "PROV_TEST", "mode": "onsite", "title": "Provenance test"},
+            "results": _onsite_results(),
+        },
+    )
+    assert resp.status_code == 202
+    run_id = resp.json()["run_id"]
+
+    storage = client.app.state.storage
+    storage.write_provenance(
+        run_id,
+        {
+            "run_id": run_id,
+            "created_at": "20260718T000000000000",
+            "solver": "nrel_api",
+            "nrel_key_fingerprint": None,
+            "solve_hash": "x",
+            "cache_hit": False,
+            "cached_from_run_id": None,
+            "policy_data_versions": {"export_rules": "2026.1"},
+            "wall_time_seconds": 12.34,
+            "pysam_available": True,
+            "package_version": "0.1.0",
+        },
+    )
+
+    run_page = client.get(f"/runs/{run_id}")
+    assert run_page.status_code == 200
+    assert "About this run" in run_page.text
+    assert "nrel_api" in run_page.text
+    assert "2026.1" in run_page.text
+
+
+def test_run_page_hides_provenance_card_when_absent(client):
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": {"case": "NO_PROV_TEST", "mode": "onsite", "title": "No provenance test"},
+            "results": _onsite_results(),
+        },
+    )
+    assert resp.status_code == 202
+    run_id = resp.json()["run_id"]
+
+    run_page = client.get(f"/runs/{run_id}")
+    assert run_page.status_code == 200
+    assert "About this run" not in run_page.text
+
+
 def test_run_page_hides_context_map_when_site_coords_missing(client):
     resp = client.post(
         "/api/runs",

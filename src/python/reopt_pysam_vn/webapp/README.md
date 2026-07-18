@@ -32,9 +32,15 @@ instance):
 
 - `deal_config.json` — the submitted `DealConfig`
 - `status.json` — state machine: `queued → solving → analyzing → done` (or
-  `error` with a message)
+  `error` with a message). Any run still in a non-terminal state (`queued`/
+  `solving`/`analyzing`) when the app starts was orphaned by a previous
+  process exiting mid-solve; it is marked `error` (`interrupted_restart`)
+  rather than silently re-queued, so it never re-spends NREL API quota —
+  clone it from the history page and resubmit.
 - `reopt_results.json` — raw REopt output, once solved
 - `result.json` — `run_onsite`/`run_offsite_dppa` output
+- `provenance.json` — solver, cache hit, policy data versions, wall time;
+  rendered as an "About this run" card on `/runs/{run_id}` once the run is done
 
 ## Solve cache
 
@@ -43,8 +49,9 @@ submission with the same hash reuses the prior run's `reopt_results.json`
 instead of calling NREL again; check "force re-solve" in the form to bypass.
 One solve runs at a time — additional submissions queue FIFO in-process
 (`jobs.py`). Job state lives in `status.json`, so a server restart shows the
-last known status rather than losing history, but an in-flight job does not
-resume — resubmit if a run is stuck `solving`/`analyzing` after a restart.
+last known status rather than losing history; an in-flight job does not
+resume, and any run left non-terminal by the restart is marked `error`
+automatically on the next startup (see Storage layout above).
 
 ## Tests
 
