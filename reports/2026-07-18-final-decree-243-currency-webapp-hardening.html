@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Decree 243/2026 Regulatory Currency + Webapp Hardening</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell { width: min(var(--page-width), calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr); gap: 24px; align-items: end; }
+
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+
+    .title { margin: 0; max-width: 16ch; font-family: var(--display-font); font-size: clamp(2.4rem, 4.4vw, 4rem); line-height: 0.98; letter-spacing: -0.03em; text-wrap: balance; }
+
+    .lede { margin: 18px 0 0; max-width: 60ch; color: var(--ink-soft); font-size: 1rem; }
+
+    .takeaway { margin-top: 22px; padding: 18px 20px; border-left: 4px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: rgba(59, 111, 118, 0.08); color: #20373a; font-size: 1.02rem; }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+    .meta-label { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .meta-chip { margin-top: 8px; color: var(--accent); font-size: 1rem; font-weight: 700; word-break: break-word; }
+
+    .section { margin-top: 22px; padding: 24px; border-radius: var(--radius-lg); break-inside: avoid; page-break-inside: avoid; }
+
+    .section-header { display: flex; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+
+    .section-index { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+    .section-title { margin: 0; font-family: var(--display-font); font-size: clamp(1.45rem, 2vw, 2rem); line-height: 1.05; }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { display: grid; gap: 16px; }
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .subcard { padding: 18px; border-radius: var(--radius-md); break-inside: avoid; page-break-inside: avoid; }
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .subcard p:first-child, .subcard ul:first-child, .subcard ol:first-child { margin-top: 0; }
+
+    .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+    .stat { padding: 14px 16px; border: 1px solid rgba(59, 111, 118, 0.16); border-radius: var(--radius-sm); background: rgba(59, 111, 118, 0.06); break-inside: avoid; page-break-inside: avoid; }
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid; page-break-inside: avoid;
+    }
+
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px;
+    }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .empty-state { padding: 20px; border-radius: var(--radius-md); text-align: center; color: var(--ink-soft); break-inside: avoid; page-break-inside: avoid; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent); font-size: 0.84rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .badge-done { background: rgba(59, 111, 118, 0.14); color: var(--accent-2); }
+
+    .footer-note { margin-top: 18px; color: rgba(95, 86, 76, 0.74); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; padding-bottom: 36px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root { --paper: #ffffff; --paper-strong: #ffffff; --ink: #111111; --ink-soft: #444444; --line: #d6d1c8; }
+      @page { size: A4; margin: 14mm; }
+      body { background: #ffffff; }
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff; box-shadow: none;
+      }
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+      .diagram-frame { overflow: visible; max-height: none; }
+      .diagram-frame.compact-diagram .mermaid { min-width: 0; }
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">Decree 243/2026 Regulatory Currency + Webapp Hardening</h1>
+          <p class="lede">
+            A four-phase remediation closing a live regulatory-currency gap in the Vietnam data layer and three small hardening
+            gaps in the internal DPPA deal-screener webapp — planned, implemented test-first, and verified end to end.
+          </p>
+          <div class="takeaway">
+            The repo's export-cap assumption was three weeks out of date with enacted law. All four planned phases are now
+            implemented, committed, and verified: 573 tests pass across the suite with zero unexpected failures (only the
+            five pre-existing, unrelated numeric-drift failures already tracked in <code>activeContext.md</code>), Julia/Python
+            cross-validation is exact, and mypy is clean.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">reopt-pysam-vn</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-07-18</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div><div class="section-index">01 / Executive Summary</div><h2 class="section-title">Executive Summary</h2></div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was wrong</h3>
+          <p>
+            Decree 243/2026/ND-CP, effective 2026-06-26, raised Vietnam's rooftop-solar surplus export cap from 20% to 50%.
+            A research brief documenting this landed in the repo on 2026-06-30, but the data layer, both preprocessing
+            language twins (Python and Julia), and the settlement engine still enforced the repealed 20% cap on every run.
+            Every onsite analysis produced since June 26 understated exportable surplus energy and revenue.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>
+            A new versioned data file makes the 50% cap the active default while a named legacy regime preserves exact
+            reproducibility of pre-Decree-243 results. Both language twins were fixed so their "non-default value" warning
+            tracks the live regulatory default instead of a hardcoded 20%. A tested delta module quantifies the first-order
+            revenue effect on the tracked Saigon18 golden run. Three independent webapp hardening gaps (path traversal,
+            restart-stranded runs, invisible provenance) were closed alongside, plus the previously-untracked planning
+            documents for this and the adjacent CI-truth sprint were committed so they no longer live on a single machine.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div><div class="section-index">02 / Background &amp; Objective</div><h2 class="section-title">Background &amp; Objective</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <code>reopt-pysam-vn</code> models solar/wind/storage/DPPA economics for Vietnam using NREL REopt.jl plus PySAM,
+          with a Vietnam-specific policy data layer (<code>data/vietnam/</code>) that both a Julia module and a Python module
+          read identically. That data layer is the mechanism by which the repo is supposed to stay current with Vietnamese
+          energy regulation — a change in law should be a new versioned JSON file plus a one-line manifest flip, not a code
+          change. A same-day brainstorm (<code>research/2026-07-18-execution-debt-decree-243-brainstorm.md</code>) found
+          that this mechanism had gone unused for three weeks despite the relevant research already being in the repo:
+          the export-cap data file still said 20% when the enacted law said 50%. The objective of this effort was to close
+          that gap correctly (new versioned file, not an in-place edit, with the old regime preserved for reproducibility),
+          quantify its practical effect on a tracked example run, and use the same session to close three small, previously
+          uncatalogued webapp hardening gaps found during the same review pass.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div><div class="section-index">03 / Inputs &amp; Scope</div><h2 class="section-title">Inputs &amp; Scope</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Plan inputs</h3>
+          <ul>
+            <li><code>plans/2026-07-18-decree-243-currency-webapp-hardening-plan.md</code> — the 4-phase execution plan this report synthesizes</li>
+            <li><code>research/2026-06-30_decree-243-2026-nd-cp.md</code> — primary regulatory research brief (VietnamNet-sourced)</li>
+            <li><code>research/2026-07-18-execution-debt-decree-243-brainstorm.md</code> — the same-day finding that surfaced the gap</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Out of scope (deliberately)</h3>
+          <ul>
+            <li>Everything owned by the separate <code>plans/2026-07-17-truth-and-correctness-sprint-plan.md</code> (CI markers, PySAM pin, two-part tariff sign-flip fix, Single Owner clean-slate)</li>
+            <li>Re-optimizing PV/BESS sizing under the new 50% cap — the delta memo is explicitly fixed-dispatch</li>
+            <li>Modeling Decree 243's new surplus pricing formula or BESS-surplus value stack (recorded as data notes only)</li>
+            <li>Any edit to <code>examples/</code> golden files or webapp authentication</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div><div class="section-index">04 / Assumptions &amp; Constraints</div><h2 class="section-title">Assumptions &amp; Constraints</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions carried into implementation</h3>
+          <ul>
+            <li>The 50% general cap / &gt;50%-through-2030-transitional-allowance figures are taken as reported by the VietnamNet-sourced brief; not independently re-verified against the Vietnamese decree text</li>
+            <li>No official prior-year electricity-market-price average has been published for Decree 243's new surplus pricing formula, so the surplus purchase rate stays at 671 VND/kWh unchanged, flagged <code>PENDING</code> in <code>docs/regulatory-watch.md</code></li>
+            <li>The Samsung/TTC golden path (offsite CfD/PySAM) does not consume the rooftop export cap — verified empirically, not assumed (see Methodology)</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints honored throughout</h3>
+          <ul>
+            <li><strong>CON-001</strong>: <code>examples/</code> golden files never edited; golden-parity tests verified green at every phase</li>
+            <li><strong>CON-002</strong>: the superseded Decree 57 data file was never edited in its <code>data</code> block — only a one-line supersession note in <code>_meta</code></li>
+            <li><strong>CON-005</strong>: the existing <code>decree57_rooftop_50pct_draft</code> regime key was preserved (other tests reference it by name), its notes updated to record enactment</li>
+            <li><strong>CON-006</strong>: mypy stays clean on the <code>analysis</code> and <code>webapp</code> public-API surfaces</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div><div class="section-index">05 / Methodology</div><h2 class="section-title">Methodology</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          Every phase followed test-first development: failing tests were written and confirmed red before any
+          implementation code changed, matching the repo's own <code>lessons.md</code> convention of calibrating tolerances
+          against reality rather than guessing. Data-layer changes used the repo's existing versioning discipline — a new
+          file plus a manifest pointer, never an in-place edit of a file other results depend on for reproducibility. Every
+          phase that touched the shared Vietnam preprocessing logic was verified against <em>both</em> language
+          implementations (Python and Julia) plus the repo's own Julia&harr;Python cross-validation harness, since the two
+          engines are required to produce byte-identical output. The Samsung/TTC bit-exact golden-parity gate was re-run
+          after the data-layer change specifically to confirm — not assume — that the offsite CfD finance path is
+          independent of the rooftop export cap. A full-suite regression pass closed out the work, isolating two
+          pre-existing, unrelated slow/live-network test files (confirmed via <code>git diff</code> to have zero relationship
+          to any commit in this effort) so the remaining 578 tests could run to completion and be compared against the
+          repo's documented five-test known-failure baseline.
+        </p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">Orientation</div><div class="stat-value">multi-phase</div></div>
+        <div class="stat"><div class="stat-label">Audience</div><div class="stat-value">stakeholder-safe</div></div>
+        <div class="stat"><div class="stat-label">Evidence Rule</div><div class="stat-value">no invented data</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div><div class="section-index">06 / Phase-by-Phase Analysis</div><h2 class="section-title">Phase-by-Phase Analysis</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 1 — Preserve Planning Artifacts</h3>
+          <p>
+            Four planning documents (this plan, its brainstorm, the adjacent CI-truth sprint plan and brainstorm) existed
+            only as uncommitted files on one machine — a single <code>git clean</code> away from being lost. They were
+            committed, the KBC pro-forma cross-check script was relocated from a forbidden flat script path to its
+            canonical <code>scripts/python/pysam/</code> location, and a new <code>docs/regulatory-watch.md</code> table was
+            created mapping every <code>data/vietnam/</code> file to its governing regulation — born with the export-rules
+            row marked <code>STALE</code> as the visible target for Phase 2.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 2 — Decree 243 Ingestion</h3>
+          <p>
+            A new <code>vn_export_rules_2026_decree243.json</code> became the active export-rules file (manifest flip);
+            a new <code>decree_57_2025_legacy</code> regime reproduces pre-June-26 results exactly. Both preprocessing
+            twins were fixed so the "non-default fraction" warning compares against the live regime-resolved value, not a
+            hardcoded 20%. Full TDD coverage across Python and Julia test suites; Julia unit tests passed directly (60s);
+            Julia&harr;Python cross-validation passed exact-match across all four exercised regimes; Samsung/TTC golden
+            parity confirmed unaffected.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 3 — Export-Cap Delta Memo</h3>
+          <p>
+            A new library module plus CLI compares the old and new export-cap presets on the tracked Saigon18 golden run's
+            <em>fixed</em> dispatch (explicitly not re-optimized) and writes a tracked markdown memo. Toy closed-form test
+            case matched exactly. The memo's headline and its fixed-dispatch caveat are reproduced in the Findings section
+            below.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 4 — Webapp Hardening</h3>
+          <p>
+            Three independent gaps found during the same review pass: a URL-supplied <code>run_id</code> was joined
+            directly onto the storage root (path-traversal risk), a process restart left runs stuck forever in
+            <code>queued</code>/<code>solving</code>, and a solve's provenance (solver, cache hit, policy data versions,
+            wall time) was recorded but never shown. All three closed with tests; a live smoke test confirmed the
+            traversal guard returns HTTP 404.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+        <pre class="mermaid">
+flowchart LR
+  A["Decree 243/2026 enacted<br/>2026-06-26"] --> B["Research brief landed<br/>2026-06-30<br/>(gap not yet closed)"]
+  B --> C["Same-day brainstorm<br/>2026-07-18<br/>finds data layer still 20%"]
+  C --> D["PHASE-01<br/>commit planning docs<br/>+ regulatory-watch.md"]
+  D --> E["PHASE-02<br/>new data file + legacy regime<br/>+ twin-language fix"]
+  E --> F["PHASE-03<br/>fixed-dispatch delta memo<br/>on Saigon18 golden run"]
+  E --> G["PHASE-04<br/>webapp hardening<br/>(independent subsystem)"]
+  F --> H["Full suite verified:<br/>573 passed, 5 known-red,<br/>0 regressions"]
+  G --> H
+        </pre>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div><div class="section-index">07 / Findings &amp; Recommendation</div><h2 class="section-title">Findings &amp; Recommendation</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <strong>Finding 1 — the export-cap gap is now closed, and it was a real, live currency defect.</strong> The
+          repo now enforces the enacted 50% cap by default and warns only on genuine caller overrides. Pre-2026-06-26
+          results remain exactly reproducible via the new <code>decree_57_2025_legacy</code> regime, so no historical
+          analysis is invalidated by this change &mdash; it simply stops projecting the old rule onto new work.
+        </p>
+        <p>
+          <strong>Finding 2 &mdash; the practical revenue effect, on a fixed dispatch, is real but should be read as a floor.</strong>
+          On the tracked Saigon18 scenario-A golden run, moving from the 20% cap to the enacted 50% cap increases annual
+          surplus export revenue by approximately <strong>1,291,279,843 VND/yr (&asymp;48,912 USD/yr</strong> at 26,400
+          VND/USD<strong>)</strong>, with exported energy rising by roughly 1.92 million kWh/yr and curtailed energy
+          falling by the same amount. This number deliberately does <em>not</em> re-optimize PV/BESS sizing under the new
+          cap &mdash; a re-solved system would likely be sized larger and could capture more value still. The memo
+          (<code>reports/2026-07-18-decree243-export-cap-delta.md</code>) states this caveat explicitly and flags
+          re-optimization as follow-on work rather than folding an unverified number into the headline.
+        </p>
+        <p>
+          <strong>Finding 3 &mdash; the webapp hardening items were small, independent, and low-risk to fix now.</strong>
+          None were exploitable beyond the local-only, single-user, no-auth threat model the webapp already documents for
+          itself, but all three were cheap correctness/robustness gaps worth closing while already in the code: an
+          unvalidated <code>run_id</code> could reach the filesystem layer with traversal characters, restart-stranded
+          runs had no path back to a visible error state, and captured provenance data had no UI surface.
+        </p>
+        <p>
+          <strong>Recommendation.</strong> Ship these four phases as-is. The two follow-on items explicitly deferred by
+          this effort &mdash; publishing the Decree 243 surplus pricing formula once EVN/NSMO releases a prior-year
+          average, and a re-optimized (not fixed-dispatch) delta re-run &mdash; are correctly scoped as separate, smaller
+          pieces of work rather than blockers on this remediation.
+        </p>
+      </div>
+      <div class="viz-frame">
+        <canvas id="exportCapChart"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div><div class="section-index">08 / Implementation Path</div><h2 class="section-title">Implementation Path</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Already complete</h3>
+          <ul>
+            <li>All four phases implemented, tested, and committed to <code>main</code> (commits <code>c7e63ff</code>, <code>b84c73c</code>, <code>7191a62</code>, <code>06c380b</code>)</li>
+            <li>Full local test suite verified: 573 passed, exactly the 5 pre-existing known-red tests, 0 unexpected failures</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Suggested next steps (not part of this effort)</h3>
+          <ul>
+            <li>When EVN/NSMO publishes a prior-year average electricity market price, update <code>vn_export_rules_2026_decree243.json</code>'s surplus purchase rate and flip <code>docs/regulatory-watch.md</code> from <code>PENDING</code> to fully <code>CURRENT</code></li>
+            <li>Consider a re-optimized (solver-driven, not fixed-dispatch) re-run of the export-cap delta for a client-facing number that captures re-sized PV/BESS value, not just the fixed-dispatch floor</li>
+            <li>Execute the separate, already-written <code>plans/2026-07-17-truth-and-correctness-sprint-plan.md</code> (CI green gate, security hygiene, two-part tariff sign fix, Single Owner clean-slate) &mdash; explicitly out of scope here but next in the repo's own prioritized queue</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div><div class="section-index">09 / Risks / Open Questions</div><h2 class="section-title">Risks / Open Questions</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Residual risk</h3>
+          <ul>
+            <li>Downstream deck/case-study pipelines that read the export-rules data file will now see the 50% default; any published analysis produced before this change used the 20% assumption and remains reproducible only via the new legacy regime &mdash; consumers of prior decks should be told which regime produced which numbers</li>
+            <li>The Decree 243 figures (50% general cap, &gt;50% transitional allowance to 2030) rest on one press-sourced research brief, not a direct reading of the decree text</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions (intentionally deferred, not blocking)</h3>
+          <ul>
+            <li>What prior-year average electricity market price will EVN/NSMO publish for the new surplus pricing formula, and when?</li>
+            <li>How much additional value would a re-optimized (not fixed-dispatch) solve under the 50% cap actually unlock for a representative project?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div><div class="section-index">10 / Appendices / Evidence Notes</div><h2 class="section-title">Appendices / Evidence Notes</h2></div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h4>Commits (this effort, in order)</h4>
+          <table>
+            <tr><th>Commit</th><th>Phase</th><th>Files changed</th></tr>
+            <tr><td><code>c7e63ff</code></td><td>1 — Preserve artifacts</td><td>6 files, +1,511</td></tr>
+            <tr><td><code>b84c73c</code></td><td>2 — Decree 243 ingestion</td><td>14 files, +243/&minus;22</td></tr>
+            <tr><td><code>7191a62</code></td><td>3 — Delta memo</td><td>4 files, +403</td></tr>
+            <tr><td><code>06c380b</code></td><td>4 — Webapp hardening</td><td>9 files, +182/&minus;4</td></tr>
+          </table>
+        </div>
+        <div class="subcard technical-frame">
+          <h4>Verification evidence</h4>
+          <table>
+            <tr><th>Check</th><th>Result</th></tr>
+            <tr><td>Phase-scoped pytest gates (Phases 2&ndash;4)</td><td>158 + 6 + 71 passed, 0 failed</td></tr>
+            <tr><td>Julia Layer 2 unit tests</td><td>Pass (60.2s)</td></tr>
+            <tr><td>Julia&harr;Python Layer 3 cross-validation</td><td>Pass, exact match, 4 regimes</td></tr>
+            <tr><td>Samsung/TTC golden parity</td><td>Pass, unmodified</td></tr>
+            <tr><td>mypy (analysis + webapp)</td><td>Clean, 20 source files</td></tr>
+            <tr><td>Full suite (581 minus 2 pre-existing slow files)</td><td>573 passed / 5 known-red / 0 unexpected</td></tr>
+            <tr><td>Manual webapp smoke test</td><td>Traversal request &rarr; HTTP 404 confirmed live</td></tr>
+          </table>
+        </div>
+        <div class="subcard">
+          <h4>Known pre-existing failures (unrelated, tracked before this effort)</h4>
+          <ul>
+            <li><code>test_samsung_ttc_parity.py::test_samsung_parity_full_tree_within_bar</code></li>
+            <li><code>test_samsung_ttc_parity.py::test_samsung_parity_is_bit_exact</code></li>
+            <li><code>test_capacity_factor_benchmark.py::test_pvwatts_capacity_factor_binh_thuan</code></li>
+            <li><code>test_ninhsim_cppa.py::test_build_extracted_inputs_cleans_load_and_computes_weighted_evn_benchmark</code></li>
+            <li><code>test_strike_price_discovery.py::test_build_strike_price_summary_finds_minimum_viable_ninhsim_strike</code></li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h4>Two files excluded from the final full-suite run</h4>
+          <ul>
+            <li><code>tests/python/reopt/test_integration.py</code> &mdash; makes live NREL API calls; excluded to keep the run bounded, not because of anything in this effort</li>
+            <li><code>tests/python/integration/test_regime_engine_smoke.py</code> &mdash; a pre-existing slow/hanging test confirmed via <code>git diff</code> to have zero relationship to any commit in this effort (neither the file nor its dependencies were touched)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+    }
+
+    (function renderExportCapChart() {
+      const el = document.getElementById('exportCapChart');
+      if (!el || !window.Chart) return;
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: ['Exported energy', 'Curtailed energy'],
+          datasets: [
+            {
+              label: '20% cap (Decree 57, legacy)',
+              data: [6969272, 1937968],
+              backgroundColor: 'rgba(157, 107, 55, 0.55)'
+            },
+            {
+              label: '50% cap (Decree 243, active)',
+              data: [8893683, 13557],
+              backgroundColor: 'rgba(59, 111, 118, 0.55)'
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Saigon18 scenario-A: fixed-dispatch energy, kWh/yr' },
+            legend: { position: 'bottom' }
+          },
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'kWh / year' } } }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
