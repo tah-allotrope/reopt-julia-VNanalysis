@@ -381,6 +381,11 @@ const MANIFEST = JSON.parsefile(MANIFEST_PATH)
                 end
             end
         end
+
+        @testset "Active export rules encode Decree 243" begin
+            @test data["rooftop_solar"]["max_export_fraction"] == 0.50
+            @test occursin("243", raw["_meta"]["source"])
+        end
     end
 
 end # top-level testset

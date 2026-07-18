@@ -65,6 +65,40 @@ with Plotly charts, run history with clone-and-edit, and two-run compare.
 All five are numeric benchmark/tolerance drift, confirmed failing on unmodified `main` via
 `git stash` (2026-07-04). The last one was not previously logged in this file.
 
+## Decree 243/2026 ingestion (2026-07-18)
+
+The rooftop-solar surplus export cap was raised from 20% to 50% by Decree
+243/2026/ND-CP (effective 2026-06-26), which amends Decree 57/2025 and Decree
+58/2025. The data layer previously still enforced the repealed 20% cap; fixed
+by `plans/2026-07-18-decree-243-currency-webapp-hardening-plan.md` PHASE-02:
+
+- New versioned file `data/vietnam/vn_export_rules_2026_decree243.json` is now
+  the active `export_rules` file (manifest flip); `max_export_fraction: 0.50`.
+- Surplus purchase rate is **unchanged** at 671 VND/kWh — Decree 243 codifies a
+  new pricing formula (prior-year average market price, capped at the
+  utility-scale ground-mount ceiling) but no prior-year average has been
+  published yet; see `docs/regulatory-watch.md` (export_rules row: PENDING).
+- Pre-2026-06-26 results are reproducible via the new `decree_57_2025_legacy`
+  regime; both preprocessing twins (`reopt/preprocess.py`,
+  `src/julia/REoptVietnam.jl`) now warn only when a caller's
+  `max_export_fraction` differs from the *active* regime-resolved value, not a
+  hardcoded 0.20.
+- New settlement preset `decree243_export_50pct_standard` in
+  `integration/settlement.py`; first-order export-cap delta memo at
+  `reports/2026-07-18-decree243-export-cap-delta.md` — fixed-dispatch (no
+  re-optimization) headline on the Saigon18 scenario-A golden run: an
+  additional ~1.29B VND/yr (~$48.9k/yr) in surplus export revenue at the 50%
+  cap vs. the 20% cap, a lower bound pending a re-optimized solve.
+- Verified: Julia Layer 2 unit tests pass (60s); `tests/cross_language/cross_validate.py`
+  Layer 3 passes for all 4 exercised regimes (exact match, max diff 0.00e+00);
+  Python `tests/python/reopt/test_unit.py` passes directly via `.venv\Scripts\python.exe`
+  with `PYTHONPATH=` cleared. `tests\run_all_tests.ps1`'s Python legs (which invoke
+  bare `python`, not the `.venv` interpreter) fail on this machine because `python`
+  on `PATH` resolves to an unrelated `hermes-agent` venv lacking pytest — this is the
+  pre-existing global-PYTHONPATH/wrong-venv gotcha already documented above, not a
+  regression from this change; verify Python layers with the `.venv` interpreter
+  directly until the runner script is fixed to do the same.
+
 ## Known model gaps
 
 ### Two-part tariff sensitivity — missing energy rate reduction

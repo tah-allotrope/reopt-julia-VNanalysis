@@ -405,7 +405,7 @@ end
         @test pv["can_wholesale"] == true
         @test pv["can_export_beyond_nem_limit"] == false
         @test pv["can_curtail"] == true
-        @test d["_meta"]["decree57_max_export_fraction"] == 0.20
+        @test d["_meta"]["decree57_max_export_fraction"] == 0.50
     end
 
     @testset "apply_decree57_export! — regime-specific export fraction" begin
@@ -432,12 +432,24 @@ end
 
     @testset "apply_decree57_export! — default max_export_fraction emits no warning" begin
         d = make_base_dict()
-        @test_nowarn apply_decree57_export!(d, VN; max_export_fraction=0.20)
+        @test_nowarn apply_decree57_export!(d, VN; max_export_fraction=0.50)
     end
 
     @testset "apply_decree57_export! — invalid max_export_fraction errors" begin
         d = make_base_dict()
         @test_throws Exception apply_decree57_export!(d, VN; max_export_fraction=1.1)
+    end
+
+    @testset "apply_decree57_export! — explicit legacy 0.20 now warns" begin
+        d = make_base_dict()
+        @test_logs (:warn, r"max_export_fraction=.*stored for Vietnam custom solve wrappers") apply_decree57_export!(d, VN; max_export_fraction=0.20)
+        @test d["_meta"]["decree57_max_export_fraction"] == 0.20
+    end
+
+    @testset "apply_decree57_export! — decree_57_2025_legacy regime restores 20 percent" begin
+        d = make_base_dict()
+        @test_nowarn apply_decree57_export!(d, VN; regime_id="decree_57_2025_legacy")
+        @test d["_meta"]["decree57_max_export_fraction"] == 0.20
     end
 
     # ===================================================================
@@ -479,7 +491,7 @@ end
         # Export rules
         @test d["PV"]["can_net_meter"] == false
         @test d["ElectricTariff"]["wholesale_rate"] ≈ 0.0254 atol=1e-4
-        @test d["_meta"]["decree57_max_export_fraction"] == 0.20
+        @test d["_meta"]["decree57_max_export_fraction"] == 0.50
         @test d["_meta"]["resolved_regime_id"] == "decision_963_2026_current"
     end
 

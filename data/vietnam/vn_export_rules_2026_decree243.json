@@ -1,22 +1,25 @@
 {
   "_meta": {
-    "version": "2025.1",
-    "effective_date": "2025-06-01",
-    "source": "Decree 57/2025/ND-CP on renewable energy development mechanisms, MOIT ceiling tariff decisions",
-    "source_url": "https://www.vietnam-briefing.com/news/vietnam-renewable-energy-decree-57.html/",
-    "notes": "Decree 57 replaces Decree 80/2024. Key changes: rooftop solar can sell max 20% of generation to EVN, DPPA ceiling tariffs by tech/region, biomass eligible for DPPAs. Surplus purchase price = previous year avg wholesale market price or mutually agreed rate. Superseded 2026-06-26 by Decree 243/2026 -- see vn_export_rules_2026_decree243.json; retained for reproducibility.",
-    "last_updated": "2026-02-18",
+    "version": "2026.1",
+    "effective_date": "2026-06-26",
+    "source": "Decree 243/2026/ND-CP (eff. 2026-06-26) amending Decree 57/2025/ND-CP (DPPA) and Decree 58/2025/ND-CP (rooftop solar); supersedes the 20% surplus cap",
+    "source_url": "https://vietnamnet.vn/en/new-rules-ease-limits-on-surplus-rooftop-solar-power-sales-in-vietnam-2530279.html",
+    "notes": "Decree 243/2026 raises the rooftop solar surplus export cap from 20% (Decree 57/58 2025) to 50% as the general rule. Parties may agree to export beyond 50%, up to 100%, through 2030-12-31 where local grid capacity permits (transitional_over_cap_allowed_until / transitional_max_export_fraction below). Electricity discharged from BESS charged by rooftop solar is now explicitly tradable surplus (bess_discharge_tradable) -- not yet modeled in the settlement/finance layers of this repo. Surplus pricing formula is codified as the previous-year average electricity market price, capped at the maximum regional utility-scale ground-mount solar tariff without BESS (ex-VAT); no official prior-year average has been published as of this file's last_updated date, so surplus_purchase_rate_vnd_per_kwh/surplus_purchase_rate_usd_per_kwh are retained unchanged pending publication -- see docs/regulatory-watch.md. Sellers of surplus electricity require an electricity operation license unless exempt.",
+    "last_updated": "2026-07-18",
     "currency": "VND",
     "exchange_rate_vnd_per_usd": 26400
   },
   "data": {
     "rooftop_solar": {
-      "max_export_fraction": 0.20,
+      "max_export_fraction": 0.50,
+      "transitional_over_cap_allowed_until": "2030-12-31",
+      "transitional_max_export_fraction": 1.0,
+      "bess_discharge_tradable": true,
       "surplus_purchase_rate_vnd_per_kwh": 671,
       "surplus_purchase_rate_usd_per_kwh": 0.0254,
       "purchaser": "EVN (exclusive)",
-      "pricing_basis": "Previous year average wholesale market price or mutually agreed rate",
-      "notes": "Rooftop systems sell max 20% of total generation to grid. Remainder must be self-consumed or curtailed. REopt mapping: can_net_meter=false, can_wholesale=true (limited), can_export_beyond_nem_limit=false."
+      "pricing_basis": "Previous-year average electricity market price, capped at max regional utility-scale ground-mount solar tariff without BESS (ex-VAT), per Decree 243/2026",
+      "notes": "Rooftop systems may sell up to 50% of total generation to grid as the general rule (Decree 243/2026, eff. 2026-06-26), with agreement to exceed 50% (up to 100%) permitted through 2030-12-31 where local grid capacity allows. Electricity discharged from BESS charged by rooftop solar is explicitly tradable surplus. Remainder must be self-consumed or curtailed. REopt mapping: can_net_meter=false, can_wholesale=true (limited), can_export_beyond_nem_limit=false."
     },
 
     "dppa_ceiling_tariffs_vnd_per_kwh": {
@@ -84,7 +87,7 @@
     },
 
     "reopt_mapping": {
-      "notes": "How Decree 57 rules map to REopt input parameters.",
+      "notes": "How Decree 57/58 2025 rules (as amended by Decree 243/2026) map to REopt input parameters.",
       "can_net_meter": false,
       "can_wholesale": true,
       "can_export_beyond_nem_limit": false,

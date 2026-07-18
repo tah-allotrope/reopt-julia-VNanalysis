@@ -557,7 +557,7 @@ class TestApplyDecree57Export:
         assert pv["can_wholesale"] is True
         assert pv["can_export_beyond_nem_limit"] is False
         assert pv["can_curtail"] is True
-        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.20)
+        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.50)
 
     def test_user_wholesale_rate_preserved(self, vn):
         d = make_base_dict()
@@ -581,12 +581,33 @@ class TestApplyDecree57Export:
 
         with _warnings.catch_warnings():
             _warnings.simplefilter("error", UserWarning)
-            apply_decree57_export(d, vn, max_export_fraction=0.20)  # must not raise
+            apply_decree57_export(d, vn, max_export_fraction=0.50)  # must not raise
 
     def test_invalid_max_export_fraction_errors(self, vn):
         d = make_base_dict()
         with pytest.raises(ValueError):
             apply_decree57_export(d, vn, max_export_fraction=1.1)
+
+    def test_explicit_legacy_fraction_now_warns(self, vn):
+        """Decree 243/2026 raised the enacted cap to 50%; explicitly passing
+        the pre-243 20% value is now a caller override of the active
+        regulatory default and must warn, not the reverse."""
+        d = make_base_dict()
+        with pytest.warns(
+            UserWarning,
+            match=r"max_export_fraction=.*stored for Vietnam custom solve wrappers",
+        ):
+            apply_decree57_export(d, vn, max_export_fraction=0.20)
+        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.20)
+
+    def test_legacy_regime_restores_20pct_without_warning(self, vn):
+        d = make_base_dict()
+        import warnings as _warnings
+
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("error", UserWarning)
+            apply_decree57_export(d, vn, regime_id="decree_57_2025_legacy")
+        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.20)
 
 
 # ===================================================================
@@ -668,7 +689,7 @@ class TestApplyVietnamDefaults:
         # Export rules
         assert d["PV"]["can_net_meter"] is False
         assert d["ElectricTariff"]["wholesale_rate"] == pytest.approx(0.0254, abs=1e-4)
-        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.20)
+        assert d["_meta"]["decree57_max_export_fraction"] == pytest.approx(0.50)
         assert d["_meta"]["resolved_regime_id"] == "decision_963_2026_current"
 
 

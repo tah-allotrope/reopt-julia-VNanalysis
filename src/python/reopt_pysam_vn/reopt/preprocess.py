@@ -671,22 +671,25 @@ def apply_decree57_export(
     max_export_fraction: Optional[float] = None,
     exchange_rate: Optional[float] = None,
 ) -> dict:
-    """Configure export rules per Decree 57/2025."""
+    """Configure export rules per Decree 57/2025 as amended by Decree 243/2026
+    (surplus cap 50% from 2026-06-26; resolved from the active export-rules
+    data file)."""
     if exchange_rate is None:
         exchange_rate = vn.exchange_rate
 
     resolved_regime = resolve_vietnam_regime(vn, regime_id)
     er = resolved_regime["export_rules"]
     rooftop = er.get("rooftop_solar", {})
+    data_default = rooftop.get("max_export_fraction", 0.20)
     if max_export_fraction is None:
-        max_export_fraction = rooftop.get("max_export_fraction", 0.20)
+        max_export_fraction = data_default
 
     if not 0 <= max_export_fraction <= 1:
         raise ValueError(
             f"max_export_fraction must be between 0 and 1, got {max_export_fraction}"
         )
 
-    if max_export_fraction != 0.20:
+    if max_export_fraction != data_default:
         warnings.warn(
             f"max_export_fraction={max_export_fraction} is stored for Vietnam custom solve wrappers, "
             "but plain REopt.run_reopt(...) will NOT enforce it automatically.",

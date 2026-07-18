@@ -56,6 +56,14 @@ class TestPresetContracts:
         assert p.export_cap_pct == 50.0
         assert p.excess_treatment == "export_at_surplus"
 
+    def test_decree243_export_50pct_standard(self):
+        p = PRESET_CONTRACTS["decree243_export_50pct_standard"]
+        assert p.mode == "private_wire"
+        assert p.strike_vnd_kwh == 1012.0
+        assert p.excess_treatment == "export_at_surplus"
+        assert p.export_cap_pct == 50.0
+        assert p.surplus_rate_vnd_kwh == 671.0
+
     def test_at_least_four_presets(self):
         assert len(PRESET_CONTRACTS) >= 4
 

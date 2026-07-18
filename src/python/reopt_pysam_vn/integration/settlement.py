@@ -268,6 +268,17 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         dppa_adder_vnd_kwh=0.0,
         kpp_pct=0.0,
     ),
+    "decree243_export_50pct_standard": ContractParams(
+        mode="private_wire",
+        strike_vnd_kwh=1012.0,
+        escalation_rate=0.05,
+        settlement_quantity_rule="matched_only",
+        excess_treatment="export_at_surplus",
+        export_cap_pct=50.0,
+        surplus_rate_vnd_kwh=671.0,
+        dppa_adder_vnd_kwh=0.0,
+        kpp_pct=0.0,
+    ),
 }
 
 

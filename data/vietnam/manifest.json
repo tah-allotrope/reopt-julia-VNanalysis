@@ -1,13 +1,13 @@
 {
   "_meta": {
     "description": "Registry of active Vietnam data files. Each key maps to the currently active versioned JSON file. To update: create a new versioned file, change the filename here, keep old files for reproducibility.",
-    "last_updated": "2026-02-18"
+    "last_updated": "2026-07-18"
   },
   "tariff": "vn_tariff_2025.json",
   "tech_costs": "vn_tech_costs_2025.json",
   "financials": "vn_financial_defaults_2025.json",
   "emissions": "vn_emissions_2024.json",
-  "export_rules": "vn_export_rules_decree57.json",
+  "export_rules": "vn_export_rules_2026_decree243.json",
   "regimes": "vn_regime_registry_2026.json",
   "deal_defaults": "vn_deal_defaults_2026.json"
 }

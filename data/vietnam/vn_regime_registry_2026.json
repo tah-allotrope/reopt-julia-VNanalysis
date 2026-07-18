@@ -1,15 +1,17 @@
 {
   "_meta": {
-    "version": "2026.2",
+    "version": "2026.3",
     "effective_date": "2026-05-07",
-    "source": "Repo-defined Vietnam regulatory regime registry composed from Decision 14/2025/QD-TTg, Decision 963/QD-BCT, Decree 57/2025/ND-CP, and Decree 146/2025/ND-CP reference materials",
-    "last_updated": "2026-05-07",
-    "notes": "Named regulatory bundles used to resolve tariff, export-rule, and post-processing assumptions without duplicating the full Vietnam data layer. Decision 963 is now the active default (effective 2026-04-22); Decision 14 is preserved as decision_14_2025_legacy.",
+    "source": "Repo-defined Vietnam regulatory regime registry composed from Decision 14/2025/QD-TTg, Decision 963/QD-BCT, Decree 57/2025/ND-CP, Decree 146/2025/ND-CP, and Decree 243/2026/ND-CP reference materials",
+    "last_updated": "2026-07-18",
+    "notes": "Named regulatory bundles used to resolve tariff, export-rule, and post-processing assumptions without duplicating the full Vietnam data layer. Decision 963 is now the active default (effective 2026-04-22); Decision 14 is preserved as decision_14_2025_legacy. Decree 243/2026 (eff. 2026-06-26) raised the base export-rules file's surplus cap from 20 percent to 50 percent; the pre-243 world is reproducible via decree_57_2025_legacy.",
     "source_refs": [
       "research/2026-04-26_commercial-product-ideas.md",
       "research/2026-04-25_vietnam-tou-rooftop-ppa.md",
+      "research/2026-06-30_decree-243-2026-nd-cp.md",
       "data/vietnam/vn_tariff_2025.json",
-      "data/vietnam/vn_export_rules_decree57.json"
+      "data/vietnam/vn_export_rules_decree57.json",
+      "data/vietnam/vn_export_rules_2026_decree243.json"
     ]
   },
   "data": {
@@ -99,7 +101,24 @@
         "source_refs": [
           "research/2026-04-26_commercial-product-ideas.md"
         ],
-        "notes": "Forward-looking draft scenario for a rooftop surplus-export cap increase from 20 percent to 50 percent."
+        "notes": "Forward-looking draft scenario for a rooftop surplus-export cap increase from 20 percent to 50 percent. Enacted by Decree 243/2026/ND-CP effective 2026-06-26, which made 50 percent the general-rule cap in the active export-rules data file (vn_export_rules_2026_decree243.json) -- this regime's override is now redundant with the base data but is retained for pre-enactment sensitivity reproducibility."
+      },
+      "decree_57_2025_legacy": {
+        "label": "Decree 57/2025 legacy 20 percent surplus export cap",
+        "effective_date": "2025-06-01",
+        "status": "legacy",
+        "tariff_overrides": {},
+        "export_rule_overrides": {
+          "rooftop_solar": {
+            "max_export_fraction": 0.20,
+            "pricing_basis": "Previous year average wholesale market price or mutually agreed rate"
+          }
+        },
+        "postprocess_overrides": {},
+        "source_refs": [
+          "data/vietnam/vn_export_rules_decree57.json"
+        ],
+        "notes": "Reproduces the pre-2026-06-26 export regime (Decree 57/2025 20 percent cap) after the base export-rules file moved to Decree 243/2026."
       },
       "decree146_two_part_trial_2026": {
         "label": "Decree 146/2025 two-part tariff trial",

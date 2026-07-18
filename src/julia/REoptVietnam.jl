@@ -719,7 +719,9 @@ end
                            max_export_fraction::Real=0.20,
                            exchange_rate::Real=vn.exchange_rate)
 
-Configure export rules per Decree 57/2025:
+Configure export rules per Decree 57/2025 as amended by Decree 243/2026
+(surplus cap 50% from 2026-06-26; resolved from the active export-rules data
+file):
  - `can_net_meter = false`
  - `can_wholesale = true` at the surplus purchase rate
  - `can_export_beyond_nem_limit = false`
@@ -736,12 +738,13 @@ function apply_decree57_export!(d::Dict, vn::VNData;
     resolved_regime = resolve_vietnam_regime(vn; regime_id=regime_id)
     er = resolved_regime["export_rules"]
     rooftop = get(er, "rooftop_solar", Dict())
+    data_default = get(rooftop, "max_export_fraction", 0.20)
     if max_export_fraction === nothing
-        max_export_fraction = get(rooftop, "max_export_fraction", 0.20)
+        max_export_fraction = data_default
     end
 
     max_export_fraction = _validate_export_fraction(max_export_fraction)
-    if max_export_fraction != 0.20
+    if max_export_fraction != data_default
         @warn "max_export_fraction=$max_export_fraction is stored for Vietnam custom solve wrappers, " *
               "but plain REopt.run_reopt(...) will NOT enforce it automatically."
     end

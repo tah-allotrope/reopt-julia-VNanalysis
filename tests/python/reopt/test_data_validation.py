@@ -401,3 +401,10 @@ class TestExportRules:
             for region, rate in regions.items():
                 assert rate > 0, f"DPPA {tech}/{region} rate must be > 0"
 
+    def test_active_export_rules_encode_decree_243(self, manifest):
+        raw, filename = _load_data_file(manifest, "export_rules")
+        assert raw["data"]["rooftop_solar"]["max_export_fraction"] == 0.50
+        assert "243" in raw["_meta"]["source"], (
+            f"active export_rules file {filename!r} does not cite Decree 243/2026 in _meta.source"
+        )
+
