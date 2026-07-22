@@ -20,13 +20,14 @@ jobs:
           pip install -e ".[webapp]" mypy pytest
 
       # NOTE: a `ruff check` step is intentionally NOT included yet. ruff has no
-      # `[tool.ruff]` configuration in pyproject.toml and currently reports 181
-      # pre-existing lint violations plus a hard parse error on a malformed glob
-      # in .gitignore (`ceba-review/*[repo-checked].pptx`). Configuring ruff and
-      # cleaning up that backlog is scoped to the separate repo hygiene/CI plan
-      # (research/2026-07-11-reopt-pysam-next-level-brainstorm.md PHASE-02) —
-      # add the ruff step here once that lands, rather than shipping a
-      # known-red lint gate now.
+      # `[tool.ruff]` configuration in pyproject.toml and currently reports
+      # pre-existing lint violations (see `ruff check --statistics` for the
+      # current count — it has been growing over time, so no specific number is
+      # cited here) plus a hard parse error on a malformed glob in .gitignore
+      # (`ceba-review/*[repo-checked].pptx`). Configuring ruff and cleaning up
+      # that backlog is scoped to a separate, larger follow-on effort — add the
+      # ruff step here once that lands, rather than shipping a known-red lint
+      # gate now.
       - name: Type check (analysis + webapp public API surfaces)
         run: mypy src/python/reopt_pysam_vn/analysis src/python/reopt_pysam_vn/webapp
 
