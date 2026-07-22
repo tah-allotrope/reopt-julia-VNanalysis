@@ -215,12 +215,13 @@
             genuinely green CI gate — implemented, verified, and committed to <code>main</code>.
           </p>
           <div class="takeaway">
-            CI on <code>main</code> has been red on every run since 2026-07-14. This effort registered four pytest
-            markers, triaged every failing test to a specific, honest reason, pinned the exact locally-used PySAM
-            version, and made webapp tests hermetic — a local simulation of CI's exact filter now runs
-            <strong>575 passed, 0 failed, 4 xfailed</strong> in under two minutes (down from 10+ minutes). Three
-            further phases (security/hygiene cleanup, a two-part tariff sign-flip fix, and a PySAM Single Owner
-            defaults audit) remain in the source plan and were not started in this session.
+            CI on <code>main</code> had been red on every run since 2026-07-14 and is now confirmed <strong>green</strong>
+            on the live GitHub Actions run triggered by this effort's push (run <code>29942520141</code>) — the
+            first passing run this repository has had in over a week. Getting there required one extra, unplanned
+            fix: the hermetic-webapp-test change let two tests run further than ever before in CI and exposed a real,
+            previously-latent race condition in the run-storage layer, fixed and regression-tested in a follow-up
+            commit. Three further phases (security/hygiene cleanup, a two-part tariff sign-flip fix, and a PySAM
+            Single Owner defaults audit) remain in the source plan and were not started in this session.
           </div>
         </div>
         <div class="meta-grid">
@@ -400,6 +401,19 @@
           </p>
         </div>
         <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Unplanned fix — atomic run-storage writes</h3>
+          <p>
+            The first push (commit <code>169f450</code>) triggered a real GitHub Actions failure: two webapp tests
+            that had never gotten past the "no NREL key" error in any prior CI run now ran far enough to hit a
+            genuine race condition — <code>RunStorage</code> wrote <code>status.json</code> with a non-atomic
+            truncate-then-write, and a concurrent HTTP poll could read a zero-length file mid-write. Fixed by writing
+            through a same-directory temp file and an atomic <code>os.replace</code>, with a small bounded retry for
+            a Windows-only transient sharing violation this introduced locally. A new concurrency regression test
+            (200 iterations of simultaneous read+write, verified stable across 5 repeated runs) locks in the fix.
+            Pushed as commit <code>5656ca7</code>; the resulting run (<code>29942520141</code>) is green.
+          </p>
+        </div>
+        <div class="subcard">
           <h3><span class="badge badge-pending">Not started</span>&nbsp; Phase 3 — Security &amp; Hygiene</h3>
           <p>
             Untracking the three deck <code>.pptx</code> binaries and two root PNGs, fixing the broken
@@ -424,10 +438,11 @@ flowchart LR
   A["CI red since 2026-07-14<br/>22 failures, no marker excludes anything"] --> B["07-22 brainstorm:<br/>independently re-verified,<br/>found worktree bloat + ruff drift"]
   B --> C["PHASE-01<br/>remove 4 stale worktrees<br/>reword stale CI comment"]
   C --> D["PHASE-02<br/>4 markers registered + applied<br/>PySAM pinned, webapp hermetic"]
-  D --> E["Local CI-filter simulation:<br/>575 passed, 0 failed, 4 xfailed"]
-  E --> F["Push to main<br/>first real GitHub Actions test"]
-  D -.-> G["PHASE-03 security/hygiene<br/>NOT started this session"]
-  D -.-> H["PHASE-04/05 tariff fix +<br/>Single Owner audit<br/>NOT started this session"]
+  D --> E["Push #1 (169f450):<br/>CI FAILS — race condition<br/>surfaced by hermetic fix"]
+  E --> F["Fix: atomic run-storage<br/>writes + regression test"]
+  F --> G["Push #2 (5656ca7):<br/>CI GREEN (run 29942520141)"]
+  D -.-> H["PHASE-03 security/hygiene<br/>NOT started this session"]
+  D -.-> I["PHASE-04/05 tariff fix +<br/>Single Owner audit<br/>NOT started this session"]
         </pre>
       </div>
     </section>
@@ -459,10 +474,18 @@ flowchart LR
           golden file was not touched.
         </p>
         <p>
-          <strong>Recommendation.</strong> Push these two phases to <code>main</code> and treat the resulting
-          GitHub Actions run as the first genuine confirmation this repository has had of a green gate since
-          2026-07-14. Then proceed directly to PHASE-03 (security/hygiene) — it is small, independently scoped, and
-          closes a credential-exposure item that has now gone unaddressed across five consecutive analysis sessions.
+          <strong>Finding 4 — a green CI badge is not the same as a fully-exercised test suite, and this session is
+          direct proof.</strong> The two webapp tests that failed on the first push had been "passing" in every
+          prior sense that mattered locally, but had never actually reached the code path that failed until a
+          different fix (the hermetic-key change) let them run further. The race condition had been latent in
+          production code the whole time; CI simply had never exercised it. This is worth remembering the next time
+          a green run is read as "nothing is wrong" rather than "nothing that runs is wrong."
+        </p>
+        <p>
+          <strong>Recommendation.</strong> CI on <code>main</code> is now confirmed green
+          (<a href="https://github.com/tah-allotrope/reopt-pysam/actions/runs/29942520141">run 29942520141</a>) —
+          proceed directly to PHASE-03 (security/hygiene). It is small, independently scoped, and closes a
+          credential-exposure item that has now gone unaddressed across five consecutive analysis sessions.
           PHASE-04 (tariff sign-flip) and PHASE-05 (Single Owner audit) are both live correctness questions and
           should follow once the security items are closed.
         </p>
@@ -480,9 +503,10 @@ flowchart LR
         <div class="subcard">
           <h3>Already complete (this session)</h3>
           <ul>
-            <li>Phases 1–2 implemented, tested, and committed locally to <code>main</code> (commits <code>22b8d0a</code>, <code>0f5d1a0</code>)</li>
-            <li>Local CI-filter simulation: 575 passed, 0 failed, 4 xfailed, 18 deselected, in ~100s (down from 10+ minutes)</li>
-            <li>Hermetic webapp check (real NREL key temporarily removed): 71/71 webapp tests pass</li>
+            <li>Phases 1–2 implemented and pushed to <code>main</code> (commits <code>22b8d0a</code>, <code>0f5d1a0</code>), plus an unplanned atomic-writes fix (commit <code>5656ca7</code>)</li>
+            <li><strong>Live GitHub Actions run 29942520141: <code>success</code></strong> — the first green run on this repository since 2026-07-14 (550 passed, 0 failed, 26 skipped, 18 deselected, 4 xfailed, per the live run's own log)</li>
+            <li>Local full portable-suite filter (matching CI's exact marker exclusions): 576 passed, 0 failed, 4 xfailed, 18 deselected, in ~80s (down from 10+ minutes) — the local/CI passed-count gap is the live-NREL-key <code>network</code> tests, which skip in CI (no key present there) but ran and passed locally (real key present)</li>
+            <li>Hermetic webapp check (real NREL key temporarily removed): 72/72 webapp tests pass</li>
             <li><code>mypy</code> on <code>analysis/</code> + <code>webapp/</code>: clean, 20 source files</li>
           </ul>
         </div>
@@ -505,9 +529,9 @@ flowchart LR
         <div class="subcard">
           <h3>Residual risk</h3>
           <ul>
-            <li>This report was written before the push to <code>origin/main</code> that follows it — the local CI-filter simulation is strong evidence but not a substitute for the actual GitHub Actions run, which should be checked immediately after pushing</li>
             <li>The leaked NREL API key (recoverable from historical commits <code>3911032</code>, <code>b14bc0b</code>) remains unrotated; this report does not close that item — it is explicitly PHASE-03's scope</li>
             <li>The two Samsung/TTC parity tests and three numeric-drift tests remain genuinely unfixed (only honestly quarantined via <code>xfail</code>); their underlying root causes are still open</li>
+            <li>The atomic-writes fix closes the specific race this session's own changes exposed in <code>status.json</code>; other JSON files in the same run-storage layer were moved to the same atomic helper as a precaution, but only <code>get_status</code>/<code>set_status</code> see genuine concurrent read/write pressure in normal operation and were the only read path also hardened with retry logic</li>
           </ul>
         </div>
         <div class="subcard">
@@ -532,6 +556,8 @@ flowchart LR
             <tr><td><code>9119efa</code></td><td>docs</td><td>Preserve 07-22 brainstorm + sprint plan</td></tr>
             <tr><td><code>22b8d0a</code></td><td>Phase 1</td><td>Remove 4 stale worktrees; reword stale CI comment (1 file, +8/&minus;7)</td></tr>
             <tr><td><code>0f5d1a0</code></td><td>Phase 2</td><td>Markers, PySAM pin, hermetic tests, red-test triage, invariants, script relocation (16 files, +173/&minus;5)</td></tr>
+            <tr><td><code>169f450</code></td><td>docs</td><td>First version of this report (pushed, CI run 29941957692 failed)</td></tr>
+            <tr><td><code>5656ca7</code></td><td>hotfix</td><td>Atomic run-storage writes + regression test (2 files, +96/&minus;14); CI run 29942520141 succeeded</td></tr>
           </table>
         </div>
         <div class="subcard technical-frame">
@@ -603,8 +629,8 @@ flowchart LR
               backgroundColor: 'rgba(157, 107, 55, 0.55)'
             },
             {
-              label: 'After (local CI-filter simulation, 2026-07-22)',
-              data: [0, 575, 22],
+              label: 'After (live GitHub Actions run 29942520141, green)',
+              data: [0, 550, 48],
               backgroundColor: 'rgba(59, 111, 118, 0.55)'
             }
           ]
