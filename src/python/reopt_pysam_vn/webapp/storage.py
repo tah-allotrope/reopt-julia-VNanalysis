@@ -8,9 +8,11 @@ the repo's existing ``artifacts/results`` convention (PHASE-01, DEC-003).
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import threading
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -21,6 +23,55 @@ __all__ = ["RunStorage", "default_runs_dir"]
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
 _RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _NON_TERMINAL_STATES = frozenset({"queued", "solving", "analyzing"})
+
+
+def _write_json_atomic(path: Path, data: Any) -> None:
+    """Write JSON so a concurrent reader never observes a partial file.
+
+    ``Path.write_text`` truncates then writes in place; a reader polling the
+    same path (e.g. the webapp's status-polling HTTP endpoint, read from a
+    different thread than the background solve worker) can land in that
+    window and see a zero-length or partial file. Writing to a same-directory
+    temp file and swapping it in with ``os.replace`` (atomic on POSIX and on
+    Windows for same-volume renames) means a reader always sees either the
+    fully-old or fully-new content, never an in-between state.
+
+    On Windows, ``os.replace`` can raise a transient ``PermissionError``
+    (WinError 5) if another thread has the destination open for reading at
+    the exact instant of the swap — a sharing-violation, not a real failure.
+    POSIX rename has no such restriction. Retry briefly rather than letting a
+    concurrent reader turn a routine status update into a crash.
+    """
+    tmp_path = path.with_name(f"{path.name}.{uuid.uuid4().hex[:8]}.tmp")
+    tmp_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    last_error: Optional[OSError] = None
+    for attempt in range(20):
+        try:
+            os.replace(tmp_path, path)
+            return
+        except PermissionError as exc:
+            last_error = exc
+            time.sleep(0.005 * (attempt + 1))
+    tmp_path.unlink(missing_ok=True)
+    raise last_error  # type: ignore[misc]
+
+
+def _read_json_with_retry(path: Path) -> Dict[str, Any]:
+    """Read JSON, retrying briefly on Windows sharing-violation ``PermissionError``.
+
+    Mirrors ``_write_json_atomic``'s retry: ``status.json`` is written by a
+    background worker thread and polled by an HTTP handler thread at the same
+    time, so a read can land in the same narrow Windows-only window where
+    ``os.replace`` momentarily holds the destination path.
+    """
+    last_error: Optional[OSError] = None
+    for attempt in range(20):
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except PermissionError as exc:
+            last_error = exc
+            time.sleep(0.005 * (attempt + 1))
+    raise last_error  # type: ignore[misc]
 
 
 def default_runs_dir() -> Path:
@@ -63,9 +114,7 @@ class RunStorage:
             run_id = f"{timestamp}-{RunStorage._counter:08d}-{slug}-{uuid.uuid4().hex[:6]}"
             run_dir = self.root / run_id
             run_dir.mkdir(parents=True, exist_ok=False)
-            (run_dir / "deal_config.json").write_text(
-                json.dumps(deal_config, indent=2), encoding="utf-8"
-            )
+            _write_json_atomic(run_dir / "deal_config.json", deal_config)
             status = {
                 "run_id": run_id,
                 "state": "queued",
@@ -75,7 +124,7 @@ class RunStorage:
                 "mode": deal_config.get("mode", ""),
                 "title": deal_config.get("title", ""),
             }
-            (run_dir / "status.json").write_text(json.dumps(status, indent=2), encoding="utf-8")
+            _write_json_atomic(run_dir / "status.json", status)
             return run_id
 
     def get_deal_config(self, run_id: str) -> Dict[str, Any]:
@@ -84,19 +133,19 @@ class RunStorage:
 
     def get_status(self, run_id: str) -> Dict[str, Any]:
         run_dir = self._run_dir(run_id)
-        return json.loads((run_dir / "status.json").read_text(encoding="utf-8"))
+        return _read_json_with_retry(run_dir / "status.json")
 
     def set_status(self, run_id: str, **fields: Any) -> None:
         with self._lock:
             run_dir = self._run_dir(run_id)
             status_path = run_dir / "status.json"
-            status = json.loads(status_path.read_text(encoding="utf-8"))
+            status = _read_json_with_retry(status_path)
             status.update(fields)
-            status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+            _write_json_atomic(status_path, status)
 
     def save_result(self, run_id: str, result: Dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
-        (run_dir / "result.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+        _write_json_atomic(run_dir / "result.json", result)
 
     def get_result(self, run_id: str) -> Optional[Dict[str, Any]]:
         run_dir = self._run_dir(run_id)
@@ -107,9 +156,7 @@ class RunStorage:
 
     def save_reopt_results(self, run_id: str, reopt_results: Dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
-        (run_dir / "reopt_results.json").write_text(
-            json.dumps(reopt_results, indent=2), encoding="utf-8"
-        )
+        _write_json_atomic(run_dir / "reopt_results.json", reopt_results)
 
     def get_reopt_results(self, run_id: str) -> Optional[Dict[str, Any]]:
         run_dir = self._run_dir(run_id)
@@ -120,9 +167,7 @@ class RunStorage:
 
     def write_provenance(self, run_id: str, provenance: Dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
-        (run_dir / "provenance.json").write_text(
-            json.dumps(provenance, indent=2), encoding="utf-8"
-        )
+        _write_json_atomic(run_dir / "provenance.json", provenance)
 
     def get_provenance(self, run_id: str) -> Optional[Dict[str, Any]]:
         run_dir = self._run_dir(run_id)

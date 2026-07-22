@@ -1,5 +1,6 @@
 """PHASE-01: filesystem run storage."""
 
+import threading
 from datetime import datetime, timedelta, timezone
 
 from reopt_pysam_vn.webapp.storage import RunStorage
@@ -169,6 +170,42 @@ def test_prune_never_selects_non_terminal_runs_even_if_old(storage_root):
     stale = store.prune(30, dry_run=False)
     assert stale == []
     assert (storage_root / run_id).exists()
+
+
+def test_concurrent_set_status_never_exposes_a_partial_read(storage_root):
+    """CI regression (2026-07-22): a background solve worker calling
+    ``set_status`` repeatedly, read concurrently by an HTTP status-polling
+    thread, must never see a truncated/empty status.json. This reproduced in
+    GitHub Actions (json.decoder.JSONDecodeError: Expecting value) even though
+    the local suite never caught it — the race window is timing-dependent."""
+    store = RunStorage(storage_root)
+    run_id = store.create_run({"case": "RACE", "mode": "onsite"})
+
+    iterations = 200
+    errors = []
+
+    def _writer():
+        for i in range(iterations):
+            store.set_status(run_id, state="solving", progress=i)
+
+    def _reader():
+        for _ in range(iterations):
+            try:
+                status = store.get_status(run_id)
+            except Exception as exc:  # noqa: BLE001 - any exception here is the bug
+                errors.append(exc)
+                continue
+            if "state" not in status:
+                errors.append(AssertionError(f"partial status read: {status!r}"))
+
+    writer_thread = threading.Thread(target=_writer)
+    reader_thread = threading.Thread(target=_reader)
+    writer_thread.start()
+    reader_thread.start()
+    writer_thread.join()
+    reader_thread.join()
+
+    assert errors == [], f"concurrent read/write produced {len(errors)} failures: {errors[:3]}"
 
 
 def test_mark_interrupted_runs_flags_only_non_terminal_states(storage_root):
