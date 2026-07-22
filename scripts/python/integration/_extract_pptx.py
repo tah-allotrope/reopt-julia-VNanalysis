@@ -5,7 +5,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 
 
 def extract_pptx_text(path: Path) -> str:

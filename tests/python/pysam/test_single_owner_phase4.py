@@ -123,6 +123,7 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@pytest.mark.requires_artifacts
 def test_build_ninhsim_single_owner_inputs_uses_recommended_candidate_band():
     inputs = build_ninhsim_single_owner_inputs(
         reopt_results=_load_json(NINHSIM_REOPT),
@@ -146,6 +147,7 @@ def test_build_ninhsim_single_owner_inputs_uses_recommended_candidate_band():
     assert len(inputs.generation_profile_kw) == 8760
 
 
+@pytest.mark.requires_artifacts
 def test_build_ninhsim_single_owner_inputs_preserves_explicit_zero_escalation():
     scenario = _load_json(NINHSIM_SCENARIO)
     scenario["Financial"]["elec_cost_escalation_rate_fraction"] = 0.0
@@ -161,6 +163,7 @@ def test_build_ninhsim_single_owner_inputs_preserves_explicit_zero_escalation():
     assert inputs.om_escalation_rate_fraction == 0.0
 
 
+@pytest.mark.requires_artifacts
 def test_build_ninhsim_single_owner_inputs_rejects_mismatched_hourly_series():
     reopt_results = _load_json(NINHSIM_REOPT)
     reopt_results["Wind"]["electric_to_load_series_kw"] = reopt_results["Wind"][
@@ -224,6 +227,7 @@ def test_run_single_owner_model_returns_canonical_result_shape():
     assert "project_return_aftertax_irr_fraction" in results["outputs"]
 
 
+@pytest.mark.requires_artifacts
 def test_run_single_owner_model_for_ninhsim_preserves_candidate_metadata():
     inputs = build_ninhsim_single_owner_inputs(
         reopt_results=_load_json(NINHSIM_REOPT),

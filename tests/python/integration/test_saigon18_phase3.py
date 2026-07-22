@@ -9,6 +9,7 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
@@ -21,6 +22,7 @@ from dppa_settlement import (  # noqa: E402
     project_dppa_cashflows,
 )
 
+pytestmark = pytest.mark.requires_artifacts
 
 SCENARIO_A_RESULTS = (
     REPO_ROOT

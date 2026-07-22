@@ -6,6 +6,7 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
@@ -18,6 +19,7 @@ from reopt_pysam_vn.reopt.regime_runner import (  # noqa: E402
 )
 
 
+@pytest.mark.requires_julia
 def test_regime_matrix_no_solve_writes_complete_artifacts(tmp_path: Path):
     scenario_path = REPO_ROOT / "scenarios" / "templates" / "vn_industrial_pv_storage.json"
     assumption_dir = REPO_ROOT / "scenarios" / "regime_engine" / "assumption_sets"
@@ -73,6 +75,7 @@ def test_scenario_hash_is_stable_for_same_materialized_input(tmp_path: Path):
     assert len(first) == 16
 
 
+@pytest.mark.requires_julia
 def test_cached_run_is_reused_when_manifest_is_successful(tmp_path: Path):
     scenario_path = REPO_ROOT / "scenarios" / "templates" / "vn_industrial_pv_storage.json"
 

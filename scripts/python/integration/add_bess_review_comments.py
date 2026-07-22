@@ -24,7 +24,7 @@ from pptx import Presentation
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 PPTX_IN  = os.path.join(BASE_DIR, "ceba-review", "cong bess session.pptx")
 PPTX_OUT = os.path.join(BASE_DIR, "ceba-review", "cong bess session [reviewed].pptx")
 

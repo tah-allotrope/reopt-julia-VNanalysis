@@ -30,6 +30,18 @@ def block_live_nrel_calls(monkeypatch):
     monkeypatch.setattr(service, "solve_onsite_via_nrel", _blocked)
 
 
+@pytest.fixture(autouse=True)
+def stub_nrel_api_key(monkeypatch):
+    """Webapp tests must not depend on the git-ignored ``NREL_API.env`` file
+    being present (it is absent in CI, which is exactly why these tests used
+    to fail only there). A test that needs a specific key value or fingerprint
+    re-patches ``service.load_nrel_api_key`` itself within its own body, which
+    overrides this default for the duration of that test."""
+    from reopt_pysam_vn.webapp import service
+
+    monkeypatch.setattr(service, "load_nrel_api_key", lambda: "test-webapp-key")
+
+
 @pytest.fixture()
 def client(storage_root):
     from reopt_pysam_vn.webapp import create_app

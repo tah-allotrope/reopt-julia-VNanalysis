@@ -264,6 +264,7 @@ class TestTemplateSmokeTests:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.network
 @pytest.mark.skipif(
     not (REPO_ROOT / "NREL_API.env").is_file(),
     reason="NREL_API.env not found — skipping API tests",
@@ -419,6 +420,7 @@ class TestAPIIntegration:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.network
 @pytest.mark.skipif(
     not (REPO_ROOT / "NREL_API.env").is_file(),
     reason="NREL_API.env not found — skipping cross-check tests",

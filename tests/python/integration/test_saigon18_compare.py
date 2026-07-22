@@ -11,11 +11,14 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
 
 from compare_reopt_vs_excel import load_reopt_metrics  # noqa: E402
+
+pytestmark = pytest.mark.requires_artifacts
 
 
 RESULTS_PATH = (

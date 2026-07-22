@@ -42,6 +42,12 @@ pythonpath = [
 testpaths = [
   "tests",
 ]
+markers = [
+  "network: makes real HTTP calls to external services; excluded in CI",
+  "requires_artifacts: reads git-ignored machine-local files under artifacts/; excluded in CI",
+  "golden_machine: bit-exact golden comparison only valid on the primary dev machine's resources; excluded in CI",
+  "requires_julia: shells out to a local Julia subprocess; CI has no Julia install step; excluded in CI",
+]
 
 [tool.mypy]
 python_version = "3.10"

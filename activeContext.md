@@ -56,6 +56,11 @@ with Plotly charts, run history with clone-and-edit, and two-run compare.
   which installs the package).
 
 ## Known pre-existing test failures (backlog, out of scope)
+
+As of the 2026-07-22 CI-truth-correctness sprint (PHASE-02), all five are now
+annotated `@pytest.mark.xfail(strict=False)` in place so they keep running and
+any future recovery shows as `XPASS` instead of silently disappearing:
+
 - `tests/python/analysis/test_samsung_ttc_parity.py::test_samsung_parity_full_tree_within_bar`
 - `tests/python/analysis/test_samsung_ttc_parity.py::test_samsung_parity_is_bit_exact`
 - `tests/python/integration/test_capacity_factor_benchmark.py::test_pvwatts_capacity_factor_binh_thuan`
@@ -64,6 +69,40 @@ with Plotly charts, run history with clone-and-edit, and two-run compare.
 
 All five are numeric benchmark/tolerance drift, confirmed failing on unmodified `main` via
 `git stash` (2026-07-04). The last one was not previously logged in this file.
+
+**Samsung parity investigation (2026-07-22):** the two `test_samsung_ttc_parity`
+failures were investigated per the sprint plan's 2-hour timebox using a
+temporary `git worktree` at commit `fd8ceaf` (the last commit before the webapp
+phase-1/phase-2 sessions). The exact same divergence reproduces there
+(`developer_irr_fraction` computes `0.0289...` where the golden holds `None`;
+max relative diff `1.123`) — confirming this is **not** a regression introduced
+by any later work, but a pre-existing divergence baked into the golden file or
+its generation environment. No further root-cause was pursued within the
+timebox; the golden file itself was not touched.
+
+**CI marker classification (2026-07-22):** `tests/python/analysis/test_samsung_ttc_parity.py`
+is now marked `golden_machine` (module-level) and excluded from CI — the
+bit-exact comparison only holds against the primary dev machine's PVWatts
+resource cache. Several other tests are now marked `requires_artifacts`
+(read git-ignored files under `artifacts/`) and excluded from CI as well; see
+`pyproject.toml`'s `markers` list and `.github/workflows/ci.yml`'s pytest
+filter for the complete, current exclusion set.
+
+**New marker, beyond the original sprint plan (2026-07-22):**
+`tests/python/integration/test_regime_engine_smoke.py`'s two CI-only failures
+(`test_regime_matrix_no_solve_writes_complete_artifacts`,
+`test_cached_run_is_reused_when_manifest_is_successful`) were investigated by
+reading `reopt_pysam_vn.reopt.regime_runner.build_regime_matrix`: even with
+`solve=False`, it always shells out to a real `julia` subprocess (`--no-solve`)
+via `_run_julia_scenario`, and both tests write to pytest's `tmp_path` rather
+than the tracked `artifacts/` directory — so this is a Julia-availability
+dependency, not an artifacts dependency, and `requires_artifacts` would have
+been a factually wrong label. A new `requires_julia` marker was added (see
+`pyproject.toml`) and applied to both tests instead; CI's filter now excludes
+`network`, `requires_artifacts`, `golden_machine`, and `requires_julia`. This
+matches the repo's existing, standing decision to keep Julia CI out of scope
+(cold starts of several minutes make it poor CI economics) — no Julia setup
+step exists in `.github/workflows/ci.yml` and none is added by this change.
 
 ## Decree 243/2026 ingestion (2026-07-18)
 
