@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: CI Truth &amp; Workspace Hygiene — Phases 1–2</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell { width: min(var(--page-width), calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr); gap: 24px; align-items: end; }
+
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+
+    .title { margin: 0; max-width: 16ch; font-family: var(--display-font); font-size: clamp(2.4rem, 4.4vw, 4rem); line-height: 0.98; letter-spacing: -0.03em; text-wrap: balance; }
+
+    .lede { margin: 18px 0 0; max-width: 60ch; color: var(--ink-soft); font-size: 1rem; }
+
+    .takeaway { margin-top: 22px; padding: 18px 20px; border-left: 4px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: rgba(59, 111, 118, 0.08); color: #20373a; font-size: 1.02rem; }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+    .meta-label { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .meta-chip { margin-top: 8px; color: var(--accent); font-size: 1rem; font-weight: 700; word-break: break-word; }
+
+    .section { margin-top: 22px; padding: 24px; border-radius: var(--radius-lg); break-inside: avoid; page-break-inside: avoid; }
+
+    .section-header { display: flex; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+
+    .section-index { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+    .section-title { margin: 0; font-family: var(--display-font); font-size: clamp(1.45rem, 2vw, 2rem); line-height: 1.05; }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { display: grid; gap: 16px; }
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .subcard { padding: 18px; border-radius: var(--radius-md); break-inside: avoid; page-break-inside: avoid; }
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .subcard p:first-child, .subcard ul:first-child, .subcard ol:first-child { margin-top: 0; }
+
+    .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+    .stat { padding: 14px 16px; border: 1px solid rgba(59, 111, 118, 0.16); border-radius: var(--radius-sm); background: rgba(59, 111, 118, 0.06); break-inside: avoid; page-break-inside: avoid; }
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid; page-break-inside: avoid;
+    }
+
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px;
+    }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .empty-state { padding: 20px; border-radius: var(--radius-md); text-align: center; color: var(--ink-soft); break-inside: avoid; page-break-inside: avoid; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent); font-size: 0.84rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .badge-done { background: rgba(59, 111, 118, 0.14); color: var(--accent-2); }
+    .badge-pending { background: rgba(157, 107, 55, 0.14); color: var(--accent); }
+
+    .footer-note { margin-top: 18px; color: rgba(95, 86, 76, 0.74); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; padding-bottom: 36px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root { --paper: #ffffff; --paper-strong: #ffffff; --ink: #111111; --ink-soft: #444444; --line: #d6d1c8; }
+      @page { size: A4; margin: 14mm; }
+      body { background: #ffffff; }
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff; box-shadow: none;
+      }
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+      .diagram-frame { overflow: visible; max-height: none; }
+      .diagram-frame.compact-diagram .mermaid { min-width: 0; }
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">CI Truth &amp; Workspace Hygiene</h1>
+          <p class="lede">
+            The first two of five phases in the CI Truth &amp; Correctness Sprint plan — workspace hygiene and a
+            genuinely green CI gate — implemented, verified, and committed to <code>main</code>.
+          </p>
+          <div class="takeaway">
+            CI on <code>main</code> has been red on every run since 2026-07-14. This effort registered four pytest
+            markers, triaged every failing test to a specific, honest reason, pinned the exact locally-used PySAM
+            version, and made webapp tests hermetic — a local simulation of CI's exact filter now runs
+            <strong>575 passed, 0 failed, 4 xfailed</strong> in under two minutes (down from 10+ minutes). Three
+            further phases (security/hygiene cleanup, a two-part tariff sign-flip fix, and a PySAM Single Owner
+            defaults audit) remain in the source plan and were not started in this session.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">reopt-pysam-vn</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-07-23</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div><div class="section-index">01 / Executive Summary</div><h2 class="section-title">Executive Summary</h2></div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was wrong</h3>
+          <p>
+            The repository's CI workflow has reported red on every push since it was added on 2026-07-15 — 22 test
+            failures on the most recent run, out of a suite of roughly 600. No pytest marker actually excluded
+            anything (the workflow filtered on a <code>network</code> marker that no test carried), PySAM was
+            unpinned in CI and resolved to a version whose API had drifted from the one used locally, and five
+            webapp tests failed only in CI because they depended on a git-ignored credentials file that is
+            deliberately absent there. Separately, ~433 MB of stale git worktrees from earlier agent sessions —
+            checkouts of branches with zero commits beyond <code>main</code> — sat unused in the working tree.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>
+            Four pytest markers (<code>network</code>, <code>requires_artifacts</code>, <code>golden_machine</code>,
+            and a newly-justified <code>requires_julia</code>) now honestly partition the suite into what CI can and
+            cannot run, and are actually applied to the right tests rather than only declared. PySAM is pinned in CI
+            to the exact version used locally. Webapp tests no longer depend on a real API key. Every one of the five
+            long-standing local test failures now carries a specific, dated reason rather than sitting as an
+            unexplained red. Four zero-value git worktrees and two orphaned stub directories were removed, reclaiming
+            essentially all of the ~433 MB with zero loss of work (verified clean and zero-commits-ahead before
+            deletion).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div><div class="section-index">02 / Background &amp; Objective</div><h2 class="section-title">Background &amp; Objective</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <code>reopt-pysam-vn</code> models solar/wind/storage/DPPA project economics for Vietnam using NREL
+          REopt.jl plus PySAM. Four consecutive analysis passes over the prior eleven days (2026-07-11 through
+          2026-07-18) converged on the same conclusion: the repository does not primarily need new ideas, it needs
+          an already-diagnosed backlog executed. The most recent pass (2026-07-22) independently re-verified with
+          live tools — <code>gh run list</code>, <code>gh run view --log</code>, <code>ruff check --statistics</code>,
+          <code>git worktree list</code> — that CI was still exactly as red as previously documented, that the
+          repository's lint-violation count had grown from 181 to 206 in four days, and that ~433 MB of stale
+          worktrees had never been cleaned up. That brainstorm became a five-phase plan
+          (<code>plans/2026-07-22-ci-truth-correctness-sprint-plan.md</code>); this report covers execution of its
+          first two phases — workspace hygiene and a genuinely green CI gate — which the plan itself frames as the
+          precondition every later architectural initiative in this repository declares for itself.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div><div class="section-index">03 / Inputs &amp; Scope</div><h2 class="section-title">Inputs &amp; Scope</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Plan inputs</h3>
+          <ul>
+            <li><code>plans/2026-07-22-ci-truth-correctness-sprint-plan.md</code> — the 5-phase execution plan this report covers phases 1–2 of</li>
+            <li><code>research/2026-07-22-reopt-pysam-execution-unblock-brainstorm.md</code> — the same-session brainstorm that produced the plan</li>
+            <li><code>research/2026-07-17-reopt-pysam-ci-truth-brainstorm.md</code> and <code>plans/2026-07-17-truth-and-correctness-sprint-plan.md</code> — the prior pass's diagnosis and turn-key plan, whose CI-truth findings this effort executes</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Executed this session (in scope)</h3>
+          <ul>
+            <li><strong>PHASE-01 — Workspace Hygiene:</strong> stale git worktree removal, stale CI comment reword</li>
+            <li><strong>PHASE-02 — CI Truth:</strong> pytest markers, PySAM pin, hermetic webapp tests, red-test triage, repo-invariants test, flat-script relocation</li>
+          </ul>
+          <h3 style="margin-top:14px;">Deliberately not started this session (out of scope)</h3>
+          <ul>
+            <li><strong>PHASE-03 — Security &amp; Hygiene:</strong> untracking deck binaries and root PNGs, fixing the broken <code>.gitignore</code> globs, collapsing <code>requirements.txt</code>, documenting the leaked-NREL-key rotation requirement</li>
+            <li><strong>PHASE-04 — Two-part tariff fix:</strong> the Decree 146/2025 sign-flip correction</li>
+            <li><strong>PHASE-05 — Single Owner clean-slate mode:</strong> the PySAM reference-plant-defaults audit</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div><div class="section-index">04 / Assumptions &amp; Constraints</div><h2 class="section-title">Assumptions &amp; Constraints</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions carried into implementation</h3>
+          <ul>
+            <li>The locally-installed PySAM version (7.1.0, confirmed via <code>PySAM.__version__</code> and <code>pip show nrel-pysam</code>) is the correct version to pin CI to</li>
+            <li>The four worktree branches removed in PHASE-01 (<code>cranky-torvalds-3f262a</code>, <code>dazzling-northcutt-0807cc</code>, <code>unruffled-banzai-88ae43</code>, <code>upbeat-almeida-53c200</code>) genuinely carried zero commits beyond <code>main</code> — verified directly via <code>git log main..&lt;branch&gt;</code> for all four immediately before deletion, not assumed from the earlier brainstorm alone</li>
+            <li>No other session was concurrently using any of the four worktrees — inferred from each having a clean working tree with no in-progress edits</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints honored throughout</h3>
+          <ul>
+            <li>Samsung/TTC bit-exact parity: <code>examples/samsung-ttc_combined-decision.example.json</code> was never edited; the parity test module is excluded from CI via the new <code>golden_machine</code> marker rather than weakened</li>
+            <li><code>git worktree remove</code> was never forced (<code>--force</code>) — its default refusal on a dirty tree was treated as the real safety net, not just the pre-check</li>
+            <li>Every xfail applied to a previously-red test used <code>strict=False</code> with a specific, dated reason string, so a future fix shows as an unexpected pass rather than disappearing silently</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div><div class="section-index">05 / Methodology</div><h2 class="section-title">Methodology</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          Every classification decision in this effort was backed by direct evidence gathered in this session, not
+          assumed from the source plan. Before deleting any git worktree, its branch history and working-tree
+          cleanliness were re-checked live. Before marking the two failing <code>test_regime_engine_smoke.py</code>
+          tests, the underlying <code>regime_runner.build_regime_matrix</code> source was read directly, which
+          revealed they shell out to a real local Julia subprocess regardless of a <code>solve=False</code> flag and
+          write to pytest's isolated <code>tmp_path</code> rather than the repository's tracked
+          <code>artifacts/</code> directory — meaning the plan's anticipated <code>requires_artifacts</code> label
+          would have been factually wrong for this pair, and a new, honestly-named <code>requires_julia</code> marker
+          was introduced instead, consistent with this repository's standing decision to keep Julia out of CI. Before
+          marking the two Samsung/TTC parity divergences as pre-existing rather than a regression, a temporary
+          <code>git worktree</code> was checked out at commit <code>fd8ceaf</code> (the last commit before the
+          webapp phase-1/phase-2 sessions) and the same test re-run there — it failed with the identical numeric
+          divergence, which is direct evidence the issue predates that work rather than an assumption. A newly
+          written repo-invariants test was deliberately run before its corresponding fix landed, to confirm it failed
+          for the right reason and with the right file list, and again afterward to confirm it passed — a small
+          test-the-test discipline applied throughout.
+        </p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">Orientation</div><div class="stat-value">multi-phase</div></div>
+        <div class="stat"><div class="stat-label">Audience</div><div class="stat-value">stakeholder-safe</div></div>
+        <div class="stat"><div class="stat-label">Evidence Rule</div><div class="stat-value">no invented data</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div><div class="section-index">06 / Phase-by-Phase Analysis</div><h2 class="section-title">Phase-by-Phase Analysis</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 1 — Workspace Hygiene</h3>
+          <p>
+            Four registered git worktrees under <code>.claude/worktrees/</code> (108–109 MB each) were re-verified
+            clean and zero-commits-ahead of <code>main</code>, then removed with <code>git worktree remove</code>;
+            two 8 KB orphaned stub directories were pruned. The four corresponding local branches were deleted with
+            <code>git branch -d</code> (which refuses on unmerged history, making the deletion self-verifying). A
+            stale inline comment in <code>ci.yml</code> citing a hardcoded "181 lint violations" count — now
+            actually 206 and rising — was reworded to stop citing a number that rots.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 2 — CI Truth</h3>
+          <p>
+            Registered <code>network</code>, <code>requires_artifacts</code>, <code>golden_machine</code>, and
+            <code>requires_julia</code> pytest markers and applied every one of them to the specific tests that
+            actually need it — 9, 3, 2, and 4 tests respectively, each verified by exact
+            <code>--collect-only</code> count. Pinned <code>nrel-pysam==7.1.0</code> in CI. Added an autouse fixture
+            so webapp tests no longer need a real NREL key. Applied a dated, reasoned <code>xfail</code> to all five
+            long-standing local test failures. Added a new repo-invariants test module enforcing the flat-script
+            ban, the no-tracked-artifacts rule, and (with a deliberate tripwire xfail) the no-root-binaries rule.
+            Relocated the two remaining flat scripts to their canonical subdirectories, fixing each script's
+            repo-root path math for the new depth.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-pending">Not started</span>&nbsp; Phase 3 — Security &amp; Hygiene</h3>
+          <p>
+            Untracking the three deck <code>.pptx</code> binaries and two root PNGs, fixing the broken
+            <code>.gitignore</code> bracket-glob patterns, removing the redundant <code>requirements.txt</code>, and
+            documenting the still-open NREL key rotation requirement remain queued exactly as specified in the
+            source plan.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-pending">Not started</span>&nbsp; Phases 4–5 — Tariff Fix &amp; Single Owner Audit</h3>
+          <p>
+            The Decree 146/2025 two-part tariff sign-flip correction and the PySAM Single Owner reference-plant
+            defaults audit are both fully specified, TDD-shaped, and unstarted. Both are live, client-facing
+            correctness questions the source plan flags as high priority once the CI safety net (this report's
+            scope) is in place.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+        <pre class="mermaid">
+flowchart LR
+  A["CI red since 2026-07-14<br/>22 failures, no marker excludes anything"] --> B["07-22 brainstorm:<br/>independently re-verified,<br/>found worktree bloat + ruff drift"]
+  B --> C["PHASE-01<br/>remove 4 stale worktrees<br/>reword stale CI comment"]
+  C --> D["PHASE-02<br/>4 markers registered + applied<br/>PySAM pinned, webapp hermetic"]
+  D --> E["Local CI-filter simulation:<br/>575 passed, 0 failed, 4 xfailed"]
+  E --> F["Push to main<br/>first real GitHub Actions test"]
+  D -.-> G["PHASE-03 security/hygiene<br/>NOT started this session"]
+  D -.-> H["PHASE-04/05 tariff fix +<br/>Single Owner audit<br/>NOT started this session"]
+        </pre>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div><div class="section-index">07 / Findings &amp; Recommendation</div><h2 class="section-title">Findings &amp; Recommendation</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <strong>Finding 1 — the CI gate's exclusions are now real, not aspirational.</strong> Before this effort,
+          <code>ci.yml</code> filtered on a <code>network</code> marker that zero tests carried, meaning the filter
+          silently selected everything. The gate now has four markers, each verified by exact collection count to
+          match only the tests that genuinely need it, and a local simulation of CI's precise filter runs clean.
+        </p>
+        <p>
+          <strong>Finding 2 — one test-classification decision changed the plan's own labeling, based on evidence
+          gathered during execution.</strong> The source plan anticipated marking
+          <code>test_regime_engine_smoke.py</code>'s two failures <code>requires_artifacts</code>. Reading the
+          underlying implementation showed they depend on a local Julia executable, not on the tracked
+          <code>artifacts/</code> directory. Mislabeling them would have been a smaller version of the same
+          "documentation doesn't enforce itself" problem this whole sprint exists to fix, so a fourth,
+          honestly-named marker was added instead.
+        </p>
+        <p>
+          <strong>Finding 3 — the Samsung/TTC parity divergence is confirmed pre-existing, not a regression.</strong>
+          A direct re-run at a commit predating the webapp sessions reproduced the identical numeric divergence,
+          which rules out those sessions as the cause without needing to assume it from documentation alone. The
+          golden file was not touched.
+        </p>
+        <p>
+          <strong>Recommendation.</strong> Push these two phases to <code>main</code> and treat the resulting
+          GitHub Actions run as the first genuine confirmation this repository has had of a green gate since
+          2026-07-14. Then proceed directly to PHASE-03 (security/hygiene) — it is small, independently scoped, and
+          closes a credential-exposure item that has now gone unaddressed across five consecutive analysis sessions.
+          PHASE-04 (tariff sign-flip) and PHASE-05 (Single Owner audit) are both live correctness questions and
+          should follow once the security items are closed.
+        </p>
+      </div>
+      <div class="viz-frame">
+        <canvas id="ciDeltaChart"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div><div class="section-index">08 / Implementation Path</div><h2 class="section-title">Implementation Path</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Already complete (this session)</h3>
+          <ul>
+            <li>Phases 1–2 implemented, tested, and committed locally to <code>main</code> (commits <code>22b8d0a</code>, <code>0f5d1a0</code>)</li>
+            <li>Local CI-filter simulation: 575 passed, 0 failed, 4 xfailed, 18 deselected, in ~100s (down from 10+ minutes)</li>
+            <li>Hermetic webapp check (real NREL key temporarily removed): 71/71 webapp tests pass</li>
+            <li><code>mypy</code> on <code>analysis/</code> + <code>webapp/</code>: clean, 20 source files</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Immediate next steps</h3>
+          <ul>
+            <li>Push to <code>origin/main</code> and confirm the live GitHub Actions run concludes <code>success</code> — this is the first real, non-simulated test of the gate this sprint produces</li>
+            <li>Execute PHASE-03 (security/hygiene): untrack the deck binaries and root PNGs, fix the two broken <code>.gitignore</code> glob patterns, remove <code>requirements.txt</code>, and write down the NREL key rotation requirement for the account owner — the plan specifies exact commands and verification steps</li>
+            <li>Then PHASE-04 (two-part tariff fix) and PHASE-05 (Single Owner clean-slate + audit), in the order the source plan lays out</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div><div class="section-index">09 / Risks / Open Questions</div><h2 class="section-title">Risks / Open Questions</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Residual risk</h3>
+          <ul>
+            <li>This report was written before the push to <code>origin/main</code> that follows it — the local CI-filter simulation is strong evidence but not a substitute for the actual GitHub Actions run, which should be checked immediately after pushing</li>
+            <li>The leaked NREL API key (recoverable from historical commits <code>3911032</code>, <code>b14bc0b</code>) remains unrotated; this report does not close that item — it is explicitly PHASE-03's scope</li>
+            <li>The two Samsung/TTC parity tests and three numeric-drift tests remain genuinely unfixed (only honestly quarantined via <code>xfail</code>); their underlying root causes are still open</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions (deferred to later phases, not blocking)</h3>
+          <ul>
+            <li>Does the Samsung/TTC golden itself embed contaminated PySAM Single Owner reference-plant defaults? PHASE-05's audit is designed to answer this without touching the golden file</li>
+            <li>What is the actual magnitude of the two-part tariff sign-flip's effect on live client-facing numbers, once PHASE-04's corrected module is regenerated against real Saigon18 artifacts?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div><div class="section-index">10 / Appendices / Evidence Notes</div><h2 class="section-title">Appendices / Evidence Notes</h2></div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h4>Commits (this effort, in order)</h4>
+          <table>
+            <tr><th>Commit</th><th>Phase</th><th>Summary</th></tr>
+            <tr><td><code>9119efa</code></td><td>docs</td><td>Preserve 07-22 brainstorm + sprint plan</td></tr>
+            <tr><td><code>22b8d0a</code></td><td>Phase 1</td><td>Remove 4 stale worktrees; reword stale CI comment (1 file, +8/&minus;7)</td></tr>
+            <tr><td><code>0f5d1a0</code></td><td>Phase 2</td><td>Markers, PySAM pin, hermetic tests, red-test triage, invariants, script relocation (16 files, +173/&minus;5)</td></tr>
+          </table>
+        </div>
+        <div class="subcard technical-frame">
+          <h4>Marker collection counts (verified via <code>--collect-only</code>)</h4>
+          <table>
+            <tr><th>Marker</th><th>Tests collected</th></tr>
+            <tr><td><code>requires_artifacts</code></td><td>9</td></tr>
+            <tr><td><code>golden_machine</code></td><td>3</td></tr>
+            <tr><td><code>requires_julia</code></td><td>2</td></tr>
+            <tr><td><code>network</code></td><td>4</td></tr>
+          </table>
+        </div>
+        <div class="subcard">
+          <h4>Xfailed tests (all <code>strict=False</code>, dated reasons)</h4>
+          <ul>
+            <li><code>test_samsung_ttc_parity.py::test_samsung_parity_full_tree_within_bar</code></li>
+            <li><code>test_samsung_ttc_parity.py::test_samsung_parity_is_bit_exact</code></li>
+            <li><code>test_capacity_factor_benchmark.py::test_pvwatts_capacity_factor_binh_thuan</code></li>
+            <li><code>test_ninhsim_cppa.py::test_build_extracted_inputs_cleans_load_and_computes_weighted_evn_benchmark</code></li>
+            <li><code>test_strike_price_discovery.py::test_build_strike_price_summary_finds_minimum_viable_ninhsim_strike</code></li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h4>Worktrees removed (zero commits beyond <code>main</code>, confirmed live before deletion)</h4>
+          <ul>
+            <li><code>claude/cranky-torvalds-3f262a</code> (108 MB)</li>
+            <li><code>claude/dazzling-northcutt-0807cc</code> (108 MB)</li>
+            <li><code>claude/unruffled-banzai-88ae43</code> (108 MB)</li>
+            <li><code>claude/upbeat-almeida-53c200</code> (109 MB)</li>
+            <li>Plus 2 orphaned 8 KB stub directories pruned</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+    }
+
+    (function renderCiDeltaChart() {
+      const el = document.getElementById('ciDeltaChart');
+      if (!el || !window.Chart) return;
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: ['Failed', 'Passed', 'Excluded (marker/xfail)'],
+          datasets: [
+            {
+              label: 'Before (CI run 2026-07-18, unfiltered)',
+              data: [22, 542, 30],
+              backgroundColor: 'rgba(157, 107, 55, 0.55)'
+            },
+            {
+              label: 'After (local CI-filter simulation, 2026-07-22)',
+              data: [0, 575, 22],
+              backgroundColor: 'rgba(59, 111, 118, 0.55)'
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Test suite outcome: before vs. after phases 1-2' },
+            legend: { position: 'bottom' }
+          },
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of tests' } } }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
