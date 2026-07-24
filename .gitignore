@@ -93,8 +93,8 @@ data/raw/saigon18/2026-01-29_saigon18_excel_model_v2.xlsm
 # deck binaries (source + [repo-checked] copy) are not version-controlled.
 # The orchestrator + registry + reports are the tracked artifacts.
 ceba-review/DPPA Presentation July 2026 Case Studies.pptx
-ceba-review/*[repo-checked].pptx
+ceba-review/*\[repo-checked\].pptx
 ceba-review/*.idempotency-test.pptx
-ceba-review/*[*reviewed*].pptx
+ceba-review/*\[reviewed\].pptx
 ceba-review/cong bess session.pptx
 ceba-review/CEBA DPPA 2026.pptx

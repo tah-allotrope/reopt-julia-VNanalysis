@@ -181,12 +181,20 @@ Pre-filled Vietnam templates in `scenarios/templates/` — override only Site/Lo
 ## Python Setup
 
 ```powershell
-python -m pip install -r requirements.txt
-python -m pip install -e .
+python -m pip install -e ".[webapp]"
 ```
 
 - PySAM support is now scaffolded through the `nrel-pysam` dependency.
 - PySAM-specific tests are skipped automatically when the package is unavailable.
+
+### Security note — API key rotation required
+
+An NREL Developer API key was committed historically to this repository
+(commits `3911032` and `b14bc0b`) and remains recoverable from git history
+even though `NREL_API.env` itself is no longer tracked. The account owner
+must rotate the key at the NREL Developer Network account page and update
+the local, git-ignored `NREL_API.env` with the new value. No git history
+rewrite is planned — rotation is the remediation.
 
 ## Generated Outputs
 

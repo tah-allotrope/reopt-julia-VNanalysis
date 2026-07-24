@@ -10,8 +10,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 ROOT_BINARY_SUFFIXES = {".png", ".pptx", ".xlsx", ".xlsm"}
@@ -48,10 +46,6 @@ def test_no_tracked_artifacts():
     assert tracked == [], f"artifacts/ is git-ignored by design; found tracked files: {tracked}"
 
 
-@pytest.mark.xfail(
-    reason="tracked root binaries removed in PHASE-03 of plans/2026-07-22-ci-truth-correctness-sprint-plan.md",
-    strict=True,
-)
 def test_no_root_level_binaries():
     root_binaries = [
         path

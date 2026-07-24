@@ -54,6 +54,8 @@ with Plotly charts, run history with clone-and-edit, and two-run compare.
   `ModuleNotFoundError: pydantic_core._pydantic_core`. Run with `PYTHONPATH=` cleared, and set
   `PYTHONPATH=src/python` only when invoking `uvicorn`/scripts directly (not needed for pytest,
   which installs the package).
+- **Security:** an NREL API key committed historically (commits 3911032, b14bc0b) has not been
+  confirmed rotated as of 2026-07-24 — see README.md's "API key rotation required" note.
 
 ## Known pre-existing test failures (backlog, out of scope)
 
