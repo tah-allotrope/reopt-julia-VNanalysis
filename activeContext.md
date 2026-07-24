@@ -142,21 +142,11 @@ by `plans/2026-07-18-decree-243-currency-webapp-hardening-plan.md` PHASE-02:
 
 ## Known model gaps
 
-### Two-part tariff sensitivity — missing energy rate reduction
-`scripts/python/reopt/two_part_tariff_sensitivity.py` adds the Decree 146/2025
-demand charge (Cp × Pmax) on top of the existing single-component TOU energy
-rates, but does NOT swap in the lower trial energy rates (Ca). Under the actual
-two-part tariff, energy rates drop ~30-38% (see `vn_tariff_2025.json` →
-`demand_charge → two_part_tariff_trial → energy_charge_vnd_per_kwh`).
-
-**Impact:** The script overstates the cost impact of the two-part tariff. For a
-Saigon18-type profile (69.5% LF), the net effect flips from +73B/yr extra (old
-method) to −53B/yr savings (correct). Factory A (~46% LF) is approximately
-breakeven. Cross-reference: XanhTerra case study at
-https://xanhterra.com/twocomponent-tariff.
-
-**Fix:** Re-price the 8760 energy series using the trial Ca rates before
-computing the demand charge delta. See the script docstring for details.
+### Two-part tariff sensitivity — FIXED 2026-07-25
+The two-part tariff script now correctly computes the NET impact: lower trial
+energy rates (Ca) PLUS the demand charge (Cp × monthly peak). The sign error
+for high-load-factor profiles has been resolved. See
+`reports/2026-07-25-two-part-tariff-fix.md` for details.
 
 ## Map site picker — implemented 2026-07-06
 

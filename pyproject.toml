@@ -57,3 +57,7 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["reopt_pysam_vn.analysis.*", "reopt_pysam_vn.webapp.*"]
 disallow_untyped_defs = true
+
+[tool.coverage.run]
+source = ["reopt_pysam_vn"]
+omit = ["*/webapp/static/*", "*/__pycache__/*"]

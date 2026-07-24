@@ -1,57 +1,53 @@
 """
 Decree 146/2025 two-part tariff sensitivity for the Saigon18 case study.
 
-Decree 146/2025 introduces a pilot capacity charge for industrial customers
-(Jan–Jun 2026). This script computes how adding a VND/kW-month demand charge
-to the existing EVN TOU energy bill changes the project's economics.
+Decree 146/2025 introduces a pilot two-part tariff (capacity charge + lower
+trial energy rates) for industrial customers (Jan-Jun 2026). This script
+computes the NET economic impact: the lower trial energy rates (Ca, ~30-38%
+below baseline) PLUS the new demand charge (Cp x monthly peak).
 
-Key idea: REopt solved Scenario A optimising only for energy (TOU). The existing
-dispatch is therefore not tuned for demand shaving. Two scenarios are compared:
-  - "current dispatch" (energy-optimised): apply the demand charge to actual
-    monthly grid-import peaks from the REopt result.
-  - "demand-shaving potential" (estimated): BESS is assumed to shave the single
-    highest grid-import hour in each month down to the 95th-percentile hourly
-    demand — an upper bound on achievable demand reduction without re-solving.
-
-!!!!! KNOWN MODELING GAP — Energy rate reduction not applied !!!!!
-Under the actual two-part tariff (per Decree 146), the single-component
-TOU energy rates are replaced by lower trial energy rates (~30-38% below
-baseline). This script DOES NOT swap in the lower trial energy rates — it
-only adds the demand charge on top of the existing (higher) baseline TOU
-energy rates. As a result, the output OVERSTATES the cost impact of the
-two-part tariff.
+The core arithmetic is in the library module
+``reopt_pysam_vn.reopt.two_part_tariff``; this script is a thin CLI wrapper
+that reads REopt results and tariff data, calls the library, and writes JSON.
 
 Cross-reference: XanhTerra's two-component tariff case study
-(https://xanhterra.com/twocomponent-tariff) shows that after accounting
-for the energy rate reduction, medium-to-high load-factor profiles can
-save money under the trial tariff. The repo's Factory A case (~46% LF)
-is approximately breakeven when the energy reduction is included.
-
-Fix required: Before applying the demand charge, re-price the 8760 energy
-series using the two-part trial rates (Ca) from
-data/vietnam/vn_tariff_2025.json → demand_charge → two_part_tariff_trial →
-energy_charge_vnd_per_kwh, rather than the baseline single-component TOU
-rates. See also: docs/pitfalls.md "two-part tariff energy rates".
+(https://xanhterra.com/twocomponent-tariff) shows that medium-to-high
+load-factor profiles save money under the trial tariff.
 
 Usage:
-    python scripts/python/two_part_tariff_sensitivity.py \
+    python scripts/python/reopt/two_part_tariff_sensitivity.py \
         --reopt artifacts/results/saigon18/2026-03-23_scenario-a_fixed-sizing_evntou_reopt-results.json \
-        --output artifacts/reports/saigon18/2026-03-29_two-part-tariff-sensitivity.json
+        --output artifacts/reports/saigon18/2026-03-29_two-part-tariff-sensitivity.json \
+        --voltage-level medium_voltage_22kv_to_110kv
 """
 
 import argparse
 import json
 import statistics
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
+
+from reopt_pysam_vn.reopt.preprocess import _build_8760_rates, _build_hourly_rates
+from reopt_pysam_vn.reopt.two_part_tariff import (
+    build_trial_energy_rate_series,
+    compute_two_part_impact,
+)
 
 EXCHANGE_RATE_VND_PER_USD = 26_000.0
 HOURS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-# Capacity-charge rate sweep: 0 to 100 kVND/kW-month in 6 steps
 DEFAULT_RATE_SWEEP_VND_PER_KW_MONTH = [0, 20_000, 40_000, 60_000, 80_000, 100_000]
 
-# Assumed Decree 146/2025 pilot rate for the base-case result card
-DECREE_146_PILOT_RATE_VND_PER_KW_MONTH = 60_000
+VOLTAGE_LEVEL_CHOICES = [
+    "high_voltage_110kv_plus",
+    "medium_voltage_22kv_to_110kv",
+    "medium_voltage_6kv_to_22kv",
+    "low_voltage_below_6kv",
+]
+DEFAULT_VOLTAGE_LEVEL = "medium_voltage_22kv_to_110kv"
 
 
 def _pad_to_8760(series: list[float]) -> list[float]:
@@ -144,9 +140,21 @@ def main():
         default="artifacts/reports/saigon18/2026-03-29_two-part-tariff-sensitivity.json",
         help="Output JSON path",
     )
+    parser.add_argument(
+        "--voltage-level",
+        default=DEFAULT_VOLTAGE_LEVEL,
+        choices=VOLTAGE_LEVEL_CHOICES,
+        help="Voltage level for capacity charge selection",
+    )
+    parser.add_argument(
+        "--tariff",
+        default="data/vietnam/vn_tariff_2025.json",
+        help="Vietnam tariff data JSON",
+    )
     args = parser.parse_args()
 
     results = json.loads(Path(args.reopt).read_text(encoding="utf-8"))
+    tariff_data = json.loads(Path(args.tariff).read_text(encoding="utf-8-sig"))["data"]
 
     fin = results.get("Financial", {})
     year1_energy_savings_usd = (
@@ -169,6 +177,31 @@ def main():
     solar_bess_annual_peak = max(solar_bess_monthly)
     demand_shaved_annual_peak = max(demand_shaved_monthly)
 
+    base_price = tariff_data["base_avg_price_vnd_per_kwh"]
+    mults = tariff_data["rate_multipliers"]["industrial"][args.voltage_level]
+    weekday_rates = _build_hourly_rates(
+        tariff_data["tou_schedule"]["weekday"],
+        base_price * mults["peak"],
+        base_price * mults["standard"],
+        base_price * mults["offpeak"],
+    )
+    sunday_rates = _build_hourly_rates(
+        tariff_data["tou_schedule"]["sunday_and_public_holidays"],
+        base_price * mults["peak"],
+        base_price * mults["standard"],
+        base_price * mults["offpeak"],
+    )
+    baseline_rates = _build_8760_rates(weekday_rates, sunday_rates, year=2025)
+    trial_rates = build_trial_energy_rate_series(tariff_data)
+
+    capacity_charge = tariff_data["demand_charge"]["two_part_tariff_trial"][
+        "capacity_charge_vnd_per_kw_month"
+    ][args.voltage_level]
+
+    net_impact = compute_two_part_impact(
+        grid_import_series, baseline_rates, trial_rates, capacity_charge
+    )
+
     sweep_results = []
     for rate in DEFAULT_RATE_SWEEP_VND_PER_KW_MONTH:
         current = compute_demand_charge_savings(bau_monthly, solar_bess_monthly, rate)
@@ -178,7 +211,6 @@ def main():
                 "rate_vnd_per_kw_month": rate,
                 "current_dispatch": current,
                 "demand_shaving_optimised": shaved,
-                # Total year-1 savings with two-part tariff (energy + demand savings)
                 "total_savings_current_usd": round(
                     year1_energy_savings_usd + current["demand_savings_usd"], 2
                 ),
@@ -188,16 +220,18 @@ def main():
             }
         )
 
-    # Base-case result at Decree 146 pilot rate
+    pilot_rate = capacity_charge
     pilot = next(
-        (r for r in sweep_results if r["rate_vnd_per_kw_month"] == DECREE_146_PILOT_RATE_VND_PER_KW_MONTH),
+        (r for r in sweep_results if r["rate_vnd_per_kw_month"] == pilot_rate),
         sweep_results[-1],
     )
 
     output = {
         "source_reopt": str(Path(args.reopt)),
         "exchange_rate_vnd_per_usd": EXCHANGE_RATE_VND_PER_USD,
-        "decree_146_pilot_rate_vnd_per_kw_month": DECREE_146_PILOT_RATE_VND_PER_KW_MONTH,
+        "voltage_level": args.voltage_level,
+        "trial_rate_basis": "range_midpoint",
+        "capacity_charge_vnd_per_kw_month": capacity_charge,
         "bau_annual_peak_kw": round(bau_annual_peak, 1),
         "solar_bess_annual_peak_kw": round(solar_bess_annual_peak, 1),
         "demand_shaved_annual_peak_kw": round(demand_shaved_annual_peak, 1),
@@ -208,6 +242,10 @@ def main():
         "demand_shaved_monthly_peaks_kw": [round(p, 1) for p in demand_shaved_monthly],
         "year1_energy_savings_usd": round(year1_energy_savings_usd, 2),
         "bess_power_kw": bess_power_kw,
+        "energy_delta_vnd": round(net_impact["energy_delta_vnd"], 0),
+        "annual_demand_charge_vnd": round(net_impact["annual_demand_charge_vnd"], 0),
+        "net_impact_vnd": round(net_impact["net_impact_vnd"], 0),
+        "net_impact_usd": round(net_impact["net_impact_usd"], 2),
         "pilot_case": pilot,
         "sweep": sweep_results,
     }
@@ -217,16 +255,19 @@ def main():
     out_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
 
     print(f"Two-part tariff sensitivity saved to: {out_path}")
+    print(f"  Voltage level             : {args.voltage_level}")
+    print(f"  Capacity charge           : {capacity_charge:,.0f} VND/kW-month")
     print(f"  BAU annual peak           : {bau_annual_peak:,.0f} kW")
     print(f"  Post-solar+BESS peak      : {solar_bess_annual_peak:,.0f} kW")
     print(f"  Peak reduction            : {bau_annual_peak - solar_bess_annual_peak:,.0f} kW")
     print(f"  Demand-shaved peak (est.) : {demand_shaved_annual_peak:,.0f} kW")
     print()
-    print(f"  At Decree 146 pilot rate ({DECREE_146_PILOT_RATE_VND_PER_KW_MONTH:,} VND/kW-month):")
-    print(f"    Demand savings (current dispatch) : ${pilot['current_dispatch']['demand_savings_usd']:,.0f}/yr")
-    print(f"    Demand savings (shaved dispatch)  : ${pilot['demand_shaving_optimised']['demand_savings_usd']:,.0f}/yr")
-    print(f"    Total year-1 savings (current)    : ${pilot['total_savings_current_usd']:,.0f}")
-    print(f"    Total year-1 savings (shaved)     : ${pilot['total_savings_shaved_usd']:,.0f}")
+    print(f"  Energy re-pricing delta   : {net_impact['energy_delta_vnd']:,.0f} VND/yr")
+    print(f"  Annual demand charge      : {net_impact['annual_demand_charge_vnd']:,.0f} VND/yr")
+    print(f"  Net two-part impact       : {net_impact['net_impact_vnd']:,.0f} VND/yr")
+    print(f"  Net two-part impact       : ${net_impact['net_impact_usd']:,.0f}/yr")
+    sign = "SAVINGS" if net_impact["net_impact_vnd"] < 0 else "EXTRA COST"
+    print(f"  Direction                 : {sign}")
 
 
 if __name__ == "__main__":

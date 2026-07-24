@@ -35,3 +35,10 @@ Subsequent runs reuse the Julia depot cache and are much faster (~30-60s for smo
 
 
 `TestAPIIntegration::test_commercial_rooftop_api_solve` and `test_api_vs_baseline_regression` both fail with `HTTP 400 Bad Request` when submitting the full optimization payload to `/job/`. This is a **pre-existing payload issue**, not caused by the `nrel.gov → nlr.gov` domain migration (connectivity is confirmed working via `test_nlr_domain_connectivity`). Investigation pending — run `python -m pytest tests/python/reopt/test_integration.py::TestAPIIntegration::test_nlr_domain_connectivity -v` to confirm the domain itself is healthy.
+
+### Two-Part Tariff Energy Rates (Decree 146/2025) — FIXED 2026-07-25
+The two-part tariff script (`scripts/python/reopt/two_part_tariff_sensitivity.py`) previously only added the demand charge on top of baseline single-component TOU energy rates, ignoring the lower trial energy rates (Ca). This caused a sign error for high-load-factor profiles: the script reported +73B VND/yr extra cost for Saigon18 when the correct answer is -53B VND/yr savings.
+
+**Fix:** The script now uses the library module `reopt_pysam_vn.reopt.two_part_tariff` to compute the NET impact: energy re-pricing delta (trial rates minus baseline rates, always negative) plus the annual demand charge (always positive). For high-load-factor customers, energy savings exceed the demand charge, resulting in net savings. The script accepts a `--voltage-level` argument to select the appropriate capacity charge rate from the tariff data.
+
+**Key insight:** Under the two-part trial tariff, energy rates drop ~30-38% (see `vn_tariff_2025.json` → `demand_charge.two_part_tariff_trial.energy_charge_vnd_per_kwh`), but a new demand charge (Cp × monthly peak) is added. The net impact depends on load factor: high-LF customers save money, low-LF customers pay more.
