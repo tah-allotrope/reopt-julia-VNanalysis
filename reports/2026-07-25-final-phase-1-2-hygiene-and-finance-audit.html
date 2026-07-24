@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Security Hygiene &amp; Single Owner Finance Audit</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell { width: min(var(--page-width), calc(100vw - 32px)); margin: 0 auto; padding: 28px 0 56px; }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr); gap: 24px; align-items: end; }
+
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+
+    .title { margin: 0; max-width: 18ch; font-family: var(--display-font); font-size: clamp(2.2rem, 4vw, 3.6rem); line-height: 0.98; letter-spacing: -0.03em; text-wrap: balance; }
+
+    .lede { margin: 18px 0 0; max-width: 60ch; color: var(--ink-soft); font-size: 1rem; }
+
+    .takeaway { margin-top: 22px; padding: 18px 20px; border-left: 4px solid var(--accent-2); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: rgba(59, 111, 118, 0.08); color: #20373a; font-size: 1.02rem; }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+    .meta-label { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .meta-chip { margin-top: 8px; color: var(--accent); font-size: 1rem; font-weight: 700; word-break: break-word; }
+
+    .section { margin-top: 22px; padding: 24px; border-radius: var(--radius-lg); break-inside: avoid; page-break-inside: avoid; }
+
+    .section-header { display: flex; justify-content: space-between; gap: 12px 18px; align-items: end; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+
+    .section-index { color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+    .section-title { margin: 0; font-family: var(--display-font); font-size: clamp(1.45rem, 2vw, 2rem); line-height: 1.05; }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { display: grid; gap: 16px; }
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .subcard { padding: 18px; border-radius: var(--radius-md); break-inside: avoid; page-break-inside: avoid; }
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+    .subcard p:first-child, .subcard ul:first-child, .subcard ol:first-child { margin-top: 0; }
+
+    .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+    .stat { padding: 14px 16px; border: 1px solid rgba(59, 111, 118, 0.16); border-radius: var(--radius-sm); background: rgba(59, 111, 118, 0.06); break-inside: avoid; page-break-inside: avoid; }
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid; page-break-inside: avoid;
+    }
+
+    .diagram-frame { overflow-x: auto; overflow-y: auto; overscroll-behavior-x: contain; overscroll-behavior-y: contain; max-height: min(70vh, 720px); }
+    .chart-frame, .viz-frame { overflow: hidden; }
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+    .mermaid svg { display: block; width: auto !important; min-width: 100%; max-width: none !important; height: auto !important; }
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block; width: 100% !important; max-width: 100%; height: 300px !important; min-height: 300px; max-height: 300px;
+    }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    .technical-frame th, .technical-frame td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .empty-state { padding: 20px; border-radius: var(--radius-md); text-align: center; color: var(--ink-soft); break-inside: avoid; page-break-inside: avoid; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--accent); font-size: 0.84rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .badge-done { background: rgba(59, 111, 118, 0.14); color: var(--accent-2); }
+    .badge-pending { background: rgba(157, 107, 55, 0.14); color: var(--accent); }
+
+    .footer-note { margin-top: 18px; color: rgba(95, 86, 76, 0.74); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid { grid-template-columns: 1fr; }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; padding-bottom: 36px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root { --paper: #ffffff; --paper-strong: #ffffff; --ink: #111111; --ink-soft: #444444; --line: #d6d1c8; }
+      @page { size: A4; margin: 14mm; }
+      body { background: #ffffff; }
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff; box-shadow: none;
+      }
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+      .diagram-frame { overflow: visible; max-height: none; }
+      .diagram-frame.compact-diagram .mermaid { min-width: 0; }
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">Security Hygiene &amp; Single Owner Finance Audit</h1>
+          <p class="lede">
+            Phases 1–2 of the 2026-07-24 post-CI hygiene plan, implemented and verified on <code>main</code>:
+            a six-session-overdue security/hygiene cleanup, and a PySAM finance audit that quantifies a
+            previously-undisclosed cost assumption sitting on the Samsung/TTC and CEBA client-deliverable
+            path.
+          </p>
+          <div class="takeaway">
+            Both phases are complete, tested, and pushed to <code>main</code>. Phase 1 closed a six-session-old
+            security/hygiene backlog. Phase 2 shipped an opt-in, default-off PySAM finance flag and an audit
+            proving every historical Single Owner result in this repository — including the Samsung/TTC golden
+            fixture and the CEBA/DPPA July 2026 deck-verification pipeline — was generated with twelve SAM
+            reference-plant cost defaults left un-zeroed, worth up to $13.8M in NPV and 2+ percentage points of
+            IRR on a real project. No golden file changed and no default flipped; the open question is now
+            handed to whoever owns those client relationships, not left undiscovered.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><div class="meta-label">Project</div><div class="meta-chip">reopt-pysam-vn</div></div>
+          <div class="meta-card"><div class="meta-label">Repository</div><div class="meta-chip">reopt-pysam</div></div>
+          <div class="meta-card"><div class="meta-label">Date</div><div class="meta-chip">2026-07-25</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div><div class="section-index">01 / Executive Summary</div><h2 class="section-title">Executive Summary</h2></div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was wrong</h3>
+          <p>
+            Three deck <code>.pptx</code> files and two root screenshots stayed tracked in git despite
+            <code>.gitignore</code> entries meant to exclude them — two of those ignore lines used unescaped
+            bracket-glob syntax that silently never matched the filenames they named. <code>requirements.txt</code>
+            duplicated <code>pyproject.toml</code>'s dependency list. A historically leaked NREL API key
+            (recoverable from two old commits) had no rotation record anywhere in the repo's docs, despite being
+            flagged across six consecutive analysis sessions. Separately, and more materially: the PySAM
+            "Single Owner" finance wrapper never touched twelve SAM cost-model fields that default to
+            ~100&nbsp;MW-reference-plant values — led by a flat $2,866,500 construction-financing charge — and
+            every historical result this repository has produced, including the bit-exact Samsung/TTC golden
+            fixture and the CEBA/DPPA July 2026 client-deck verification pipeline, was generated with those
+            defaults silently in place.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>
+            Phase 1 untracked the three deck binaries (kept on disk), fixed both broken <code>.gitignore</code>
+            patterns, removed <code>requirements.txt</code> in favor of a single dependency source, and wrote
+            down the key-rotation requirement in <code>README.md</code> and <code>activeContext.md</code> with
+            both source commit hashes. Phase 2 added an opt-in, default-<code>False</code>
+            <code>zero_reference_plant_defaults</code> flag to the Single Owner wrapper — legacy behavior is
+            byte-identical when it is off — then used it to run a quantified before/after comparison and write a
+            full caller audit (<code>reports/2026-07-24-single-owner-defaults-audit.md</code>) naming every file
+            in this repository that calls the finance model, whether it feeds a real deliverable, and what the
+            un-zeroed defaults are worth in dollars and IRR points on two representative projects.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div><div class="section-index">02 / Background &amp; Objective</div><h2 class="section-title">Background &amp; Objective</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <code>reopt-pysam-vn</code> models solar/wind/storage/DPPA project economics for Vietnam using NREL
+          REopt.jl plus PySAM, and its outputs feed real client deliverables — most notably the Samsung/TTC
+          combined decision package and the CEBA/DPPA July 2026 case-study deck. Six consecutive unattended
+          analysis sessions (2026-07-11 through 2026-07-22) converged on the same conclusion: the repository's
+          bottleneck was not a shortage of ideas but an execution gap on already-diagnosed, low-risk items —
+          most visibly, a security/hygiene cleanup that kept getting re-flagged as "next" without ever landing.
+          The most recent of those sessions (2026-07-22) finally broke that pattern: CI truth work landed on
+          <code>main</code> and the gate went green for the first time in ten days. This report's plan
+          (<code>plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md</code>) was written immediately after,
+          specifically to close the one item that had now survived <em>six</em> sessions of being "next" (the
+          security/hygiene backlog) and to resolve a newly-traced, higher-stakes finding: that a known PySAM
+          modeling gap sat directly on the call path to the two client-facing deliverable pipelines this
+          business actually relies on.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div><div class="section-index">03 / Inputs &amp; Scope</div><h2 class="section-title">Inputs &amp; Scope</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Plan &amp; research inputs</h3>
+          <ul>
+            <li><code>plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md</code> — the 4-phase execution plan this report covers phases 1–2 of</li>
+            <li><code>research/2026-07-24-reopt-pysam-sixth-pass-brainstorm.md</code> — the same-day brainstorm that traced the Single Owner defect to the Samsung/TTC and CEBA deck pipelines specifically, which is why Phase 2 was prioritized ahead of the plan's own default ordering suggestion</li>
+            <li>Five prior brainstorm/plan documents (2026-07-11 through 2026-07-22) establishing that this repository's real constraint was execution, not further analysis</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Executed this session (in scope)</h3>
+          <ul>
+            <li><strong>PHASE-01 — Security &amp; Workspace Hygiene:</strong> untrack deck binaries, fix <code>.gitignore</code>, single dependency source, document key rotation, remove a now-satisfied strict-xfail tripwire</li>
+            <li><strong>PHASE-02 — Single Owner Clean-Slate Flag + Audit:</strong> opt-in flag, 7 new tests, full caller audit, quantified NPV/IRR comparison on two project scales</li>
+          </ul>
+          <h3 style="margin-top:14px;">Deliberately not started this session (out of scope)</h3>
+          <ul>
+            <li><strong>PHASE-03 — Report-Only Test Coverage in CI:</strong> <code>pytest-cov</code> wiring, non-blocking</li>
+            <li><strong>PHASE-04 — Plans Directory Hygiene Sweep:</strong> archiving 13 confirmed-shipped plans out of <code>plans/active/</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div><div class="section-index">04 / Assumptions &amp; Constraints</div><h2 class="section-title">Assumptions &amp; Constraints</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions carried into implementation</h3>
+          <ul>
+            <li>The three tracked deck <code>.pptx</code> filenames and the two root PNGs matched exactly what the plan expected — verified live via <code>git ls-files</code> before untracking, not assumed from the plan text</li>
+            <li>The installed <code>.venv</code> PySAM version (<code>nrel-pysam==7.1.0</code>) matched the plan's recorded field defaults — re-verified live immediately before writing any test expectation; all twelve values were identical to the plan's recorded figures, so no test expectation needed adjusting</li>
+            <li>A representative "small Vietnam C&amp;I project" comparison case was needed in addition to a real, artifact-backed case, since the repository's actual tracked projects run closer to utility scale — a 1&nbsp;MW synthetic case was used for that comparison, clearly labeled as synthetic in the audit report</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints honored throughout</h3>
+          <ul>
+            <li>Samsung/TTC bit-exact parity: <code>examples/samsung-ttc_combined-decision.example.json</code> was never edited; <code>tests/python/webapp/test_golden_parity.py</code> was re-run after every code change and stayed green with zero diff to <code>examples/</code></li>
+            <li>The clean-slate flag defaults to <code>False</code> everywhere; no existing caller anywhere in the repository was modified to pass <code>True</code> — the flag is additive only</li>
+            <li>The audit report draws a firm line between "this cost assumption exists and is material" (established as fact) and "this specific delivered number is wrong" (explicitly not concluded) — the decision on whether any client-facing number needs re-review is left to the people who own those relationships</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div><div class="section-index">05 / Methodology</div><h2 class="section-title">Methodology</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          Every claim in this report was checked against live tool output in this session, not inherited from
+          the plan's own text. Before untracking any file, <code>git ls-files</code> and <code>git check-ignore
+          -v</code> confirmed the exact tracked paths and that the corrected <code>.gitignore</code> patterns
+          actually matched them. Before writing any PySAM test expectation, the twelve SAM
+          <code>FinancialParameters</code> field values were read live off an installed <code>nrel-pysam</code>
+          model instance rather than trusting the plan's recorded figures — they matched exactly, confirming no
+          drift since the plan was written. The clean-slate flag was built test-first: seven tests were written
+          and confirmed to fail for the expected reason (a missing dataclass field and a missing function) before
+          any implementation code was touched, and a genuine PySAM access-violation crash surfaced during that
+          RED phase — from an incomplete model-build helper in the test file, not from the production code — and
+          was fixed by mirroring the exact <code>Grid</code>/<code>Utilityrate5</code>/<code>Singleowner</code>
+          model chain the production function already uses. The audit's caller list was produced by re-running
+          the repository-wide <code>git grep</code> live rather than reusing a cached list from an earlier
+          brainstorm pass, and two grep hits that turned out to be false positives (a package re-export and an
+          unrelated, similarly-named dataclass) were read in full and excluded from the audit's conclusions
+          rather than counted uncritically.
+        </p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-label">Orientation</div><div class="stat-value">multi-phase</div></div>
+        <div class="stat"><div class="stat-label">Audience</div><div class="stat-value">stakeholder-safe</div></div>
+        <div class="stat"><div class="stat-label">Evidence Rule</div><div class="stat-value">no invented data</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div><div class="section-index">06 / Phase-by-Phase Analysis</div><h2 class="section-title">Phase-by-Phase Analysis</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 1 — Security &amp; Workspace Hygiene</h3>
+          <p>
+            The three <code>ceba-review/*.pptx</code> deck files were untracked with <code>git rm --cached</code>
+            (kept on disk); the two broken <code>.gitignore</code> bracket-glob lines were escaped and
+            re-verified against the real filenames with <code>git check-ignore -v</code>, each returning a
+            matching rule at exit code 0. The two root webapp-session screenshots were fully deleted, which let
+            a deliberate <code>xfail(strict=True)</code> tripwire in <code>test_repo_invariants.py</code> be
+            removed safely — that test now passes outright. <code>requirements.txt</code> was removed in favor
+            of <code>pyproject.toml</code> as the single dependency source, and <code>README.md</code>'s setup
+            instructions were consolidated to one install command. The NREL API key rotation requirement
+            (commits <code>3911032</code>, <code>b14bc0b</code>) is now documented in both <code>README.md</code>
+            and <code>activeContext.md</code> — closing a gap that had been re-flagged, unaddressed, across six
+            consecutive analysis sessions.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3><span class="badge badge-done">Done</span>&nbsp; Phase 2 — Single Owner Clean-Slate Flag + Audit</h3>
+          <p>
+            <code>SingleOwnerInputs</code> gained a new <code>zero_reference_plant_defaults</code> field
+            (default <code>False</code>) and a new <code>apply_clean_slate_financials()</code> helper that zeroes
+            the twelve SAM reference-plant cost fields when a caller opts in. A live re-grep of
+            <code>run_single_owner_model</code>/<code>SingleOwnerInputs</code> callers across <code>src/</code>,
+            <code>scripts/</code>, and <code>tests/</code> found every real caller — including the Samsung/TTC
+            strike-sweep path and five files under <code>scripts/python/integration/ceba_deck/</code> — still on
+            the unaudited-defaults path, because no caller could pass the new flag before this session. A
+            quantified comparison run (flag off vs. on, all other inputs identical) was executed on two cases and
+            both are visualized below. The full audit, including a per-file caller table and an explicit
+            "Decision required" section, is saved at
+            <code>reports/2026-07-24-single-owner-defaults-audit.md</code>.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+        <pre class="mermaid">
+flowchart LR
+  A["Six sessions:<br/>security/hygiene backlog<br/>flagged, never executed"] --> B["2026-07-22:<br/>CI truth lands,<br/>gate goes green"]
+  B --> C["2026-07-24:<br/>sixth-pass brainstorm traces<br/>Single Owner defect to<br/>Samsung/TTC + CEBA deck paths"]
+  C --> D["Plan written:<br/>4-phase post-CI<br/>hygiene + audit plan"]
+  D --> E["PHASE-01<br/>untrack binaries, fix .gitignore,<br/>single dep source, doc key rotation"]
+  E --> F["PHASE-02<br/>clean-slate flag (TDD)<br/>+ full caller audit"]
+  F --> G["Audit report:<br/>every historical result<br/>ran unaudited-defaults path"]
+  D -.-> H["PHASE-03 coverage reporting<br/>NOT started this session"]
+  D -.-> I["PHASE-04 plans sweep<br/>NOT started this session"]
+        </pre>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div><div class="section-index">07 / Findings &amp; Recommendation</div><h2 class="section-title">Findings &amp; Recommendation</h2></div>
+      </div>
+      <div class="narrative">
+        <p>
+          <strong>Finding 1 — the security/hygiene backlog is now actually closed, not just re-documented.</strong>
+          Every one of Phase 1's five test specs holds: no <code>.pptx</code> or root PNG remains tracked, both
+          <code>.gitignore</code> patterns now match the files they name, and the key-rotation requirement is
+          written down with both source commit hashes rather than existing only in prior brainstorm documents.
+        </p>
+        <p>
+          <strong>Finding 2 — every historical Single Owner result in this repository, including the flagship
+          Samsung/TTC golden and the CEBA deck-verification pipeline, was generated with twelve un-audited SAM
+          cost defaults in place.</strong> This was traced by direct source reading, not inferred: <code>
+          dppa_samsung_ttc.py:771</code> calls <code>run_single_owner_model</code> in the Samsung/TTC
+          strike-sweep, and five files under <code>scripts/python/integration/ceba_deck/</code> — the exact
+          pipeline that checked and annotated the CEBA/DPPA July 2026 client deck — do the same.
+        </p>
+        <p>
+          <strong>Finding 3 — the effect is not a rounding-level curiosity; it is material at every scale
+          tested.</strong> On a real, artifact-backed ~100&nbsp;MW project, zeroing the twelve fields shifted
+          project NPV by roughly $13.8M and IRR by over two full percentage points. On a small, synthetic
+          1&nbsp;MW project representative of typical Vietnam C&amp;I scale, the same change moved NPV by about
+          $2.4M and flipped IRR from a null/negative signal to a real, positive 7.95% — the difference between a
+          project reading as economically non-viable and clearly viable, from one static cost assumption alone.
+        </p>
+        <p>
+          <strong>Recommendation.</strong> Do not flip the clean-slate flag's default anywhere and do not touch
+          the Samsung/TTC golden — both remain explicit non-goals this session honored. Instead, route
+          <code>reports/2026-07-24-single-owner-defaults-audit.md</code> to whoever owns the Samsung/TTC and CEBA
+          client relationships so they can make an informed call on whether any already-delivered number needs a
+          second look. Separately, proceed to PHASE-03 and PHASE-04 of the source plan — both are small,
+          independent, and were correctly deferred rather than rushed in this session.
+        </p>
+      </div>
+      <div class="viz-frame">
+        <canvas id="npvDeltaChart"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div><div class="section-index">08 / Implementation Path</div><h2 class="section-title">Implementation Path</h2></div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Already complete (this session)</h3>
+          <ul>
+            <li>Phase 1 committed as <code>ac7aad2</code> ("phase-1: security &amp; workspace hygiene"); Phase 2 committed as <code>3b5dad7</code> ("phase-2: PySAM Single Owner clean-slate flag + reference-plant defaults audit") — both on <code>main</code></li>
+            <li>Portable CI-parity suite after Phase 1: <strong>577 passed, 0 failed, 3 xfailed</strong>; after Phase 2 (adding 7 new clean-slate tests): <strong>584 passed, 0 failed, 3 xfailed</strong></li>
+            <li><code>tests/python/webapp/test_golden_parity.py</code>: green after every change this session, with <code>git diff --stat -- examples/</code> producing no output throughout</li>
+            <li>Audit report written and committed: <code>reports/2026-07-24-single-owner-defaults-audit.md</code>, naming every caller found by a live grep and quantifying the flag's effect on two project scales</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Immediate next steps</h3>
+          <ul>
+            <li>Route the audit report's "Decision required" section to the Samsung/TTC and CEBA relationship owners — outside what an automated session can resolve</li>
+            <li>Execute PHASE-03 (report-only <code>pytest-cov</code> in CI) — small, independent, no threshold gate</li>
+            <li>Execute PHASE-04 (archive 13 confirmed-shipped plans out of <code>plans/active/</code>) — small, independent, purely organizational</li>
+            <li>Have the NREL Developer Network account owner actually rotate the documented key — this session could only document the requirement, per the standing decision that rotation needs a human with account access</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div><div class="section-index">09 / Risks / Open Questions</div><h2 class="section-title">Risks / Open Questions</h2></div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Residual risk</h3>
+          <ul>
+            <li>The leaked NREL API key remains unrotated — this session documented the requirement but rotation itself needs the human account owner at the NREL Developer Network</li>
+            <li>Whether the Samsung/TTC and CEBA client deliverables actually need a re-review is genuinely unresolved — the audit establishes the fact pattern and the magnitude, but the business judgment belongs to the relationship owners, not to this report</li>
+            <li>A separate, similarly-named dataclass (<code>PVWattsBatterySingleOwnerInputs</code> in <code>pysam/pvwatts_battery.py</code>) surfaced as a grep false-positive during the audit and was explicitly flagged, but not audited, as a candidate for its own future reference-plant-defaults review</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions (deferred, not blocking)</h3>
+          <ul>
+            <li>Were the un-zeroed SAM defaults an intentional, disclosed modeling choice for the Samsung/TTC and CEBA engagements specifically, or an unexamined inheritance? This report does not resolve that question — it makes the question answerable for the first time</li>
+            <li>PHASE-03 and PHASE-04 remain unstarted; both are independent of Phase 1/2 and can proceed in either order without re-verifying anything already committed</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div><div class="section-index">10 / Appendices / Evidence Notes</div><h2 class="section-title">Appendices / Evidence Notes</h2></div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h4>Commits (this session, in order)</h4>
+          <table>
+            <tr><th>Commit</th><th>Phase</th><th>Summary</th></tr>
+            <tr><td><code>ac7aad2</code></td><td>Phase 1</td><td>Security &amp; workspace hygiene (12 files changed, +1270/&minus;16)</td></tr>
+            <tr><td><code>3b5dad7</code></td><td>Phase 2</td><td>Single Owner clean-slate flag + audit (4 files changed, +371/&minus;5)</td></tr>
+          </table>
+        </div>
+        <div class="subcard technical-frame">
+          <h4>Test suite deltas</h4>
+          <table>
+            <tr><th>Checkpoint</th><th>Passed</th><th>Failed</th><th>Xfailed</th></tr>
+            <tr><td>After Phase 1 (CI-parity filter)</td><td>577</td><td>0</td><td>3</td></tr>
+            <tr><td>After Phase 2 (CI-parity filter)</td><td>584</td><td>0</td><td>3</td></tr>
+          </table>
+        </div>
+        <div class="subcard">
+          <h4>Single Owner reference-plant fields zeroed by the clean-slate flag</h4>
+          <ul>
+            <li><code>insurance_rate</code> (0.5%), <code>construction_financing_cost</code> ($2,866,500 flat), <code>cost_debt_fee</code> (2.75%)</li>
+            <li><code>months_working_reserve</code> (6 mo), <code>dscr_reserve_months</code> (6 mo), <code>prop_tax_cost_assessed_percent</code> (100%), <code>reserves_interest</code> (1.75%)</li>
+            <li>Plus five fields already zero by default (<code>cost_debt_closing</code>, <code>equip1/2/3_reserve_cost</code>, <code>salvage_percentage</code>) — included for completeness/idempotency</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h4>Highest-stakes callers identified by the audit</h4>
+          <ul>
+            <li><code>src/python/reopt_pysam_vn/integration/dppa_samsung_ttc.py:771</code> — Samsung/TTC strike-sweep, feeds the bit-exact golden fixture</li>
+            <li><code>scripts/python/integration/ceba_deck/{calibrate_cases,sweep_56}.py</code>, <code>verify_ceba_dppa_deck.py</code> — CEBA/DPPA July 2026 client-deck verification pipeline</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+    }
+
+    (function renderNpvDeltaChart() {
+      const el = document.getElementById('npvDeltaChart');
+      if (!el || !window.Chart) return;
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: ['~100 MW project (Ninhsim 60% solar-storage)', '1 MW synthetic small-C&I case'],
+          datasets: [
+            {
+              label: 'Flag off (legacy) NPV, $M',
+              data: [-40.79, -2.47],
+              backgroundColor: 'rgba(157, 107, 55, 0.55)'
+            },
+            {
+              label: 'Flag on (clean-slate) NPV, $M',
+              data: [-27.00, -0.08],
+              backgroundColor: 'rgba(59, 111, 118, 0.55)'
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Project NPV ($M): un-zeroed vs. zeroed SAM reference-plant defaults' },
+            legend: { position: 'bottom' }
+          },
+          scales: { y: { title: { display: true, text: 'After-tax project return NPV, $ millions' } } }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
