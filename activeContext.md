@@ -6,43 +6,22 @@
 > July 2026 deck verification (completed 2026-06-26, all 5 phases): rotated to
 > [`docs/worklog/2026-07-04-july-deck-verification-archive.md`](docs/worklog/2026-07-04-july-deck-verification-archive.md).
 
-## Current focus — Vietnam DPPA web app — started 2026-07-04
+## Current state — CI green, all planned phases complete (2026-07-25)
 
-Goal: an internal, localhost FastAPI app over `reopt_pysam_vn.analysis` so non-technical
-Allotrope users can run the whole DealConfig loop with zero terminal use — guided deal form
-(template-seeded, CSV/xlsx load upload), NREL REopt solves as background jobs, a results page
-with Plotly charts, run history with clone-and-edit, and two-run compare.
+All phases from `plans/2026-07-22-ci-truth-correctness-sprint-plan.md` and
+`plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md` have been implemented:
 
-- **Brainstorm:** `research/2026-07-04_vietnam-dppa-web-app-brainstorm.md` (23 DECs)
-- **Plan:** `plans/2026-07-04-vietnam-dppa-web-app-plan.md` (5 phases) — implemented in full this session
-- **Package:** `src/python/reopt_pysam_vn/webapp/` — see its `README.md` for launch/storage/cache docs
+- **PHASE-01/02 (07-22):** Workspace hygiene + CI truth (worktree cleanup, pytest markers, PySAM pin, hermetic tests, red-test triage, repo-invariants, flat-script relocation)
+- **PHASE-03 (07-22):** Security & hygiene (untrack binaries, fix `.gitignore`, single dependency source, key-rotation documentation)
+- **PHASE-04 (07-22):** Two-part tariff Ca re-pricing fix (sign error corrected, library module + tests)
+- **PHASE-05 (07-22):** Single Owner clean-slate flag + contamination audit
+- **PHASE-01/02 (07-24):** Security hygiene + Single Owner finance audit (already complete)
+- **PHASE-03 (07-24):** Report-only test coverage in CI (85% coverage, non-blocking)
+- **PHASE-04 (07-24):** Plans directory hygiene sweep (13 shipped plans archived, 9 remain active)
 
-### Phase status (all 5 phases done 2026-07-04, uncommitted)
-- **PHASE-01** — App factory, `storage.py` (filesystem run store under `artifacts/webapp/runs/`),
-  JSON API over pre-solved `DealConfig` payloads (`/api/health`, `/api/runs`).
-- **PHASE-02** — `jobs.py` FIFO in-process solve worker (one solve at a time), config-hash solve
-  cache with `force_resolve` bypass, `service.py` NREL key loading mirroring
-  `scripts/python/reopt/solve_via_api.py`. Required a small library fix: `onsite.py`'s
-  `build_onsite_scenario` now carries `site.latitude`/`site.longitude` into the REopt `Site`
-  block (the API rejects a siteless scenario) — 2 new tests in `test_onsite.py`.
-- **PHASE-03** — `forms.py` (template + form fields + upload -> DealConfig), `uploads.py`
-  (CSV/xlsx load parsing), `templates/new_deal.html` + `static/app.js`.
-- **PHASE-04** — `results_view.py` (headline metrics + chart series from onsite/offsite results),
-  `templates/run.html` (Plotly charts, status polling), `templates/runs.html` (history,
-  reopen, clone-and-edit), JSON/HTML downloads.
-- **PHASE-05** — `compare.py` + `templates/compare.html` (two-run delta view),
-  `test_golden_parity.py` (Samsung/TTC bit-exact through the web API path), `webapp/README.md`.
-
-### Verification (2026-07-04)
-- `pytest tests/python/webapp/` — **45/45 passed**, including golden parity.
-- Live smoke test: launched `uvicorn reopt_pysam_vn.webapp:app`, confirmed `/api/health`,
-  `/deals/new`, `/runs`, `/compare` all return 200.
-- Full regression `pytest tests/python/` — **552 passed, 5 failed (all pre-existing on `main`,
-  confirmed via `git stash`), 1 skipped.** No failure is caused by this session's changes.
-
-### Reuse map (no forking analytics logic, per CON-002)
-- Calls `run_onsite` / `run_offsite_dppa` (`analysis/`), `run_vietnam_reopt` (`reopt/preprocess.py`)
-  as-is; the only library change is the `onsite.py` Site lat/long fix above.
+**Test results (2026-07-25):** 589 passed, 18 deselected, 3 xfailed, 0 failed, 85% coverage  
+**CI status:** Green on `main`  
+**Final report:** `reports/2026-07-25-post-ci-hygiene-finance-audit-final.md`
 
 ## Environment
 - PySAM 7.1.0 + python-pptx 1.0.2 live in the repo **`.venv` (Python 3.12)** — use
