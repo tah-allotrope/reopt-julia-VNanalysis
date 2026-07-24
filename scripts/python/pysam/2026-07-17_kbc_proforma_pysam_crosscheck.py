@@ -46,7 +46,11 @@ def run_single_owner_model_clean(inputs: SingleOwnerInputs) -> dict:
     direct inspection: the unmodified wrapper returns NPV/IRR far more
     negative than the workbook's cost/OM structure can explain). This does
     NOT modify the shared wrapper module -- it is a self-contained,
-    throwaway comparison harness per PHASE-2B's design."""
+    throwaway comparison harness per PHASE-2B's design. The durable,
+    library-level replacement for this reimplementation is
+    reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs(zero_reference_plant_defaults=True),
+    added in plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md PHASE-02
+    -- see reports/2026-07-24-single-owner-defaults-audit.md."""
     import PySAM.CustomGeneration as cg
     import PySAM.Grid as gr
     import PySAM.Singleowner as so

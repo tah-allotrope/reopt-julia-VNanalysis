@@ -33,6 +33,13 @@ class SingleOwnerInputs:
     om_escalation_rate_fraction: float = 0.03
     # "vn_sl_15yr" = VN Circular 45 SL 15-yr | "vn_sl_10yr" = SL 10-yr custom | "us_macrs_5yr" = US MACRS
     depreciation_schedule: str = "vn_sl_15yr"
+    # When True, zeroes SAM's ~100 MW-reference-plant cost defaults (insurance,
+    # construction financing, debt fees, reserves, property tax, salvage) via
+    # apply_clean_slate_financials(). Default False preserves legacy behavior
+    # exactly (CON-001: Samsung/TTC bit-exact parity is never affected by this
+    # flag unless a caller explicitly opts in). See
+    # reports/2026-07-24-single-owner-defaults-audit.md.
+    zero_reference_plant_defaults: bool = False
     metadata: dict = field(default_factory=dict)
 
 
@@ -58,6 +65,39 @@ def _safe_float(value: float) -> float | None:
     if math.isnan(value) or math.isinf(value):
         return None
     return value
+
+
+# The twelve SAM Singleowner.FinancialParameters fields that carry non-zero,
+# ~100 MW-reference-plant cost defaults (verified live against nrel-pysam
+# 7.1.0 on 2026-07-24; see reports/2026-07-24-single-owner-defaults-audit.md
+# and this repo's plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md
+# Specification section for the full field-by-field rationale).
+CLEAN_SLATE_REFERENCE_PLANT_FIELDS = (
+    "insurance_rate",
+    "construction_financing_cost",
+    "cost_debt_fee",
+    "cost_debt_closing",
+    "months_working_reserve",
+    "dscr_reserve_months",
+    "equip1_reserve_cost",
+    "equip2_reserve_cost",
+    "equip3_reserve_cost",
+    "prop_tax_cost_assessed_percent",
+    "reserves_interest",
+    "salvage_percentage",
+)
+
+
+def apply_clean_slate_financials(financial_model) -> None:
+    """Zero SAM's reference-plant cost defaults on ``financial_model`` in place.
+
+    Sets each field in CLEAN_SLATE_REFERENCE_PLANT_FIELDS to 0.0 via plain
+    attribute assignment, so a renamed or missing PySAM attribute raises
+    ``AttributeError`` immediately rather than being silently skipped.
+    """
+
+    for name in CLEAN_SLATE_REFERENCE_PLANT_FIELDS:
+        setattr(financial_model.FinancialParameters, name, 0.0)
 
 
 def _configure_financial_model(financial_model, inputs: SingleOwnerInputs) -> None:
@@ -138,6 +178,9 @@ def _configure_financial_model(financial_model, inputs: SingleOwnerInputs) -> No
     financial_model.TaxCreditIncentives.ptc_fed_escal = 0.0
     financial_model.TaxCreditIncentives.ptc_sta_escal = 0.0
 
+    if inputs.zero_reference_plant_defaults:
+        apply_clean_slate_financials(financial_model)
+
 
 def run_single_owner_model(inputs: SingleOwnerInputs) -> dict:
     """Execute the Phase 4 Single Owner workflow and normalize the outputs."""
@@ -185,6 +228,16 @@ def run_single_owner_model(inputs: SingleOwnerInputs) -> dict:
     )
     dscr = trim_year_zero(financial_model.Outputs.cf_pretax_dscr, analysis_years)
 
+    notes = {
+        "phase_scope": "Phase 4 MVP uses CustomGenerationProfileSingleOwner with wrapper-driven Vietnam defaults and zeroed US-style incentives.",
+        "irr_warning": "PySAM can return null-equivalent IRR when the configured cashflow never crosses into positive territory under the selected strike and cost assumptions.",
+    }
+    if inputs.zero_reference_plant_defaults:
+        notes["clean_slate"] = (
+            "US SAM reference-plant cost defaults zeroed; "
+            "see reports/2026-07-24-single-owner-defaults-audit.md"
+        )
+
     return {
         "model": runtime.model_name,
         "status": "ok",
@@ -207,6 +260,7 @@ def run_single_owner_model(inputs: SingleOwnerInputs) -> dict:
             "owner_discount_rate_fraction": float(inputs.owner_discount_rate_fraction),
             "debt_interest_rate_fraction": float(inputs.debt_interest_rate_fraction),
             "debt_tenor_years": int(inputs.debt_tenor_years),
+            "zero_reference_plant_defaults": bool(inputs.zero_reference_plant_defaults),
         },
         "case": dict(inputs.metadata),
         "outputs": extract_single_owner_outputs(financial_model),
@@ -218,8 +272,5 @@ def run_single_owner_model(inputs: SingleOwnerInputs) -> dict:
             debt_balance,
             dscr,
         ),
-        "notes": {
-            "phase_scope": "Phase 4 MVP uses CustomGenerationProfileSingleOwner with wrapper-driven Vietnam defaults and zeroed US-style incentives.",
-            "irr_warning": "PySAM can return null-equivalent IRR when the configured cashflow never crosses into positive territory under the selected strike and cost assumptions.",
-        },
+        "notes": notes,
     }
