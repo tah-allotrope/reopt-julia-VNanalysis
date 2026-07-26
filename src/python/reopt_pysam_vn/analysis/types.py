@@ -20,6 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
+from reopt_pysam_vn.analysis.validation import validate_deal_config
+
 __all__ = [
     "DealConfig",
     "OnsiteResult",
@@ -66,7 +68,18 @@ class DealConfig:
             raise ValueError(f"DealConfig.mode must be one of {MODES}, got {self.mode!r}")
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "DealConfig":
+    def from_dict(cls, d: Dict[str, Any], *, validate: bool = True) -> "DealConfig":
+        """Build a DealConfig from a dict.
+
+        When ``validate`` is True (the default), structurally validates ``d``
+        against ``data/schemas/deal_config.schema.json`` first and raises
+        ``DealConfigValidationError`` (collecting every violation, not just the
+        first) rather than a bare ``KeyError`` on malformed input. Pass
+        ``validate=False`` to skip the check and fall back to the old bare
+        ``KeyError`` behavior for a deliberately partial dict.
+        """
+        if validate:
+            validate_deal_config(d)
         known = {"case", "mode", "title", "site", "plant", "load", "contract", "finance"}
         return cls(
             case=d["case"],

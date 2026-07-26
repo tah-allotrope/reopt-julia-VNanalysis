@@ -30,10 +30,12 @@ from reopt_pysam_vn.analysis.types import (
     OffsiteDppaResult,
     OnsiteResult,
 )
+from reopt_pysam_vn.analysis.validation import DealConfigValidationError
 
 __all__ = [
     # contract
     "DealConfig",
+    "DealConfigValidationError",
     "OnsiteResult",
     "OffsiteDppaResult",
     "CombinedDecision",
