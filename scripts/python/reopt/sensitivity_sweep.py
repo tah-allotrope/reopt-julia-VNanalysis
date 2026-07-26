@@ -25,7 +25,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src" / "python"))
 
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
@@ -40,7 +39,7 @@ def extract_base_ebitda(results: dict, analysis_years: int = 20) -> list[float]:
     fin = results.get("Financial", {})
     lcc = fin.get("lcc", 0)
     npv = fin.get("npv", 0)
-    capital_cost = fin.get("initial_capital_costs", 0)
+    _capital_cost = fin.get("initial_capital_costs", 0)
 
     base_cost = results.get("ElectricTariff", {}).get("year_one_energy_cost_before", 0)
     with_solar = results.get("ElectricTariff", {}).get("year_one_energy_cost_after", 0)

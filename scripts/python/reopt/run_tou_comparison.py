@@ -14,7 +14,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.regime_runner import build_regime_matrix, materialize_regime_scenario
+from reopt_pysam_vn.reopt.regime_runner import build_regime_matrix
 
 REGIME_NEW = "decision_963_2026_current"
 REGIME_LEGACY = "decision_14_2025_legacy"

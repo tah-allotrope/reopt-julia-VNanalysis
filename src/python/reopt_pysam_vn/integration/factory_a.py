@@ -329,7 +329,7 @@ def build_hourly_rate_series_vnd(
 
 def _load_weighted_avg_vnd(loads: list[float], rates: list[float]) -> float:
     total_kwh = sum(loads)
-    return sum(l * r for l, r in zip(loads, rates)) / total_kwh
+    return sum(kw * r for kw, r in zip(loads, rates)) / total_kwh
 
 
 # ---------------------------------------------------------------------------
@@ -446,7 +446,7 @@ if __name__ == "__main__":
     lf = stats["load_factor"]
     day = sum(v for i, v in enumerate(loads) if (i % 24) in range(6, 22))
     night = total - day
-    print(f"Load stats (real Emivest, scaled to 9,750 MWh):")
+    print("Load stats (real Emivest, scaled to 9,750 MWh):")
     print(f"  Total kWh : {total:,.0f}")
     print(f"  Peak kW   : {peak:,.1f}")
     print(f"  Avg kW    : {avg:,.1f}")

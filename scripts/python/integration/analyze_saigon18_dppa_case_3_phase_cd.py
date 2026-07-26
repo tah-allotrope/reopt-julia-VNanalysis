@@ -6,7 +6,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
@@ -18,12 +17,10 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     DEFAULT_DPPA_ADDER_VND_PER_KWH,
     DEFAULT_KPP_FACTOR,
     DEFAULT_STRIKE_DISCOUNT_FRACTION,
-    DEFAULT_STRIKE_ESCALATION_FRACTION,
     load_saigon18_cfmp_series,
     load_saigon18_fmp_series,
     load_saigon18_load_series,
     load_saigon18_tou_series,
-    scale_load_to_annual_kwh,
 )
 
 
@@ -209,7 +206,7 @@ def main() -> None:
     extracted = _load_json(args.extracted)
     args.artifact_dir.mkdir(parents=True, exist_ok=True)
 
-    load = load_saigon18_load_series(extracted)
+    _load = load_saigon18_load_series(extracted)
     tou = load_saigon18_tou_series(extracted)
     weighted_evn = sum(tou) / len(tou)
     strike_vnd = weighted_evn * (1.0 - DEFAULT_STRIKE_DISCOUNT_FRACTION)

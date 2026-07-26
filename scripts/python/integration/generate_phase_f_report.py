@@ -173,7 +173,7 @@ charts_section = (
 """
 )
 
-limitations_alternatives = f"""
+limitations_alternatives = """
 <p style="margin-top:0"><strong>Why this happened:</strong> At the buyer-optimized strike (5% below EVN), the developer's total PPA rate of 2,334 VND/kWh yields ~479K USD/yr in revenue. The project's 70% debt financing (sized at $5.3M by PySAM's IRR-targeting algorithm) requires ~$810K/yr in debt service — a 41% shortfall before O&M. The negative DSCR (-0.175) confirms structural insolvency.</p>
 <p><strong>Second-best path:</strong> Raise the strike above the 5% discount threshold. The developer's rate needs to reach approximately <strong>3,900+ VND/kWh</strong> (≈ $0.153/kWh) at current capital costs to achieve a 1.0 DSCR at 70% leverage. This would increase buyer cost but unlock developer financing. Alternatively, increase project size to spread fixed costs over more generation.</p>
 <p><strong>Note:</strong> The bounded-opt solution is at the <em>buyer's</em> cost minimum — Phase F reveals the developer cannot finance at that price. This is not a model failure; it is the correct output of the Phase F gate.</p>

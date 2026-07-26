@@ -164,7 +164,7 @@ def compute_factory_economics(factory_discount_rate: float = 0.16) -> dict:
 def build_developer_cashflows() -> list[dict]:
     """Build 25-year developer P&L and cash flow waterfall."""
     debt = TOTAL_CAPEX_USD * DEBT_FRACTION
-    equity = TOTAL_CAPEX_USD * (1.0 - DEBT_FRACTION)
+    _equity = TOTAL_CAPEX_USD * (1.0 - DEBT_FRACTION)
 
     # Debt schedule: 1yr grace (interest only), 11yr constant P+I (mortgage)
     annual_pi = float(npf.pmt(INTEREST_RATE, DEBT_REPAYMENT_YEARS, -debt))

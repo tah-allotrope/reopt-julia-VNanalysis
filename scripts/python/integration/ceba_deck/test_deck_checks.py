@@ -14,7 +14,6 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python"))
 
 import sys
-import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

@@ -25,7 +25,6 @@ from reopt_pysam_vn.integration.procurement import (
     load_factory_loads,
     load_tariff_rates,
 )
-from reopt_pysam_vn.integration.settlement import ContractParams
 
 
 def _synthetic_fmp_8760(base: float = 1.5) -> list[float]:

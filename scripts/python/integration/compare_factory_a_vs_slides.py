@@ -205,7 +205,7 @@ def write_markdown(data: dict, out_path: Path) -> None:
     lines = [
         "# Factory A BESS Validation Report",
         "",
-        f"**Date:** 2026-06-20  ",
+        "**Date:** 2026-06-20  ",
         f"**Solver:** {methodology.get('solver', 'pysam_fixed_sizing')}  ",
         f"**Solar resource:** {methodology.get('solar_resource', '')}  ",
         f"**Load:** {methodology.get('load_source', '')}  ",

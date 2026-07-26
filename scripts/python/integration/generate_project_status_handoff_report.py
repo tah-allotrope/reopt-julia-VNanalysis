@@ -94,7 +94,7 @@ def _fmt_pct(value: float | None) -> str:
 def build_report_html(phase4: dict, phase5: dict, template_text: str) -> str:
     viability = phase5["viability"]
     sweep = phase5["sweep_results"]
-    viable_points = [row for row in sweep if row["is_viable"]]
+    _viable_points = [row for row in sweep if row["is_viable"]]
     min_viable = viability["minimum_viable_strike_us_cents_per_kwh"]
     baseline = viability["phase4_baseline_strike_us_cents_per_kwh"]
     customer_band = baseline

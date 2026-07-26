@@ -16,7 +16,9 @@ Model validation findings (Factory A, PySAM vs slide):
 Output: ceba-review/cong bess session [reviewed].pptx
 """
 
-import zipfile, shutil, os, re
+import zipfile
+import os
+import re
 from io import BytesIO
 from lxml import etree
 from pptx import Presentation
@@ -322,7 +324,7 @@ def main():
         overrides["[Content_Types].xml"] = update_content_types(
             zin.read("[Content_Types].xml"), ct_additions
         )
-        print(f"  + Updated: [Content_Types].xml")
+        print("  + Updated: [Content_Types].xml")
 
         # 6. Rebuild ZIP without duplicates
         buf = BytesIO()

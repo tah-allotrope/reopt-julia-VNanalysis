@@ -13,7 +13,6 @@ Usage:
 import argparse
 import json
 import sys
-from copy import deepcopy
 from pathlib import Path
 
 # Allow running from repo root without installing the package.

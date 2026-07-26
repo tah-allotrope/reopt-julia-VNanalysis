@@ -12,7 +12,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.reopt.regime_runner import (  # noqa: E402
-    DEFAULT_RESULT_STORE_DIR,
     build_regime_matrix,
     canonicalize_for_hash,
     scenario_hash,
@@ -22,7 +21,7 @@ from reopt_pysam_vn.reopt.regime_runner import (  # noqa: E402
 @pytest.mark.requires_julia
 def test_regime_matrix_no_solve_writes_complete_artifacts(tmp_path: Path):
     scenario_path = REPO_ROOT / "scenarios" / "templates" / "vn_industrial_pv_storage.json"
-    assumption_dir = REPO_ROOT / "scenarios" / "regime_engine" / "assumption_sets"
+    _assumption_dir = REPO_ROOT / "scenarios" / "regime_engine" / "assumption_sets"
 
     runs = build_regime_matrix(
         scenario_path=scenario_path,

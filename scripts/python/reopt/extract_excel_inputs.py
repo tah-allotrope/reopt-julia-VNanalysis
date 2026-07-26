@@ -82,7 +82,7 @@ def extract_assumption(assump_ws) -> dict:
     All row references are 1-indexed as in Excel.
     """
     # Read a wide enough block; plan docs reference up to row 69.
-    raw = {}
+    _raw = {}
     for row in assump_ws.iter_rows(min_row=1, max_row=70, values_only=True):
         pass  # intentional — actual lookups done via cell() below
 

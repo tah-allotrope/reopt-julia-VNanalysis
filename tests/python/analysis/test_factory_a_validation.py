@@ -136,7 +136,6 @@ def test_tariff_series_sanity():
     """Verify both TOU rate series are 8760 values with expected rate ranges."""
     try:
         from reopt_pysam_vn.integration.factory_a import (
-            build_factory_a_load_8760,
             build_hourly_rate_series_vnd,
             _decision_14_tou_schedule,
             FACTORY_A_CUSTOMER_TYPE,

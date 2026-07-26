@@ -45,10 +45,10 @@ for name, paths in SCENARIOS.items():
         print(f"  FAIL: Decision 14 peak hours wrong: {peak_14}")
         ok = False
     if diffs == 0:
-        print(f"  FAIL: No rate differences between regimes")
+        print("  FAIL: No rate differences between regimes")
         ok = False
     if ok:
-        print(f"  PASS: All assertions correct")
+        print("  PASS: All assertions correct")
     else:
         all_pass = False
 

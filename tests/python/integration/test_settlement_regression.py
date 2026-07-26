@@ -19,7 +19,6 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.integration.settlement import (
     ContractParams,
     compute_hourly_settlement,
-    compute_buyer_benchmark,
 )
 
 

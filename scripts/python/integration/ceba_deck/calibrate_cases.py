@@ -44,7 +44,7 @@ import argparse
 import json
 import sys
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -61,7 +61,6 @@ from reopt_pysam_vn.integration.factory_a import (  # noqa: E402
     FACTORY_A_ANNUAL_KWH,
     FACTORY_A_PEAK_KW,
     EXCHANGE_RATE_VND_PER_USD,
-    build_factory_a_load_8760,
 )
 from reopt_pysam_vn.pysam.single_owner import (  # noqa: E402
     SingleOwnerInputs,
@@ -273,7 +272,7 @@ def _solve_for_target_irr(
         )
         try:
             results = run_single_owner_model(inputs)
-        except Exception as exc:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             return None
         if bess_replacement_year and bess_replacement_usd > 0:
             results = _bess_replacement_year_cashflow(

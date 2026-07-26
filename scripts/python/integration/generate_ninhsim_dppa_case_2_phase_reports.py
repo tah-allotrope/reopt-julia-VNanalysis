@@ -181,7 +181,7 @@ def build_phase_a_report() -> Path:
     definition = _read_json(PHASE_A_DEFINITION)
     assumptions = _read_json(PHASE_A_ASSUMPTIONS)
     strike = definition["strike_basis"]
-    site = definition["site_load_basis"]["site"]
+    _site = definition["site_load_basis"]["site"]
     primary_count = len(definition["decision_metrics"]["primary_metrics"])
     secondary_count = len(definition["decision_metrics"]["secondary_metrics"])
     in_scope_count = len(definition["physical_scope"]["technologies_in_scope"])

@@ -39,7 +39,7 @@ import sys
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_PYTHON = REPO_ROOT / "src" / "python"
@@ -51,6 +51,9 @@ for path in (str(SRC_PYTHON), str(SCRIPTS_PYTHON)):
         sys.path.insert(0, path)
 
 from integration.ceba_deck.deck_config import get_deck  # noqa: E402
+
+if TYPE_CHECKING:  # pragma: no cover - annotation-only; Check is loaded dynamically at runtime
+    from integration.ceba_deck.deck_checks import Check
 
 
 def _load_registry(config):

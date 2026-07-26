@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from pptx import Presentation
-from pptx.util import Emu, Inches, Pt
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
@@ -36,12 +36,17 @@ def render_charts(out: Path):
     ax.bar(strikes, buyer, color=[green if v < 0 else red for v in buyer], width=0.6, zorder=3)
     ax.axhline(0, color="#333", lw=1)
     ax.set_ylabel("Buyer vs EVN (B VND/yr)\n(negative = saving)", color=teal)
-    ax.set_xlabel("Strike (VND/kWh)"); ax.tick_params(axis="y", labelcolor=teal)
+    ax.set_xlabel("Strike (VND/kWh)")
+    ax.tick_params(axis="y", labelcolor=teal)
     ax.grid(axis="y", color="#eee", zorder=0)
-    ax2 = ax.twinx(); ax2.plot(strikes, npv, color=teal, marker="o", lw=2.4, zorder=4)
-    ax2.set_ylabel("Developer NPV ($M)", color=teal); ax2.tick_params(axis="y", labelcolor=teal)
+    ax2 = ax.twinx()
+    ax2.plot(strikes, npv, color=teal, marker="o", lw=2.4, zorder=4)
+    ax2.set_ylabel("Developer NPV ($M)", color=teal)
+    ax2.tick_params(axis="y", labelcolor=teal)
     ax.set_title("Strike Sweep — Buyer saving vs Developer NPV (directional)", color=teal, fontsize=13, weight="bold")
-    fig.tight_layout(); fig.savefig(out / "strike_sweep.png", facecolor="white"); plt.close(fig)
+    fig.tight_layout()
+    fig.savefig(out / "strike_sweep.png", facecolor="white")
+    plt.close(fig)
 
     adders = ["0", "262", "523*", "785", "1047"]
     ad = [-61.84, -43.52, -25.20, -6.89, 11.43]
@@ -52,18 +57,23 @@ def render_charts(out: Path):
     ax.set_xlabel("DPPA grid-service adder (VND/kWh)   * = inherited base 523")
     ax.grid(axis="y", color="#eee", zorder=0)
     ax.set_title("Dominant lever — DPPA adder flips the buyer near 0.9x (directional)", color=teal, fontsize=12.5, weight="bold")
-    fig.tight_layout(); fig.savefig(out / "adder.png", facecolor="white"); plt.close(fig)
+    fig.tight_layout()
+    fig.savefig(out / "adder.png", facecolor="white")
+    plt.close(fig)
 
     regs = ["Decision 963\n(current)", "Decision 14\n(legacy)", "Decree 146\n(2-part trial)"]
     bills = [2036.7, 1993.0, 2401.6]
     fig, ax = plt.subplots(figsize=(6.6, 3.9), dpi=220)
     b = ax.bar(regs, bills, color=[teal, green, red], width=0.6, zorder=3)
-    ax.set_ylim(1800, 2500); ax.set_ylabel("Samsung EVN bill (B VND/yr)", color=teal)
+    ax.set_ylim(1800, 2500)
+    ax.set_ylabel("Samsung EVN bill (B VND/yr)", color=teal)
     ax.grid(axis="y", color="#eee", zorder=0)
     for rect, v, d in zip(b, bills, ["baseline", "-2.1%", "+17.9%"]):
         ax.text(rect.get_x() + rect.get_width() / 2, v + 12, d, ha="center", fontsize=11, color="#333")
     ax.set_title("Regime stress — buyer's EVN outside option (directional)", color=teal, fontsize=12.5, weight="bold")
-    fig.tight_layout(); fig.savefig(out / "regime.png", facecolor="white"); plt.close(fig)
+    fig.tight_layout()
+    fig.savefig(out / "regime.png", facecolor="white")
+    plt.close(fig)
 
 TEAL = "155B55"
 BODY = "222222"

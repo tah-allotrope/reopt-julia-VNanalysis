@@ -26,8 +26,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from bess_dispatch_analysis import (
     EXCHANGE_RATE_VND_PER_USD,
-    DEFAULT_REGIME_REGISTRY_PATH,
-    DEFAULT_TECH_COST_PATH,
     DEFAULT_DEGRADATION_RATE,
     DEFAULT_BESS_LIFETIME_YEARS,
     DEFAULT_DISCOUNT_RATE,
@@ -37,7 +35,6 @@ from bess_dispatch_analysis import (
     load_tech_costs,
     make_classify_hour,
     _pad_to_8760,
-    split_dispatch_by_period,
     simulate_option_b_dispatch,
     compute_dispatch_value,
     compute_bess_capex,

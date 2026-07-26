@@ -16,7 +16,6 @@ All functions in this module work with 8760-element hourly series (kW or
 VND/kWh) and use the same TOU hour-window classification as the baseline
 tariff via imports from preprocess.py.
 """
-from typing import Any
 
 from reopt_pysam_vn.reopt.preprocess import _build_8760_rates, _build_hourly_rates
 

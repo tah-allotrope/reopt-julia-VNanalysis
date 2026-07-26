@@ -30,7 +30,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_tou_series,
 )
 from reopt_pysam_vn.pysam.single_owner import (
-    SingleOwnerInputs,
     build_single_owner_inputs,
     run_single_owner_model,
 )
@@ -76,7 +75,7 @@ def main() -> None:
 
     pv_to_load = reopt.get("PV", {}).get("electric_to_load_series_kw", [])
     pv_to_grid = reopt.get("PV", {}).get("electric_to_grid_series_kw", [])
-    storage_to_load = reopt.get("ElectricStorage", {}).get(
+    _storage_to_load = reopt.get("ElectricStorage", {}).get(
         "storage_to_load_series_kw", []
     )
 

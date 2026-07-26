@@ -91,7 +91,7 @@ def build_report_html(
     comparison_energy = comparison["energy_alignment"]
     finance_alignment = comparison["financial_alignment"]
     decision = combined["decision"]
-    pysam = combined["pysam_summary"]
+    _pysam = combined["pysam_summary"]
 
     input_output_html = render_column(
         "Input",

@@ -17,10 +17,7 @@ from reopt_pysam_vn.integration.procurement import (
     OffsiteEvaluation,
     evaluate_onsite,
     evaluate_offsite,
-    load_factory_loads,
-    load_tariff_rates,
 )
-from reopt_pysam_vn.integration.settlement import ContractParams
 
 
 SAIGON18_EXTRACTED = (

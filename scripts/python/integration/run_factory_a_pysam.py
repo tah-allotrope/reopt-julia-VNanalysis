@@ -204,8 +204,8 @@ def run_all_cases() -> dict[str, dict]:
         if case_id == "case_3":
             # Approximate grid-to-load from PySAM energy balance
             grid_to_load = [
-                max(0.0, l - s)
-                for l, s in zip(
+                max(0.0, kw - s)
+                for kw, s in zip(
                     loads_kw,
                     [
                         energy.get("annual_matched_load_kwh", 0) / 8760.0

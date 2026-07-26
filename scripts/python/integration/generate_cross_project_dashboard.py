@@ -62,8 +62,8 @@ def main():
 
     # ── Load Saigon18 artifacts ──────────────────────────────────────────────
     r_a = load_json(SAIGON18_RESULTS / "2026-03-23_scenario-a_fixed-sizing_evntou_reopt-results.json")
-    r_c = load_json(SAIGON18_RESULTS / "2026-03-23_scenario-c_optimized-sizing_reopt-results.json")
-    r_d = load_json(SAIGON18_RESULTS / "2026-03-20_scenario-d_dppa-baseline_reopt-results.json")
+    _r_c = load_json(SAIGON18_RESULTS / "2026-03-23_scenario-c_optimized-sizing_reopt-results.json")
+    _r_d = load_json(SAIGON18_RESULTS / "2026-03-20_scenario-d_dppa-baseline_reopt-results.json")
     eq_a = load_json(SAIGON18_REPORTS / "2026-03-22_equity-irr_summary.json")
     eq_d = load_json(SAIGON18_REPORTS / "2026-03-29_scenario-d_equity-irr_summary.json")
     sett_d = load_json(SAIGON18_REPORTS / "2026-03-29_scenario-d_dppa-settlement.json")
@@ -74,9 +74,9 @@ def main():
     s18_capex = fa["initial_capital_costs"]
     s18_pv_mw = r_a["PV"]["size_kw"] / 1_000.0
     s18_bess_mw = r_a["ElectricStorage"]["size_kw"] / 1_000.0
-    s18_bess_mwh = r_a["ElectricStorage"]["size_kwh"] / 1_000.0
+    _s18_bess_mwh = r_a["ElectricStorage"]["size_kwh"] / 1_000.0
     s18_gen_gwh = r_a["PV"]["year_one_energy_produced_kwh"] / 1e6
-    s18_grid_gwh = fa["lifecycle_elecbill_after_tax_bau"] / 1e6  # proxy
+    _s18_grid_gwh = fa["lifecycle_elecbill_after_tax_bau"] / 1e6  # proxy
     s18_unlevered_irr = fa["internal_rate_of_return"]
     s18_npv_a = fa["npv"]
     s18_payback = fa["simple_payback_years"]
@@ -101,7 +101,7 @@ def main():
     nt_solar_mw = 30.0
     nt_wind_mw = 20.0
     nt_bess_mw = 10.0
-    nt_bess_mwh = 40.0
+    _nt_bess_mwh = 40.0
     nt_capex = nt_a["total_capex_usd"]
     nt_total_mw = nt_solar_mw + nt_wind_mw + nt_bess_mw
     nt_capex_per_mw = nt_capex / nt_total_mw
@@ -322,13 +322,14 @@ def main():
     Saigon18 is constrained to ≤ 1,149.86 VND/kWh (south private-wire ceiling). Current assumption: 1,100 VND/kWh.
     The ceiling provides <strong>{s18_headroom_vnd:.2f} VND/kWh of remaining negotiation headroom</strong>.
   </div>
+  <!-- Settlement NPV column uses a rough 20yr NPV factor at 8% discount with 5% escalation -->
   <table style="margin-top:12px;">
     <tr><th>Strike (VND/kWh)</th><th>vs. ceiling</th><th>Year-1 DPPA revenue</th><th>Settlement NPV (20yr @ 8%)</th><th>Status</th></tr>
     {"".join(
         f'<tr><td>{"→ " if s == 1100 else ""}<strong>{s:,.2f}</strong></td>'
         f'<td>{s - s18_ceiling_vnd:+.2f} VND/kWh</td>'
         f'<td>{fmt_money(s * 65226 * 1000 / 26000)}</td>'
-        f'<td>{fmt_money(s * 65226 * 1000 / 26000 * 10.675)}</td>'  # rough 20yr NPV factor at 8% with 5% esc
+        f'<td>{fmt_money(s * 65226 * 1000 / 26000 * 10.675)}</td>'
         f'<td class="{"good" if s <= s18_ceiling_vnd else "warn"}">{"≤ CEILING ✓" if s <= s18_ceiling_vnd else "ABOVE CEILING ✗"}</td></tr>'
         for s in s18_strikes_vnd
     )}

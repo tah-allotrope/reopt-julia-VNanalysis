@@ -8,7 +8,6 @@ Mirror of tests/julia/test_unit.jl â€” identical checks, same data files.
 Run: pytest tests/python/reopt/test_unit.py -v
 """
 
-import copy
 import sys
 from pathlib import Path
 

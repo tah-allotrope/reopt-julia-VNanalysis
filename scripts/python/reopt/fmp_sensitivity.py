@@ -33,7 +33,6 @@ import numpy_financial as npf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src" / "python"))
 
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 

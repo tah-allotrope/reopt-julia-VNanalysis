@@ -7,7 +7,6 @@ plans/2026-07-22-ci-truth-correctness-sprint-plan.md PHASE-02/PHASE-03.
 from __future__ import annotations
 
 import subprocess
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent

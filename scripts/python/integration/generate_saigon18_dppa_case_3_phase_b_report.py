@@ -50,10 +50,10 @@ def _io_html(artifacts: dict) -> str:
         f"<li>Canonical load: {load_gwh:.1f} GWh/year, {ip['load']['peak_kw']:.0f} kW peak</li>",
         f"<li>CFMP series: 8760 hourly values, mean {cfmp_mean:.4f} VND/kWh</li>",
         f"<li>TOU series: 8760 hourly values, weighted EVN {weighted:.2f} VND/kWh</li>",
-        f"<li>Two tariff branches encoded in input package</li>",
-        f"<li>scale_to_annual_kwh hook available for future retuning</li>",
-        f"<li>Site consistency: load + market + tariff all from saigon18</li>",
-        f"<li>7 canonical JSON artifacts written to artifacts/reports/saigon18/</li>",
+        "<li>Two tariff branches encoded in input package</li>",
+        "<li>scale_to_annual_kwh hook available for future retuning</li>",
+        "<li>Site consistency: load + market + tariff all from saigon18</li>",
+        "<li>7 canonical JSON artifacts written to artifacts/reports/saigon18/</li>",
     ]
     return (
         '<div class="column-card"><div class="column-label">Inputs</div><ul>'

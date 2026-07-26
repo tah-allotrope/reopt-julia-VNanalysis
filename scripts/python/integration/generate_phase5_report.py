@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 
 template_path = "assets/report-template.html"
 if not os.path.exists(template_path):

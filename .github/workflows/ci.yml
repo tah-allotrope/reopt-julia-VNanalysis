@@ -7,27 +7,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[webapp]" mypy pytest pytest-cov "nrel-pysam==7.1.0"
+          pip install -e ".[webapp]" mypy pytest pytest-cov ruff
 
-      # NOTE: a `ruff check` step is intentionally NOT included yet. ruff has no
-      # `[tool.ruff]` configuration in pyproject.toml and currently reports
-      # pre-existing lint violations (see `ruff check --statistics` for the
-      # current count — it has been growing over time, so no specific number is
-      # cited here) plus a hard parse error on a malformed glob in .gitignore
-      # (`ceba-review/*[repo-checked].pptx`). Configuring ruff and cleaning up
-      # that backlog is scoped to a separate, larger follow-on effort — add the
-      # ruff step here once that lands, rather than shipping a known-red lint
-      # gate now.
+      - name: Lint (ruff)
+        run: ruff check src scripts tests
+
       - name: Type check (analysis + webapp public API surfaces)
         run: mypy src/python/reopt_pysam_vn/analysis src/python/reopt_pysam_vn/webapp
 

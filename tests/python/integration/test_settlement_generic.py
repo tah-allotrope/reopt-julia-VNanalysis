@@ -279,7 +279,7 @@ class TestExcessTreatment:
         result = compute_hourly_settlement(loads, generation, tariff, fmp, params)
         for entry in result.hourly_ledger:
             assert abs(entry["exported_kwh"] - 400.0) < 0.01
-        expected_export_revenue = 400.0 * 671.0 * 8760
+        _expected_export_revenue = 400.0 * 671.0 * 8760
         assert abs(result.annual_summary["developer_revenue_vnd"] - result.annual_summary.get("developer_revenue_vnd", 0)) < 1.0
 
     def test_cfd_on_excess(self):

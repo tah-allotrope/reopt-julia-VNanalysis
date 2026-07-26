@@ -57,8 +57,8 @@ def build_saigon18_case3_bounded_opt_scenario(
     tou = load_saigon18_tou_series(extracted)
     cfmp = load_saigon18_cfmp_series(extracted)
     fmp = load_saigon18_fmp_series(extracted)
-    annual_load_kwh = sum(load_kw)
-    peak_load_kw = max(load_kw)
+    _annual_load_kwh = sum(load_kw)
+    _peak_load_kw = max(load_kw)
 
     exchange_rate = 25450.0
     weighted_evn = sum(tou) / len(tou) if tou else 0.0
@@ -178,8 +178,8 @@ def build_saigon18_case3_bounded_opt_scenario(
 
 def build_22kv_two_part_scenario(extracted: dict) -> dict:
     load_kw = load_saigon18_load_series(extracted)
-    annual_load_kwh = sum(load_kw)
-    peak_load_kw = max(load_kw)
+    _annual_load_kwh = sum(load_kw)
+    _peak_load_kw = max(load_kw)
     exchange_rate = 25450.0
     tou = load_saigon18_tou_series(extracted)
     weighted_evn = sum(tou) / len(tou) if tou else 0.0

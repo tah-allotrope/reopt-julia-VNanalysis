@@ -80,7 +80,7 @@ def build_report_html(results: dict, template_text: str) -> str:
     sweep = results["sweep_results"]
     settings = results["sweep_settings"]
     viability = results["viability"]
-    case = results["case"]
+    _case = results["case"]
     viable_count = sum(1 for row in sweep if row["is_viable"])
     min_viable = viability["minimum_viable_strike_us_cents_per_kwh"]
     baseline = viability["phase4_baseline_strike_us_cents_per_kwh"]

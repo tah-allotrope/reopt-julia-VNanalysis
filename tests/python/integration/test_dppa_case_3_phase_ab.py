@@ -279,7 +279,7 @@ def test_tou_series_returns_8760_elements_with_known_rates():
 def test_scale_to_annual_kwh_adjusts_load_shape():
     extracted = _load_extracted()
     original = load_saigon18_load_series(extracted)
-    original_annual = sum(original)
+    _original_annual = sum(original)
 
     target = 200_000_000.0
     scaled = scale_load_to_annual_kwh(original, target)

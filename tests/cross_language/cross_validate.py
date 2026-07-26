@@ -150,7 +150,7 @@ def _compare_values(py_val, jl_val, path: str, diffs: list, tol: float = TOLERAN
     elif isinstance(py_val, bool) and isinstance(jl_val, bool):
         if py_val != jl_val:
             diffs.append(f"  {path}: Python={py_val}, Julia={jl_val}")
-    elif type(py_val) != type(jl_val):
+    elif type(py_val) is not type(jl_val):
         # Type mismatch - but allow int/float cross-comparison (handled above)
         # and bool vs int (Julia JSON may serialize bools as true/false)
         if isinstance(py_val, bool) or isinstance(jl_val, bool):

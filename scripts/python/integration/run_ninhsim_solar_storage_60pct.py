@@ -48,7 +48,7 @@ def _save_json(relative_path: str, payload: dict) -> None:
 
 def _solve_threshold_search() -> float:
     scenario_path = REPO_ROOT / SCENARIO_C
-    extracted = _load_json(EXTRACTED_PATH)
+    _extracted = _load_json(EXTRACTED_PATH)
     original_scenario = _load_json(SCENARIO_C)
     requested = float(
         original_scenario.get("_meta", {}).get(

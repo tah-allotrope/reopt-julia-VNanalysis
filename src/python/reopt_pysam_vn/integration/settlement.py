@@ -213,7 +213,7 @@ def compute_buyer_benchmark(
 ) -> dict:
     loads = _pad_to_8760(loads_kw)
     tariff = _pad_to_8760(tariff_rates_vnd_kwh)
-    total_cost = sum(l * t for l, t in zip(loads, tariff))
+    total_cost = sum(kw * t for kw, t in zip(loads, tariff))
     total_load = sum(loads)
     blended = total_cost / total_load if total_load else 0.0
     return {

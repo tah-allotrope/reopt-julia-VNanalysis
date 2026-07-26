@@ -159,7 +159,7 @@ def _render_report(phase_name: str, sections: dict) -> Path:
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     combined = _read_json(COMBINED)
-    final_summary = _read_json(FINAL)
+    _final_summary = _read_json(FINAL)
 
     decision = combined["decision"]
     findings = combined["critical_findings"]

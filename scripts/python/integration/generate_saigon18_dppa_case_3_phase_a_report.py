@@ -44,7 +44,7 @@ def _io_html(artifacts: dict) -> str:
         "<li>Saigon18 extracted 8760 load profile (<code>data/interim/saigon18/</code>)</li>",
         "<li>Saigon18 hourly CFMP/FMP market series</li>",
         "<li>Saigon18 tariff assumptions (peak/standard/off-peak rates)</li>",
-        f"<li>Case 2 rejected outcome (ninhsim, PV-only, transferred market)</li>",
+        "<li>Case 2 rejected outcome (ninhsim, PV-only, transferred market)</li>",
         "<li>User decisions: Lane B only, 5% strike anchor, two tariff branches</li>",
     ]
     outputs = [
@@ -52,10 +52,10 @@ def _io_html(artifacts: dict) -> str:
         f"<li>Contract: <code>{d['case_identity']['contract_structure']}</code></li>",
         f"<li>Strike anchor: {d['strike_basis']['strike_discount_fraction'] * 100:.0f}% below weighted EVN</li>",
         f"<li>Year-one strike: {d['strike_basis']['year_one_strike_vnd_per_kwh']:.2f} VND/kWh</li>",
-        f"<li>Physical lane: bounded optimization only with storage floor</li>",
-        f"<li>Tariff branches: 22kV two-part + legacy TOU (side-by-side)</li>",
+        "<li>Physical lane: bounded optimization only with storage floor</li>",
+        "<li>Tariff branches: 22kV two-part + legacy TOU (side-by-side)</li>",
         f"<li>Gap register: {len(g['inherited_shortcomings'])} shortcomings linked to mitigations</li>",
-        f"<li>Site consistency: same_site_basis = True</li>",
+        "<li>Site consistency: same_site_basis = True</li>",
     ]
     return (
         '<div class="column-card"><div class="column-label">Inputs</div><ul>'

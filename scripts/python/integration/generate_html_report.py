@@ -105,7 +105,7 @@ def split_bess(result: dict, scenario_json: dict) -> dict:
     rates = scenario_json["ElectricTariff"]["tou_energy_rates_per_kwh"]
     series = result.get("ElectricStorage", {}).get("storage_to_load_series_kw", [])
     levels = sorted(set(round(v, 10) for v in rates))
-    offpeak, standard, peak = levels[0], levels[1], levels[-1]
+    offpeak, _standard, peak = levels[0], levels[1], levels[-1]
     buckets = {"peak": 0.0, "standard": 0.0, "offpeak": 0.0}
     for rate, value in zip(rates, series):
         rate = round(rate, 10)

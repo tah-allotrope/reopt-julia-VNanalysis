@@ -26,8 +26,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.reopt.preprocess import (
-    load_vietnam_data,
-    apply_vietnam_defaults,
     run_vietnam_reopt,
 )
 
@@ -84,7 +82,7 @@ def main():
         scenario.pop("_template", None)
 
     print(f"Solving: {scenario_path.name}")
-    print(f"  via:    https://developer.nlr.gov/api/reopt/stable")
+    print("  via:    https://developer.nlr.gov/api/reopt/stable")
     print(f"  apply_defaults: {apply_defaults}")
 
     kwargs = {}

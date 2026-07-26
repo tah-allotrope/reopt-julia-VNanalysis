@@ -103,7 +103,7 @@ def _synthetic_results() -> dict:
 
 
 def _synthetic_solar_storage_results() -> dict:
-    renewable_to_load_kw = 12_000.0
+    _renewable_to_load_kw = 12_000.0
     renewable_to_grid_kw = 2_000.0
     residual_grid_kw = 8_000.0
     return {

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Optional
 
 
 @dataclass
@@ -168,7 +167,7 @@ def classify_tou_consumption(
                 normal_kwh += kw
 
     total_kwh = peak_kwh + offpeak_kwh + normal_kwh
-    total_mwh = total_kwh / 1000.0
+    _total_mwh = total_kwh / 1000.0
 
     return TOUClassification(
         peak_consumption_mwh=peak_kwh / 1000.0,

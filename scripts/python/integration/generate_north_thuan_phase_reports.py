@@ -99,7 +99,7 @@ def render_report(template: str, phase: dict, output_dir: Path) -> Path:
 
 
 def build_phases() -> list[dict]:
-    extracted = load_json(
+    _extracted = load_json(
         REPO_ROOT
         / "data"
         / "interim"

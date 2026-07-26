@@ -48,7 +48,6 @@ import argparse
 import json
 import sys
 import time
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -141,7 +140,7 @@ def _bau_bill_8760(load_kw: list[float], fmp_vnd_kwh: float) -> dict:
         vn_tariff["data"], "industrial", "medium_voltage_22kv_to_110kv"
     )
     # Y1 = sum(load_kw * rate)
-    y1 = sum(l * r for l, r in zip(load_kw, rates))  # VND
+    y1 = sum(kw * r for kw, r in zip(load_kw, rates))  # VND
     bau_y10 = sum(y1 * (1.04 ** (y - 1)) for y in range(1, 11))
     bau_y25 = sum(y1 * (1.04 ** (y - 1)) for y in range(1, 26))
     return {"y1_vnd": y1, "y10_cum_vnd": bau_y10, "lifetime_cum_vnd": bau_y25}

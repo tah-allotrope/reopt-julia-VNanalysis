@@ -346,7 +346,7 @@ flowchart TD
             [
                 "Added the fuller PySAM bridge and runner, then produced a canonical placeholder PySAM artifact instead of crashing when the REopt result came back with zero battery.",
                 f"Published the REopt-vs-PySAM comparison and combined decision artifacts; the current recommendation is `{decision['recommended_position']}`.",
-                f"The combined decision passes export design but fails finance advancement because both project and equity IRR screens remain unavailable once the battery workflow is skipped for the zero-battery solve.",
+                "The combined decision passes export design but fails finance advancement because both project and equity IRR screens remain unavailable once the battery workflow is skipped for the zero-battery solve.",
             ],
         ),
         "mermaid": """
