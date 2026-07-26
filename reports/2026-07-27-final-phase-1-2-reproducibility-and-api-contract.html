@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Reproducibility Floor &amp; API Contract</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a { color: var(--accent-2); }
+
+    code, pre, .technical, .meta-chip, .section-index, .eyebrow, .stat-label, .stat-value, .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 14ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.4rem, 4.4vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.03em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid { display: grid; gap: 12px; }
+
+    .meta-card, .section, .subcard, .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card { padding: 16px 18px; border-radius: var(--radius-md); }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid, .dual-grid, .phase-grid, .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3, .subcard h4 { margin: 0 0 10px; font-size: 1rem; line-height: 1.2; }
+
+    .subcard p:first-child, .subcard ul:first-child, .subcard ol:first-child { margin-top: 0; }
+
+    .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label { color: var(--ink-soft); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+    .stat-value { margin-top: 8px; color: var(--accent-2); font-size: 1.18rem; font-weight: 700; }
+
+    .narrative, .chart-frame, .technical-frame, .diagram-frame, .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame, .viz-frame { overflow: hidden; }
+
+    .mermaid { width: 100%; max-width: 100%; min-width: 0; color: var(--ink); }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram { padding: 12px; max-height: min(62vh, 560px); }
+    .diagram-frame.compact-diagram .mermaid { min-width: 900px; }
+
+    .chart-frame canvas, .technical-frame > canvas, .viz-frame canvas, canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+
+    .technical-frame th, .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th { color: var(--accent); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul, ol { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    p:last-child, li:last-child { margin-bottom: 0; }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .badge-done { background: rgba(59, 111, 118, 0.14); color: var(--accent-2); }
+    .badge-pending { background: rgba(157, 107, 55, 0.14); color: var(--accent); }
+
+    code.inline {
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: rgba(59, 111, 118, 0.08);
+      font-size: 0.88em;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid, .summary-grid, .dual-grid, .phase-grid, .stat-grid, .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+      .title { max-width: none; }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { width: min(100vw - 20px, var(--page-width)); padding-top: 16px; padding-bottom: 36px; }
+      .hero, .section { padding: 18px; border-radius: 20px; }
+      .title { font-size: clamp(2.1rem, 12vw, 3.2rem); }
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+      @page { size: A4; margin: 14mm; }
+      body { background: #ffffff; }
+      .page-shell { width: 100%; max-width: none; padding: 0; }
+      .hero, .meta-card, .section, .subcard, .narrative, .chart-frame, .technical-frame,
+      .diagram-frame, .viz-frame, .empty-state, .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+      .hero, .section { margin-top: 0; margin-bottom: 10mm; }
+      .diagram-frame { overflow: visible; max-height: none; }
+      .diagram-frame.compact-diagram .mermaid { min-width: 0; }
+      .section-header, .takeaway { break-after: avoid; page-break-after: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">Reproducibility Floor &amp; API Contract</h1>
+          <p class="lede">
+            Phases 1&ndash;2 of the post-backlog architecture plan: closing a hidden
+            Python-version bug, turning on the lint gate, and making the toolkit's
+            public deal-config input a validated contract instead of an
+            anything-goes dict.
+          </p>
+          <div class="takeaway">
+            Both phases shipped clean: a real syntax error hiding behind a
+            3.12-only CI matrix is fixed, 187 lint violations are cleared to zero,
+            and <code class="inline">DealConfig.from_dict</code> now rejects
+            malformed input with actionable errors &mdash; all with zero regressions
+            across 606 tests.
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">reopt-pysam-vn</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">tah-allotrope/reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-07-27</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>What was done</h3>
+          <p>
+            The first two of six phases in
+            <code class="inline">plans/2026-07-26-post-backlog-architecture-plan.md</code>
+            are complete and merged to <code class="inline">main</code>
+            (commits <code class="inline">3943c5b</code>, <code class="inline">31732d2</code>).
+            Phase 1 fixed a hidden Python 3.10 syntax error and brought the
+            entire codebase to zero lint violations under a newly configured
+            <code class="inline">ruff</code> gate, added that gate plus a
+            Python 3.10 CI job, and pinned the PySAM dependency version in
+            the package manifest instead of only in CI. Phase 2 gave the
+            toolkit's public <code class="inline">DealConfig</code> input type
+            a real structural validator backed by the JSON Schema the repo
+            already ships but never enforced.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Why it matters now</h3>
+          <p>
+            This toolkit's output goes to external counterparties as decks and
+            reports. A syntax error invisible to a single-version CI matrix,
+            and a public input type that silently accepted anything, are
+            exactly the kind of foundation-level gaps that should close
+            before more deliverables get built on top &mdash; which is the
+            explicit reason the underlying plan sequenced this work first,
+            ahead of the larger config-driven case-runner initiative.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>
+          A prior research pass (<code class="inline">research/2026-07-26-reopt-pysam-post-backlog-architecture-brainstorm.md</code>)
+          found the toolkit's prior implementation backlog fully drained &mdash;
+          every phase from the two most recent sprint plans had shipped and CI
+          was green &mdash; and used that moment to look for structural gaps no
+          test currently catches. It surfaced four: a Python-version mismatch
+          between what the package declares and what actually parses; a
+          public API that accepts arbitrary dicts while its headline
+          correctness guarantee sits disabled; four different hardcoded
+          currency conversion rates scattered across the codebase; and a
+          Julia implementation twin that has quietly become a stale subset of
+          its Python counterpart.
+        </p>
+        <p>
+          The six-phase plan that followed addresses all four, in a
+          deliberate order: reproducibility and lint hygiene first (so every
+          later change is verified on a clean, dual-version baseline), then
+          the API contract, then the correctness-guarantee reconciliation,
+          then the currency/assumptions unification, then the Julia archive
+          decision. This report covers the first two phases, executed and
+          verified end to end.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Inputs</h3>
+          <ul>
+            <li><code class="inline">plans/2026-07-26-post-backlog-architecture-plan.md</code> &mdash; the six-phase execution plan, phases 1&ndash;2 in scope here</li>
+            <li>Live repository state on <code class="inline">main</code> at the start of execution (commit <code class="inline">2137b6e</code>)</li>
+            <li>The repo's own pre-existing test suite, CI configuration, and coverage tooling as the verification baseline</li>
+            <li><code class="inline">data/schemas/deal_config.schema.json</code> &mdash; a schema the repo already shipped but never enforced at runtime</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Scope of this report</h3>
+          <p><span class="badge badge-done">Executed</span> Phase 1 &mdash; reproducibility floor + lint gate</p>
+          <p><span class="badge badge-done">Executed</span> Phase 2 &mdash; DealConfig validated contract</p>
+          <p><span class="badge badge-pending">Not started</span> Phase 3 &mdash; Samsung/TTC parity gate reconciliation</p>
+          <p><span class="badge badge-pending">Not started</span> Phase 4 &mdash; canonical assumptions resolver</p>
+          <p><span class="badge badge-pending">Not started</span> Phase 5 &mdash; exchange-rate unification (two commits)</p>
+          <p><span class="badge badge-pending">Not started</span> Phase 6 &mdash; archive Julia in place</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Assumptions applied</h3>
+          <ul>
+            <li>The declared minimum Python version (3.10) is the real contract, not the 3.12-only interpreter CI happened to run &mdash; so the syntax error was treated as a bug in the affected script, not grounds to raise the floor.</li>
+            <li>No Python 3.10 interpreter was available on the execution machine (only 3.11, 3.12, 3.14 present); <code class="inline">ruff</code>'s <code class="inline">--target-version py310</code> syntax check served as the authoritative gate instead, and was confirmed clean.</li>
+            <li><code class="inline">jsonschema</code> must not become a runtime dependency &mdash; the shipped schema file's own description promises none, so Phase 2 used a small hand-rolled validator covering only the three keywords the schema actually uses (<code class="inline">required</code>, <code class="inline">type</code>, <code class="inline">enum</code>).</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Constraints honored</h3>
+          <ul>
+            <li>Never commit red: every change was verified against the full portable test suite before being staged.</li>
+            <li><code class="inline">ruff --fix</code>'s output was reviewed in full before applying &mdash; not blindly accepted &mdash; to rule out removal of any side-effecting or registry-pattern import.</li>
+            <li>27 unused-variable warnings were resolved by prefixing the variable name with an underscore rather than deleting the assignment, since several right-hand sides are function calls with side effects; deleting them outright could have silently dropped real work.</li>
+            <li>The webapp's public form-to-<code class="inline">DealConfig</code> path was explicitly re-verified against the new validator before considering Phase 2 complete.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>
+          Each phase followed the same discipline: implement the change,
+          run the full portable test suite (the same filter CI uses:
+          <code class="inline">not network and not requires_artifacts and not
+          golden_machine and not requires_julia</code>), fix anything red
+          before proceeding, then commit. Phase 2 additionally followed a
+          red&ndash;green sequence &mdash; its 17 new tests were written and
+          confirmed to fail with <code class="inline">ModuleNotFoundError</code>
+          before the validator module existed, then confirmed to pass once it
+          was implemented.
+        </p>
+        <p>
+          Before touching the CI matrix, the plan's own risk (a Python 3.10
+          job could fail simply because a dependency lacks a 3.10 wheel) was
+          checked directly rather than assumed: <code class="inline">pip
+          download</code> was used to confirm <code class="inline">nrel-pysam==7.1.0</code>
+          publishes both a Windows and a Linux manylinux2014 wheel for
+          CPython 3.10, so the matrix could be added at full strength with no
+          degraded fallback needed.
+        </p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Phase 1 &mdash; Reproducibility floor &amp; lint gate</h3>
+          <p>
+            The starting point was a real bug hiding in plain sight:
+            <code class="inline">generate_cross_project_dashboard.py</code>
+            had a Python comment sitting inside an f-string's replacement
+            field &mdash; syntax that only became legal in Python 3.12. Because
+            CI ran exclusively on 3.12, the file silently compiled there while
+            being a hard <code class="inline">SyntaxError</code> on the
+            declared minimum version, 3.10. The fix moved the note out into
+            an HTML comment in the surrounding template text, fully outside
+            any Python expression &mdash; the first attempt (moving the comment
+            just inside the enclosing braces) was still wrong for the same
+            underlying reason, and was corrected before proceeding.
+          </p>
+          <p>
+            With that fixed, a <code class="inline">[tool.ruff]</code>
+            configuration was added and the repository's 187 pre-existing
+            lint violations were cleared to zero: 66 by <code class="inline">ruff
+            --fix</code> (diff reviewed in full first), 35 by adding a
+            <code class="inline">TYPE_CHECKING</code>-guarded import for a
+            dynamically-loaded class annotation, 27 by prefixing genuinely
+            unused variables with <code class="inline">_</code> rather than
+            deleting their (side-effecting) assignments, and the rest by
+            small, behavior-preserving rewrites (splitting semicolon-joined
+            statements, renaming an ambiguous <code class="inline">l</code> to
+            <code class="inline">kw</code>, switching a type comparison to
+            <code class="inline">is</code>).
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 1 &mdash; CI and packaging</h3>
+          <p>
+            The CI workflow gained a Python version matrix
+            (<code class="inline">3.10</code>, <code class="inline">3.12</code>)
+            and a <code class="inline">ruff check</code> step, retiring an
+            eleven-line comment that had deferred linting indefinitely. The
+            <code class="inline">nrel-pysam</code> pin moved from a CI-only
+            install flag into <code class="inline">pyproject.toml</code>'s
+            own dependency list (<code class="inline">==7.1.0</code>), so the
+            package now declares its own PySAM version rather than relying on
+            the CI script to enforce it.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 2 &mdash; DealConfig becomes a validated contract</h3>
+          <p>
+            The repository already shipped a complete JSON Schema for its
+            public deal-config input type, but nothing ever checked a dict
+            against it &mdash; <code class="inline">DealConfig.from_dict</code>
+            only pulled two required keys and let everything else through
+            unchecked. A new <code class="inline">reopt_pysam_vn.analysis.validation</code>
+            module implements a small structural validator (required fields,
+            type checks, enum checks &mdash; the only three keywords the schema
+            actually uses) with no new runtime dependency, matching the
+            schema file's own documented promise. It is wired into
+            <code class="inline">from_dict</code> as the default path, with an
+            explicit opt-out (<code class="inline">validate=False</code>) that
+            preserves the old bare-<code class="inline">KeyError</code>
+            behavior for callers that want it.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Phase 2 &mdash; verification against the live webapp</h3>
+          <p>
+            The plan flagged a specific risk: the webapp's own
+            <code class="inline">/deals/new</code> form builds a dict that
+            the new validator could reject on a field the form and the schema
+            disagree about. Rather than assume compatibility, the full webapp
+            test suite was run after wiring the validator in &mdash; all 72
+            tests passed unchanged, including the test that already expects a
+            validation error on a missing <code class="inline">case</code>
+            field and the Samsung/TTC golden-parity test that exercises the
+            complete web-API-to-library round trip.
+          </p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+        <div class="mermaid">
+flowchart LR
+    A["Backlog drained\n(2026-07-25)"] --> B["Research pass surfaces\n4 structural gaps"]
+    B --> C["6-phase plan written\n2026-07-26"]
+    C --> D["Phase 1\nsyntax fix + lint gate\n+ CI matrix"]
+    D --> E["Phase 2\nDealConfig validator"]
+    E --> F["606 tests green\nruff + mypy clean"]
+    F -.next.-> G["Phase 3\nparity gate"]
+    F -.next.-> H["Phase 4\nassumptions resolver"]
+    F -.next.-> I["Phase 5\nFX unification"]
+    F -.next.-> J["Phase 6\nJulia archive"]
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>
+          <strong>Both phases completed with zero regressions.</strong> The
+          full portable test suite grew from 589 to 606 passing tests (the 17
+          added by Phase 2), with the same 18 deselected and 3 pre-existing
+          xfailed tests unchanged throughout. <code class="inline">ruff
+          check</code> went from 187 violations to zero and stays there;
+          <code class="inline">mypy</code> stayed clean on the
+          <code class="inline">analysis</code> and <code class="inline">webapp</code>
+          public surfaces across both phases.
+        </p>
+        <p>
+          <strong>Tradeoff considered and rejected:</strong> using
+          <code class="inline">ruff</code>'s <code class="inline">--unsafe-fixes</code>
+          flag would have auto-resolved the remaining violations faster, but
+          several of them (unused-variable assignments with side-effecting
+          right-hand sides) are exactly the class of fix that tool flags as
+          unsafe for a reason. Manual, reviewed fixes were used instead.
+        </p>
+        <p>
+          <strong>Tradeoff considered and rejected:</strong> adding
+          <code class="inline">jsonschema</code> as a dependency would have
+          been the conventional way to validate against a JSON Schema file,
+          but the schema's own description explicitly promises no runtime
+          dependency is required, and only three of its keywords are actually
+          used. A ~120-line hand-rolled validator keeps that promise instead
+          of quietly breaking it.
+        </p>
+        <p>
+          <strong>Recommendation:</strong> proceed to Phase 3 next. It
+          reconciles the Samsung/TTC parity gate &mdash; today both
+          CI-excluded and <code class="inline">xfail</code>ed while the
+          README still describes it as enforced &mdash; and the plan requires
+          reading its own diagnosis report before deciding whether to restore
+          the gate or correct the documentation, so it is a bounded,
+          well-specified next step.
+        </p>
+      </div>
+      <div class="viz-frame">
+        <canvas id="testCountChart"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Immediate next step</h3>
+          <p>
+            Execute Phase 3 (Samsung/TTC parity gate reconciliation) from
+            <code class="inline">plans/2026-07-26-post-backlog-architecture-plan.md</code>.
+            It has no unmet dependencies &mdash; Phase 1's lint/CI gate is the
+            only prerequisite and is already in place.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Sequencing after that</h3>
+          <p>
+            Phase 4 (canonical assumptions resolver) is deliberately
+            sequenced ahead of the larger config-driven case-runner
+            initiative referenced in the plan's background, and Phase 5's
+            currency unification depends on Phase 4 existing first. Phase 6
+            (Julia archive) has no code dependency on the others and could be
+            resequenced if useful, but the plan places it last.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Verification habit to carry forward</h3>
+          <p>
+            Both phases here were verified against the exact CI test filter
+            before committing, not a subset. The same discipline &mdash; full
+            suite, then commit &mdash; is what the remaining phases specify and
+            should continue.
+          </p>
+        </div>
+        <div class="subcard">
+          <h3>Suggested owner</h3>
+          <p>
+            No specific owner is named in the plan or this session; it is
+            written to be executable by any engineer or agent with repository
+            access and the plan file itself.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Open, unchanged by this work</h3>
+          <ul>
+            <li>
+              The NREL Developer API key committed historically in two old
+              commits has still not been confirmed rotated. This predates
+              both phases in this report and is explicitly out of scope for
+              this plan; it remains documented in <code class="inline">README.md</code>'s
+              security note.
+            </li>
+            <li>
+              Phases 3&ndash;6 of the plan are unexecuted. In particular, the
+              Samsung/TTC parity gate's actual enforcement state (Phase 3)
+              and the four-way currency-rate divergence (Phases 4&ndash;5)
+              remain exactly as the original research brief described them.
+            </li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Risks carried into future phases</h3>
+          <ul>
+            <li>
+              No Python 3.10 interpreter was available to run the actual test
+              suite locally during this work &mdash; only <code class="inline">ruff</code>'s
+              target-version syntax check was used as a proxy. The real CI
+              run on the 3.10 matrix job is the first live confirmation that
+              the full suite (not just syntax) passes there.
+            </li>
+            <li>
+              Phase 4's plan explicitly flags that the Julia <code class="inline">VNData</code>
+              struct is positional, so a future field insertion done without
+              running Julia's Layer 3 cross-validation could silently
+              mis-assign fields with no error. This did not arise in Phases
+              1&ndash;2 but is a live risk for Phase 4 onward.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard technical-frame">
+          <h4>Verification evidence</h4>
+          <table>
+            <tr><th>Check</th><th>Before</th><th>After Phase 1</th><th>After Phase 2</th></tr>
+            <tr><td>ruff violations</td><td>187</td><td>0</td><td>0</td></tr>
+            <tr><td>Portable suite</td><td>589 passed / 18 deselected / 3 xfailed</td><td>589 / 18 / 3 (unchanged)</td><td>606 / 18 / 3 (+17 new)</td></tr>
+            <tr><td>mypy (analysis + webapp)</td><td>clean</td><td>clean</td><td>clean</td></tr>
+            <tr><td>webapp suite</td><td>&mdash;</td><td>&mdash;</td><td>72 / 72 passed</td></tr>
+          </table>
+        </div>
+        <div class="subcard">
+          <h4>Commits</h4>
+          <ul>
+            <li><code class="inline">3943c5b</code> &mdash; phase-1: reproducibility floor + lint gate</li>
+            <li><code class="inline">31732d2</code> &mdash; phase-2: make DealConfig a validated contract</li>
+          </ul>
+          <h4 style="margin-top:14px;">Key files touched</h4>
+          <ul>
+            <li><code class="inline">.github/workflows/ci.yml</code>, <code class="inline">pyproject.toml</code></li>
+            <li><code class="inline">scripts/python/integration/generate_cross_project_dashboard.py</code></li>
+            <li><code class="inline">src/python/reopt_pysam_vn/analysis/{types.py, validation.py (new), __init__.py}</code></li>
+            <li><code class="inline">tests/python/analysis/test_validation.py</code> (new, 17 tests)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+    }
+
+    (function() {
+      const el = document.getElementById('testCountChart');
+      if (!el || !window.Chart) return;
+      new Chart(el.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Baseline', 'After Phase 1', 'After Phase 2'],
+          datasets: [
+            {
+              label: 'Passed',
+              data: [589, 589, 606],
+              backgroundColor: 'rgba(59, 111, 118, 0.75)'
+            },
+            {
+              label: 'Deselected',
+              data: [18, 18, 18],
+              backgroundColor: 'rgba(157, 107, 55, 0.55)'
+            },
+            {
+              label: 'xfailed',
+              data: [3, 3, 3],
+              backgroundColor: 'rgba(157, 107, 55, 0.25)'
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          resizeDelay: 150,
+          normalized: true,
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Portable test suite: pass count by stage' },
+            legend: { position: 'bottom' }
+          },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
