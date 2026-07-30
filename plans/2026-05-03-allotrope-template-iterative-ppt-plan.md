@@ -1,7 +1,7 @@
 ---
 title: "Iterative Allotrope-Template PPT Generation From Recent Final Reports"
 date: "2026-05-03"
-status: "draft"
+status: "complete — all 5 phases shipped: rubric + 3 decks under reports/decks/, 3 conformance files, trajectory summary, final report reports/2026-05-06-final-allotrope-template.html (commit 267cf21)"
 request: "Multi-phase plan: use the present skill to generate ppts for the 3 most recent final reports in sequence; after each ppt, compare against the Allotrope presentation template fetched via the drive skill; feed deltas forward so each next ppt better matches the Allotrope template."
 plan_type: "multi-phase"
 research_inputs:
@@ -53,11 +53,11 @@ Generate three PowerPoint decks from the three most recent `*-final.html` report
 Lock the three input reports, retrieve the Allotrope presentation template from Drive, and convert it into a written conformance rubric that can be applied identically across all three iterations.
 
 **Tasks**
-- [ ] TASK-01-01: Confirm the three target inputs are exactly: `reports/2026-04-09-dppa-case-1-final.html`, `reports/2026-04-16-dppa-case-2-final.html`, `reports/2026-04-21-dppa-case-3-final.html`. Skip `2026-04-15-dppa-case-2-final.html` as superseded.
-- [ ] TASK-01-02: Use the `drive` (Google Drive) skill/connector to locate the Allotrope deck template (see Grill Me Q-001 for path). Cache it locally as `reports/decks/conformance/_template/allotrope-template.pptx` (do not commit binary if repo policy forbids — see Q-002).
-- [ ] TASK-01-03: Extract the rubric from the template into `reports/decks/conformance/allotrope-template-rubric.md` covering: cover slide layout, section dividers, color palette + hex values, typography (font families, sizes per role), required slide types and order (e.g., Executive Summary → Context → Approach → Findings → Recommendation → Appendix), chart styling conventions, footer/page-number style, and logo placement.
-- [ ] TASK-01-04: Define a 0–5 scoring scale per rubric dimension and a results format that each conformance file will reuse verbatim.
-- [ ] TASK-01-05: Create `reports/decks/` and `reports/decks/conformance/` directories.
+- [x] TASK-01-01: Confirm the three target inputs are exactly: `reports/2026-04-09-dppa-case-1-final.html`, `reports/2026-04-16-dppa-case-2-final.html`, `reports/2026-04-21-dppa-case-3-final.html`. Skip `2026-04-15-dppa-case-2-final.html` as superseded.
+- [x] TASK-01-02: Use the `drive` (Google Drive) skill/connector to locate the Allotrope deck template (see Grill Me Q-001 for path). Cache it locally as `reports/decks/conformance/_template/allotrope-template.pptx` (do not commit binary if repo policy forbids — see Q-002).
+- [x] TASK-01-03: Extract the rubric from the template into `reports/decks/conformance/allotrope-template-rubric.md` covering: cover slide layout, section dividers, color palette + hex values, typography (font families, sizes per role), required slide types and order (e.g., Executive Summary → Context → Approach → Findings → Recommendation → Appendix), chart styling conventions, footer/page-number style, and logo placement.
+- [x] TASK-01-04: Define a 0–5 scoring scale per rubric dimension and a results format that each conformance file will reuse verbatim.
+- [x] TASK-01-05: Create `reports/decks/` and `reports/decks/conformance/` directories.
 
 **Files / Surfaces**
 - `reports/decks/conformance/allotrope-template-rubric.md` — new
@@ -81,10 +81,10 @@ Lock the three input reports, retrieve the Allotrope presentation template from 
 Produce the first deck with the present skill using only the rubric (no prior iteration lessons yet), then score it.
 
 **Tasks**
-- [ ] TASK-02-01: Invoke the `present:present` skill against `reports/2026-04-09-dppa-case-1-final.html`, instructing it to follow the rubric in `reports/decks/conformance/allotrope-template-rubric.md`. Save output as `reports/decks/2026-04-09-dppa-case-1.pptx`.
-- [ ] TASK-02-02: Manually open or programmatically inspect the deck slide-by-slide. Score each rubric dimension 0–5.
-- [ ] TASK-02-03: Write `reports/decks/conformance/2026-04-09-dppa-case-1-conformance.md` containing: per-dimension scores, total, top 5 deviations from template, explicit "lessons to carry forward" list (concrete, prescriptive — e.g., "Use #0B2A4A for section dividers, not slate gray").
-- [ ] TASK-02-04: Compute the aggregate conformance score and record it as the Deck 1 baseline.
+- [x] TASK-02-01: Invoke the `present:present` skill against `reports/2026-04-09-dppa-case-1-final.html`, instructing it to follow the rubric in `reports/decks/conformance/allotrope-template-rubric.md`. Save output as `reports/decks/2026-04-09-dppa-case-1.pptx`.
+- [x] TASK-02-02: Manually open or programmatically inspect the deck slide-by-slide. Score each rubric dimension 0–5.
+- [x] TASK-02-03: Write `reports/decks/conformance/2026-04-09-dppa-case-1-conformance.md` containing: per-dimension scores, total, top 5 deviations from template, explicit "lessons to carry forward" list (concrete, prescriptive — e.g., "Use #0B2A4A for section dividers, not slate gray").
+- [x] TASK-02-04: Compute the aggregate conformance score and record it as the Deck 1 baseline.
 
 **Files / Surfaces**
 - `reports/decks/2026-04-09-dppa-case-1.pptx` — new
@@ -106,10 +106,10 @@ Produce the first deck with the present skill using only the rubric (no prior it
 Produce the second deck consuming the rubric *plus* Deck 1's "lessons to carry forward", and verify measurable improvement.
 
 **Tasks**
-- [ ] TASK-03-01: Build the present-skill prompt by concatenating the rubric + Deck 1's lessons-to-carry-forward block, then run against `reports/2026-04-16-dppa-case-2-final.html`. Output: `reports/decks/2026-04-16-dppa-case-2.pptx`.
-- [ ] TASK-03-02: Score Deck 2 with the identical rubric. Write `reports/decks/conformance/2026-04-16-dppa-case-2-conformance.md`.
-- [ ] TASK-03-03: Diff Deck 2 scores against Deck 1. Record per-dimension delta and overall delta.
-- [ ] TASK-03-04: Update "lessons to carry forward" — keep unresolved Deck 1 items, add new Deck 2 deviations, drop items that are now resolved.
+- [x] TASK-03-01: Build the present-skill prompt by concatenating the rubric + Deck 1's lessons-to-carry-forward block, then run against `reports/2026-04-16-dppa-case-2-final.html`. Output: `reports/decks/2026-04-16-dppa-case-2.pptx`.
+- [x] TASK-03-02: Score Deck 2 with the identical rubric. Write `reports/decks/conformance/2026-04-16-dppa-case-2-conformance.md`.
+- [x] TASK-03-03: Diff Deck 2 scores against Deck 1. Record per-dimension delta and overall delta.
+- [x] TASK-03-04: Update "lessons to carry forward" — keep unresolved Deck 1 items, add new Deck 2 deviations, drop items that are now resolved.
 
 **Files / Surfaces**
 - `reports/decks/2026-04-16-dppa-case-2.pptx` — new
@@ -130,9 +130,9 @@ Produce the second deck consuming the rubric *plus* Deck 1's "lessons to carry f
 Produce the third deck with cumulative lessons from Decks 1+2 and confirm the iteration has converged toward the template.
 
 **Tasks**
-- [ ] TASK-04-01: Build the prompt with rubric + cumulative lessons (Deck 1 unresolved + Deck 2 lessons). Run against `reports/2026-04-21-dppa-case-3-final.html`. Output: `reports/decks/2026-04-21-dppa-case-3.pptx`.
-- [ ] TASK-04-02: Score Deck 3 with the same rubric. Write `reports/decks/conformance/2026-04-21-dppa-case-3-conformance.md`.
-- [ ] TASK-04-03: Tag any remaining template gaps as "would require manual touchup" vs "addressable by a future rubric edit".
+- [x] TASK-04-01: Build the prompt with rubric + cumulative lessons (Deck 1 unresolved + Deck 2 lessons). Run against `reports/2026-04-21-dppa-case-3-final.html`. Output: `reports/decks/2026-04-21-dppa-case-3.pptx`.
+- [x] TASK-04-02: Score Deck 3 with the same rubric. Write `reports/decks/conformance/2026-04-21-dppa-case-3-conformance.md`.
+- [x] TASK-04-03: Tag any remaining template gaps as "would require manual touchup" vs "addressable by a future rubric edit".
 
 **Files / Surfaces**
 - `reports/decks/2026-04-21-dppa-case-3.pptx` — new
@@ -153,9 +153,9 @@ Produce the third deck with cumulative lessons from Decks 1+2 and confirm the it
 Produce the cross-iteration synthesis and land everything as one clean commit on `main` (per user direction that future changes merge to main).
 
 **Tasks**
-- [ ] TASK-05-01: Write `reports/decks/conformance/2026-05-03-allotrope-conformance-trajectory.md` containing: scores table (rows = decks, cols = rubric dimensions + total), narrative of which lessons stuck and which kept reappearing, and recommended template/rubric edits if the rubric itself proved incomplete.
-- [ ] TASK-05-02: Confirm the working tree builds a clean commit (no `tmp_phase3/`, no `nul`, no cached template binary if Q-002 says exclude).
-- [ ] TASK-05-03: Stage only the deck + conformance artifacts and the trajectory file. Open a PR to `main` summarizing the iteration arc and the final deck quality.
+- [x] TASK-05-01: Write `reports/decks/conformance/2026-05-03-allotrope-conformance-trajectory.md` containing: scores table (rows = decks, cols = rubric dimensions + total), narrative of which lessons stuck and which kept reappearing, and recommended template/rubric edits if the rubric itself proved incomplete.
+- [x] TASK-05-02: Confirm the working tree builds a clean commit (no `tmp_phase3/`, no `nul`, no cached template binary if Q-002 says exclude).
+- [x] TASK-05-03: Stage only the deck + conformance artifacts and the trajectory file. Open a PR to `main` summarizing the iteration arc and the final deck quality.
 
 **Files / Surfaces**
 - `reports/decks/conformance/2026-05-03-allotrope-conformance-trajectory.md` — new

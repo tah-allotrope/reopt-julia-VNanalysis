@@ -1,3 +1,7 @@
+---
+status: "complete — not an implementation plan; this is the plans/ directory convention doc and carries no work items"
+---
+
 # Plans
 
 - Put current planning documents in `plans/active/`.

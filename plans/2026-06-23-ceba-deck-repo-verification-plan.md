@@ -1,7 +1,7 @@
 ---
 title: "CEBA DPPA 2026 Deck — Repo Verification & In-Deck Review Notes"
 date: "2026-06-23"
-status: "draft"
+status: "complete — all 5 phases shipped: scripts/python/integration/ceba_deck/ + verify_ceba_dppa_deck.py, reports/ceba_dppa_2026_repo_check.{json,md}, annotated deck copy, final report reports/2026-06-23-final-ceba-deck-repo-verification.html"
 request: "based on brainstorm, execute the deck testables with the current repo and insert review comments into the deck for colleagues"
 plan_type: "multi-phase"
 research_inputs:
@@ -82,22 +82,22 @@ Define a single structured registry of every testable claim (one row per check) 
 deck-side values to specific slides, so computation and note-injection share one source of truth.
 
 **Tasks**
-- [ ] TASK-01-01: Create `scripts/python/integration/ceba_deck/__init__.py` and `deck_checks.py`
+- [x] TASK-01-01: Create `scripts/python/integration/ceba_deck/__init__.py` and `deck_checks.py`
       defining a `Check` dataclass: `id`, `slide`, `bucket` (A/B/C), `claim`, `deck_value`,
       `deck_unit`, `deck_citation` (or `None`), `repo_fn` (e.g. `"settlement.compute_hourly_settlement"`),
       `repo_source_ref` (`file:line`), `assumptions` (list), and placeholders for computed
       `repo_value`, `delta_pct`, `verdict`, `takeaway`.
-- [ ] TASK-01-02: Populate the registry with all A-bucket assumption checks: TOU multipliers &
+- [x] TASK-01-02: Populate the registry with all A-bucket assumption checks: TOU multipliers &
       peak window (Slide 5), avg retail 2,204 (Slides 11/37), fees 360+163.3=523 (Slides 9/13/30),
       k=1.026 & Kpp=1.008 (Slides 9–11), escalation 4% (Slides 5/16), capital structure
       (Slides 19/21), PV degradation 0.5% (Slide 21), FMP ~1,427 (Slides 9/15).
-- [ ] TASK-01-03: Populate B-bucket finding checks: five-line example 1,864 VND/kWh (Slide 12),
+- [x] TASK-01-03: Populate B-bucket finding checks: five-line example 1,864 VND/kWh (Slide 12),
       pre-CfD ~2,027 (Slide 13), workshop Scenarios 1/3/4 line totals (Slides 39–48), Case 5
       metrics (Slide 24), Case 6 metrics (Slide 25), 56-scenario empty-window (Slide 26).
-- [ ] TASK-01-04: Populate C-bucket insight checks: over-contracting caps (Slides 10/17),
+- [x] TASK-01-04: Populate C-bucket insight checks: over-contracting caps (Slides 10/17),
       load-shape overlap (Slides 17/52/54), Year 1 ≥ BAU crossover (Slides 13/16/27), oversized
       BESS DSCR dip (Slide 24), bankability floor (Slide 20), daytime-vs-night economics (Slides 52/54).
-- [ ] TASK-01-05: Add `known_gap` rows (no `repo_fn`): two-part tariff/Decree 146, RECs/EACs,
+- [x] TASK-01-05: Add `known_gap` rows (no `repo_fn`): two-part tariff/Decree 146, RECs/EACs,
       GHG scopes — verdict pre-set `➖ out of repo scope`.
 
 **Files / Surfaces**
@@ -122,28 +122,28 @@ Run each check's `repo_fn` with the deck's stated inputs, fill `repo_value`/`del
 and emit the results JSON. No faked numbers — every value traces to a real function call.
 
 **Tasks**
-- [ ] TASK-02-01: Implement `verify_ceba_dppa_deck.py` orchestrator that loads the registry,
+- [x] TASK-02-01: Implement `verify_ceba_dppa_deck.py` orchestrator that loads the registry,
       dispatches each `repo_fn`, and writes `reports/ceba_dppa_2026_repo_check.json`.
-- [ ] TASK-02-02: A-bucket: load `data/vietnam/*.json` and compare data-file values to deck
+- [x] TASK-02-02: A-bucket: load `data/vietnam/*.json` and compare data-file values to deck
       values (TOU window, 2,204, 523.34, escalation, capital structure, degradation). For
       k×Kpp, compute deck `1.026*1.008=1.03421` vs engine `ContractParams().kpp_factor` and
       record the structural delta.
-- [ ] TASK-02-03: B-bucket settlement: build a flat single-month profile (load=gen) and call
+- [x] TASK-02-03: B-bucket settlement: build a flat single-month profile (load=gen) and call
       `compute_hourly_settlement` with deck params (Slide 11/12: Q=6,000 MWh, strike 1,300,
       FMP 1,200, adder 523.3) — assert line-1..5 totals and blended 1,864 VND/kWh. Repeat for
       workshop Scenarios 1 (Slide 39–41), 3 (negative CfD, Slides 43–45), 4 (multi-plant,
       Slides 46–49) using `compute_hourly_settlement` per plant + manual netting.
-- [ ] TASK-02-04: B-bucket developer economics: call `run_single_owner_model` (in `.venv`) with
+- [x] TASK-02-04: B-bucket developer economics: call `run_single_owner_model` (in `.venv`) with
       deck Case-5/6 inputs (49 MWp-class plant, 70% debt, 8.5%, 10yr, 25-yr analysis, strike
       2,000 escalating 4%) for IRR / NPV / `min_dscr` / payback; compare to Slide 24/25 and mark
       method-consistent per DEC-007. Guard for PySAM-absent → status `skipped`, verdict `➖`.
-- [ ] TASK-02-05: B-bucket empty-window: drive `run_strike_sweep` (buyer side) across the deck's
+- [x] TASK-02-05: B-bucket empty-window: drive `run_strike_sweep` (buyer side) across the deck's
       12 strikes (1,200–2,200) and `sweep_strike_prices` / `run_single_owner_model` per strike
       for the lender `min_dscr`, reproducing "buyer turns positive as lender drops below 1.20×".
-- [ ] TASK-02-06: C-bucket: demonstrate over-contract caps (`matched=min(load,gen)`), build two
+- [x] TASK-02-06: C-bucket: demonstrate over-contract caps (`matched=min(load,gen)`), build two
       `FactoryProfile`s (daytime vs night-heavy) and run `physical_fit_from_profile` /
       `compute_hourly_settlement` to show the overlap and BAU-crossover relationships.
-- [ ] TASK-02-07: Apply the ±1% verdict rule (DEC-004) and citation rule (DEC-008) in a single
+- [x] TASK-02-07: Apply the ±1% verdict rule (DEC-004) and citation rule (DEC-008) in a single
       `classify(check)` helper; serialize verdicts + computed values into the JSON.
 
 **Files / Surfaces**
@@ -175,11 +175,11 @@ Turn the results JSON into a colleague-readable `reports/` markdown: a verdict s
 plus per-slide detail, mirroring the structure of the existing `ceba_*` reports at repo root.
 
 **Tasks**
-- [ ] TASK-03-01: Implement a `--report` mode (or sibling function) that reads the JSON and
+- [x] TASK-03-01: Implement a `--report` mode (or sibling function) that reads the JSON and
       writes `reports/ceba_dppa_2026_repo_check.md` with: header counts (✅/⚠️/❌/➖), a
       bucket-grouped table (slide, claim, deck, repo, delta, verdict), and a "Structural
       reconciliations" section calling out k×Kpp and the TOU window.
-- [ ] TASK-03-02: Include a "Known gaps" section listing the `➖` rows so reviewers see coverage
+- [x] TASK-03-02: Include a "Known gaps" section listing the `➖` rows so reviewers see coverage
       boundaries (DEC-006).
 
 **Files / Surfaces**
@@ -201,17 +201,17 @@ plus per-slide detail, mirroring the structure of the existing `ceba_*` reports 
 Write a structured per-slide note into a copy of the pptx, idempotently, from the same results JSON.
 
 **Tasks**
-- [ ] TASK-04-01: Implement `scripts/python/integration/ceba_deck/inject_repo_notes.py` that
+- [x] TASK-04-01: Implement `scripts/python/integration/ceba_deck/inject_repo_notes.py` that
       copies `ceba-review/CEBA DPPA 2026.pptx` → `ceba-review/CEBA DPPA 2026 [repo-checked].pptx`
       and opens the copy with `python-pptx`.
-- [ ] TASK-04-02: For each slide with checks, build a structured `[Repo check]` block per
+- [x] TASK-04-02: For each slide with checks, build a structured `[Repo check]` block per
       DEC-003: verdict icon, deck value, repo value, % delta, `repo_fn` + `file:line`, one-line
       takeaway, and (Case 5/6) the assumed-inputs line.
-- [ ] TASK-04-03: Write into `slide.notes_slide.notes_text_frame`, idempotently — detect a
+- [x] TASK-04-03: Write into `slide.notes_slide.notes_text_frame`, idempotently — detect a
       delimiter (e.g. `=== [Repo check] (generated) ===`) and replace everything below it,
       preserving any author notes above (CON-003).
-- [ ] TASK-04-04: Add `known_gap` notes to the two-part-tariff / RECs / GHG slides (DEC-006).
-- [ ] TASK-04-05: Save the copy; never touch the source or the `~$` lock file (CON-002).
+- [x] TASK-04-04: Add `known_gap` notes to the two-part-tariff / RECs / GHG slides (DEC-006).
+- [x] TASK-04-05: Save the copy; never touch the source or the `~$` lock file (CON-002).
 
 **Files / Surfaces**
 - `scripts/python/integration/ceba_deck/inject_repo_notes.py` - new injector.
@@ -235,15 +235,15 @@ Execute the full pipeline in `.venv`, sanity-check outputs, then commit the scri
 push to `main` per DEC-009 (annotated pptx left untracked).
 
 **Tasks**
-- [ ] TASK-05-01: Run `verify_ceba_dppa_deck.py` then `inject_repo_notes.py` end-to-end in
+- [x] TASK-05-01: Run `verify_ceba_dppa_deck.py` then `inject_repo_notes.py` end-to-end in
       `.venv`; confirm JSON, markdown, and `[repo-checked].pptx` are produced.
-- [ ] TASK-05-02: Spot-check three notes (Slide 12 five-line ✅, Slide 9/11 k×Kpp ⚠️ reconcile,
+- [x] TASK-05-02: Spot-check three notes (Slide 12 five-line ✅, Slide 9/11 k×Kpp ⚠️ reconcile,
       Slide 26 empty-window method-consistent) open correctly in the Notes pane.
-- [ ] TASK-05-03: `git add` only the tracked deliverables — `scripts/python/integration/ceba_deck/`,
+- [x] TASK-05-03: `git add` only the tracked deliverables — `scripts/python/integration/ceba_deck/`,
       `scripts/python/integration/verify_ceba_dppa_deck.py`, `reports/ceba_dppa_2026_repo_check.*`,
       `research/2026-06-23_*.md`, `plans/2026-06-23-*.md`. Confirm `git status` shows **no** pptx
       staged (DEC-009, CON-002).
-- [ ] TASK-05-04: Commit with a descriptive message and `git push origin main`.
+- [x] TASK-05-04: Commit with a descriptive message and `git push origin main`.
 
 **Files / Surfaces**
 - `.gitignore` - inspect to confirm `ceba-review/*.pptx` stays untracked (add a rule if needed).

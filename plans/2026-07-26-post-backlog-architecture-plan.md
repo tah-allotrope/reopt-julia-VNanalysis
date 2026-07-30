@@ -1,3 +1,7 @@
+---
+status: "open"
+---
+
 # Plan: Post-Backlog Architecture — Reproducibility Floor, API Contract, Canonical Assumptions, Julia Archive
 
 ## Objective
@@ -226,14 +230,14 @@ The three `20.0` presets are **correct as legacy presets** once each declares `d
 Make the declared Python floor real, turn on the lint gate the CI comment has deferred for six sessions, and fix the one violation that is a genuine bug.
 
 **Tasks**
-- [ ] TASK-01-01: Fix the f-string syntax error at `scripts/python/integration/generate_cross_project_dashboard.py:331`. The line currently is `f'<td>{fmt_money(s * 65226 * 1000 / 26000 * 10.675)}</td>'  # rough 20yr NPV factor at 8% with 5% esc` — the trailing comment sits **inside** the f-string expression block spanning lines 327-334. Move the comment to its own line **above** the `{"".join(` expression that begins at line 327. Change no numbers.
-- [ ] TASK-01-02: Add a `[tool.ruff]` section to `pyproject.toml` (see File Changes for exact content). Set `target-version = "py310"` and `line-length = 120`. Ignore `E402` repo-wide — the `sys.path.insert(...)` -then-import pattern in `scripts/` is deliberate and already carries `# noqa: E402` in places.
-- [ ] TASK-01-03: Apply `ruff check --fix src scripts tests` to clear the 66 auto-fixable violations (`F401` unused-import ×48, `F841` unused-variable ×28, `F541` f-string-without-placeholders ×16, `E401`, `F811`). Review the diff before committing — do **not** use `--unsafe-fixes`.
-- [ ] TASK-01-04: Fix the 35 `F821 Undefined name 'Check'` violations in `scripts/python/integration/verify_ceba_dppa_deck.py` by adding a `TYPE_CHECKING`-guarded import. Do not restructure `_load_registry`.
-- [ ] TASK-01-05: Fix the residual violations: `E741` ambiguous-variable-name ×4, `E702` multiple-statements-on-one-line ×10, `E721` type-comparison ×1. For `E721`, replace `type(x) == T` with `isinstance(x, T)`.
-- [ ] TASK-01-06: Move the `nrel-pysam` pin from CI-only into `pyproject.toml`: change `"nrel-pysam>=7.1"` to `"nrel-pysam==7.1.0"` in `[project] dependencies`, and drop the trailing `"nrel-pysam==7.1.0"` from the CI `pip install` line.
-- [ ] TASK-01-07: Add a Python version matrix (`["3.10", "3.12"]`) to `.github/workflows/ci.yml` and add a `ruff check` step. Delete the stale 11-line comment explaining why ruff is absent.
-- [ ] TASK-01-08: If the 3.10 job fails for a reason other than the fixed syntax error, apply ASM-007's binding default.
+- [x] TASK-01-01: Fix the f-string syntax error at `scripts/python/integration/generate_cross_project_dashboard.py:331`. The line currently is `f'<td>{fmt_money(s * 65226 * 1000 / 26000 * 10.675)}</td>'  # rough 20yr NPV factor at 8% with 5% esc` — the trailing comment sits **inside** the f-string expression block spanning lines 327-334. Move the comment to its own line **above** the `{"".join(` expression that begins at line 327. Change no numbers.
+- [x] TASK-01-02: Add a `[tool.ruff]` section to `pyproject.toml` (see File Changes for exact content). Set `target-version = "py310"` and `line-length = 120`. Ignore `E402` repo-wide — the `sys.path.insert(...)` -then-import pattern in `scripts/` is deliberate and already carries `# noqa: E402` in places.
+- [x] TASK-01-03: Apply `ruff check --fix src scripts tests` to clear the 66 auto-fixable violations (`F401` unused-import ×48, `F841` unused-variable ×28, `F541` f-string-without-placeholders ×16, `E401`, `F811`). Review the diff before committing — do **not** use `--unsafe-fixes`.
+- [x] TASK-01-04: Fix the 35 `F821 Undefined name 'Check'` violations in `scripts/python/integration/verify_ceba_dppa_deck.py` by adding a `TYPE_CHECKING`-guarded import. Do not restructure `_load_registry`.
+- [x] TASK-01-05: Fix the residual violations: `E741` ambiguous-variable-name ×4, `E702` multiple-statements-on-one-line ×10, `E721` type-comparison ×1. For `E721`, replace `type(x) == T` with `isinstance(x, T)`.
+- [x] TASK-01-06: Move the `nrel-pysam` pin from CI-only into `pyproject.toml`: change `"nrel-pysam>=7.1"` to `"nrel-pysam==7.1.0"` in `[project] dependencies`, and drop the trailing `"nrel-pysam==7.1.0"` from the CI `pip install` line.
+- [x] TASK-01-07: Add a Python version matrix (`["3.10", "3.12"]`) to `.github/workflows/ci.yml` and add a `ruff check` step. Delete the stale 11-line comment explaining why ruff is absent.
+- [x] TASK-01-08: If the 3.10 job fails for a reason other than the fixed syntax error, apply ASM-007's binding default.
 
 **File Changes**
 - `scripts/python/integration/generate_cross_project_dashboard.py` (modify): relocate the inline comment out of the f-string expression at line 331. Leave every numeric literal and all surrounding HTML untouched.
@@ -287,11 +291,11 @@ None — no code interfaces change in this phase.
 Wire the shipped `data/schemas/deal_config.schema.json` into the public API so `DealConfig.from_dict` rejects malformed input with an actionable message instead of accepting arbitrary dicts.
 
 **Tasks**
-- [ ] TASK-02-01: Write failing tests first (`tests/python/analysis/test_validation.py`) covering the Test Specs below. Run them and confirm they fail before implementing.
-- [ ] TASK-02-02: Create `src/python/reopt_pysam_vn/analysis/validation.py` with a dependency-free structural validator supporting exactly three JSON Schema keywords: `required`, `type`, and `enum`. Ignore all other keywords (`description`, `$id`, `additionalProperties`, `properties` nesting beyond one level for the six known sections).
-- [ ] TASK-02-03: Call the validator from `DealConfig.from_dict` in `src/python/reopt_pysam_vn/analysis/types.py`, replacing the existing bare `d["case"]` `KeyError` path. Keep the existing `__post_init__` `mode` check (it guards direct construction, which bypasses `from_dict`).
-- [ ] TASK-02-04: Add a `validate: bool = True` keyword to `from_dict` so a caller with a deliberately partial config can opt out. Default `True`.
-- [ ] TASK-02-05: Confirm the Samsung/TTC and sample fixture configs still validate: `scenarios/case_studies/samsung_ttc/samsung_ttc_deal_config.json` and `tests/python/analysis/fixtures/sample_deal_config.json`.
+- [x] TASK-02-01: Write failing tests first (`tests/python/analysis/test_validation.py`) covering the Test Specs below. Run them and confirm they fail before implementing.
+- [x] TASK-02-02: Create `src/python/reopt_pysam_vn/analysis/validation.py` with a dependency-free structural validator supporting exactly three JSON Schema keywords: `required`, `type`, and `enum`. Ignore all other keywords (`description`, `$id`, `additionalProperties`, `properties` nesting beyond one level for the six known sections).
+- [x] TASK-02-03: Call the validator from `DealConfig.from_dict` in `src/python/reopt_pysam_vn/analysis/types.py`, replacing the existing bare `d["case"]` `KeyError` path. Keep the existing `__post_init__` `mode` check (it guards direct construction, which bypasses `from_dict`).
+- [x] TASK-02-04: Add a `validate: bool = True` keyword to `from_dict` so a caller with a deliberately partial config can opt out. Default `True`.
+- [x] TASK-02-05: Confirm the Samsung/TTC and sample fixture configs still validate: `scenarios/case_studies/samsung_ttc/samsung_ttc_deal_config.json` and `tests/python/analysis/fixtures/sample_deal_config.json`.
 
 **File Changes**
 - `src/python/reopt_pysam_vn/analysis/validation.py` (create): the validator module. Loads the schema from `<repo_root>/data/schemas/deal_config.schema.json` with `encoding="utf-8-sig"` (Windows editors emit a BOM — every other JSON reader in this repo uses `utf-8-sig`; matching that is mandatory). Cache the parsed schema in a module-level variable so repeated `from_dict` calls do not re-read the file.

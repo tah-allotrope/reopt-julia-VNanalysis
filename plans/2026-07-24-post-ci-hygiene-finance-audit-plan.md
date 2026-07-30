@@ -1,7 +1,7 @@
 ---
 title: "Post-CI Hygiene, Single Owner Finance Audit, Coverage Reporting, and Plans Sweep"
 date: "2026-07-24"
-status: "draft"
+status: "complete — PHASE-01..04 shipped (commits ac7aad2, 3b5dad7, 5b221c8): security/workspace hygiene, zero_reference_plant_defaults flag + reports/2026-07-24-single-owner-defaults-audit.md, pytest-cov in CI, 13 plans archived; final report reports/2026-07-25-post-ci-hygiene-finance-audit-final.md"
 request: "research/2026-07-24-reopt-pysam-sixth-pass-brainstorm.md — turn the sixth-pass brainstorm's four action items into a multi-phase implementation plan"
 plan_type: "multi-phase"
 research_inputs:
@@ -370,12 +370,12 @@ truth, and the leaked-key rotation obligation is written down where the
 account owner will see it.
 
 **Tasks**
-- [ ] TASK-01-01: Untrack the three deck binaries (files stay on disk, per
+- [x] TASK-01-01: Untrack the three deck binaries (files stay on disk, per
   CON-002):
   ```powershell
   git rm --cached "ceba-review/DPPA Presentation July 2026 Case Studies [repo-checked].pptx" "ceba-review/cong bess session [reviewed].pptx" "ceba-review/cong bess session.pptx"
   ```
-- [ ] TASK-01-02: Fix the two `.gitignore` bracket-glob bugs. In the
+- [x] TASK-01-02: Fix the two `.gitignore` bracket-glob bugs. In the
   "July 2026 deck verification" section (currently lines 93-100), change:
   - `ceba-review/*[repo-checked].pptx` → `ceba-review/*\[repo-checked\].pptx`
   - `ceba-review/*[*reviewed*].pptx` → `ceba-review/*\[reviewed\].pptx`
@@ -388,20 +388,20 @@ account owner will see it.
   git check-ignore -v "ceba-review/cong bess session.pptx"
   ```
   Each command must print a matching rule and exit `0`.
-- [ ] TASK-01-03: Delete the tracked root screenshots (history retains them;
+- [x] TASK-01-03: Delete the tracked root screenshots (history retains them;
   they are superseded webapp-session evidence from the 2026-07-06 map site
   picker work):
   ```powershell
   git rm phase04_new_deal_initial.png phase04_new_deal_scrolled.png
   ```
-- [ ] TASK-01-04: Remove the strict-xfail tripwire in
+- [x] TASK-01-04: Remove the strict-xfail tripwire in
   `tests/python/test_repo_invariants.py` now that the root PNGs are
   untracked — delete the `@pytest.mark.xfail(reason="...", strict=True)`
   decorator directly above `def test_no_root_level_binaries():` (currently
   lines 51-54), leaving the test function itself unchanged. Do not touch
   `test_no_flat_python_scripts` or `test_no_tracked_artifacts` in the same
   file.
-- [ ] TASK-01-05: Single dependency source:
+- [x] TASK-01-05: Single dependency source:
   ```powershell
   git rm requirements.txt
   ```
@@ -417,7 +417,7 @@ account owner will see it.
   ```
   Leave the two bullet points below that block (about PySAM scaffolding and
   test skipping) unchanged.
-- [ ] TASK-01-06: Document the key-rotation requirement. Add a new
+- [x] TASK-01-06: Document the key-rotation requirement. Add a new
   subsection titled `### Security note — API key rotation required`
   immediately after the `## Python Setup` section in `README.md`, stating:
   an NREL Developer API key was committed historically (commits `3911032`
@@ -429,7 +429,7 @@ account owner will see it.
   (currently lines 47-56): `**Security:** an NREL API key committed
   historically (commits 3911032, b14bc0b) has not been confirmed rotated as
   of 2026-07-24 — see README.md's "API key rotation required" note.`
-- [ ] TASK-01-07: Run the full local suite, confirm `git status` shows no
+- [x] TASK-01-07: Run the full local suite, confirm `git status` shows no
   unexpected re-tracked files, commit.
 
 **File Changes**
@@ -490,7 +490,7 @@ outputs carry those un-zeroed defaults, without changing any golden number
 or flipping any default.
 
 **Tasks**
-- [ ] TASK-02-01 (confirm, no code yet): Re-verify the twelve field values
+- [x] TASK-02-01 (confirm, no code yet): Re-verify the twelve field values
   against the locally-installed PySAM before writing any test expectation,
   in case ASM-002's recorded values are stale by execution time:
   ```powershell
@@ -498,13 +498,13 @@ or flipping any default.
   ```
   Use whatever this prints as the regression-guard expectations in
   TASK-02-03's tests (ASM-002's binding default).
-- [ ] TASK-02-02 (RED): Create `tests/python/pysam/test_single_owner_clean_slate.py`
+- [x] TASK-02-02 (RED): Create `tests/python/pysam/test_single_owner_clean_slate.py`
   with the failing tests in Test Specs below. Follow the existing pattern
   in `tests/python/pysam/test_single_owner_phase4.py`: plain tests first,
   then a module-level `PySAM = pytest.importorskip("PySAM")` line, then
   PySAM-dependent tests. Run and confirm they fail (module does not exist
   yet / assertions fail against current zero-flag behavior).
-- [ ] TASK-02-03 (GREEN): In `src/python/reopt_pysam_vn/pysam/single_owner.py`:
+- [x] TASK-02-03 (GREEN): In `src/python/reopt_pysam_vn/pysam/single_owner.py`:
   - Add a new field `zero_reference_plant_defaults: bool = False` to the
     `SingleOwnerInputs` dataclass (after `depreciation_schedule`, before
     `metadata`).
@@ -525,10 +525,10 @@ or flipping any default.
     add a `"clean_slate": "US SAM reference-plant cost defaults zeroed; see reports/2026-07-24-single-owner-defaults-audit.md"`
     entry to the existing `"notes"` sub-dict (leave the existing
     `"phase_scope"` and `"irr_warning"` note strings unchanged).
-- [ ] TASK-02-04: Run the new tests, confirm green; run the full local
+- [x] TASK-02-04: Run the new tests, confirm green; run the full local
   suite; confirm `tests/python/webapp/test_golden_parity.py` still passes
   with zero diff (`git diff --stat examples/` → no output).
-- [ ] TASK-02-05 (audit, read-only, no code changes): Re-run the caller
+- [x] TASK-02-05 (audit, read-only, no code changes): Re-run the caller
   grep to get the authoritative list at execution time:
   ```powershell
   git grep -l "run_single_owner_model\|_configure_financial_model\|SingleOwnerInputs" -- src/ scripts/ tests/
@@ -543,14 +543,14 @@ or flipping any default.
   output-write path, e.g. `open(..., "w")` or `json.dump`/`Path(...).write_text`
   calls, and check whether the target path matches a tracked file via
   `git ls-files -- <path-prefix>`).
-- [ ] TASK-02-06 (audit, one comparison run): Using
+- [x] TASK-02-06 (audit, one comparison run): Using
   ASM-004's chosen representative case, run
   `run_single_owner_model` twice — once with
   `zero_reference_plant_defaults=False` (default) and once with `True` —
   holding every other input identical, and record the
   `project_return_aftertax_npv_usd` and `project_return_aftertax_irr_fraction`
   delta between the two runs in the audit report.
-- [ ] TASK-02-07: Write `reports/2026-07-24-single-owner-defaults-audit.md`
+- [x] TASK-02-07: Write `reports/2026-07-24-single-owner-defaults-audit.md`
   containing: (1) a caller table (file path, calls `run_single_owner_model`
   Y/N, feeds a tracked deliverable Y/N + which one, verdict), (2) the
   TASK-02-06 NPV/IRR delta with both numbers and the case used, (3) an
@@ -563,13 +563,13 @@ or flipping any default.
   needs re-review — with an explicit statement that this plan makes no
   golden-file change and takes no position on whether such a re-review is
   required, only that the facts warrant asking.
-- [ ] TASK-02-08: One-line docstring update in
+- [x] TASK-02-08: One-line docstring update in
   `scripts/python/pysam/2026-07-17_kbc_proforma_pysam_crosscheck.py`
   pointing its `run_single_owner_model_clean` reference at the new
   `zero_reference_plant_defaults` flag as the durable, library-level
   replacement for its ad hoc reimplementation — no behavior change to that
   script.
-- [ ] TASK-02-09: Full suite; confirm CI green.
+- [x] TASK-02-09: Full suite; confirm CI green.
 
 **File Changes**
 - `src/python/reopt_pysam_vn/pysam/single_owner.py` (modify): add the
@@ -665,7 +665,7 @@ sprawl decomposition work referenced in prior brainstorms, out of scope
 here).
 
 **Tasks**
-- [ ] TASK-03-01: Add `[tool.coverage.run]` to `pyproject.toml`:
+- [x] TASK-03-01: Add `[tool.coverage.run]` to `pyproject.toml`:
   ```toml
   [tool.coverage.run]
   source = ["reopt_pysam_vn"]
@@ -673,7 +673,7 @@ here).
   ```
   Place this new table immediately after the existing
   `[[tool.mypy.overrides]]` block; do not modify any existing table.
-- [ ] TASK-03-02: In `.github/workflows/ci.yml`, add `pytest-cov` to the
+- [x] TASK-03-02: In `.github/workflows/ci.yml`, add `pytest-cov` to the
   install line (currently `pip install -e ".[webapp]" mypy pytest "nrel-pysam==7.1.0"`)
   → `pip install -e ".[webapp]" mypy pytest pytest-cov "nrel-pysam==7.1.0"`.
   Append `--cov=reopt_pysam_vn --cov-report=term-missing` to the existing
@@ -682,12 +682,12 @@ here).
   → `python -m pytest tests/python -m "not network and not requires_artifacts and not golden_machine and not requires_julia" -q --cov=reopt_pysam_vn --cov-report=term-missing`.
   Do **not** add `--cov-fail-under`; this step must remain report-only and
   must not cause the job to fail on low coverage.
-- [ ] TASK-03-03: Run the same command locally to confirm it works before
+- [x] TASK-03-03: Run the same command locally to confirm it works before
   pushing:
   ```powershell
   $env:PYTHONPATH = ""; .venv\Scripts\python.exe -m pytest tests/python -m "not network and not requires_artifacts and not golden_machine and not requires_julia" -q --cov=reopt_pysam_vn --cov-report=term-missing
   ```
-- [ ] TASK-03-04: Commit, push, confirm the GitHub Actions run on `main`
+- [x] TASK-03-04: Commit, push, confirm the GitHub Actions run on `main`
   still concludes `success` and its log contains a coverage summary table.
 
 **File Changes**
@@ -735,7 +735,7 @@ elsewhere, and preventing the same "is this still live?" ambiguity that has
 previously required manual archaeology in this repo.
 
 **Tasks**
-- [ ] TASK-04-01: For each of the following 13 files, confirm the cited
+- [x] TASK-04-01: For each of the following 13 files, confirm the cited
   evidence still exists, then `git mv` it from `plans/active/` to
   `plans/archive/` (same filename, no content edits):
 
@@ -760,7 +760,7 @@ previously required manual archaeology in this repo.
   ```powershell
   git mv "plans/active/2026-05-07-decision-963-tou-migration-plan.md" "plans/archive/2026-05-07-decision-963-tou-migration-plan.md"
   ```
-- [ ] TASK-04-02: Do **not** move any of the following 9 files — each
+- [x] TASK-04-02: Do **not** move any of the following 9 files — each
   either has no matching `reports/*final*` file, has an incomplete or
   ambiguous checkbox state, or (for `pysam_integration_reorg_plan.md`)
   explicitly states unfinished phases in its own text: leave these
@@ -777,14 +777,14 @@ previously required manual archaeology in this repo.
   partially complete... still the main unfinished bridge item" and lists
   Phase 6/7 as not started — do not treat its Phases 1-4 completion notes
   as evidence for archiving the whole file).
-- [ ] TASK-04-03: Confirm the compatibility pointer file
+- [x] TASK-04-03: Confirm the compatibility pointer file
   `plans/pysam_integration_reorg_plan.md` (top-level, 9 lines, states "This
   path is a compatibility pointer only" and points at
   `plans/active/pysam_integration_reorg_plan.md`) is left completely
   unmodified — it is intentional per `plans/README.md`'s own convention
   ("if an older path must remain for compatibility, leave only a short
   pointer note there"), not a stray duplicate.
-- [ ] TASK-04-04: `git status` to confirm only the 13 intended moves
+- [x] TASK-04-04: `git status` to confirm only the 13 intended moves
   appear (as renames, not add+delete pairs — `git mv` preserves this);
   commit.
 

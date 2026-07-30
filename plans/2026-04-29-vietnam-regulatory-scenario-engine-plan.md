@@ -1,7 +1,7 @@
 ---
 title: "Vietnam TOU and Regulatory Scenario Engine"
 date: "2026-04-29"
-status: "draft"
+status: "open"
 request: "Take Idea 2 from research/2026-04-26_commercial-product-ideas.md and create a multi-phase plan using the plan skill."
 plan_type: "multi-phase"
 research_inputs:
@@ -51,10 +51,10 @@ Turn Idea 2 from the commercial-product brief into a repo-native productization 
 Introduce a versioned, machine-readable regime registry that sits beside the existing tariff and export-rule files and can express named regulatory bundles without duplicating the whole Vietnam data layer.
 
 **Tasks**
-- [ ] TASK-01-01: Add `data/vietnam/vn_regime_registry_2026.json` with `_meta` and `data.regimes`. Each regime bundle should contain `label`, `effective_date`, `status`, `tariff_overrides`, `export_rule_overrides`, `postprocess_overrides`, `source_refs`, and `notes`, so changes are stored as override fragments rather than whole-file copies.
-- [ ] TASK-01-02: Seed the registry with the five initial bundles from DEC-001. The `decision_14_2025_current` bundle should resolve to current repo behavior, while the others should override only the fields they actually change (TOU windows, multiplier interpretation, export cap, demand-charge mode, or BESS payment preview).
-- [ ] TASK-01-03: Extend `data/vietnam/manifest.json` with a new `regimes` entry and update `load_vietnam_data()` in both languages so `VNData` carries a `regimes` payload alongside `tariff`, `tech_costs`, `financials`, `emissions`, and `export_rules`.
-- [ ] TASK-01-04: Update Layer 1 validation in `tests/python/reopt/test_data_validation.py` and `tests/julia/test_data_validation.jl` to require the new manifest key and validate the registry schema: valid `regime_id` keys, allowed `status` values, 24-hour TOU coverage when schedules are present, export fractions in `[0,1]`, and source references present for every non-baseline bundle.
+- [x] TASK-01-01: Add `data/vietnam/vn_regime_registry_2026.json` with `_meta` and `data.regimes`. Each regime bundle should contain `label`, `effective_date`, `status`, `tariff_overrides`, `export_rule_overrides`, `postprocess_overrides`, `source_refs`, and `notes`, so changes are stored as override fragments rather than whole-file copies.
+- [x] TASK-01-02: Seed the registry with the five initial bundles from DEC-001. The `decision_14_2025_current` bundle should resolve to current repo behavior, while the others should override only the fields they actually change (TOU windows, multiplier interpretation, export cap, demand-charge mode, or BESS payment preview).
+- [x] TASK-01-03: Extend `data/vietnam/manifest.json` with a new `regimes` entry and update `load_vietnam_data()` in both languages so `VNData` carries a `regimes` payload alongside `tariff`, `tech_costs`, `financials`, `emissions`, and `export_rules`.
+- [x] TASK-01-04: Update Layer 1 validation in `tests/python/reopt/test_data_validation.py` and `tests/julia/test_data_validation.jl` to require the new manifest key and validate the registry schema: valid `regime_id` keys, allowed `status` values, 24-hour TOU coverage when schedules are present, export fractions in `[0,1]`, and source references present for every non-baseline bundle.
 
 **Files / Surfaces**
 - `data/vietnam/vn_regime_registry_2026.json` - New source-of-truth file for named regulatory bundles.
@@ -80,12 +80,12 @@ Introduce a versioned, machine-readable regime registry that sits beside the exi
 Make `regime_id` a first-class argument across the preprocessing layer so any named regulatory bundle can be resolved into the exact tariff and export settings used to build a scenario.
 
 **Tasks**
-- [ ] TASK-02-01: Add a `resolve_vietnam_regime` helper in both `src/python/reopt_pysam_vn/reopt/preprocess.py` and `src/julia/REoptVietnam.jl` that overlays a chosen regime bundle onto the base `vn.tariff` and `vn.export_rules` payloads and returns a fully resolved regime object.
-- [ ] TASK-02-02: Extend `build_vietnam_tariff(...)` and `apply_vietnam_defaults(...)` / `apply_vietnam_defaults!(...)` with a `regime_id` argument. The default should be `decision_14_2025_current` so all existing builders and tests remain backward compatible.
-- [ ] TASK-02-03: Update `apply_decree57_export(...)` / `apply_decree57_export!(...)` to consume regime-specific `max_export_fraction`, `surplus_purchase_rate`, and export-policy overrides from the resolved regime rather than assuming a hard-coded 20 percent rooftop cap.
-- [ ] TASK-02-04: Persist `resolved_regime_id`, registry version, and any post-processing-only preview fields (for example `bess_capacity_payment_vnd_per_kw_month`) into `_meta` so later runners and reports can trace exactly which regime generated a scenario.
-- [ ] TASK-02-05: Extend `tests/python/reopt/test_unit.py` and `tests/julia/test_unit.jl` to cover old/new TOU hour mappings, draft 50 percent export-cap metadata, two-part tariff demand-rate injection, and omission-of-`regime_id` backward compatibility.
-- [ ] TASK-02-06: Extend `tests/julia/export_processed_dict.jl` and `tests/cross_language/cross_validate.py` to compare at least two explicit regimes end to end, not just one baseline tariff.
+- [x] TASK-02-01: Add a `resolve_vietnam_regime` helper in both `src/python/reopt_pysam_vn/reopt/preprocess.py` and `src/julia/REoptVietnam.jl` that overlays a chosen regime bundle onto the base `vn.tariff` and `vn.export_rules` payloads and returns a fully resolved regime object.
+- [x] TASK-02-02: Extend `build_vietnam_tariff(...)` and `apply_vietnam_defaults(...)` / `apply_vietnam_defaults!(...)` with a `regime_id` argument. The default should be `decision_14_2025_current` so all existing builders and tests remain backward compatible.
+- [x] TASK-02-03: Update `apply_decree57_export(...)` / `apply_decree57_export!(...)` to consume regime-specific `max_export_fraction`, `surplus_purchase_rate`, and export-policy overrides from the resolved regime rather than assuming a hard-coded 20 percent rooftop cap.
+- [x] TASK-02-04: Persist `resolved_regime_id`, registry version, and any post-processing-only preview fields (for example `bess_capacity_payment_vnd_per_kw_month`) into `_meta` so later runners and reports can trace exactly which regime generated a scenario.
+- [x] TASK-02-05: Extend `tests/python/reopt/test_unit.py` and `tests/julia/test_unit.jl` to cover old/new TOU hour mappings, draft 50 percent export-cap metadata, two-part tariff demand-rate injection, and omission-of-`regime_id` backward compatibility.
+- [x] TASK-02-06: Extend `tests/julia/export_processed_dict.jl` and `tests/cross_language/cross_validate.py` to compare at least two explicit regimes end to end, not just one baseline tariff.
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/reopt/preprocess.py` - Add regime resolution, `regime_id`, and `_meta` propagation.
@@ -111,12 +111,12 @@ Make `regime_id` a first-class argument across the preprocessing layer so any na
 Build a reusable runner that defines a project once, materializes fully resolved scenario JSONs for each regime/assumption combination, executes them through the existing Julia solve path, and stores results in a deterministic, cacheable layout.
 
 **Tasks**
-- [ ] TASK-03-01: Add `scenarios/regime_engine/assumption_sets/` with named JSON assumption packs such as `base.json`, `repriced_multipliers.json`, `export_cap_sweep.json`, and `capacity_payment_preview.json` so sweeps are explicit artifacts rather than ad hoc CLI flags.
-- [ ] TASK-03-02: Add `scripts/python/reopt/build_regime_scenarios.py` that takes a base template or case-study input plus one or more `regime_id` values and writes fully resolved scenario JSONs to `scenarios/generated/regime_engine/<project_slug>/`.
-- [ ] TASK-03-03: Add `src/python/reopt_pysam_vn/reopt/regime_runner.py` and `scripts/python/reopt/run_regime_matrix.py` to orchestrate `N regimes x M assumption sets`, compute a deterministic scenario hash from canonicalized inputs, and skip reruns when a successful hash directory already exists unless `--force` is set.
-- [ ] TASK-03-04: Extend `scripts/julia/run_vietnam_scenario.jl` with an explicit `--output-dir` argument so the new engine is not blocked by the current hard-coded result routing that only recognizes `saigon18`, `north_thuan`, and `ninhsim` path markers.
-- [ ] TASK-03-05: Standardize per-run artifacts under `artifacts/results/regime_engine/<project_slug>/<scenario_hash>/` with `input.json`, `resolved_regime.json`, `reopt-results.json`, `summary.json`, and `run_manifest.json` containing `regime_id`, `assumption_set_id`, registry version, runtime, and status.
-- [ ] TASK-03-06: Add a targeted smoke test such as `tests/python/integration/test_regime_engine_smoke.py` that runs a tiny two-regime matrix with `--no-solve` or the repo's smoke-mode path and asserts artifact completeness plus stable hashing.
+- [x] TASK-03-01: Add `scenarios/regime_engine/assumption_sets/` with named JSON assumption packs such as `base.json`, `repriced_multipliers.json`, `export_cap_sweep.json`, and `capacity_payment_preview.json` so sweeps are explicit artifacts rather than ad hoc CLI flags.
+- [x] TASK-03-02: Add `scripts/python/reopt/build_regime_scenarios.py` that takes a base template or case-study input plus one or more `regime_id` values and writes fully resolved scenario JSONs to `scenarios/generated/regime_engine/<project_slug>/`.
+- [x] TASK-03-03: Add `src/python/reopt_pysam_vn/reopt/regime_runner.py` and `scripts/python/reopt/run_regime_matrix.py` to orchestrate `N regimes x M assumption sets`, compute a deterministic scenario hash from canonicalized inputs, and skip reruns when a successful hash directory already exists unless `--force` is set.
+- [x] TASK-03-04: Extend `scripts/julia/run_vietnam_scenario.jl` with an explicit `--output-dir` argument so the new engine is not blocked by the current hard-coded result routing that only recognizes `saigon18`, `north_thuan`, and `ninhsim` path markers.
+- [x] TASK-03-05: Standardize per-run artifacts under `artifacts/results/regime_engine/<project_slug>/<scenario_hash>/` with `input.json`, `resolved_regime.json`, `reopt-results.json`, `summary.json`, and `run_manifest.json` containing `regime_id`, `assumption_set_id`, registry version, runtime, and status.
+- [x] TASK-03-06: Add a targeted smoke test such as `tests/python/integration/test_regime_engine_smoke.py` that runs a tiny two-regime matrix with `--no-solve` or the repo's smoke-mode path and asserts artifact completeness plus stable hashing.
 
 **Files / Surfaces**
 - `scenarios/regime_engine/assumption_sets/` - Named sweep definitions for repeatable comparisons.

@@ -1,3 +1,7 @@
+---
+status: "superseded — pointer stub only; the canonical editable copy is plans/active/pysam_integration_reorg_plan.md"
+---
+
 # PySAM Integration and Repository Reorganization Plan
 
 This path is a compatibility pointer only.

@@ -1,7 +1,7 @@
 ---
 title: "Vietnam DPPA Web App"
 date: "2026-07-04"
-status: "draft"
+status: "complete — all 5 phases shipped in commit a656102: webapp package (storage/jobs/service/forms/uploads/results_view/compare), 5 Jinja templates, 13 test modules including test_golden_parity.py"
 request: "vietnam-dppa-web-app — multi-phase implementation plan from research/2026-07-04_vietnam-dppa-web-app-brainstorm.md"
 plan_type: "multi-phase"
 research_inputs:
@@ -58,11 +58,11 @@ Build an internal, localhost FastAPI web app that exposes the repo's Vietnam DPP
 A FastAPI app importable as `reopt_pysam_vn.webapp:app` with filesystem run storage and a JSON API that can execute the fast, deterministic path (analysis over pre-solved results) end-to-end — no UI, no solving yet.
 
 **Tasks**
-- [ ] TASK-01-01: Add `webapp` optional extra to `pyproject.toml` (`fastapi`, `uvicorn[standard]`, `jinja2`, `python-multipart`) and install into `.venv` with uv; add `artifacts/webapp/` to `.gitignore` if not already covered by `artifacts/`.
-- [ ] TASK-01-02: Write failing tests `tests/python/webapp/test_storage.py` for `storage.py`: create run dir (`artifacts/webapp/runs/<run_id>/`), write/read `deal_config.json`/`status.json`/`result.json`, list runs sorted by date, storage root overridable via env var for tests (point at tmp dir).
-- [ ] TASK-01-03: Implement `src/python/reopt_pysam_vn/webapp/storage.py` to green.
-- [ ] TASK-01-04: Write failing tests `tests/python/webapp/test_api_runs.py` (FastAPI `TestClient`): `GET /api/health`; `POST /api/runs` with a DealConfig JSON + pre-solved `results`/`extracted` payloads returns a run whose `result.json` matches calling `run_onsite`/`run_offsite_dppa` directly; `GET /api/runs` lists; `GET /api/runs/{id}` fetches; invalid DealConfig (bad `mode`) returns 422 with the `ValueError` message.
-- [ ] TASK-01-05: Implement `webapp/__init__.py` (app factory), `webapp/routes/api.py`, and a thin `webapp/service.py` that maps mode → `run_onsite` / `run_offsite_dppa` / both, to green.
+- [x] TASK-01-01: Add `webapp` optional extra to `pyproject.toml` (`fastapi`, `uvicorn[standard]`, `jinja2`, `python-multipart`) and install into `.venv` with uv; add `artifacts/webapp/` to `.gitignore` if not already covered by `artifacts/`.
+- [x] TASK-01-02: Write failing tests `tests/python/webapp/test_storage.py` for `storage.py`: create run dir (`artifacts/webapp/runs/<run_id>/`), write/read `deal_config.json`/`status.json`/`result.json`, list runs sorted by date, storage root overridable via env var for tests (point at tmp dir).
+- [x] TASK-01-03: Implement `src/python/reopt_pysam_vn/webapp/storage.py` to green.
+- [x] TASK-01-04: Write failing tests `tests/python/webapp/test_api_runs.py` (FastAPI `TestClient`): `GET /api/health`; `POST /api/runs` with a DealConfig JSON + pre-solved `results`/`extracted` payloads returns a run whose `result.json` matches calling `run_onsite`/`run_offsite_dppa` directly; `GET /api/runs` lists; `GET /api/runs/{id}` fetches; invalid DealConfig (bad `mode`) returns 422 with the `ValueError` message.
+- [x] TASK-01-05: Implement `webapp/__init__.py` (app factory), `webapp/routes/api.py`, and a thin `webapp/service.py` that maps mode → `run_onsite` / `run_offsite_dppa` / both, to green.
 
 **Files / Surfaces**
 - `pyproject.toml` — add `webapp` extra.
@@ -86,12 +86,12 @@ A FastAPI app importable as `reopt_pysam_vn.webapp:app` with filesystem run stor
 `POST /api/runs` accepts a DealConfig with no pre-solved results, runs the NREL solve (`run_vietnam_reopt`) plus analysis in an in-process background job, and exposes status polling — with a config-hash solve cache and a one-solve-at-a-time queue.
 
 **Tasks**
-- [ ] TASK-02-01: Write failing tests `tests/python/webapp/test_jobs.py` for `jobs.py`: submit job → status transitions `queued → solving → analyzing → done` (or `error` with message); FIFO queue admits one active solve; job state persisted to `status.json` so a restart shows the last known state.
-- [ ] TASK-02-02: Implement `webapp/jobs.py` (thread-based worker; FastAPI lifespan startup/shutdown) to green.
-- [ ] TASK-02-03: Record one real NREL solve response as a fixture (`tests/python/webapp/fixtures/reopt_response.json`) or reuse an existing sanitized results JSON (see `tests/python/reopt/test_api_result_sanitization.py` fixtures); write failing tests where `run_vietnam_reopt` is monkeypatched to return it — `POST /api/runs` (no results) returns `202` + run id, polling `GET /api/runs/{id}` reaches `done`, and `result.json` matches the deterministic path over the fixture.
-- [ ] TASK-02-04: Implement the solve step in `service.py`: build the REopt scenario from DealConfig via `apply_vietnam_defaults`/`load_vietnam_data`, call `run_vietnam_reopt`, persist `reopt_results.json`, then run analysis; wire NREL key loading from `NREL_API.env`/env vars exactly as `scripts/python/reopt/solve_via_api.py` does.
-- [ ] TASK-02-05: Write failing tests for the solve cache: identical solve-relevant config subset → second run reuses the first run's `reopt_results.json` (no `run_vietnam_reopt` call); `force_resolve: true` bypasses. Implement to green.
-- [ ] TASK-02-06: Error-path tests: NREL failure/timeout marks the run `error` with a human-readable message surfaced by the status endpoint; the worker survives and processes the next job.
+- [x] TASK-02-01: Write failing tests `tests/python/webapp/test_jobs.py` for `jobs.py`: submit job → status transitions `queued → solving → analyzing → done` (or `error` with message); FIFO queue admits one active solve; job state persisted to `status.json` so a restart shows the last known state.
+- [x] TASK-02-02: Implement `webapp/jobs.py` (thread-based worker; FastAPI lifespan startup/shutdown) to green.
+- [x] TASK-02-03: Record one real NREL solve response as a fixture (`tests/python/webapp/fixtures/reopt_response.json`) or reuse an existing sanitized results JSON (see `tests/python/reopt/test_api_result_sanitization.py` fixtures); write failing tests where `run_vietnam_reopt` is monkeypatched to return it — `POST /api/runs` (no results) returns `202` + run id, polling `GET /api/runs/{id}` reaches `done`, and `result.json` matches the deterministic path over the fixture.
+- [x] TASK-02-04: Implement the solve step in `service.py`: build the REopt scenario from DealConfig via `apply_vietnam_defaults`/`load_vietnam_data`, call `run_vietnam_reopt`, persist `reopt_results.json`, then run analysis; wire NREL key loading from `NREL_API.env`/env vars exactly as `scripts/python/reopt/solve_via_api.py` does.
+- [x] TASK-02-05: Write failing tests for the solve cache: identical solve-relevant config subset → second run reuses the first run's `reopt_results.json` (no `run_vietnam_reopt` call); `force_resolve: true` bypasses. Implement to green.
+- [x] TASK-02-06: Error-path tests: NREL failure/timeout marks the run `error` with a human-readable message surfaced by the status endpoint; the worker survives and processes the next job.
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/webapp/{jobs.py,service.py,routes/api.py}` — job manager, solve integration.
@@ -116,12 +116,12 @@ A FastAPI app importable as `reopt_pysam_vn.webapp:app` with filesystem run stor
 Non-technical users create a deal in the browser: pick one of the four archetype templates, edit a guided form (site / plant / contract / finance key overrides, Vietnam defaults prefilled and shown), upload an 8760-hour CSV/xlsx load profile, and submit — producing a valid DealConfig and a queued run.
 
 **Tasks**
-- [ ] TASK-03-01: Write failing tests `tests/python/webapp/test_uploads.py` for `uploads.py`: parse a single-column CSV (header optional) and basic `.xlsx` (first sheet, first numeric column) into `loads_kw`; reject wrong length (≠8760), non-numeric rows, and empty files with specific messages.
-- [ ] TASK-03-02: Implement `webapp/uploads.py` (csv module + openpyxl, both already available) to green.
-- [ ] TASK-03-03: Write failing tests for form→DealConfig mapping (`webapp/forms.py`): template id + form fields + uploaded loads → DealConfig dict that validates against `data/schemas/deal_config.schema.json`; key overrides (capex, discount rate, PPA/strike terms, escalations) land in the right sections; untouched defaults come from `scenarios/templates/*.json` + `load_vietnam_data`.
-- [ ] TASK-03-04: Implement `webapp/forms.py` to green.
-- [ ] TASK-03-05: Build Jinja2 pages: `templates/base.html` (nav, Plotly CDN tag), `templates/new_deal.html` (template picker → form sections with defaults shown read-only vs override fields, mode select onsite/offsite_dppa/both, load-file input, force re-solve checkbox), and `static/app.js` (submit via fetch, redirect to run page). Route: `GET /deals/new`, `POST /api/runs` (multipart).
-- [ ] TASK-03-06: Server-side validation errors render inline next to fields (422 payload → form messages); TestClient tests for the happy path and one rejection.
+- [x] TASK-03-01: Write failing tests `tests/python/webapp/test_uploads.py` for `uploads.py`: parse a single-column CSV (header optional) and basic `.xlsx` (first sheet, first numeric column) into `loads_kw`; reject wrong length (≠8760), non-numeric rows, and empty files with specific messages.
+- [x] TASK-03-02: Implement `webapp/uploads.py` (csv module + openpyxl, both already available) to green.
+- [x] TASK-03-03: Write failing tests for form→DealConfig mapping (`webapp/forms.py`): template id + form fields + uploaded loads → DealConfig dict that validates against `data/schemas/deal_config.schema.json`; key overrides (capex, discount rate, PPA/strike terms, escalations) land in the right sections; untouched defaults come from `scenarios/templates/*.json` + `load_vietnam_data`.
+- [x] TASK-03-04: Implement `webapp/forms.py` to green.
+- [x] TASK-03-05: Build Jinja2 pages: `templates/base.html` (nav, Plotly CDN tag), `templates/new_deal.html` (template picker → form sections with defaults shown read-only vs override fields, mode select onsite/offsite_dppa/both, load-file input, force re-solve checkbox), and `static/app.js` (submit via fetch, redirect to run page). Route: `GET /deals/new`, `POST /api/runs` (multipart).
+- [x] TASK-03-06: Server-side validation errors render inline next to fields (422 payload → form messages); TestClient tests for the happy path and one rejection.
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/webapp/{uploads.py,forms.py,routes/pages.py,templates/,static/app.js}` — new.
@@ -145,11 +145,11 @@ Non-technical users create a deal in the browser: pick one of the four archetype
 A native results page per run — headline metrics (NPV/LCC, PV/BESS sizing, delivered fraction, IRR/DSCR), interactive Plotly charts, raw-JSON and HTML-report downloads — plus a runs index with reopen and clone-and-edit.
 
 **Tasks**
-- [ ] TASK-04-01: Write failing tests for a results-view model (`webapp/results_view.py`): given an `OnsiteResult`/`OffsiteDppaResult` dict, extract headline metrics and chart series (monthly/hourly dispatch aggregates, cashflow series, strike-settlement summary) as plain JSON for the template; must handle onsite-only, offsite-only, and both.
-- [ ] TASK-04-02: Implement `results_view.py` to green (metric paths taken from `analysis/types.py` block names: `deal`, `base_settlement`, `strike_sweep`, `adder_sensitivity`, `regime_stress`, `decision`, `quality`; onsite `sizing`/`dispatch`/`economics`).
-- [ ] TASK-04-03: Build `templates/run.html`: status banner with JS polling while queued/solving; on done, metric cards + Plotly charts fed by an embedded JSON blob; graceful table-only fallback when Plotly fails to load (ASM-002). Route `GET /runs/{id}`.
-- [ ] TASK-04-04: Downloads: `GET /api/runs/{id}/result.json` (raw), `GET /api/runs/{id}/report.html` generated on demand via `integration/generate_html_report.py` (inspect its input contract; adapt inputs in the webapp layer, not the generator). TestClient tests for both.
-- [ ] TASK-04-05: Runs index `templates/runs.html` at `GET /runs`: name, date, mode, status, one headline metric; reopen link; "duplicate as new deal" opens `GET /deals/new?from={id}` with the form pre-filled from the stored `deal_config.json` (loads carried over, re-upload optional). Tests for prefill mapping.
+- [x] TASK-04-01: Write failing tests for a results-view model (`webapp/results_view.py`): given an `OnsiteResult`/`OffsiteDppaResult` dict, extract headline metrics and chart series (monthly/hourly dispatch aggregates, cashflow series, strike-settlement summary) as plain JSON for the template; must handle onsite-only, offsite-only, and both.
+- [x] TASK-04-02: Implement `results_view.py` to green (metric paths taken from `analysis/types.py` block names: `deal`, `base_settlement`, `strike_sweep`, `adder_sensitivity`, `regime_stress`, `decision`, `quality`; onsite `sizing`/`dispatch`/`economics`).
+- [x] TASK-04-03: Build `templates/run.html`: status banner with JS polling while queued/solving; on done, metric cards + Plotly charts fed by an embedded JSON blob; graceful table-only fallback when Plotly fails to load (ASM-002). Route `GET /runs/{id}`.
+- [x] TASK-04-04: Downloads: `GET /api/runs/{id}/result.json` (raw), `GET /api/runs/{id}/report.html` generated on demand via `integration/generate_html_report.py` (inspect its input contract; adapt inputs in the webapp layer, not the generator). TestClient tests for both.
+- [x] TASK-04-05: Runs index `templates/runs.html` at `GET /runs`: name, date, mode, status, one headline metric; reopen link; "duplicate as new deal" opens `GET /deals/new?from={id}` with the form pre-filled from the stored `deal_config.json` (loads carried over, re-upload optional). Tests for prefill mapping.
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/webapp/{results_view.py,routes/pages.py,templates/run.html,templates/runs.html,static/app.js}`.
@@ -172,11 +172,11 @@ A native results page per run — headline metrics (NPV/LCC, PV/BESS sizing, del
 Two-run side-by-side comparison, the Samsung/TTC golden-parity gate through the web path, and the documented cold-start demo that proves the no-terminal loop.
 
 **Tasks**
-- [ ] TASK-05-01: Write failing tests for compare view-model: any two saved runs → aligned two-column headline metrics with per-metric deltas; mixed modes degrade to the intersection of metrics. Implement `webapp/compare.py` + `templates/compare.html` (`GET /compare?a={id}&b={id}`, picker on the runs index).
-- [ ] TASK-05-02: Golden parity test `tests/python/webapp/test_golden_parity.py`: POST the Samsung/TTC deal config with its pre-solved inputs through the API (mirror `tests/python/analysis/test_samsung_ttc_parity.py` setup) and assert `result.json` equals `examples/samsung-ttc_combined-decision.example.json` key-for-key.
-- [ ] TASK-05-03: MANUAL cold-start demo: fresh browser, `uvicorn reopt_pysam_vn.webapp:app`, template → form → CSV upload → live NREL solve → results page → compare against a cloned variant. Record the outcome in `activeContext.md`.
-- [ ] TASK-05-04: Docs: `src/python/reopt_pysam_vn/webapp/README.md` (launch command from `.venv`, NREL key expectation, storage layout, cache semantics) and a pointer from the repo README.
-- [ ] TASK-05-05: Full-suite regression: `pytest tests/python/` green; confirm no analytics module was modified except any library promotions from RISK-02-01 (diff review).
+- [x] TASK-05-01: Write failing tests for compare view-model: any two saved runs → aligned two-column headline metrics with per-metric deltas; mixed modes degrade to the intersection of metrics. Implement `webapp/compare.py` + `templates/compare.html` (`GET /compare?a={id}&b={id}`, picker on the runs index).
+- [x] TASK-05-02: Golden parity test `tests/python/webapp/test_golden_parity.py`: POST the Samsung/TTC deal config with its pre-solved inputs through the API (mirror `tests/python/analysis/test_samsung_ttc_parity.py` setup) and assert `result.json` equals `examples/samsung-ttc_combined-decision.example.json` key-for-key.
+- [x] TASK-05-03: MANUAL cold-start demo: fresh browser, `uvicorn reopt_pysam_vn.webapp:app`, template → form → CSV upload → live NREL solve → results page → compare against a cloned variant. Record the outcome in `activeContext.md`.
+- [x] TASK-05-04: Docs: `src/python/reopt_pysam_vn/webapp/README.md` (launch command from `.venv`, NREL key expectation, storage layout, cache semantics) and a pointer from the repo README.
+- [x] TASK-05-05: Full-suite regression: `pytest tests/python/` green; confirm no analytics module was modified except any library promotions from RISK-02-01 (diff review).
 
 **Files / Surfaces**
 - `src/python/reopt_pysam_vn/webapp/{compare.py,templates/compare.html}`.

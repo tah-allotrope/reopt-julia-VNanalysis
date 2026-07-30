@@ -1,7 +1,7 @@
 ---
 title: "CI Truth & Correctness Sprint — Workspace Hygiene, Green CI Gate, Security Cleanup, Two-Part Tariff Fix, Single Owner Clean-Slate"
 date: "2026-07-22"
-status: "draft"
+status: "complete — PHASE-01..05 shipped (commits 22b8d0a, 0f5d1a0, 5656ca7): worktree cleanup, pytest markers + PySAM pin + hermetic tests + repo-invariants, binary untracking, two_part_tariff.py Ca fix, Single Owner clean-slate flag + audit; CI green on main, 589 passed per activeContext.md 2026-07-25"
 request: "research/2026-07-22-reopt-pysam-execution-unblock-brainstorm.md — turn the confirmed, still-unexecuted P0-P2 backlog (plus two newly-verified findings) into one executable multi-phase plan"
 plan_type: "multi-phase"
 research_inputs:
@@ -475,27 +475,27 @@ Reclaim the ~433 MB of stale, zero-value git worktree checkouts sitting in
 risk to any in-progress work, before touching CI or test files.
 
 **Tasks**
-- [ ] TASK-01-01: For each of the four non-empty worktrees
+- [x] TASK-01-01: For each of the four non-empty worktrees
   (`cranky-torvalds-3f262a`, `dazzling-northcutt-0807cc`, `unruffled-banzai-88ae43`,
   `upbeat-almeida-53c200`), re-verify per ASM-011 immediately before removal:
   `git -C .claude/worktrees/<dir> status --porcelain=v1 -uall` must print nothing,
   and `git log main..claude/<dir>` must print nothing. If either check now shows
   output for a given directory, skip it and note the exception in the commit
   message; proceed with the remaining directories.
-- [ ] TASK-01-02: Remove each directory that passed TASK-01-01 with
+- [x] TASK-01-02: Remove each directory that passed TASK-01-01 with
   `git worktree remove .claude/worktrees/<dir>` (run from the repo root). Do not
   pass `--force` unless the plain command reports the working tree is dirty
   (which TASK-01-01 should have already ruled out) — if it does report dirty,
   stop and treat that directory as a skip per TASK-01-01's exception path rather
   than forcing removal.
-- [ ] TASK-01-03: Prune the two orphaned stub directories
+- [x] TASK-01-03: Prune the two orphaned stub directories
   (`clever-chaplygin-dad6dc`, `kind-mcclintock-10b2e5`), which are not listed by
   `git worktree list` and are therefore not real worktrees: run
   `git worktree prune -v` from the repo root, then confirm both directories are
   gone. If either directory persists after `git worktree prune -v` (because it
   truly isn't a worktree artifact at all), remove it directly since it is at most
   8 KB and contains no git-tracked content.
-- [ ] TASK-01-04: Delete any now-empty `claude/<branch>` remote-tracking or local
+- [x] TASK-01-04: Delete any now-empty `claude/<branch>` remote-tracking or local
   branch references left behind by the removed worktrees only if `git branch -a`
   shows them as fully merged/empty duplicates of `main` — do not delete a branch
   that still exists independently of its worktree unless it is one of the four
@@ -504,7 +504,7 @@ risk to any in-progress work, before touching CI or test files.
   `claude/upbeat-almeida-53c200`). Use `git branch -d claude/<name>` (lowercase
   `-d`, not `-D`) so git itself refuses the deletion if it turns out the branch
   has unmerged commits — this makes the safety check self-enforcing.
-- [ ] TASK-01-05: In `.github/workflows/ci.yml`, reword the comment above the
+- [x] TASK-01-05: In `.github/workflows/ci.yml`, reword the comment above the
   (currently absent) ruff step. Replace the sentence that hardcodes "181
   pre-existing lint violations" with wording that does not embed a specific,
   soon-to-be-stale count — e.g. "ruff has no `[tool.ruff]` configuration in
@@ -512,7 +512,7 @@ risk to any in-progress work, before touching CI or test files.
   `ruff check --statistics` for the current count. Configuring ruff and paying
   down the backlog is a separate, larger follow-on effort." Leave every other
   line of the comment and the rest of the file untouched.
-- [ ] TASK-01-06: `git add -A` the worktree removal (git tracks worktree
+- [x] TASK-01-06: `git add -A` the worktree removal (git tracks worktree
   metadata under `.git/worktrees/`, not the working directories themselves, so
   there is likely nothing to stage from the removal itself — verify with
   `git status`) and the `ci.yml` comment change; commit.
@@ -572,7 +572,7 @@ explicit, documented, and machine-checkable rather than silently and
 accidentally broken.
 
 **Tasks**
-- [ ] TASK-02-01: Register three pytest markers. In `pyproject.toml`, add a
+- [x] TASK-02-01: Register three pytest markers. In `pyproject.toml`, add a
   `markers` key to the existing `[tool.pytest.ini_options]` table:
   ```toml
   markers = [
@@ -581,7 +581,7 @@ accidentally broken.
     "golden_machine: bit-exact golden comparison only valid on the primary dev machine's resources; excluded in CI",
   ]
   ```
-- [ ] TASK-02-02: Mark the artifact-dependent tests with
+- [x] TASK-02-02: Mark the artifact-dependent tests with
   `@pytest.mark.requires_artifacts` (or a module-level
   `pytestmark = pytest.mark.requires_artifacts` when every test in the file
   qualifies):
@@ -604,7 +604,7 @@ accidentally broken.
     (the second failing test in this file,
     `test_build_strike_price_summary_finds_minimum_viable_ninhsim_strike`, is
     numeric drift per ASM-004 — mark it per TASK-02-05 instead, not here)
-- [ ] TASK-02-03: Classify the two `tests/python/integration/test_regime_engine_smoke.py`
+- [x] TASK-02-03: Classify the two `tests/python/integration/test_regime_engine_smoke.py`
   failures per ASM-003: temporarily `Rename-Item artifacts artifacts_hold`, run
   `.venv\Scripts\python.exe -m pytest tests/python/integration/test_regime_engine_smoke.py -q`,
   observe whether `test_cached_run_is_reused_when_manifest_is_successful` and
@@ -613,12 +613,12 @@ accidentally broken.
   If they fail as expected, mark both `@pytest.mark.requires_artifacts`; if
   either still passes, debug and fix that test's real CI-environment bug within
   this task before moving on.
-- [ ] TASK-02-04: Mark the whole of `tests/python/analysis/test_samsung_ttc_parity.py`
+- [x] TASK-02-04: Mark the whole of `tests/python/analysis/test_samsung_ttc_parity.py`
   with a module-level `pytestmark = pytest.mark.golden_machine` (covers all three
   tests in the file, including `test_samsung_parity_headline_settlement_exact`,
   which fails only in CI today). Leave `tests/python/webapp/test_golden_parity.py`
   completely untouched — it passes in CI already and must keep running there.
-- [ ] TASK-02-05: Apply the ASM-004 xfail annotations to the three numeric-drift
+- [x] TASK-02-05: Apply the ASM-004 xfail annotations to the three numeric-drift
   tests (`test_capacity_factor_benchmark.py::test_pvwatts_capacity_factor_binh_thuan`,
   `test_ninhsim_cppa.py::test_build_extracted_inputs_cleans_load_and_computes_weighted_evn_benchmark`,
   `test_strike_price_discovery.py::test_build_strike_price_summary_finds_minimum_viable_ninhsim_strike`)
@@ -626,7 +626,7 @@ accidentally broken.
   Samsung parity tests. Update the "Known pre-existing test failures" section of
   `activeContext.md` to state each test's new xfail status, reason, and (for the
   two parity tests) the outcome of the 2-hour investigation.
-- [ ] TASK-02-06: Make webapp tests hermetic. In `tests/python/webapp/conftest.py`,
+- [x] TASK-02-06: Make webapp tests hermetic. In `tests/python/webapp/conftest.py`,
   add a new **autouse** fixture (separate from the existing
   `block_live_nrel_calls`-style fixture that patches `service.solve_onsite_via_nrel`
   — do not merge them, some tests re-patch the solve stub individually) that
@@ -643,14 +643,14 @@ accidentally broken.
   `sha256(b"test-webapp-key").hexdigest()[:12]` deterministically; update the
   literal expected value in that test if it currently hardcodes the real key's
   fingerprint.
-- [ ] TASK-02-07: Pin PySAM in CI and tighten the marker filter. In
+- [x] TASK-02-07: Pin PySAM in CI and tighten the marker filter. In
   `.github/workflows/ci.yml`, change the dependency install line to
   `pip install -e ".[webapp]" mypy pytest "nrel-pysam==7.1.0"` (version per
   ASM-002) and change the pytest invocation to
   `python -m pytest tests/python -m "not network and not requires_artifacts and not golden_machine" -q`.
   Leave the mypy step and the (PHASE-01-reworded) ruff-omission comment
   otherwise unchanged.
-- [ ] TASK-02-08: Create `tests/python/test_repo_invariants.py` with three tests
+- [x] TASK-02-08: Create `tests/python/test_repo_invariants.py` with three tests
   (see Test Specs) that shell out to `git ls-files` to enforce: no flat-level
   Python scripts under `scripts/python/` (excluding `__init__.py`), no tracked
   files under `artifacts/`, and no root-level tracked binaries
@@ -662,7 +662,7 @@ accidentally broken.
   this xfail becomes a hard failure (an "unexpectedly passed" error) until its
   annotation is removed, which makes forgetting to remove the annotation
   impossible to miss.
-- [ ] TASK-02-09: Relocate both flat scripts to their canonical subdirectories,
+- [x] TASK-02-09: Relocate both flat scripts to their canonical subdirectories,
   after re-running the ASM-007 grep to confirm no new importer has appeared:
   `git mv scripts/python/_extract_pptx.py scripts/python/integration/_extract_pptx.py`
   and `git mv scripts/python/add_bess_review_comments.py scripts/python/integration/add_bess_review_comments.py`.
@@ -670,7 +670,7 @@ accidentally broken.
   `Path(__file__).resolve().parents[N]`, increment `N` by 1 to account for the
   new subdirectory depth — check both files for this pattern before moving and
   fix it in the same commit if present.
-- [ ] TASK-02-10: Run the full local suite (`$env:PYTHONPATH = ""; .venv\Scripts\python.exe -m pytest tests/python -q`),
+- [x] TASK-02-10: Run the full local suite (`$env:PYTHONPATH = ""; .venv\Scripts\python.exe -m pytest tests/python -q`),
   confirm `0 failed` (xfails reporting as `xfailed` is expected and fine), then
   commit, push, and confirm the resulting GitHub Actions run on `main` completes
   with status `success` (`gh run list --limit 1` or the Actions tab).
@@ -776,10 +776,10 @@ dependencies have exactly one source of truth, and the leaked-key rotation
 obligation is documented where the human account owner will see it.
 
 **Tasks**
-- [ ] TASK-03-01: Untrack the three deck binaries (files remain on disk per
+- [x] TASK-03-01: Untrack the three deck binaries (files remain on disk per
   CON-002):
   `git rm --cached "ceba-review/DPPA Presentation July 2026 Case Studies [repo-checked].pptx" "ceba-review/cong bess session [reviewed].pptx" "ceba-review/cong bess session.pptx"`.
-- [ ] TASK-03-02: Fix the two malformed `.gitignore` bracket-character-class
+- [x] TASK-03-02: Fix the two malformed `.gitignore` bracket-character-class
   patterns by escaping the brackets so they match literal substrings instead of
   character classes: change `ceba-review/*[repo-checked].pptx` to
   `ceba-review/*\[repo-checked\].pptx` and `ceba-review/*[*reviewed*].pptx` to
@@ -790,7 +790,7 @@ obligation is documented where the human account owner will see it.
   `git check-ignore -v "ceba-review/cong bess session [reviewed].pptx"`, and
   `git check-ignore -v "ceba-review/cong bess session.pptx"` must each print a
   matching rule and exit with code `0`.
-- [ ] TASK-03-03: Delete the tracked root screenshots outright (not
+- [x] TASK-03-03: Delete the tracked root screenshots outright (not
   `--cached` — these are stale session artifacts, not useful local files):
   `git rm phase04_new_deal_initial.png phase04_new_deal_scrolled.png`. Then
   remove the `strict=True` xfail annotation added in PHASE-02's TASK-02-08 from
@@ -798,12 +798,12 @@ obligation is documented where the human account owner will see it.
   is the deliberate cross-phase tripwire; if you forget this step, the test
   suite itself will now fail loudly (an "unexpectedly passed" xfail error)
   rather than silently staying green.
-- [ ] TASK-03-04: Consolidate to a single dependency source:
+- [x] TASK-03-04: Consolidate to a single dependency source:
   `git rm requirements.txt`. In `README.md`'s "Python Setup" section, replace the
   two-line `python -m pip install -r requirements.txt` +
   `python -m pip install -e .` sequence with the single line
   `python -m pip install -e ".[webapp]"`.
-- [ ] TASK-03-05: Document the key-rotation requirement. Add a short "Security
+- [x] TASK-03-05: Document the key-rotation requirement. Add a short "Security
   note — API key rotation required" subsection to `README.md` (placed under
   "Quick Start") stating: an NREL Developer API key was committed historically
   in commits `3911032` and `b14bc0b` and remains recoverable from git history;
@@ -812,7 +812,7 @@ obligation is documented where the human account owner will see it.
   accordingly; no git-history rewrite is planned, since rotation alone fully
   remediates the exposure (per CON-002/ASM-006). Add a matching one-line note to
   `activeContext.md`.
-- [ ] TASK-03-06: Run the full local suite (now including the un-xfailed
+- [x] TASK-03-06: Run the full local suite (now including the un-xfailed
   `test_no_root_level_binaries`), run `git status` to confirm nothing was
   accidentally re-tracked, commit, push, and confirm the resulting CI run on
   `main` is `success`.
@@ -880,13 +880,13 @@ for high-load-factor profiles. The core arithmetic moves into a new, independent
 unit-tested library module; the script becomes a thin CLI around it.
 
 **Tasks**
-- [ ] TASK-04-01 (RED): Create `tests/python/reopt/test_two_part_tariff.py`
+- [x] TASK-04-01 (RED): Create `tests/python/reopt/test_two_part_tariff.py`
   containing the failing tests listed in Test Specs below, importing from
   `reopt_pysam_vn.reopt.two_part_tariff` (a module that does not exist yet). Run
   `.venv\Scripts\python.exe -m pytest tests/python/reopt/test_two_part_tariff.py -q`
   and confirm it fails with a collection/import error, proving the tests are
   wired correctly before any implementation exists.
-- [ ] TASK-04-02 (GREEN): Create `src/python/reopt_pysam_vn/reopt/two_part_tariff.py`
+- [x] TASK-04-02 (GREEN): Create `src/python/reopt_pysam_vn/reopt/two_part_tariff.py`
   implementing the three functions in Function Signatures below, following the
   Specification's formulas exactly. Import `_build_hourly_rates` and
   `_build_8760_rates` directly from `reopt_pysam_vn.reopt.preprocess` per ASM-008
@@ -895,7 +895,7 @@ unit-tested library module; the script becomes a thin CLI around it.
   baseline series, and it means `preprocess.py`'s own output stays byte-identical
   (required for the Julia/Python cross-validation Layer 3 to keep passing) since
   this phase does not modify `preprocess.py` itself.
-- [ ] TASK-04-03: Rewire `scripts/python/reopt/two_part_tariff_sensitivity.py`:
+- [x] TASK-04-03: Rewire `scripts/python/reopt/two_part_tariff_sensitivity.py`:
   load `data/vietnam/vn_tariff_2025.json` with `encoding="utf-8-sig"` and read
   its `"data"` block; build the baseline rate series (reuse the existing
   single-component TOU logic already present via `preprocess.py`'s tariff
@@ -915,7 +915,7 @@ unit-tested library module; the script becomes a thin CLI around it.
   base-case result card. Update the module docstring: delete the entire
   `!!!!! KNOWN MODELING GAP !!!!!` block and replace it with a short description
   of the corrected method, keeping the XanhTerra cross-reference URL.
-- [ ] TASK-04-04: Close out the documentation trail:
+- [x] TASK-04-04: Close out the documentation trail:
   - Remove the "Two-part tariff sensitivity — missing energy rate reduction"
     entry from `activeContext.md`'s "Known model gaps" section, noting the fix
     date (2026-07-22) in its place.
@@ -929,7 +929,7 @@ unit-tested library module; the script becomes a thin CLI around it.
     `annual_energy_produced_kwh` ~4.5% divergence (a degradation-year accounting
     convention difference worth flagging for future analysts, surfaced during
     the KBC cross-check work referenced in this sprint's research inputs).
-- [ ] TASK-04-05: If the primary dev machine has the Saigon18 scenario-A
+- [x] TASK-04-05: If the primary dev machine has the Saigon18 scenario-A
   artifacts locally available, regenerate the sensitivity output:
   `.venv\Scripts\python.exe scripts/python/reopt/two_part_tariff_sensitivity.py`
   (its defaults already point at the Saigon18 scenario-A results path) and
@@ -941,7 +941,7 @@ unit-tested library module; the script becomes a thin CLI around it.
   and note it as deferred in the phase commit message — TASK-04-01/02/03's
   library-level tests do not require the artifacts and remain the phase's binding
   verification.
-- [ ] TASK-04-06: Run the full local suite, confirm `0 failed`, commit, push, and
+- [x] TASK-04-06: Run the full local suite, confirm `0 failed`, commit, push, and
   confirm CI is `success`.
 
 **File Changes**
@@ -1050,11 +1050,11 @@ and published results are affected by those defaults today, without changing any
 golden number anywhere in the repo.
 
 **Tasks**
-- [ ] TASK-05-01 (RED): Create `tests/python/pysam/test_single_owner_clean_slate.py`
+- [x] TASK-05-01 (RED): Create `tests/python/pysam/test_single_owner_clean_slate.py`
   (new file; add `PySAM = pytest.importorskip("PySAM")` at module top, matching
   the pattern in sibling PySAM test files) containing the tests in Test Specs
   below. Run it and confirm every test fails (the flag does not exist yet).
-- [ ] TASK-05-02 (GREEN): In `src/python/reopt_pysam_vn/pysam/single_owner.py`:
+- [x] TASK-05-02 (GREEN): In `src/python/reopt_pysam_vn/pysam/single_owner.py`:
   add a new field `zero_reference_plant_defaults: bool = False` to the
   `SingleOwnerInputs` dataclass (default `False` — existing behavior stays
   byte-identical for every current caller, satisfying CON-001/DEC-003); add a
@@ -1069,7 +1069,7 @@ golden number anywhere in the repo.
   `"clean_slate"` string to the existing `"notes"` sub-dictionary describing
   which 12 fields were zeroed (when the flag is `False`, the `"notes"` dict must
   contain no `"clean_slate"` key at all — not an empty string, an absent key).
-- [ ] TASK-05-03: Perform a read-only contamination audit. Run
+- [x] TASK-05-03: Perform a read-only contamination audit. Run
   `grep -rn "run_single_owner_model\|_configure_financial_model\|SingleOwnerInputs" src/ scripts/ tests/`
   and enumerate every caller found. For each caller, determine by inspection
   whether any of its published or tracked outputs (`examples/`, `reports/*.md`
@@ -1085,7 +1085,7 @@ golden number anywhere in the repo.
   historical golden number needs a documented, human-approved restatement. Make
   no code changes and no golden-file changes as part of this task — it is
   read-only analysis captured in a markdown report.
-- [ ] TASK-05-04: If a KBC-style cross-check script exists at
+- [x] TASK-05-04: If a KBC-style cross-check script exists at
   `scripts/python/pysam/2026-07-17_kbc_proforma_pysam_crosscheck.py` (verify with
   `Test-Path` before editing), update any docstring reference to a manually
   reimplemented clean-slate calculation to instead point at the new
@@ -1093,7 +1093,7 @@ golden number anywhere in the repo.
   replacement — a one-line comment change only; the script's own behavior and
   output remain frozen and unchanged (it exists as a historical comparison
   harness, not a maintained tool).
-- [ ] TASK-05-05: Run the full local suite, with particular attention to
+- [x] TASK-05-05: Run the full local suite, with particular attention to
   `tests/python/webapp/test_golden_parity.py` (must pass unmodified, zero
   diffs against `examples/`), commit, push, and confirm CI is `success`.
 

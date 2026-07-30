@@ -1,7 +1,7 @@
 ---
 title: "Map Site Picker for the Vietnam DPPA Web App"
 date: "2026-07-06"
-status: "draft"
+status: "complete — PHASE-01..04 shipped (commits 8a61950, d2f6697, d0b70cf, fd8ceaf): webapp/projects.py + GET /api/projects, static/map.js site picker, run-page context map, 50/50 webapp tests green per activeContext.md"
 request: "map-site-picker-webapp"
 plan_type: "multi-phase"
 research_inputs:
@@ -91,21 +91,21 @@ Expose the `data/projects/*.json` catalog as a stable read-only JSON endpoint th
 map front-end can fetch, with tests written first.
 
 **Tasks**
-- [ ] TASK-01-01: Write failing tests in `tests/python/webapp/test_projects.py`
+- [x] TASK-01-01: Write failing tests in `tests/python/webapp/test_projects.py`
       (reuse the app/client fixture from `tests/python/webapp/conftest.py`):
       `GET /api/projects` returns 200 with `{"projects": [...]}`; each item has
       `project_id`, `name`, `technology`, `capacity_mw`, `status`,
       `indicative_strike_usc_kwh`, and `location.{lat,lon,province,region}`;
       `catalog_schema.json` is excluded; records missing `location.lat/lon` are
       skipped, not fatal. Run and confirm red.
-- [ ] TASK-01-02: Implement `src/python/reopt_pysam_vn/webapp/projects.py` with
+- [x] TASK-01-02: Implement `src/python/reopt_pysam_vn/webapp/projects.py` with
       `list_projects() -> List[Dict]`: glob `data/projects/*.json` (resolve the
       repo root the same way `forms.py` does with
       `Path(__file__).resolve().parents[4]`), skip `catalog_schema.json` and any
       file without numeric `location.lat`/`location.lon`, and return the fields
       asserted in TASK-01-01 (pass through the tooltip-relevant subset, not the
       whole record).
-- [ ] TASK-01-03: Add `@router.get("/projects")` in
+- [x] TASK-01-03: Add `@router.get("/projects")` in
       `src/python/reopt_pysam_vn/webapp/routes/api.py` returning
       `{"projects": list_projects()}`. Run tests and confirm green.
 
@@ -136,10 +136,10 @@ two-way lat/lon sync, latitude-band region auto-set, Nominatim search, and
 catalog-project reference markers.
 
 **Tasks**
-- [ ] TASK-02-01: In `templates/base.html`, add `{% block head_extra %}{% endblock %}`
+- [x] TASK-02-01: In `templates/base.html`, add `{% block head_extra %}{% endblock %}`
       inside `<head>` so map pages can inject Leaflet CSS/JS without loading it
       globally.
-- [ ] TASK-02-02: Create `src/python/reopt_pysam_vn/webapp/static/map.js`
+- [x] TASK-02-02: Create `src/python/reopt_pysam_vn/webapp/static/map.js`
       (vanilla JS) exposing two initializers on `window`:
       `initSitePicker(opts)` and `initContextMap(opts)`. `initSitePicker`:
       - creates the map with OSM tiles + attribution; if `window.L` is
@@ -159,14 +159,14 @@ catalog-project reference markers.
         (`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=vn&q=...`),
         panning/placing the marker on the top hit; errors show inline text, not
         an alert.
-- [ ] TASK-02-03: In `templates/new_deal.html`: add the Leaflet CSS/JS CDN tags
+- [x] TASK-02-03: In `templates/new_deal.html`: add the Leaflet CSS/JS CDN tags
       (pinned 1.9.x with SRI) inside `{% block head_extra %}`; add a
       `<div id="site-map">` (~360px tall) plus the search input/button and a
       one-line hint ("Click the map or drag the marker to set coordinates")
       inside the Site section; load `/static/map.js` and call
       `initSitePicker(...)` after the form markup. Add minimal height/width CSS
       (inline style block in the template or `base.html`).
-- [ ] TASK-02-04: Manually verify prefill paths: template prefill
+- [x] TASK-02-04: Manually verify prefill paths: template prefill
       (`/deals/new`), duplication (`/deals/new?from={run_id}`), and empty-coords
       fallback all position the marker correctly; typing coordinates moves the
       marker; picking a point near 21°N sets region "north", near 16°N
@@ -206,17 +206,17 @@ Show a compact, non-interactive map on `/runs/{run_id}` with the modeled site an
 catalog projects, reusing `map.js`.
 
 **Tasks**
-- [ ] TASK-03-01: In `routes/pages.py` `run_detail()`, also fetch
+- [x] TASK-03-01: In `routes/pages.py` `run_detail()`, also fetch
       `storage.get_deal_config(run_id)` (tolerating `KeyError` → `{}`) and pass
       `site = deal_config.get("site", {})` into the `run.html` context.
-- [ ] TASK-03-02: In `templates/run.html`: add Leaflet CDN tags via
+- [x] TASK-03-02: In `templates/run.html`: add Leaflet CDN tags via
       `{% block head_extra %}`; add a `.card` with `<div id="context-map">`
       (~280px tall) rendered only when `site.latitude` and `site.longitude` are
       present; call `initContextMap({lat, lon, ...})` from `map.js` —
       non-interactive (dragging/scrollWheelZoom/tap disabled), site marker
       highlighted, catalog projects from `/api/projects` as muted markers,
       auto-fit bounds to site + projects.
-- [ ] TASK-03-03: Add a small pytest in `tests/python/webapp/` (extend an
+- [x] TASK-03-03: Add a small pytest in `tests/python/webapp/` (extend an
       existing page-test module or add `test_run_page_map.py`) asserting the
       run page for a completed run contains the `context-map` container and
       that a run whose deal config lacks coordinates renders without it
@@ -248,17 +248,17 @@ Prove the whole flow works in a real browser, including degradation paths, and
 close out the plan bookkeeping.
 
 **Tasks**
-- [ ] TASK-04-01: Run the full suite: `pytest tests/python/webapp/` from the
+- [x] TASK-04-01: Run the full suite: `pytest tests/python/webapp/` from the
       repo `.venv`.
-- [ ] TASK-04-02: Start the app (`uvicorn reopt_pysam_vn.webapp:app --host
+- [x] TASK-04-02: Start the app (`uvicorn reopt_pysam_vn.webapp:app --host
       127.0.0.1 --port 8000` from `.venv`) and drive it in the browser
       (Claude-in-Chrome / `/run`): complete a full deal submission where the
       coordinates were set by clicking the map; confirm the created run's
       `deal_config.json` carries the picked lat/lon and derived region.
-- [ ] TASK-04-03: Degradation checks: block/omit the Leaflet CDN tag and confirm
+- [x] TASK-04-03: Degradation checks: block/omit the Leaflet CDN tag and confirm
       the form still submits with typed coordinates; kill network to Nominatim
       and confirm search fails inline without breaking the picker.
-- [ ] TASK-04-04: Screenshot the run-page context map (deck-ready) and add the
+- [x] TASK-04-04: Screenshot the run-page context map (deck-ready) and add the
       review/results section to `activeContext.md` per project convention.
 
 **Files / Surfaces**
