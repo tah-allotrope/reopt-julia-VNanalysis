@@ -1,7 +1,7 @@
 ---
 title: "reopt-pysam Strategic Lens — Ops Readiness, Type Gate, Offline Solve, Julia Archive, Config-Driven Case Runner"
 date: "2026-07-14"
-status: "open"
+status: "complete — bulk-corrected 2026-07-31 per directive: plan predates 2026-07-20 and is presumed fully implemented (NOT individually verified against git/code evidence)"
 request: "reopt-pysam-strategic-lens — turn research/2026-07-14-reopt-pysam-strategic-lens-brainstorm.md into a multi-phase implementation plan"
 plan_type: "multi-phase"
 research_inputs:

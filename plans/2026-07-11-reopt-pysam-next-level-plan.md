@@ -1,7 +1,7 @@
 ---
 title: "reopt-pysam next-level: security, CI, offsite generalization, webapp phase 2"
 date: "2026-07-11"
-status: "open"
+status: "complete — bulk-corrected 2026-07-31 per directive: plan predates 2026-07-20 and is presumed fully implemented (NOT individually verified against git/code evidence)"
 request: "reopt-pysam-next-level"
 plan_type: "multi-phase"
 research_inputs:
