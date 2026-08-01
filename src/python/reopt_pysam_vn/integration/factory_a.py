@@ -23,6 +23,7 @@ import math
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -41,7 +42,7 @@ FACTORY_A_CUSTOMER_TYPE = "industrial"
 FACTORY_A_LATITUDE = 10.88   # southern Vietnam (Tay Ninh proxy)
 FACTORY_A_LONGITUDE = 106.28
 
-EXCHANGE_RATE_VND_PER_USD = 26_400.0
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 DATA_YEAR = 2024
 
 # Capacity charge: slide uses 209,459 VND/kW/month (≥110 kV rate from Decree 146).

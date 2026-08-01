@@ -30,13 +30,18 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.preprocess import _build_8760_rates, _build_hourly_rates
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.reopt.preprocess import (
+    _build_8760_rates,
+    _build_hourly_rates,
+    load_vietnam_data,
+)
 from reopt_pysam_vn.reopt.two_part_tariff import (
     build_trial_energy_rate_series,
     compute_two_part_impact,
 )
 
-EXCHANGE_RATE_VND_PER_USD = 26_000.0
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)
 HOURS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 DEFAULT_RATE_SWEEP_VND_PER_KW_MONTH = [0, 20_000, 40_000, 60_000, 80_000, 100_000]

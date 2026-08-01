@@ -20,12 +20,14 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_load_series,
     load_saigon18_tou_series,
 )
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.pysam.single_owner import (
     build_single_owner_inputs,
     run_single_owner_model,
 )
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-EXCHANGE_RATE = 25450.0
+EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
 REPORT_DATE = "2026-04-21"
 DEFAULT_EXTRACTED = (
     REPO_ROOT

@@ -12,15 +12,20 @@ import argparse
 import csv
 import json
 import math
+import sys
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
+
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
+
 PROJECT_NAME = "Ninhsim Solar+BESS+Wind Bundled CPPA Optimization"
 DATA_YEAR = 2024
-EXCHANGE_RATE_VND_PER_USD = 26_400.0
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 VOLTAGE_LEVEL = "medium_voltage_22kv_to_110kv"
 CUSTOMER_TYPE = "industrial"
 REGION = "south"

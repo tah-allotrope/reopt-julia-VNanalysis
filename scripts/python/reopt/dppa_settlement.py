@@ -15,11 +15,17 @@ Usage:
 
 import argparse
 import json
+import sys
 import warnings
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-EXCHANGE_RATE_VND_PER_USD = 26_400.0
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
+
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 DEFAULT_ANALYSIS_YEARS = 20
 DEFAULT_ESCALATION = 0.05
 DEFAULT_DISCOUNT_RATE = 0.08

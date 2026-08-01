@@ -16,12 +16,16 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Union
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.settlement import (
     PRESET_CONTRACTS,
     compute_hourly_settlement,
 )
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 __all__ = ["extract_saigon18_series", "compute_export_cap_delta"]
+
+_DEFAULT_EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 
 _PV_GENERATION_SERIES_KEYS = (
     "electric_to_load_series_kw",
@@ -34,7 +38,7 @@ _PV_GENERATION_SERIES_KEYS = (
 def extract_saigon18_series(
     results_json_path: Union[str, Path],
     *,
-    exchange_rate_vnd_per_usd: float = 26_400.0,
+    exchange_rate_vnd_per_usd: float = _DEFAULT_EXCHANGE_RATE_VND_PER_USD,
 ) -> Dict[str, List[float]]:
     """Read a REopt results JSON and return the three 8760-length series
     needed for a Decree 243 export-cap delta: hourly load (kW), hourly PV
@@ -90,7 +94,7 @@ def compute_export_cap_delta(
     generation_kw: List[float],
     tariff_vnd_per_kwh: List[float],
     *,
-    exchange_rate_vnd_per_usd: float = 26_400.0,
+    exchange_rate_vnd_per_usd: float = _DEFAULT_EXCHANGE_RATE_VND_PER_USD,
 ) -> Dict[str, float]:
     """Compare the Decree 57 (20% cap) and Decree 243 (50% cap) private-wire
     export presets on the same fixed hourly dispatch and return the annual

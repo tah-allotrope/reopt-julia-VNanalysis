@@ -33,10 +33,12 @@ import numpy_financial as npf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src" / "python"))
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
-EXCHANGE_RATE_VND_PER_USD = 26_400.0
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 ANALYSIS_YEARS = 20
 ESCALATION_RATE = 0.05
 DISCOUNT_RATE = 0.08

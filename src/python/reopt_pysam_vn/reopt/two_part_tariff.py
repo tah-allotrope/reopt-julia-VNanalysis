@@ -17,9 +17,14 @@ VND/kWh) and use the same TOU hour-window classification as the baseline
 tariff via imports from preprocess.py.
 """
 
-from reopt_pysam_vn.reopt.preprocess import _build_8760_rates, _build_hourly_rates
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.reopt.preprocess import (
+    _build_8760_rates,
+    _build_hourly_rates,
+    load_vietnam_data,
+)
 
-EXCHANGE_RATE_VND_PER_USD = 26_000.0
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)
 
 
 def build_trial_energy_rate_series(

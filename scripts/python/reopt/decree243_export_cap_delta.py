@@ -21,14 +21,16 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.decree243_delta import (
     compute_export_cap_delta,
     extract_saigon18_series,
 )
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 DEFAULT_RESULTS_JSON = REPO_ROOT / "examples" / "saigon18_scenario-a_reopt-solve.example.json"
 DEFAULT_OUT_MD = REPO_ROOT / "reports" / "2026-07-18-decree243-export-cap-delta.md"
-DEFAULT_EXCHANGE_RATE = 26_400.0
+DEFAULT_EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 
 
 def build_memo(results_json_path: Path, delta: dict, exchange_rate: float) -> str:

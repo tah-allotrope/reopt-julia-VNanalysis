@@ -42,6 +42,7 @@ from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
 )
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 # --- Disclosed deal facts (multi-source; see research brief) ------------------
@@ -87,7 +88,10 @@ SOUTHERN_GROUND_MOUNT_CEILING_VND_PER_KWH = 1012.0
 # is conservative vs the plant's full physical yield. All directional.
 SAMSUNG_TTC_INSTALLED_COST_USD_PER_KW = 750.0
 
-EXCHANGE_RATE_VND_PER_USD = 26_400.0
+# Already the canonical rate (ASM-002); routed through the resolver so no bare
+# FX literal remains, but the caller_value pin keeps this parity-gated path
+# byte-identical (RISK-05-02) - see plans/2026-07-26-post-backlog-architecture-plan.md.
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 WHOLESALE_RATE_VND_PER_KWH = 671.0
 WHOLESALE_RATE_USD_PER_KWH = 0.0254
 DATA_YEAR = 2024

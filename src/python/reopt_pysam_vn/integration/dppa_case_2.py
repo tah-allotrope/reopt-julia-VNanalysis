@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 DEFAULT_STRIKE_DISCOUNT_FRACTION = 0.05
@@ -664,8 +665,9 @@ def build_dppa_case_2_settlement_inputs(
         "strike_price_vnd_per_kwh": _strike_vnd_per_kwh(extracted),
         "dppa_adder_vnd_per_kwh": DEFAULT_DPPA_ADDER_VND_PER_KWH,
         "kpp_factor": DEFAULT_KPP_FACTOR,
-        "exchange_rate_vnd_per_usd": float(
-            extracted["benchmark"].get("exchange_rate_vnd_per_usd") or 25_000.0
+        "exchange_rate_vnd_per_usd": _resolve_exchange_rate(
+            load_vietnam_data(),
+            caller_value=(extracted["benchmark"].get("exchange_rate_vnd_per_usd") or 25_000.0),
         ),
         "notes": notes,
         "scenario_metadata": scenario.get("_meta", {}),
@@ -797,8 +799,9 @@ def run_dppa_case_2_buyer_settlement(settlement_inputs: dict) -> dict:
     strike = float(settlement_inputs["strike_price_vnd_per_kwh"])
     adder = float(settlement_inputs["dppa_adder_vnd_per_kwh"])
     kpp = float(settlement_inputs["kpp_factor"])
-    exchange_rate = float(
-        settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0
+    exchange_rate = _resolve_exchange_rate(
+        load_vietnam_data(),
+        caller_value=(settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0),
     )
 
     hourly_ledger = []
@@ -964,8 +967,9 @@ def build_dppa_case_2_strike_sensitivity(
         or settlement_inputs["strike_price_vnd_per_kwh"]
         / (1.0 - DEFAULT_STRIKE_DISCOUNT_FRACTION)
     )
-    exchange_rate = float(
-        settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0
+    exchange_rate = _resolve_exchange_rate(
+        load_vietnam_data(),
+        caller_value=(settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0),
     )
     active_runner = developer_runner
     if developer_base_inputs is not None and active_runner is None:

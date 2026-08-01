@@ -10,6 +10,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.dppa_case_3 import (
     BASE_BESS_KW,
     BASE_BESS_KWH,
@@ -24,6 +25,7 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_load_series,
     load_saigon18_tou_series,
 )
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 
 REPORT_DATE = "2026-04-21"
@@ -60,7 +62,7 @@ def build_saigon18_case3_bounded_opt_scenario(
     _annual_load_kwh = sum(load_kw)
     _peak_load_kw = max(load_kw)
 
-    exchange_rate = 25450.0
+    exchange_rate = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
     weighted_evn = sum(tou) / len(tou) if tou else 0.0
 
     pv_min_kw = BASE_PV_KWP * PV_BOUND_FACTOR_LOW
@@ -180,7 +182,7 @@ def build_22kv_two_part_scenario(extracted: dict) -> dict:
     load_kw = load_saigon18_load_series(extracted)
     _annual_load_kwh = sum(load_kw)
     _peak_load_kw = max(load_kw)
-    exchange_rate = 25450.0
+    exchange_rate = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
     tou = load_saigon18_tou_series(extracted)
     weighted_evn = sum(tou) / len(tou) if tou else 0.0
 

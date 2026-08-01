@@ -19,6 +19,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data, apply_vietnam_defaults  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -36,7 +37,7 @@ BESS_CAPEX_PER_KW = (
 BESS_CAPEX_PER_KWH = 200.0  # $/kWh (Excel: $200k/MWh = $200/kWh)
 
 ANALYSIS_YEARS = 20
-EXCHANGE_RATE = 26_000.0  # VND/USD (Excel Assumption row 9)
+EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)  # VND/USD (Excel Assumption row 9)
 
 # Blended effective CIT over 20-year tax holiday:
 # 4yr @ 0% + 9yr @ 5% (50% of 10%) + 7yr @ 10% = (0+0.45+0.70)/20 = 0.0575
