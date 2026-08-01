@@ -93,10 +93,10 @@ results = run_reopt([m1, m2], inputs)
 
 REopt defaults are US-centric. For Vietnam, a preprocessing layer injects country-specific assumptions **before** `Scenario()` is called. See `AGENTS.md` sections and `docs/architecture.md` for the complete reference (data files, manifest schema, exported functions, injection categories).
 
-**Module sources:** `src/julia/REoptVietnam.jl` (Julia) / `src/python/reopt_pysam_vn/reopt/preprocess.py` (Python)
+**Module sources:** `legacy/julia/src/REoptVietnam.jl` (Julia, archived) / `src/python/reopt_pysam_vn/reopt/preprocess.py` (Python, primary)
 
 ```julia
-include("src/julia/REoptVietnam.jl"); using .REoptVietnam
+include("legacy/julia/src/REoptVietnam.jl"); using .REoptVietnam
 vn = load_vietnam_data()                    # reads manifest → loads active data files
 d = JSON.parsefile("my_project.json")
 apply_vietnam_defaults!(d, vn; customer_type="industrial", region="south")

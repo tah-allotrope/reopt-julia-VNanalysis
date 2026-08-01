@@ -20,8 +20,8 @@ using HiGHS
 using REopt
 using DelimitedFiles
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
-include(joinpath(REPO_ROOT, "src", "julia", "REoptVietnam.jl"))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
+include(joinpath(REPO_ROOT, "legacy", "julia", "src", "REoptVietnam.jl"))
 using .REoptVietnam
 
 const TEMPLATES_DIR = joinpath(REPO_ROOT, "scenarios", "templates")

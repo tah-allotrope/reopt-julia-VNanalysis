@@ -3,7 +3,7 @@ Layer 1: Data File Validation Tests (Python)
 
 Pure schema and sanity checks on the Vietnam JSON data files.
 Runs WITHOUT a solver â€” only reads and validates the data layer.
-Mirror of tests/julia/test_data_validation.jl â€” identical checks, same data files.
+Mirror of legacy/julia/tests/test_data_validation.jl â€” identical checks, same data files.
 
 Run: pytest tests/python/reopt/test_data_validation.py -v
 """

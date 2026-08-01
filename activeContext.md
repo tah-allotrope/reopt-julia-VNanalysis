@@ -100,7 +100,7 @@ by `plans/2026-07-18-decree-243-currency-webapp-hardening-plan.md` PHASE-02:
   published yet; see `docs/regulatory-watch.md` (export_rules row: PENDING).
 - Pre-2026-06-26 results are reproducible via the new `decree_57_2025_legacy`
   regime; both preprocessing twins (`reopt/preprocess.py`,
-  `src/julia/REoptVietnam.jl`) now warn only when a caller's
+  `legacy/julia/src/REoptVietnam.jl`) now warn only when a caller's
   `max_export_fraction` differs from the *active* regime-resolved value, not a
   hardcoded 0.20.
 - New settlement preset `decree243_export_50pct_standard` in

@@ -1,6 +1,6 @@
 """Python preprocessing for Vietnam-specific REopt inputs.
 
-Mirror of the Julia module at `src/julia/REoptVietnam.jl`. All Vietnam-specific values are
+Mirror of the Julia module at `legacy/julia/src/REoptVietnam.jl`. All Vietnam-specific values are
 loaded at runtime from versioned JSON files in `data/vietnam/`, driven by `manifest.json`.
 This module contains logic only - no hardcoded policy values.
 

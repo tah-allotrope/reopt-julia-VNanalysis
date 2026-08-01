@@ -45,7 +45,7 @@ export VNData,
 # Constants
 # ---------------------------------------------------------------------------
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
 const DEFAULT_DATA_DIR = joinpath(REPO_ROOT, "data", "vietnam")
 const DEFAULT_MANIFEST = joinpath(DEFAULT_DATA_DIR, "manifest.json")
 const DEFAULT_EXCHANGE_RATE = 26_400.0  # VND per USD fallback

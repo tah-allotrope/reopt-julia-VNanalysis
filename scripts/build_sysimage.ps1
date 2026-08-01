@@ -3,7 +3,7 @@
 Builds a PackageCompiler sysimage for REopt.jl to eliminate Julia JIT cold-start.
 
 .DESCRIPTION
-Invokes scripts/julia/build_sysimage.jl with the project environment,
+Invokes legacy/julia/scripts/build_sysimage.jl with the project environment,
 stores the artifact at artifacts/sysimage/reopt_sysimage.{dll,so}.
 
 .PARAMETER SkipPrecompile
@@ -21,7 +21,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-$SysimageScript = Join-Path (Join-Path (Join-Path $RepoRoot "scripts") "julia") "build_sysimage.jl"
+$JuliaProjectDir = Join-Path (Join-Path $RepoRoot "legacy") "julia"
+$SysimageScript = Join-Path (Join-Path $JuliaProjectDir "scripts") "build_sysimage.jl"
 $SysimageDir = Join-Path (Join-Path $RepoRoot "artifacts") "sysimage"
 
 if (-not (Test-Path $SysimageDir)) {
@@ -37,7 +38,7 @@ if ($SkipPrecompile) {
 
 $env:JULIA_PKG_PRECOMPILE_AUTO = "0"
 
-$juliaArgs = @("--project=$RepoRoot", $SysimageScript)
+$juliaArgs = @("--project=$JuliaProjectDir", $SysimageScript)
 if ($SkipPrecompile) {
     $env:SKIP_PRECOMPILE = "true"
 }

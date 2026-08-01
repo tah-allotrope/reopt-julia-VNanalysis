@@ -1,16 +1,17 @@
 # REopt Vietnam Project Context & Guidelines
 
 ## 1. Project Overview
-> **Mission:** Julia-based techno-economic optimization for cost-optimal energy generation (Solar, Wind, Battery) for buildings and microgrids in Vietnam using NREL REopt.jl.
+> **Mission:** Techno-economic optimization for cost-optimal energy generation (Solar, Wind, Battery) for buildings and microgrids in Vietnam using NREL REopt, with PySAM-based developer finance. The primary solve path is the NREL REopt web API via Python; a Julia local-solve layer is retained in `legacy/julia/` for offline solves and the Decree 57/243 export-cap constraint.
 
 ## 2. Environment & Commands
-- **Environment:** Julia 1.10+ with REopt.jl v0.56.4 (`julia --project` for interactive use).
-- **Run Command:** `$env:JULIA_PKG_PRECOMPILE_AUTO="0"; julia --project --compile=min <script>.jl` (Bypasses precompilation hangs for scripts).
-- **Test Command:** `.\\tests\\run_all_tests.ps1` (Runs all validation layers).
+- **Environment (primary, Python):** Python 3.10+, `nrel-pysam` 7.1.0, editable install (`python -m pip install -e ".[webapp]"`).
+- **Environment (Julia, `legacy/julia/`, offline/export-cap-constraint use only):** Julia 1.10+ with REopt.jl v0.56.4 (`julia --project=legacy/julia` for interactive use).
+- **Run Command (Julia):** `$env:JULIA_PKG_PRECOMPILE_AUTO="0"; julia --project=legacy/julia --compile=min legacy/julia/<script>.jl` (Bypasses precompilation hangs for scripts).
+- **Test Command:** `.\\tests\\run_all_tests.ps1` (Runs all validation layers; CI itself only runs `pytest tests/python` — see `docs/testing.md`).
 
 ## 3. Documentation Directory
 Detailed instructions have been organized into the `docs/` folder for progressive disclosure. When working on specific areas, read the relevant file:
-- **[Architecture & Tech Stack](docs/architecture.md):** JuMP/HiGHS pipeline, preprocessing modules (`src/julia/REoptVietnam.jl` / `src/python/reopt_pysam_vn/reopt/preprocess.py`), and coding standards.
+- **[Architecture & Tech Stack](docs/architecture.md):** JuMP/HiGHS pipeline, preprocessing modules (`legacy/julia/src/REoptVietnam.jl` / `src/python/reopt_pysam_vn/reopt/preprocess.py`), and coding standards.
 - **[Data Layer & API Reference](docs/data_and_api.md):** API keys, Vietnam JSON data schema, and DeepWiki URLs.
 - **[Known Pitfalls & Workarounds](docs/pitfalls.md):** Common REopt errors, default overrides, and Decree 57 constraint limitations.
 - **[Scenario Templates](docs/scenarios.md):** Pre-configured JSON templates and usage patterns.
@@ -25,7 +26,7 @@ Detailed instructions have been organized into the `docs/` folder for progressiv
 
 ### Implementation Steps (all complete)
 1. Data layer — 5 JSON files + manifest (`data/vietnam/`)
-2. Julia module — `src/julia/REoptVietnam.jl`
+2. Julia module — `legacy/julia/src/REoptVietnam.jl` (archived 2026-07-26 from the repo root; old→new paths in `docs/legacy-path-map.md`)
 3. Julia Layer 1 + Layer 2 tests
 4. Python module — `src/python/reopt_pysam_vn/reopt/preprocess.py`
 5. Python Layer 1 + Layer 2 tests + Layer 3 cross-validation

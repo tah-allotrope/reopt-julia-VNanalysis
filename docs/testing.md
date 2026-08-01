@@ -4,10 +4,10 @@
 
 | Layer | What | Speed | Files |
 |---|---|---|---|
-| **1: Data Validation** | Schema compliance, value bounds for all `data/vietnam/` files | <2s | `tests/julia/test_data_validation.jl`, `tests/python/reopt/test_data_validation.py` |
-| **2: Unit Tests** | Every exported function, edge cases, error handling, non-destructive merge | <3s | `tests/julia/test_unit.jl`, `tests/python/reopt/test_unit.py` |
-| **3: Cross-Validation** | Julia vs Python produce identical dicts (tolerance 1e-10) | <5s | `tests/cross_language/cross_validate.py`, `tests/julia/export_processed_dict.jl` |
-| **4: Integration** | Scenario() construction, solver runs, regression baselines, incentive verification, API domain connectivity | ~30-60s/scenario | `tests/julia/test_integration.jl`, `tests/python/reopt/test_integration.py` |
+| **1: Data Validation** | Schema compliance, value bounds for all `data/vietnam/` files | <2s | `legacy/julia/tests/test_data_validation.jl`, `tests/python/reopt/test_data_validation.py` |
+| **2: Unit Tests** | Every exported function, edge cases, error handling, non-destructive merge | <3s | `legacy/julia/tests/test_unit.jl`, `tests/python/reopt/test_unit.py` |
+| **3: Cross-Validation** | Julia vs Python produce identical dicts (tolerance 1e-10) | <5s | `tests/cross_language/cross_validate.py`, `legacy/julia/tests/export_processed_dict.jl` |
+| **4: Integration** | Scenario() construction, solver runs, regression baselines, incentive verification, API domain connectivity | ~30-60s/scenario | `legacy/julia/tests/test_integration.jl`, `tests/python/reopt/test_integration.py` |
 
 **Baselines:** Stored in `tests/baselines/`. Auto-generated on first run; subsequent runs compare within 5% tolerance. Delete baseline file to regenerate.
 
@@ -27,11 +27,11 @@
 .\\tests\\run_all_tests.ps1 -Layer 2
 ```
 
-**Julia tests directly:**
+**Julia tests directly (archived under `legacy/julia/`, not CI-collected):**
 ```powershell
 $env:JULIA_PKG_PRECOMPILE_AUTO="0"
-julia --project --compile=min tests/julia/test_unit.jl
-julia --project --compile=min tests/julia/test_integration.jl --smoke-only
+julia --project=legacy/julia --compile=min legacy/julia/tests/test_unit.jl
+julia --project=legacy/julia --compile=min legacy/julia/tests/test_integration.jl --smoke-only
 ```
 
 **Python tests directly:**
@@ -55,7 +55,7 @@ PYTHONPATH= python -m pytest tests/python \
 
 That means:
 
-- **`tests/julia/` (Layer 1/2/4 Julia) and `tests/cross_language/` (Layer 3
+- **`legacy/julia/tests/` (Layer 1/2/4 Julia) and `tests/cross_language/` (Layer 3
   cross-validation) are never collected by CI.** They live outside
   `tests/python`, which is the only path CI's `pytest` invocation names. The
   "Julia vs Python produce identical dicts (tolerance 1e-10)" claim in the

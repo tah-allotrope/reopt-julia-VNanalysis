@@ -1,5 +1,5 @@
 ---
-status: "open"
+status: "complete — PHASE-01..06 shipped (commits 3943c5b, 31732d2, a70e0c5, c9b16d8, 0f40be8, 2fce33a, + PHASE-06 move commit): 3.10/3.12 CI matrix + ruff gate, DealConfig schema validator, Samsung parity docs honest, assumptions resolver + deal_defaults, FX unified on 26,400 with delta memo, Julia archived under legacy/julia/ with verified REPO_ROOT + Layer 1/2/3 green"
 ---
 
 # Plan: Post-Backlog Architecture — Reproducibility Floor, API Contract, Canonical Assumptions, Julia Archive
@@ -544,21 +544,21 @@ None — no new interfaces; this phase consumes PHASE-04's `exchange_rate()`.
 End the ambiguity about whether Julia is core or cruft, without losing the one capability it uniquely provides.
 
 **Tasks**
-- [ ] TASK-06-01: **Before moving anything**, grep for the **bare** directory name, not the path form — code builds paths from segments. Run all of:
+- [x] TASK-06-01: **Before moving anything**, grep for the **bare** directory name, not the path form — code builds paths from segments. Run all of:
   ```bash
   grep -rn '"julia"' --include=*.py --include=*.ps1 --include=*.jl . | grep -v __pycache__ | grep -v "^./.venv"
   grep -rn "scripts/julia\|src/julia" --include=* . | grep -v __pycache__ | grep -v "^./.git" | grep -v "^./.venv"
   ```
   Record every hit; each is a call site that must be updated.
-- [ ] TASK-06-02: Move with `git mv` (never copy-delete): `src/julia/` → `legacy/julia/src/`, `scripts/julia/` → `legacy/julia/scripts/`, `tests/julia/` → `legacy/julia/tests/`, `Project.toml` → `legacy/julia/Project.toml`, `Manifest.toml` → `legacy/julia/Manifest.toml`.
-- [ ] TASK-06-03: Update the known Python call sites: `src/python/reopt_pysam_vn/reopt/regime_runner.py:21` (`JULIA_RUNNER = REPO_ROOT / "scripts" / "julia" / "run_vietnam_scenario.jl"` → `REPO_ROOT / "legacy" / "julia" / "scripts" / "run_vietnam_scenario.jl"`) and any hit from TASK-06-01.
-- [ ] TASK-06-04: Update `tests/run_all_tests.ps1` and `tests/cross_language/cross_validate.py` for the new paths.
-- [ ] TASK-06-05: Update the Julia module's own `REPO_ROOT` computation — `legacy/julia/src/REoptVietnam.jl:48` currently does `abspath(joinpath(@__DIR__, "..", ".."))` which resolves to the repo root from `src/julia/`. From `legacy/julia/src/` it must become `abspath(joinpath(@__DIR__, "..", "..", ".."))`. **Getting this wrong makes `DEFAULT_DATA_DIR` point at a nonexistent directory and every Julia test fail with a file-not-found error.**
-- [ ] TASK-06-06: Create `legacy/julia/README.md` explaining the archive status, what Julia uniquely provides (the Decree 57/243 export-cap JuMP constraint, `add_decree57_export_cap_constraint!`, which has no Python equivalent — plain `REopt.run_reopt` does not enforce the cap), and the exact commands to run it.
-- [ ] TASK-06-07: Rewrite `README.md`'s "Tech Stack" section to lead with the real primary path. Replace the current three bullets with: NREL REopt web API (`developer.nlr.gov`) as the primary solve path via `reopt/preprocess.py` + `webapp/service.py`; PySAM 7.1.0 for developer finance; Python 3.10+; and Julia 1.10 + REopt.jl v0.56.4 **retained in `legacy/julia/` for offline solves and the Decree 57/243 export-cap constraint**. **Do not remove** the "Security note — API key rotation required" section (ASM-009).
-- [ ] TASK-06-08: Update `AGENTS.md` §1 Mission and §2 Environment to match, and `docs/architecture.md`'s preprocessing-module table with the new Julia path.
-- [ ] TASK-06-09: Add a `legacy/julia/` row to `docs/legacy-path-map.md` recording the old→new paths and the date.
-- [ ] TASK-06-10: Update `.gitignore` if it references the moved paths, and run `git status` afterward to confirm nothing was silently un-ignored or re-tracked.
+- [x] TASK-06-02: Move with `git mv` (never copy-delete): `src/julia/` → `legacy/julia/src/`, `scripts/julia/` → `legacy/julia/scripts/`, `tests/julia/` → `legacy/julia/tests/`, `Project.toml` → `legacy/julia/Project.toml`, `Manifest.toml` → `legacy/julia/Manifest.toml`.
+- [x] TASK-06-03: Update the known Python call sites: `src/python/reopt_pysam_vn/reopt/regime_runner.py:21` (`JULIA_RUNNER = REPO_ROOT / "scripts" / "julia" / "run_vietnam_scenario.jl"` → `REPO_ROOT / "legacy" / "julia" / "scripts" / "run_vietnam_scenario.jl"`) and any hit from TASK-06-01.
+- [x] TASK-06-04: Update `tests/run_all_tests.ps1` and `tests/cross_language/cross_validate.py` for the new paths.
+- [x] TASK-06-05: Update the Julia module's own `REPO_ROOT` computation — `legacy/julia/src/REoptVietnam.jl:48` currently does `abspath(joinpath(@__DIR__, "..", ".."))` which resolves to the repo root from `src/julia/`. From `legacy/julia/src/` it must become `abspath(joinpath(@__DIR__, "..", "..", ".."))`. **Getting this wrong makes `DEFAULT_DATA_DIR` point at a nonexistent directory and every Julia test fail with a file-not-found error.**
+- [x] TASK-06-06: Create `legacy/julia/README.md` explaining the archive status, what Julia uniquely provides (the Decree 57/243 export-cap JuMP constraint, `add_decree57_export_cap_constraint!`, which has no Python equivalent — plain `REopt.run_reopt` does not enforce the cap), and the exact commands to run it.
+- [x] TASK-06-07: Rewrite `README.md`'s "Tech Stack" section to lead with the real primary path. Replace the current three bullets with: NREL REopt web API (`developer.nlr.gov`) as the primary solve path via `reopt/preprocess.py` + `webapp/service.py`; PySAM 7.1.0 for developer finance; Python 3.10+; and Julia 1.10 + REopt.jl v0.56.4 **retained in `legacy/julia/` for offline solves and the Decree 57/243 export-cap constraint**. **Do not remove** the "Security note — API key rotation required" section (ASM-009).
+- [x] TASK-06-08: Update `AGENTS.md` §1 Mission and §2 Environment to match, and `docs/architecture.md`'s preprocessing-module table with the new Julia path.
+- [x] TASK-06-09: Add a `legacy/julia/` row to `docs/legacy-path-map.md` recording the old→new paths and the date.
+- [x] TASK-06-10: Update `.gitignore` if it references the moved paths, and run `git status` afterward to confirm nothing was silently un-ignored or re-tracked.
 
 **File Changes**
 - `src/julia/REoptVietnam.jl` → `legacy/julia/src/REoptVietnam.jl` (git mv + modify line 48's `REPO_ROOT`).
@@ -590,11 +590,11 @@ None — no code interfaces change in this phase; only file locations and one pa
 - PHASE-04 must be complete first — it edits `src/julia/REoptVietnam.jl`, and doing that before the move avoids resolving the same edit against a moved file.
 
 **Exit Criteria**
-- [ ] `git log --follow --oneline legacy/julia/src/REoptVietnam.jl | head -3` shows pre-move history (confirms `git mv`, not copy-delete).
-- [ ] Full portable suite green with an unchanged pass count.
-- [ ] Julia Layer 2 tests pass from the new location on a Julia-equipped machine.
-- [ ] No `.md` file outside `docs/legacy-path-map.md` references `src/julia` or `scripts/julia`.
-- [ ] `git status` is clean after the move with nothing unexpectedly staged or un-ignored.
+- [x] `git log --follow --oneline legacy/julia/src/REoptVietnam.jl | head -3` shows pre-move history (confirms `git mv`, not copy-delete).
+- [x] Full portable suite green with an unchanged pass count.
+- [x] Julia Layer 2 tests pass from the new location on a Julia-equipped machine.
+- [x] No `.md` file outside `docs/legacy-path-map.md` references `src/julia` or `scripts/julia`.
+- [x] `git status` is clean after the move with nothing unexpectedly staged or un-ignored.
 
 **Phase Risks**
 - **RISK-06-01:** the `REPO_ROOT` depth change in `REoptVietnam.jl` is silent — a wrong path yields a file-not-found only when a Julia test actually runs, and Julia is not in CI. Mitigation: TASK-06-05 states the exact new expression, and the Julia Layer 2 run is a hard exit criterion, not optional.

@@ -47,9 +47,9 @@ def _run_builder(entrypoint, argv: list[str]) -> None:
 def run_julia_scenario(scenario_path: Path, no_solve: bool) -> None:
     command = [
         "julia",
-        "--project",
+        f"--project={REPO_ROOT / 'legacy' / 'julia'}",
         "--compile=min",
-        "scripts/julia/run_vietnam_scenario.jl",
+        "legacy/julia/scripts/run_vietnam_scenario.jl",
         "--scenario",
         str(scenario_path),
     ]

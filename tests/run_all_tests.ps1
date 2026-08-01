@@ -81,7 +81,8 @@ function Invoke-Julia {
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
 
     $env:JULIA_PKG_PRECOMPILE_AUTO = '0'
-    $allArgs = @('--project', '--compile=min', $Script)
+    $juliaProjectDir = Join-Path $script:REPO_ROOT 'legacy\julia'
+    $allArgs = @("--project=$juliaProjectDir", '--compile=min', $Script)
     if ($Extra -and $Extra.Count -gt 0) { $allArgs += $Extra }
     $proc = Start-Process -FilePath 'julia' -ArgumentList $allArgs `
         -WorkingDirectory $script:REPO_ROOT -NoNewWindow -PassThru `
@@ -210,7 +211,7 @@ if ($run1) {
     Show-Banner 'Layer 1: Data Validation'
 
     Invoke-Julia -TestName 'L1-Julia  Data validation' `
-        -Script 'tests\julia\test_data_validation.jl'
+        -Script 'legacy\julia\tests\test_data_validation.jl'
 
     Invoke-Pytest -TestName 'L1-Python Data validation' `
         -Script 'tests\python\reopt\test_data_validation.py'
@@ -221,7 +222,7 @@ if ($run2) {
     Show-Banner 'Layer 2: Unit Tests'
 
     Invoke-Julia -TestName 'L2-Julia  Unit tests' `
-        -Script 'tests\julia\test_unit.jl'
+        -Script 'legacy\julia\tests\test_unit.jl'
 
     Invoke-Pytest -TestName 'L2-Python Unit tests' `
         -Script 'tests\python\reopt\test_unit.py'
@@ -247,7 +248,7 @@ if ($run4) {
     if ($SmokeOnly) { $juliaExtra += '--smoke-only' }
 
     Invoke-Julia -TestName 'L4-Julia  Integration tests' `
-        -Script 'tests\julia\test_integration.jl' -Extra $juliaExtra
+        -Script 'legacy\julia\tests\test_integration.jl' -Extra $juliaExtra
 
     $pyExtra = @()
     if ($SmokeOnly) { $pyExtra += '-k'; $pyExtra += 'smoke' }

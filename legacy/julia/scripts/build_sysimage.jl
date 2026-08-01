@@ -19,7 +19,7 @@ precompile workload (faster build, less warm coverage).
 
 using PackageCompiler
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
 const SYSLIB = joinpath(REPO_ROOT, "artifacts", "sysimage")
 
 mkpath(SYSLIB)

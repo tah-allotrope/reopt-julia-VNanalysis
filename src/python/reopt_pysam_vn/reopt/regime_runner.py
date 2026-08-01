@@ -17,7 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 DEFAULT_ASSUMPTION_SET_DIR = REPO_ROOT / "scenarios" / "regime_engine" / "assumption_sets"
 DEFAULT_GENERATED_SCENARIO_DIR = REPO_ROOT / "scenarios" / "generated" / "regime_engine"
 DEFAULT_RESULT_STORE_DIR = REPO_ROOT / "artifacts" / "results" / "regime_engine"
-JULIA_RUNNER = REPO_ROOT / "scripts" / "julia" / "run_vietnam_scenario.jl"
+JULIA_RUNNER = REPO_ROOT / "legacy" / "julia" / "scripts" / "run_vietnam_scenario.jl"
+JULIA_PROJECT_DIR = REPO_ROOT / "legacy" / "julia"
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -195,7 +196,7 @@ def materialize_regime_scenario(
 
 
 def _run_julia_scenario(generated_scenario_path: str, result_dir: str, solve: bool) -> subprocess.CompletedProcess[str]:
-    command = ["julia", "--project", "--compile=min", str(JULIA_RUNNER), "--scenario", generated_scenario_path, "--output-dir", result_dir]
+    command = ["julia", f"--project={JULIA_PROJECT_DIR}", "--compile=min", str(JULIA_RUNNER), "--scenario", generated_scenario_path, "--output-dir", result_dir]
     if not solve:
         command.append("--no-solve")
     return subprocess.run(

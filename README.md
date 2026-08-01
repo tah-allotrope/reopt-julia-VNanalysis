@@ -21,9 +21,15 @@ There is also an internal, localhost-only web UI over this package — see [`src
 
 ## Tech Stack
 
-- **Julia 1.10+** with REopt.jl v0.56.4, JuMP, HiGHS
-- **Python 3.10+** for REopt preprocessing, PySAM integration, analytics, and tests
-- **Pipeline:** `Scenario(dict)` → `REoptInputs(s)` → `run_reopt(m, inputs)` → results dict
+- **NREL REopt web API** (`developer.nlr.gov`) is the primary solve path, driven by
+  `reopt_pysam_vn.reopt.preprocess` (Vietnam-specific defaults) + `reopt_pysam_vn.webapp.service`.
+- **PySAM 7.1.0** (`nrel-pysam`) for developer/Single-Owner finance modeling.
+- **Python 3.10+** for REopt preprocessing, PySAM integration, analytics, and tests.
+- **Julia 1.10** + REopt.jl v0.56.4, retained in `legacy/julia/` for offline
+  local solves and the Decree 57/243 rooftop-solar export-cap JuMP
+  constraint (no Python equivalent exists). Not on the primary path and not
+  run in CI — see `legacy/julia/README.md`.
+- **Pipeline (both engines):** `Scenario(dict)` → `REoptInputs(s)` → `run_reopt(m, inputs)` → results dict
 
 ## Project Structure
 
@@ -33,29 +39,30 @@ data/
   raw/saigon18/            Source workbook for the Saigon18 case study
   interim/saigon18/        Extracted and transformed Saigon18 inputs
 src/
-  julia/
-    REoptVietnam.jl        Julia preprocessing module
   python/
     reopt_pysam_vn/
+      analysis/            Public API: DealConfig, run_onsite, run_offsite_dppa, CLI
+      common/              Shared helpers, incl. the canonical assumptions resolver
       reopt/               REopt-specific Python package code
       pysam/               PySAM package scaffolding and finance modules
       integration/         Cross-engine bridge code
+      webapp/              FastAPI localhost UI over analysis/
 scripts/
-  julia/                   Julia execution scripts
   python/
     reopt/                 REopt-oriented Python workflows
     pysam/                 PySAM-oriented Python workflows
     integration/           Combined case-study and reporting workflows
+legacy/
+  julia/                   Archived Julia preprocessing/solve layer — see legacy/julia/README.md
 plans/
   active/                  Current planning docs
   archive/                 Historical planning docs
 tests/
-  julia/                   Julia tests
   python/
     reopt/                 Python REopt tests
     pysam/                 Python PySAM tests
     integration/           Python integration and case-study tests
-  cross_language/          Julia/Python cross-validation tests
+  cross_language/          Julia/Python cross-validation tests (not CI-collected)
   baselines/               Regression baselines
 ```
 
@@ -66,12 +73,12 @@ tests/
 $env:NREL_DEVELOPER_API_KEY = "your-key"
 $env:NREL_DEVELOPER_EMAIL   = "your-email"
 
-# 2. Validate inputs (no solver — fast)
+# 2. Validate inputs (no solver — fast). Local Julia solve path (legacy/julia/):
 $env:JULIA_PKG_PRECOMPILE_AUTO = "0"
-julia --project --compile=min scripts/julia/run_vietnam_scenario.jl --no-solve
+julia --project=legacy/julia --compile=min legacy/julia/scripts/run_vietnam_scenario.jl --no-solve
 
 # 3. Run full optimization (HiGHS solver, ~60s first run)
-julia --project --compile=min scripts/julia/run_vietnam_scenario.jl
+julia --project=legacy/julia --compile=min legacy/julia/scripts/run_vietnam_scenario.jl
 
 # Output lands in artifacts/results/examples/commercial-rooftop_reopt-results.json
 ```
@@ -88,12 +95,12 @@ python scripts/python/reopt/build_saigon18_reopt_input.py
 
 # 3. Validate a canonical scenario without solving
 $env:JULIA_PKG_PRECOMPILE_AUTO = "0"
-julia --project --compile=min scripts/julia/run_vietnam_scenario.jl `
+julia --project=legacy/julia --compile=min legacy/julia/scripts/run_vietnam_scenario.jl `
   --scenario scenarios/case_studies/saigon18/2026-03-20_scenario-a_fixed-sizing_evntou.json `
   --no-solve
 
 # 4. Solve a canonical scenario
-julia --project --compile=min scripts/julia/run_vietnam_scenario.jl `
+julia --project=legacy/julia --compile=min legacy/julia/scripts/run_vietnam_scenario.jl `
   --scenario scenarios/case_studies/saigon18/2026-03-20_scenario-a_fixed-sizing_evntou.json
 
 # Result lands in artifacts/results/saigon18/2026-03-20_scenario-a_fixed-sizing_evntou_reopt-results.json
@@ -106,7 +113,7 @@ The preprocessing tool applies Vietnam-specific defaults to any REopt input dict
 ### Usage (Julia)
 
 ```julia
-include("src/julia/REoptVietnam.jl")
+include("legacy/julia/src/REoptVietnam.jl")
 using .REoptVietnam
 
 vn = load_vietnam_data()

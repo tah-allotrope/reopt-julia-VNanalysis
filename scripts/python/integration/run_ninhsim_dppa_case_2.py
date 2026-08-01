@@ -82,9 +82,9 @@ def main() -> None:
 
     julia_command = [
         "julia",
-        "--project",
+        f"--project={REPO_ROOT / 'legacy' / 'julia'}",
         "--compile=min",
-        "scripts/julia/run_vietnam_scenario.jl",
+        "legacy/julia/scripts/run_vietnam_scenario.jl",
         "--scenario",
         SCENARIO_PATH,
     ]

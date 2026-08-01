@@ -1,14 +1,15 @@
-"""Run bounded-opt REopt solve for 22kV two-part tariff branch."""
+"""Run bounded-opt REopt solve with extended timeout for Saigon18 DPPA Case 3."""
 
 using JSON
 using JuMP
 using HiGHS
 using REopt
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
-include(joinpath(REPO_ROOT, "src", "julia", "REoptVietnam.jl"))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
+include(joinpath(REPO_ROOT, "legacy", "julia", "src", "REoptVietnam.jl"))
 using .REoptVietnam
 
+# Load API keys
 let env_path = joinpath(REPO_ROOT, "NREL_API.env")
     if isfile(env_path)
         for line in eachline(env_path)
@@ -25,13 +26,14 @@ let env_path = joinpath(REPO_ROOT, "NREL_API.env")
 end
 
 scenario_path = joinpath(REPO_ROOT, "scenarios", "case_studies", "saigon18",
-    "2026-04-21_saigon18_dppa-case-3_bounded-opt_22kv.json")
+    "2026-04-21_saigon18_dppa-case-3_bounded-opt_tou.json")
 
 println("\nLoading scenario: $scenario_path")
 d = JSON.parsefile(scenario_path)
 delete!(d, "_meta")
 delete!(d, "_template")
 
+# Expand scalar emissions factor
 ef = d["ElectricUtility"]["emissions_factor_series_lb_CO2_per_kwh"]
 if ef isa Number
     d["ElectricUtility"]["emissions_factor_series_lb_CO2_per_kwh"] = fill(Float64(ef), 8760)
@@ -67,7 +69,7 @@ if haskey(results, "ElectricStorage")
 end
 
 out_path = joinpath(REPO_ROOT, "artifacts", "results", "saigon18",
-    "2026-04-21_saigon18_dppa-case-3_bounded-opt_22kv_reopt-results.json")
+    "2026-04-21_saigon18_dppa-case-3_bounded-opt_tou_reopt-results.json")
 mkpath(dirname(out_path))
 open(out_path, "w") do f
     JSON.print(f, results, 2)

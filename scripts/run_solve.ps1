@@ -38,6 +38,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
+$JuliaProjectDir = Join-Path $RepoRoot "legacy" "julia"
 
 # Validate scenario exists
 if (-not (Test-Path $Scenario)) {
@@ -68,7 +69,7 @@ $useSysimage = $Sysimage -and (Test-Path $Sysimage)
 if ($NoSolve) {
     Write-Host "=== Validating scenario (--no-solve) ===" -ForegroundColor Cyan
     $noSolveFlag = if ($useSysimage) { "--sysimage", $Sysimage, "--no-solve" } else { "--no-solve" }
-    & julia --project=$RepoRoot @noSolveFlag $Scenario
+    & julia --project=$JuliaProjectDir @noSolveFlag $Scenario
     exit $LASTEXITCODE
 }
 
@@ -77,8 +78,8 @@ if ($useSysimage) {
     Write-Host "Sysimage: $Sysimage"
 
     $env:JULIA_PKG_PRECOMPILE_AUTO = "0"
-    & julia --sysimage=$Sysimage --project=$RepoRoot `
-        (Join-Path $RepoRoot "scripts" "julia" "run_vietnam_scenario.jl") `
+    & julia --sysimage=$Sysimage --project=$JuliaProjectDir `
+        (Join-Path $RepoRoot "legacy" "julia" "scripts" "run_vietnam_scenario.jl") `
         --scenario $Scenario --output-dir $OutputDir
 
     if ($LASTEXITCODE -eq 0) {
@@ -116,8 +117,8 @@ Write-Host "=== Solving via Julia (cold-start) ===" -ForegroundColor Cyan
 Write-Host "Tip: use --sysimage or --fallback for faster solves" -ForegroundColor Yellow
 
 $env:JULIA_PKG_PRECOMPILE_AUTO = "0"
-& julia --project=$RepoRoot --compile=min `
-    (Join-Path $RepoRoot "scripts" "julia" "run_vietnam_scenario.jl") `
+& julia --project=$JuliaProjectDir --compile=min `
+    (Join-Path $RepoRoot "legacy" "julia" "scripts" "run_vietnam_scenario.jl") `
     --scenario $Scenario --output-dir $OutputDir
 
 exit $LASTEXITCODE

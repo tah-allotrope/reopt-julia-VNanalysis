@@ -3,7 +3,7 @@ Layer 2: Unit Tests for reopt_pysam_vn.reopt.preprocess (Python)
 
 Tests the preprocessing logic in isolation â€” fast, no API keys or solver needed.
 Each function is tested for correct behavior, edge cases, and non-destructive merging.
-Mirror of tests/julia/test_unit.jl â€” identical checks, same data files.
+Mirror of legacy/julia/tests/test_unit.jl â€” identical checks, same data files.
 
 Run: pytest tests/python/reopt/test_unit.py -v
 """

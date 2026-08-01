@@ -67,9 +67,9 @@ def _solve_threshold_search() -> float:
         run_command(
             [
                 "julia",
-                "--project",
+                f"--project={REPO_ROOT / 'legacy' / 'julia'}",
                 "--compile=min",
-                "scripts/julia/run_vietnam_scenario.jl",
+                "legacy/julia/scripts/run_vietnam_scenario.jl",
                 "--scenario",
                 SCENARIO_C,
             ]
@@ -115,9 +115,9 @@ def main() -> None:
 
     julia_cmd = [
         "julia",
-        "--project",
+        f"--project={REPO_ROOT / 'legacy' / 'julia'}",
         "--compile=min",
-        "scripts/julia/run_vietnam_scenario.jl",
+        "legacy/julia/scripts/run_vietnam_scenario.jl",
         "--scenario",
         SCENARIO_C,
     ]

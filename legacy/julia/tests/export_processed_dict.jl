@@ -16,8 +16,8 @@ Arguments:
 
 using JSON
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
-include(joinpath(REPO_ROOT, "src", "julia", "REoptVietnam.jl"))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
+include(joinpath(REPO_ROOT, "legacy", "julia", "src", "REoptVietnam.jl"))
 using .REoptVietnam
 
 function main()

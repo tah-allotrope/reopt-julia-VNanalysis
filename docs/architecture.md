@@ -11,7 +11,7 @@ Dual Julia/Python modules that apply Vietnam defaults to a REopt input dict **be
 
 | Module | Language | Key Function |
 |---|---|---|
-| `src/julia/REoptVietnam.jl` | Julia | `apply_vietnam_defaults!(dict, vn; customer_type, voltage_level, region)` |
+| `legacy/julia/src/REoptVietnam.jl` (archived — see `legacy/julia/README.md`) | Julia | `apply_vietnam_defaults!(dict, vn; customer_type, voltage_level, region)` |
 | `src/python/reopt_pysam_vn/reopt/preprocess.py` | Python | `apply_vietnam_defaults(dict, vn, customer_type, voltage_level, region)` |
 
 Both modules share the same `data/vietnam/` data files and are intended to produce identical output. This is verified by Layer 3 cross-validation (`tests/cross_language/cross_validate.py`, max diff = 0.00e+00 when last run), but that check is **not automated** — CI only collects `tests/python` and excludes `requires_julia`/`golden_machine`-marked tests, so Layer 3 must be run manually (`tests/run_all_tests.ps1` or the script directly) on a machine with Julia installed to confirm equivalence still holds. See `docs/testing.md` § "What CI Actually Runs".

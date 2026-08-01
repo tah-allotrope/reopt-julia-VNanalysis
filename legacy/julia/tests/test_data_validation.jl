@@ -10,7 +10,7 @@ Run: julia --project tests/julia/test_data_validation.jl
 using Test
 using JSON
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
 const DATA_DIR = joinpath(REPO_ROOT, "data", "vietnam")
 const MANIFEST_PATH = joinpath(DATA_DIR, "manifest.json")
 

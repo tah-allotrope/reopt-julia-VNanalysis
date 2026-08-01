@@ -28,6 +28,19 @@ Old placeholder folders were consolidated here after the repo moved to clearer c
 - Example reports: `artifacts/reports/examples/`
 - Test-run reports: `artifacts/reports/test_runs/`
 
+## Julia archive (2026-07-26)
+
+- Old `src/julia/` → new `legacy/julia/src/`
+- Old `scripts/julia/` → new `legacy/julia/scripts/`
+- Old `tests/julia/` → new `legacy/julia/tests/`
+- Old root `Project.toml` / `Manifest.toml` → new `legacy/julia/Project.toml` / `legacy/julia/Manifest.toml`
+- All `git mv`'d (history preserved: `git log --follow legacy/julia/src/REoptVietnam.jl` shows pre-move commits).
+- Julia is archived, not deleted: it uniquely implements the Decree 57/243
+  export-cap JuMP constraint (`add_decree57_export_cap_constraint!`), which
+  plain `REopt.run_reopt` does not enforce. See `legacy/julia/README.md`.
+- Any command that previously used `julia --project` from the repo root now
+  needs `julia --project=legacy/julia`.
+
 ## Naming convention
 
 - Generated case-study files now use `YYYY-MM-DD_<work-item>_<artifact-type>` so the work timeline is easier to scan.

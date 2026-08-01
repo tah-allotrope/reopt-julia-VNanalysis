@@ -18,7 +18,7 @@ When using `loads_kw` directly, `"year"` field is **required** (e.g., `"year": 2
 `Settings.off_grid_flag = true`: only PV/Wind/Generator/ElectricStorage allowed; Generator+Storage required; grid export/charge forced off; operating reserves enforced.
 
 ### Decree 57 Export Cap (`max_export_fraction`) — Enforcement
-`apply_decree57_export!` / `apply_decree57_export` store `max_export_fraction` in scenario `_meta`, but REopt still has no native "max % of generation exportable" input. Enforcement now happens only when solving through the Vietnam-specific Julia wrapper `run_vietnam_reopt(...)` (used by `scripts/julia/run_vietnam_scenario.jl`), which adds a custom JuMP constraint: `annual PV export <= max_export_fraction * annual PV production`. Plain `REopt.run_reopt(...)` still does **NOT** enforce the cap automatically.
+`apply_decree57_export!` / `apply_decree57_export` store `max_export_fraction` in scenario `_meta`, but REopt still has no native "max % of generation exportable" input. Enforcement now happens only when solving through the Vietnam-specific Julia wrapper `run_vietnam_reopt(...)` (used by the archived `legacy/julia/scripts/run_vietnam_scenario.jl` — see `legacy/julia/README.md`), which adds a custom JuMP constraint: `annual PV export <= max_export_fraction * annual PV production`. Plain `REopt.run_reopt(...)` (the primary Python/web-API path) still does **NOT** enforce the cap automatically.
 
 ### L4 Julia Tests — Cold-Start Timeout
 On first run (no precompiled sysimage), loading REopt.jl + ArchGDAL takes **3-8 minutes** even with `--compile=min`. The test runner's `Invoke-Julia` function now accepts `-JuliaTimeoutSeconds` to cap this. Recommended values:

@@ -10,7 +10,7 @@ Run: python tests/cross_language/cross_validate.py
 
 Requirements:
     - Julia installed and on PATH
-    - julia --project works from REPO_ROOT
+    - julia --project=legacy/julia works from REPO_ROOT
     - No solver or API key needed
 """
 
@@ -92,11 +92,11 @@ def _python_process(d: dict, regime_id: str) -> dict:
 
 def _julia_process(input_path: str, output_path: str, regime_id: str) -> dict:
     """Run Julia export_processed_dict.jl and return the output dict."""
-    julia_script = str(REPO_ROOT / "tests" / "julia" / "export_processed_dict.jl")
+    julia_script = str(REPO_ROOT / "legacy" / "julia" / "tests" / "export_processed_dict.jl")
 
     cmd = [
         "julia",
-        "--project",
+        f"--project={REPO_ROOT / 'legacy' / 'julia'}",
         julia_script,
         str(input_path),
         str(output_path),

@@ -10,8 +10,8 @@ Run: julia --project tests/julia/test_unit.jl
 using Test
 using JSON
 
-const REPO_ROOT = abspath(joinpath(@__DIR__, "..", ".."))
-include(joinpath(REPO_ROOT, "src", "julia", "REoptVietnam.jl"))
+const REPO_ROOT = abspath(joinpath(@__DIR__, "..", "..", ".."))
+include(joinpath(REPO_ROOT, "legacy", "julia", "src", "REoptVietnam.jl"))
 using .REoptVietnam
 
 # Load Vietnam data once for all tests

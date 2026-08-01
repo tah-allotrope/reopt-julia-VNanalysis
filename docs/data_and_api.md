@@ -16,7 +16,7 @@ For deep REopt.jl internals (constraint math, source files, MPC, multi-node), fe
 Key pages: `/5.1-scenario-construction`, `/5.3-technology-configuration`, `/6.2-model-building-with-build_reopt!`, `/6.3-constraint-system`, `/7-results-and-post-processing`
 
 ## Vietnam Data Layer (`data/vietnam/`)
-Versioned JSON files with Vietnam-specific assumptions, loaded by `src/julia/REoptVietnam.jl` (Julia) and `src/python/reopt_pysam_vn/reopt/preprocess.py` (Python) **before** `Scenario()`. Manifest-driven: update policy data by creating a new file + changing one line in `manifest.json`.
+Versioned JSON files with Vietnam-specific assumptions, loaded by `legacy/julia/src/REoptVietnam.jl` (Julia, archived) and `src/python/reopt_pysam_vn/reopt/preprocess.py` (Python, primary) **before** `Scenario()`. Manifest-driven: update policy data by creating a new file + changing one line in `manifest.json`.
 
 ### Key Vietnam Values
 | Parameter | Value | Source |
