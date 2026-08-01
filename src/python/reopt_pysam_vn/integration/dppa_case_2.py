@@ -665,9 +665,11 @@ def build_dppa_case_2_settlement_inputs(
         "strike_price_vnd_per_kwh": _strike_vnd_per_kwh(extracted),
         "dppa_adder_vnd_per_kwh": DEFAULT_DPPA_ADDER_VND_PER_KWH,
         "kpp_factor": DEFAULT_KPP_FACTOR,
+        # Was a hardcoded 25,000 fallback; unified onto the canonical 26,400
+        # (ASM-002) in plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
         "exchange_rate_vnd_per_usd": _resolve_exchange_rate(
             load_vietnam_data(),
-            caller_value=(extracted["benchmark"].get("exchange_rate_vnd_per_usd") or 25_000.0),
+            extracted={"benchmark": extracted["benchmark"]},
         ),
         "notes": notes,
         "scenario_metadata": scenario.get("_meta", {}),
@@ -799,9 +801,11 @@ def run_dppa_case_2_buyer_settlement(settlement_inputs: dict) -> dict:
     strike = float(settlement_inputs["strike_price_vnd_per_kwh"])
     adder = float(settlement_inputs["dppa_adder_vnd_per_kwh"])
     kpp = float(settlement_inputs["kpp_factor"])
+    # Was a hardcoded 25,000 fallback; unified onto the canonical 26,400
+    # (ASM-002) in plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
     exchange_rate = _resolve_exchange_rate(
         load_vietnam_data(),
-        caller_value=(settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0),
+        caller_value=settlement_inputs.get("exchange_rate_vnd_per_usd"),
     )
 
     hourly_ledger = []
@@ -967,9 +971,11 @@ def build_dppa_case_2_strike_sensitivity(
         or settlement_inputs["strike_price_vnd_per_kwh"]
         / (1.0 - DEFAULT_STRIKE_DISCOUNT_FRACTION)
     )
+    # Was a hardcoded 25,000 fallback; unified onto the canonical 26,400
+    # (ASM-002) in plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
     exchange_rate = _resolve_exchange_rate(
         load_vietnam_data(),
-        caller_value=(settlement_inputs.get("exchange_rate_vnd_per_usd") or 25_000.0),
+        caller_value=settlement_inputs.get("exchange_rate_vnd_per_usd"),
     )
     active_runner = developer_runner
     if developer_base_inputs is not None and active_runner is None:

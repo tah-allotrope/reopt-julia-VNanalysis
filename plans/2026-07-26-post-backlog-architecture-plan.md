@@ -471,17 +471,17 @@ Route all 22 hardcoded VND/USD literals through the PHASE-04 resolver, in a way 
 **Tasks**
 
 **Commit 1 — value-preserving refactor (changes no output):**
-- [ ] TASK-05-01: For each of the 22 sites listed in File Changes, replace the module-level literal with a resolver call **that passes the module's current value as an explicit `caller_value`**. Example: `EXCHANGE_RATE_VND_PER_USD = 26_400.0` becomes a call whose result is still exactly `26400.0`. Every number the toolkit emits must be byte-identical after this commit.
-- [ ] TASK-05-02: Run the full portable suite and confirm `589 passed` (plus any tests added in PHASE-02/03/04) with **zero** changed numeric assertions.
-- [ ] TASK-05-03: Regenerate the two tracked golden artifacts and confirm zero diff: `git diff --exit-code examples/` → exit code `0`.
-- [ ] TASK-05-04: Commit with message `refactor(fx): route exchange-rate reads through common.assumptions (value-preserving, no numbers change)`.
+- [x] TASK-05-01: For each of the 22 sites listed in File Changes, replace the module-level literal with a resolver call **that passes the module's current value as an explicit `caller_value`**. Example: `EXCHANGE_RATE_VND_PER_USD = 26_400.0` becomes a call whose result is still exactly `26400.0`. Every number the toolkit emits must be byte-identical after this commit.
+- [x] TASK-05-02: Run the full portable suite and confirm `589 passed` (plus any tests added in PHASE-02/03/04) with **zero** changed numeric assertions. (634 passed after PHASE-02/03/04 additions; unchanged across Commit 1.)
+- [x] TASK-05-03: Regenerate the two tracked golden artifacts and confirm zero diff: `git diff --exit-code examples/` → exit code `0`.
+- [x] TASK-05-04: Commit with message `refactor(fx): route exchange-rate reads through common.assumptions (value-preserving, no numbers change)`.
 
 **Commit 2 — value-changing flip (moves numbers deliberately):**
-- [ ] TASK-05-05: Remove the explicit `caller_value` pass-through from the **general-purpose** modules only, letting them resolve to the canonical 26,400: `src/python/reopt_pysam_vn/reopt/two_part_tariff.py:23` (26,000 → 26,400), `src/python/reopt_pysam_vn/integration/dppa_case_2.py:668,801,968` (25,000 fallback → 26,400), `scripts/python/reopt/two_part_tariff_sensitivity.py:39` (26,000 → 26,400), `scripts/python/reopt/build_saigon18_reopt_input.py:40` (26,000 → 26,400).
-- [ ] TASK-05-06: **Leave the per-deal 25,450 sites unchanged** per ASM-005 — `src/python/reopt_pysam_vn/integration/dppa_case_3.py:65`, `scripts/python/integration/analyze_saigon18_dppa_case_3_phase_f.py:38`, `..._phase_f_22kv.py:28`, `scripts/python/integration/build_saigon18_dppa_case_3_phase_c.py:63,183`. Convert each to an explicit, commented deal-specific override: `# Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD. Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).`
-- [ ] TASK-05-07: Identify every test whose expected value moves. Update each with a comment naming this plan and the old→new value.
-- [ ] TASK-05-08: Write `reports/2026-07-26-fx-unification-delta.md` quantifying, for each affected case, the before/after on at least: developer NPV (USD), developer IRR (fraction), and buyer blended cost (USD/kWh).
-- [ ] TASK-05-09: Commit with message `fix(fx): unify general-purpose modules on the canonical 26,400 VND/USD` and the delta memo in the same commit.
+- [x] TASK-05-05: Remove the explicit `caller_value` pass-through from the **general-purpose** modules only, letting them resolve to the canonical 26,400: `src/python/reopt_pysam_vn/reopt/two_part_tariff.py:23` (26,000 → 26,400), `src/python/reopt_pysam_vn/integration/dppa_case_2.py:668,801,968` (25,000 fallback → 26,400), `scripts/python/reopt/two_part_tariff_sensitivity.py:39` (26,000 → 26,400), `scripts/python/reopt/build_saigon18_reopt_input.py:40` (26,000 → 26,400).
+- [x] TASK-05-06: **Leave the per-deal 25,450 sites unchanged** per ASM-005 — `src/python/reopt_pysam_vn/integration/dppa_case_3.py:65`, `scripts/python/integration/analyze_saigon18_dppa_case_3_phase_f.py:38`, `..._phase_f_22kv.py:28`, `scripts/python/integration/build_saigon18_dppa_case_3_phase_c.py:63,183`. Convert each to an explicit, commented deal-specific override: `# Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD. Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).`
+- [x] TASK-05-07: Identify every test whose expected value moves. Update each with a comment naming this plan and the old→new value. (One test moved: `tests/python/reopt/test_two_part_tariff.py::test_compute_two_part_impact_high_load_factor`.)
+- [x] TASK-05-08: Write `reports/2026-07-26-fx-unification-delta.md` quantifying, for each affected case, the before/after on at least: developer NPV (USD), developer IRR (fraction), and buyer blended cost (USD/kWh). (Neither flipped module produces a financed NPV/IRR; the memo documents this and uses the closest available proxies — see its "Note on developer NPV/IRR figures" section.)
+- [x] TASK-05-09: Commit with message `fix(fx): unify general-purpose modules on the canonical 26,400 VND/USD` and the delta memo in the same commit.
 
 **File Changes**
 Commit 1 touches all 17 files (22 sites). Enumerated exactly:
@@ -525,11 +525,11 @@ None — no new interfaces; this phase consumes PHASE-04's `exchange_rate()`.
 - PHASE-04 must be complete and green — the resolver must exist before anything calls it.
 
 **Exit Criteria**
-- [ ] Exactly two commits, in order, with the specified messages.
-- [ ] Commit 1's test output is byte-identical to the pre-change run.
-- [ ] `reports/2026-07-26-fx-unification-delta.md` exists and quantifies NPV, IRR, and blended cost deltas for every case Commit 2 moved.
-- [ ] `grep -rnE "EXCHANGE_RATE[A-Z_]* *= *2[0-9][,_]?[0-9]{3}" --include=*.py src scripts | grep -v __pycache__ | grep -v "Intentionally NOT"` → returns only `preprocess.py`'s `DEFAULT_EXCHANGE_RATE` last-resort fallback.
-- [ ] Full portable suite green.
+- [x] Exactly two commits, in order, with the specified messages.
+- [x] Commit 1's test output is byte-identical to the pre-change run.
+- [x] `reports/2026-07-26-fx-unification-delta.md` exists and quantifies NPV, IRR, and blended cost deltas for every case Commit 2 moved (with an explicit note where NPV/IRR do not apply to the flipped modules).
+- [x] `grep -rnE "EXCHANGE_RATE[A-Z_]* *= *2[0-9][,_]?[0-9]{3}" --include=*.py src scripts | grep -v __pycache__ | grep -v "Intentionally NOT"` → returns only `preprocess.py`'s `DEFAULT_EXCHANGE_RATE` last-resort fallback.
+- [x] Full portable suite green. (634 passed, 18 deselected, 3 xfailed.)
 
 **Phase Risks**
 - **RISK-05-01:** Commit 1 accidentally changes a value, making Commit 2's delta memo untrustworthy. Mitigation: the byte-identical `diff` gate above is mandatory and must be run before committing, not after.

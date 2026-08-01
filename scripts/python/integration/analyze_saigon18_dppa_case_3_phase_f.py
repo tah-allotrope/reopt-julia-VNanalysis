@@ -36,6 +36,8 @@ from reopt_pysam_vn.pysam.single_owner import (
 )
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
+# Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD.
+# Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).
 EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
 REPORT_DATE = "2026-04-21"
 DEFAULT_ARTIFACT_DIR = REPO_ROOT / "artifacts" / "reports" / "saigon18"

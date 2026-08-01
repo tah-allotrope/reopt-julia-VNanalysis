@@ -65,6 +65,8 @@ def build_dppa_case_3_phase_a_definition(extracted: dict) -> dict:
     annual_load_kwh = sum(float(v) for v in load_kw[:8760])
     annual_load_gwh = annual_load_kwh / 1e6
     peak_load_kw = float(extracted.get("peak_load_kw", max(load_kw) if load_kw else 0))
+    # Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD.
+    # Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).
     exchange_rate = _resolve_exchange_rate(load_vietnam_data(), caller_value=25_450.0)
     strike_vnd = weighted_evn * (1.0 - DEFAULT_STRIKE_DISCOUNT_FRACTION)
     strike_usd = strike_vnd / exchange_rate

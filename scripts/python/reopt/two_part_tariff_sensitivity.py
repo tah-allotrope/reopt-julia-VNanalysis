@@ -41,7 +41,9 @@ from reopt_pysam_vn.reopt.two_part_tariff import (
     compute_two_part_impact,
 )
 
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)
+# Was a hardcoded 26,000; unified onto the canonical 26,400 (ASM-002) in
+# plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 HOURS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 DEFAULT_RATE_SWEEP_VND_PER_KW_MONTH = [0, 20_000, 40_000, 60_000, 80_000, 100_000]

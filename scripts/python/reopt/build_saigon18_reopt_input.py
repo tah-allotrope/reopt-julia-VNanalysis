@@ -37,7 +37,9 @@ BESS_CAPEX_PER_KW = (
 BESS_CAPEX_PER_KWH = 200.0  # $/kWh (Excel: $200k/MWh = $200/kWh)
 
 ANALYSIS_YEARS = 20
-EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)  # VND/USD (Excel Assumption row 9)
+# Was a hardcoded 26,000 (Excel Assumption row 9); unified onto the canonical
+# 26,400 (ASM-002) in plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
+EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data())
 
 # Blended effective CIT over 20-year tax holiday:
 # 4yr @ 0% + 9yr @ 5% (50% of 10%) + 7yr @ 10% = (0+0.45+0.70)/20 = 0.0575

@@ -62,6 +62,8 @@ def build_saigon18_case3_bounded_opt_scenario(
     _annual_load_kwh = sum(load_kw)
     _peak_load_kw = max(load_kw)
 
+    # Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD.
+    # Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).
     exchange_rate = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
     weighted_evn = sum(tou) / len(tou) if tou else 0.0
 
@@ -182,6 +184,8 @@ def build_22kv_two_part_scenario(extracted: dict) -> dict:
     load_kw = load_saigon18_load_series(extracted)
     _annual_load_kwh = sum(load_kw)
     _peak_load_kw = max(load_kw)
+    # Deal-specific FX: Saigon18 contract basis, 25,450 VND/USD.
+    # Intentionally NOT the repo canonical 26,400 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-005).
     exchange_rate = _resolve_exchange_rate(load_vietnam_data(), caller_value=25450.0)
     tou = load_saigon18_tou_series(extracted)
     weighted_evn = sum(tou) / len(tou) if tou else 0.0

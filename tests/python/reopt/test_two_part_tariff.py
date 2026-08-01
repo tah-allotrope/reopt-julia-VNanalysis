@@ -58,7 +58,10 @@ def test_compute_two_part_impact_high_load_factor():
     assert result["energy_delta_vnd"] == -6_132_000_000.0
     assert result["annual_demand_charge_vnd"] == 2_824_968_000.0
     assert result["net_impact_vnd"] == -3_307_032_000.0
-    assert result["net_impact_usd"] == pytest.approx(-127_193.54, rel=1e-3)
+    # PHASE-05 Commit 2 unified two_part_tariff.py's exchange rate onto the
+    # canonical 26,400 (was 26,000): -3_307_032_000 / 26_000 = -127_193.54;
+    # -3_307_032_000 / 26_400 = -125_266.36 (see plans/2026-07-26-post-backlog-architecture-plan.md ASM-002).
+    assert result["net_impact_usd"] == pytest.approx(-125_266.36, rel=1e-3)
     assert result["net_impact_vnd"] < 0
 
 

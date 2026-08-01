@@ -24,7 +24,9 @@ from reopt_pysam_vn.reopt.preprocess import (
     load_vietnam_data,
 )
 
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_000.0)
+# Was a hardcoded 26,000; unified onto the canonical 26,400 (ASM-002) in
+# plans/2026-07-26-post-backlog-architecture-plan.md PHASE-05 Commit 2.
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 
 
 def build_trial_energy_rate_series(
