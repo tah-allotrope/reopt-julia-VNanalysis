@@ -344,12 +344,12 @@ Wire the shipped `data/schemas/deal_config.schema.json` into the public API so `
 End the state where the repo's headline correctness guarantee is disabled twice (CI-excluded **and** `xfail`) while `README.md` advertises it as enforced. Either it is enforced, or the docs say what is actually true.
 
 **Tasks**
-- [ ] TASK-03-01: Reproduce the divergence. Run `PYTHONPATH= python -m pytest tests/python/analysis/test_samsung_ttc_parity.py -v -rX --runxfail` and capture the actual failure output to `reports/2026-07-26-samsung-parity-diagnosis.md`. The known symptom from the 2026-07-22 investigation: `developer_irr_fraction` computes `0.0289...` where the golden holds `None`; max relative diff `1.123`.
-- [ ] TASK-03-02: Determine whether the divergence is environmental (PVWatts resource cache) or logical. Check whether `data/interim/pysam_resources/` contains the resource file the run consumes and whether it is git-tracked: `git ls-files data/interim/pysam_resources/`.
-- [ ] TASK-03-03: **Branch A (preferred, per DEC-003) — restore the gate.** If TASK-03-02 shows the resource is tracked and reproducible: regenerate `examples/samsung-ttc_combined-decision.example.json` by running the CLI (`python -m reopt_pysam_vn.analysis offsite_dppa --config scenarios/case_studies/samsung_ttc/samsung_ttc_deal_config.json --extracted data/interim/samsung_ttc/samsung_ttc_extracted_inputs.json --out examples/samsung-ttc_combined-decision.example.json`), commit the regenerated golden **in its own commit** with the diagnosis report, remove both `@pytest.mark.xfail` decorators, and remove the module-level `pytestmark = pytest.mark.golden_machine` so CI collects it.
-- [ ] TASK-03-04: **Branch B (fallback) — honest documentation.** If the resource is **not** tracked, or regeneration does not produce a run reproducible on a clean CI checkout: keep `golden_machine` and the `xfail`s, and amend the docs so no reader is told a false thing. Do **not** leave the claim standing either way.
-- [ ] TASK-03-05: Regardless of branch, add `tests/cross_language/` to CI's awareness by documenting in `docs/testing.md` that Layers 1-4 Julia and Layer 3 cross-validation are **not** CI-collected (CI runs `pytest tests/python` only), so the "identical output, max diff 0.00e+00" claim in `docs/architecture.md` is a manual-verification claim.
-- [ ] TASK-03-06: Amend `docs/architecture.md`'s "produce identical output (verified by Layer 3 cross-validation, max diff = 0.00e+00)" to state **when** that verification runs (locally, via `tests/run_all_tests.ps1`) and that it is not automated.
+- [x] TASK-03-01: Reproduce the divergence. Run `PYTHONPATH= python -m pytest tests/python/analysis/test_samsung_ttc_parity.py -v -rX --runxfail` and capture the actual failure output to `reports/2026-07-26-samsung-parity-diagnosis.md`. The known symptom from the 2026-07-22 investigation: `developer_irr_fraction` computes `0.0289...` where the golden holds `None`; max relative diff `1.123`.
+- [x] TASK-03-02: Determine whether the divergence is environmental (PVWatts resource cache) or logical. Check whether `data/interim/pysam_resources/` contains the resource file the run consumes and whether it is git-tracked: `git ls-files data/interim/pysam_resources/`.
+- [ ] TASK-03-03: **Branch A (preferred, per DEC-003) — restore the gate.** N/A — not taken. Candidate regeneration (into a scratch file, never committed) showed the divergence is **not** confined to the single documented `developer_irr_fraction` field: `developer_npv_usd` also moves substantially (~5x magnitude change) across all 5 swept strike prices, and one candidate's `developer_passes` verdict flips. Per RISK-03-01/MANUAL-002 this triggers Branch B instead.
+- [x] TASK-03-04: **Branch B (fallback) — honest documentation.** Taken. `golden_machine` marker and both `xfail`s retained in `test_samsung_ttc_parity.py` (unchanged); `README.md` and `docs/onsite_vs_offsite.md` amended so neither claims an enforced bit-for-bit gate — both now describe it as a local-only, CI-excluded, currently-xfailed diagnostic and point to the diagnosis report.
+- [x] TASK-03-05: Regardless of branch, add `tests/cross_language/` to CI's awareness by documenting in `docs/testing.md` that Layers 1-4 Julia and Layer 3 cross-validation are **not** CI-collected (CI runs `pytest tests/python` only), so the "identical output, max diff 0.00e+00" claim in `docs/architecture.md` is a manual-verification claim.
+- [x] TASK-03-06: Amend `docs/architecture.md`'s "produce identical output (verified by Layer 3 cross-validation, max diff = 0.00e+00)" to state **when** that verification runs (locally, via `tests/run_all_tests.ps1`) and that it is not automated.
 
 **File Changes**
 - `reports/2026-07-26-samsung-parity-diagnosis.md` (create): the captured failure output, the branch taken, and why. This is a tracked Markdown deliverable per the repo's `reports/*.md` convention.
@@ -372,9 +372,9 @@ None — no code interfaces change in this phase.
 - PySAM 7.1.0 must be importable, and the PVWatts resource under `data/interim/pysam_resources/` must be present, or the test skips rather than runs.
 
 **Exit Criteria**
-- [ ] `reports/2026-07-26-samsung-parity-diagnosis.md` exists and names the branch taken with evidence.
-- [ ] No document in the repo claims an enforced parity gate that is not enforced. Verify: `grep -rn "parity-gated" README.md docs/` and read each hit.
-- [ ] Full portable suite green.
+- [x] `reports/2026-07-26-samsung-parity-diagnosis.md` exists and names the branch taken with evidence.
+- [x] No document in the repo claims an enforced parity gate that is not enforced. Verify: `grep -rn "parity-gated" README.md docs/` and read each hit.
+- [x] Full portable suite green.
 
 **Phase Risks**
 - **RISK-03-01:** regenerating the golden silently launders a real regression into the baseline. Mitigation: TASK-03-01's diagnosis report must be written **and reviewed** before TASK-03-03 runs; the regenerated golden ships in its own commit so `git diff HEAD~1 examples/samsung-ttc_combined-decision.example.json` shows exactly which fields moved. If more than the known `developer_irr_fraction` field changes, stop and take Branch B.

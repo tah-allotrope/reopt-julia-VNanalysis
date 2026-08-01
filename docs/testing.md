@@ -43,6 +43,36 @@ python -m pytest tests/python/reopt/test_integration.py -v -k smoke
 python -m pytest tests/python/reopt/test_integration.py::TestAPIIntegration::test_nlr_domain_connectivity -v
 ```
 
+## What CI Actually Runs
+
+CI (`.github/workflows/ci.yml`) runs exactly one command:
+
+```bash
+PYTHONPATH= python -m pytest tests/python \
+  -m "not network and not requires_artifacts and not golden_machine and not requires_julia" \
+  --cov=reopt_pysam_vn --cov-report=term-missing
+```
+
+That means:
+
+- **`tests/julia/` (Layer 1/2/4 Julia) and `tests/cross_language/` (Layer 3
+  cross-validation) are never collected by CI.** They live outside
+  `tests/python`, which is the only path CI's `pytest` invocation names. The
+  "Julia vs Python produce identical dicts (tolerance 1e-10)" claim in the
+  Layer 3 row above, and the "identical output, max diff = 0.00e+00" claim in
+  `docs/architecture.md`, are **manual-verification claims** — true only when
+  someone runs `tests/run_all_tests.ps1` or `tests/cross_language/cross_validate.py`
+  by hand on a machine with Julia installed. No automation checks this today.
+- **`tests/python/analysis/test_samsung_ttc_parity.py` is CI-excluded** via
+  its module-level `golden_machine` marker, and its two strongest assertions
+  additionally carry `xfail`. See `reports/2026-07-26-samsung-parity-diagnosis.md`
+  for why, and the "Samsung-TTC" bullets in `README.md` / `docs/onsite_vs_offsite.md`
+  for the honest current status.
+- `analysis/__main__.py` reports 0% coverage in the term-missing report. This
+  is a measurement artifact, not a testing gap: `tests/python/analysis/test_cli.py`
+  drives the CLI as a subprocess, which `coverage` does not instrument across
+  the process boundary.
+
 ## Known L4 Status (as of 2026-03)
 
 | Test | Status | Notes |
