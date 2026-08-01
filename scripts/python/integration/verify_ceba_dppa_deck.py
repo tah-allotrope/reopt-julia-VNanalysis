@@ -434,7 +434,7 @@ def run_A16_cit_holiday(check: Check) -> dict:
 
 def run_A12_fmp_2025_avg(check: Check) -> dict:
     """Deck: 1,426.6 VND/kWh (EAVCED cited). Repo: deal_defaults sensitivity center is 1,700 (mid of 1400-2000)."""
-    data = resolve_data_vietnam("data.vietnam.vn_deal_defaults_2026.sensitivity_ranges.fmp_vnd_per_kwh")
+    data = resolve_data_vietnam("data.vietnam.vn_deal_defaults_2026.data.sensitivity_ranges.fmp_vnd_per_kwh")
     return {
         "value": (data["min"] + data["max"]) / 2.0,
         "extra": {

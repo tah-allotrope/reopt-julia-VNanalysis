@@ -282,7 +282,7 @@ def run_J_A12_fmp_2025_avg(check) -> dict:
     which are correct in their respective contexts.
     """
     data = _resolve_vietnam_data(
-        "data.vietnam.vn_deal_defaults_2026.sensitivity_ranges.fmp_vnd_per_kwh"
+        "data.vietnam.vn_deal_defaults_2026.data.sensitivity_ranges.fmp_vnd_per_kwh"
     )
     return {
         "value": (data["min"] + data["max"]) / 2.0,

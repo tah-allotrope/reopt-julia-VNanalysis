@@ -54,7 +54,8 @@ FMP_STEP = 100
 def load_deal_config(config_path: str | None) -> dict:
     if not config_path:
         return {}
-    return json.loads(Path(config_path).read_text(encoding="utf-8"))
+    raw = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    return raw.get("data", raw)
 
 
 def _constant_series(value: float, length: int = 8760) -> list[float]:

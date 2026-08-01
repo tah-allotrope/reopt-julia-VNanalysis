@@ -1,44 +1,55 @@
 {
   "_meta": {
-    "version": "2026.1",
+    "version": "2026.2",
     "effective_date": "2026-01-01",
     "description": "Shared financial parameters for deal evaluation. Used by equity_irr.py, dppa_settlement.py, bess_dispatch_analysis.py, and sensitivity_sweep.py. CLI arguments override these values.",
     "source": "Saigon18 Excel model (Section 7.2), vn_financial_defaults_2025.json, vn_tariff_2025.json",
-    "last_updated": "2026-05-18",
-    "currency": "USD"
+    "last_updated": "2026-07-26",
+    "currency": "USD",
+    "changelog": [
+      "2026.2: Wrapped payload in the standard {_meta, data} envelope so load_vietnam_data() can read it. Added data.dppa_settlement block (adder_vnd_per_kwh 523.34, kpp_loss_pct 2.7263) seeded from the previously code-only constants in integration/settlement.py. No numeric values changed.",
+      "2026.1: Initial version."
+    ]
   },
-  "exchange_rate": {
-    "vnd_per_usd": 26400,
-    "source": "vn_tariff_2025.json _meta (Decision 599/QD-EVN, 2025-05-10)"
-  },
-  "debt_terms": {
-    "debt_fraction": 0.70,
-    "interest_rate": 0.085,
-    "interest_rate_notes": "Blended: 6.5% base + 2% margin, 50% hedged",
-    "debt_tenor_years": 10
-  },
-  "analysis": {
-    "analysis_years": 20,
-    "discount_rate": 0.08,
-    "elec_cost_escalation_rate": 0.05,
-    "om_cost_escalation_rate": 0.03
-  },
-  "dppa": {
-    "strike_vnd_per_kwh": 1100,
-    "delivery_factor": 0.98,
-    "contract_type": "private_wire",
-    "escalation_rate": 0.05,
-    "private_wire_south_ceiling_vnd_per_kwh": 1149.86
-  },
-  "bess": {
-    "round_trip_efficiency": 0.92,
-    "degradation_rate_per_year": 0.02,
-    "lifetime_years": 10
-  },
-  "sensitivity_ranges": {
-    "strike_vnd_per_kwh": {"min": 800, "max": 1400, "step": 50},
-    "debt_fraction": {"min": 0.60, "max": 0.80, "step": 0.05},
-    "interest_rate": {"min": 0.07, "max": 0.10, "step": 0.005},
-    "fmp_vnd_per_kwh": {"min": 1400, "max": 2000, "step": 100}
+  "data": {
+    "exchange_rate": {
+      "vnd_per_usd": 26400,
+      "source": "vn_tariff_2025.json _meta (Decision 599/QD-EVN, 2025-05-10)"
+    },
+    "debt_terms": {
+      "debt_fraction": 0.70,
+      "interest_rate": 0.085,
+      "interest_rate_notes": "Blended: 6.5% base + 2% margin, 50% hedged",
+      "debt_tenor_years": 10
+    },
+    "analysis": {
+      "analysis_years": 20,
+      "discount_rate": 0.08,
+      "elec_cost_escalation_rate": 0.05,
+      "om_cost_escalation_rate": 0.03
+    },
+    "dppa": {
+      "strike_vnd_per_kwh": 1100,
+      "delivery_factor": 0.98,
+      "contract_type": "private_wire",
+      "escalation_rate": 0.05,
+      "private_wire_south_ceiling_vnd_per_kwh": 1149.86
+    },
+    "dppa_settlement": {
+      "adder_vnd_per_kwh": 523.34,
+      "kpp_loss_pct": 2.7263,
+      "source": "Seeded from integration/settlement.py ContractParams defaults, 2026-07-26. Originally derived from the Decree 57/2025 DPPA fee structure; no primary-source citation was recorded when introduced."
+    },
+    "bess": {
+      "round_trip_efficiency": 0.92,
+      "degradation_rate_per_year": 0.02,
+      "lifetime_years": 10
+    },
+    "sensitivity_ranges": {
+      "strike_vnd_per_kwh": {"min": 800, "max": 1400, "step": 50},
+      "debt_fraction": {"min": 0.60, "max": 0.80, "step": 0.05},
+      "interest_rate": {"min": 0.07, "max": 0.10, "step": 0.005},
+      "fmp_vnd_per_kwh": {"min": 1400, "max": 2000, "step": 100}
+    }
   }
 }

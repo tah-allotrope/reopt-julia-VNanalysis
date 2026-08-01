@@ -32,7 +32,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 def load_config(config_path: str | None) -> dict:
     if not config_path:
         return {}
-    return json.loads(Path(config_path).read_text(encoding="utf-8"))
+    raw = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    return raw.get("data", raw)
 
 
 def extract_base_ebitda(results: dict, analysis_years: int = 20) -> list[float]:

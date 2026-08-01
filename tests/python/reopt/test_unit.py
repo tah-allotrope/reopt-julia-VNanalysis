@@ -776,7 +776,9 @@ class TestDealDefaultsConfig:
     def test_config_file_is_valid_json(self):
         config_path = REPO_ROOT / "data" / "vietnam" / "vn_deal_defaults_2026.json"
         import json
-        cfg = json.loads(config_path.read_text(encoding="utf-8"))
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        assert "_meta" in raw
+        cfg = raw["data"]
         assert "exchange_rate" in cfg
         assert "debt_terms" in cfg
         assert "analysis" in cfg
@@ -787,7 +789,7 @@ class TestDealDefaultsConfig:
     def test_config_debt_terms_are_reasonable(self):
         import json
         config_path = REPO_ROOT / "data" / "vietnam" / "vn_deal_defaults_2026.json"
-        cfg = json.loads(config_path.read_text(encoding="utf-8"))
+        cfg = json.loads(config_path.read_text(encoding="utf-8"))["data"]
         debt = cfg["debt_terms"]
         assert 0.0 < debt["debt_fraction"] < 1.0
         assert 0.0 < debt["interest_rate"] < 0.20
@@ -796,7 +798,7 @@ class TestDealDefaultsConfig:
     def test_config_exchange_rate_is_reasonable(self):
         import json
         config_path = REPO_ROOT / "data" / "vietnam" / "vn_deal_defaults_2026.json"
-        cfg = json.loads(config_path.read_text(encoding="utf-8"))
+        cfg = json.loads(config_path.read_text(encoding="utf-8"))["data"]
         rate = cfg["exchange_rate"]["vnd_per_usd"]
         assert 20_000 <= rate <= 30_000
 

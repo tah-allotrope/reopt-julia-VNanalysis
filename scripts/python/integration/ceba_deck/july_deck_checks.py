@@ -253,7 +253,7 @@ A: list[Check] = [
         deck_value=1426.6,
         deck_unit="VND/kWh",
         citation="EAVCED public training (deck only)",
-        repo_fn="data.vietnam.vn_deal_defaults_2026.sensitivity_ranges.fmp_vnd_per_kwh",
+        repo_fn="data.vietnam.vn_deal_defaults_2026.data.sensitivity_ranges.fmp_vnd_per_kwh",
         repo_source_ref="data/vietnam/vn_deal_defaults_2026.json:39-43",
         assumptions=[
             "Repo's vn_deal_defaults_2026 sensitivity range (1,400-2,000 VND/kWh, center 1,700) is a forward-looking sweep midpoint, not an observed 2025 average. There is no repo data file that holds an observed 2025 monthly FMP. The deck's 1,426.6 is the anchor for the Case 5/6 calibration (DEC-003); the repo center 1,700 is a sensitivity.",

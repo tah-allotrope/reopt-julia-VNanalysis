@@ -238,7 +238,7 @@
       "legal_basis": "Decree 57/2025/ND-CP, Electricity Law 2024 (Law 61/2024/QH15)",
       "models": {
         "private_wire": {
-          "notes": "Model 1: Direct sale via private connection line (not connected to national grid). No application/registration required, but must report PPA to provincial People's Committee, local power company, and system operator.",
+          "notes": "Model 1: Direct sale via private connection line (not connected to national grid). No application/registration required, but must report PPA to provincial People's Committee, local power company, and system operator. NOTE (2026-07-26): this 20% figure describes Decree 57/2025 as originally enacted. Decree 243/2026 (eff. 2026-06-26) raised the general cap to 50%; the authoritative current value is data/vietnam/vn_export_rules_2026_decree243.json -> rooftop_solar.max_export_fraction. Resolve export caps via reopt_pysam_vn.common.assumptions.export_cap_fraction(), never from this field.",
           "price_cap": "Negotiated price cannot exceed MOIT ceiling generation tariff for the RE type",
           "rooftop_solar_surplus_export_cap_pct": 20,
           "rooftop_solar_surplus_price": "Average market electricity price from prior year, capped at highest ground-mounted solar ceiling tariff"

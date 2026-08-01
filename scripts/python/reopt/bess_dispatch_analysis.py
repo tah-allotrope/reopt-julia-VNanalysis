@@ -74,7 +74,8 @@ def load_regime_tou_periods(regime_id: str, registry_path: str | None = None) ->
 def load_deal_config(config_path: str | None) -> dict:
     if not config_path:
         return {}
-    return json.loads(Path(config_path).read_text(encoding="utf-8"))
+    raw = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    return raw.get("data", raw)
 
 
 def _pad_to_8760(series: list[float]) -> list[float]:

@@ -95,6 +95,7 @@ struct VNData
     emissions::Dict{String,Any}
     export_rules::Dict{String,Any}
     regimes::Dict{String,Any}
+    deal_defaults::Dict{String,Any}
     exchange_rate::Float64
     data_dir::String
 end
@@ -113,7 +114,7 @@ function load_vietnam_data(; manifest_path::String=DEFAULT_MANIFEST)
     data_dir = dirname(manifest_path)
     manifest = JSON.parsefile(manifest_path)
 
-    required_keys = ("tariff", "tech_costs", "financials", "emissions", "export_rules", "regimes")
+    required_keys = ("tariff", "tech_costs", "financials", "emissions", "export_rules", "regimes", "deal_defaults")
     for k in required_keys
         haskey(manifest, k) || error("manifest.json missing required key: \"$k\"")
     end
@@ -131,8 +132,9 @@ function load_vietnam_data(; manifest_path::String=DEFAULT_MANIFEST)
     tech_costs_raw   = _load("tech_costs")
     financials_raw   = _load("financials")
     emissions_raw    = _load("emissions")
-    export_rules_raw = _load("export_rules")
-    regimes_raw      = _load("regimes")
+    export_rules_raw  = _load("export_rules")
+    regimes_raw       = _load("regimes")
+    deal_defaults_raw = _load("deal_defaults")
 
     # Extract exchange rate from tariff _meta (VND-denominated file), with fallback
     exchange_rate = get(get(tariff_raw, "_meta", Dict()), "exchange_rate_vnd_per_usd", DEFAULT_EXCHANGE_RATE)
@@ -144,6 +146,7 @@ function load_vietnam_data(; manifest_path::String=DEFAULT_MANIFEST)
         emissions_raw["data"],
         export_rules_raw["data"],
         merge(regimes_raw["data"], Dict("_meta" => get(regimes_raw, "_meta", Dict{String,Any}()))),
+        deal_defaults_raw["data"],
         Float64(exchange_rate),
         data_dir
     )

@@ -7,6 +7,7 @@ support any factory+project pair. See GAP-04 plan for design rationale.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from typing import Any, Optional
 
 
 VALID_MODES = ("private_wire", "virtual_cfd")
@@ -26,6 +27,7 @@ class ContractParams:
     dppa_adder_vnd_kwh: float = 523.34
     kpp_pct: float = 2.7263
     shortfall_billing: str = "evn_tariff"
+    regime_id: str = "decree_57_2025_legacy"
 
     def __post_init__(self):
         if self.mode not in VALID_MODES:
@@ -46,6 +48,43 @@ class ContractParams:
     @property
     def kpp_factor(self) -> float:
         return 1.0 + self.kpp_pct / 100.0
+
+    @classmethod
+    def from_regime(
+        cls,
+        regime_id: str,
+        *,
+        mode: str,
+        strike_vnd_kwh: float,
+        vn: Optional[Any] = None,
+        **overrides: Any,
+    ) -> "ContractParams":
+        """Build a `ContractParams` whose policy fields resolve from the data
+        layer for `regime_id`. `**overrides` wins over resolution."""
+        from reopt_pysam_vn.common.assumptions import (
+            dppa_adder_vnd_per_kwh,
+            export_cap_fraction,
+            kpp_loss_pct,
+            surplus_rate_vnd_per_kwh,
+        )
+        from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+
+        if vn is None:
+            vn = load_vietnam_data()
+
+        resolved = {
+            "export_cap_pct": export_cap_fraction(vn, regime_id=regime_id) * 100.0,
+            "surplus_rate_vnd_kwh": surplus_rate_vnd_per_kwh(vn, regime_id=regime_id),
+            "dppa_adder_vnd_kwh": dppa_adder_vnd_per_kwh(vn),
+            "kpp_pct": kpp_loss_pct(vn),
+        }
+        resolved.update(overrides)
+        return cls(
+            mode=mode,
+            strike_vnd_kwh=strike_vnd_kwh,
+            regime_id=regime_id,
+            **resolved,
+        )
 
 
 @dataclass
@@ -234,6 +273,7 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         surplus_rate_vnd_kwh=671.0,
         dppa_adder_vnd_kwh=0.0,
         kpp_pct=0.0,
+        regime_id="decree_57_2025_legacy",
     ),
     "virtual_cfd_matched_only": ContractParams(
         mode="virtual_cfd",
@@ -245,6 +285,7 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         surplus_rate_vnd_kwh=671.0,
         dppa_adder_vnd_kwh=523.34,
         kpp_pct=2.7263,
+        regime_id="decree_57_2025_legacy",
     ),
     "virtual_cfd_full_volume": ContractParams(
         mode="virtual_cfd",
@@ -256,6 +297,7 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         surplus_rate_vnd_kwh=671.0,
         dppa_adder_vnd_kwh=523.34,
         kpp_pct=2.7263,
+        regime_id="decree_57_2025_legacy",
     ),
     "physical_dppa_export_50pct": ContractParams(
         mode="private_wire",
@@ -267,6 +309,7 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         surplus_rate_vnd_kwh=671.0,
         dppa_adder_vnd_kwh=0.0,
         kpp_pct=0.0,
+        regime_id="decision_963_2026_current",
     ),
     "decree243_export_50pct_standard": ContractParams(
         mode="private_wire",
@@ -278,6 +321,7 @@ PRESET_CONTRACTS: dict[str, ContractParams] = {
         surplus_rate_vnd_kwh=671.0,
         dppa_adder_vnd_kwh=0.0,
         kpp_pct=0.0,
+        regime_id="decision_963_2026_current",
     ),
 }
 

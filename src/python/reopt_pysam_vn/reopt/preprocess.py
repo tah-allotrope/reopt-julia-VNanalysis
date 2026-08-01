@@ -96,6 +96,7 @@ class VNData:
     emissions: Dict[str, Any]
     export_rules: Dict[str, Any]
     regimes: Dict[str, Any]
+    deal_defaults: Dict[str, Any]
     exchange_rate: float
     data_dir: str
 
@@ -182,6 +183,7 @@ def load_vietnam_data(manifest_path: Optional[Union[str, Path]] = None) -> VNDat
         "emissions",
         "export_rules",
         "regimes",
+        "deal_defaults",
     )
     for k in required_keys:
         if k not in manifest:
@@ -206,6 +208,7 @@ def load_vietnam_data(manifest_path: Optional[Union[str, Path]] = None) -> VNDat
     emissions_raw = _load("emissions")
     export_rules_raw = _load("export_rules")
     regimes_raw = _load("regimes")
+    deal_defaults_raw = _load("deal_defaults")
 
     # Extract exchange rate from tariff _meta (VND-denominated file), with fallback
     exchange_rate = tariff_raw.get("_meta", {}).get(
@@ -219,6 +222,7 @@ def load_vietnam_data(manifest_path: Optional[Union[str, Path]] = None) -> VNDat
         emissions=emissions_raw["data"],
         export_rules=export_rules_raw["data"],
         regimes={**regimes_raw["data"], "_meta": regimes_raw.get("_meta", {})},
+        deal_defaults=deal_defaults_raw["data"],
         exchange_rate=float(exchange_rate),
         data_dir=str(data_dir),
     )
