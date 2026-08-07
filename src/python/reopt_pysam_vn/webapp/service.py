@@ -5,9 +5,14 @@ CON-002: never forks analytics logic — always calls ``run_onsite`` /
 
 Repo constraint discovered during PHASE-01 research: ``run_offsite_dppa`` has
 no generic fresh-solve path — it requires pre-solved ``extracted`` inputs and a
-registered orchestrator keyed by ``deal_config.case`` (today only
-``DPPA_SAMSUNG_TTC``). So offsite/both modes always need an ``extracted``
-upload; only onsite can be solved live via the NREL REopt API.
+registered orchestrator keyed by ``deal_config.case`` (today
+``DPPA_SAMSUNG_TTC`` and ``DPPA_CASE_1_NINHSIM``). So offsite/both modes always
+need an ``extracted`` upload; only onsite can be solved live via the NREL REopt
+API. Offsite deals that consume a REopt ``results`` dict (currently
+``DPPA_CASE_1_NINHSIM``) must also supply the ``results`` and ``scenario``
+payloads — those may ride on the deal config (landing in ``DealConfig.raw`` and
+resolved by ``run_offsite_dppa``) or be added to the submission payload and
+forwarded here in a future change.
 """
 
 from __future__ import annotations

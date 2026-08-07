@@ -32,6 +32,18 @@ from reopt_pysam_vn.analysis.types import (
 )
 from reopt_pysam_vn.analysis.validation import DealConfigValidationError
 
+
+def _register_offsite_orchestrators() -> None:
+    # Lazy import: keep `analysis` importable without pulling the heavy
+    # integration.dppa_case_1 module (and PySAM) at import time. Mirrors the
+    # lazy-import comment on _samsung_ttc_orchestrator.
+    from reopt_pysam_vn.analysis.orchestrators.dppa_case_1 import build_case_1_offsite_artifact
+
+    register_orchestrator("DPPA_CASE_1_NINHSIM", build_case_1_offsite_artifact)
+
+
+_register_offsite_orchestrators()
+
 __all__ = [
     # contract
     "CombinedDecision",

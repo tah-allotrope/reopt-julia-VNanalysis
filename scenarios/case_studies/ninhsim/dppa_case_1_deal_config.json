@@ -1,0 +1,15 @@
+{
+  "case": "DPPA_CASE_1_NINHSIM",
+  "mode": "offsite_dppa",
+  "title": "Ninhsim DPPA Case 1 - private-wire solar plus 2h BESS",
+  "site": {
+    "region": "central",
+    "voltage_level": "medium_voltage_22kv_to_110kv",
+    "customer_type": "industrial"
+  },
+  "contract": {
+    "strike_basis": "south_ground_mounted_with_bess_ceiling_when_bess_thresholds_met",
+    "settlement_quantity_rule": "matched_only",
+    "excess_treatment": "curtail"
+  }
+}
