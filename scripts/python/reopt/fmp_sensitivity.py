@@ -38,7 +38,7 @@ from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 ANALYSIS_YEARS = 20
 ESCALATION_RATE = 0.05
 DISCOUNT_RATE = 0.08

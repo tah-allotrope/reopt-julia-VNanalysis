@@ -25,7 +25,7 @@ from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 PROJECT_NAME = "Ninhsim Solar+BESS+Wind Bundled CPPA Optimization"
 DATA_YEAR = 2024
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 VOLTAGE_LEVEL = "medium_voltage_22kv_to_110kv"
 CUSTOMER_TYPE = "industrial"
 REGION = "south"

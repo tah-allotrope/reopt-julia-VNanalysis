@@ -16,8 +16,9 @@ drift out of scope for the web app to fix.
 
 import json
 import re
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import pytest
 

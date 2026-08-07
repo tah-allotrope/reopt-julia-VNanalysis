@@ -25,7 +25,7 @@ from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 __all__ = ["compute_export_cap_delta", "extract_saigon18_series"]
 
-_DEFAULT_EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+_DEFAULT_EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 
 _PV_GENERATION_SERIES_KEYS = (
     "electric_to_load_series_kw",

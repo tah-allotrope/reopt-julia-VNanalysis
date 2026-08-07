@@ -30,7 +30,7 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 
 DEFAULT_TARIFF_PATH = "data/vietnam/vn_tariff_2025.json"
 DEFAULT_REGIME_REGISTRY_PATH = "data/vietnam/vn_regime_registry_2026.json"

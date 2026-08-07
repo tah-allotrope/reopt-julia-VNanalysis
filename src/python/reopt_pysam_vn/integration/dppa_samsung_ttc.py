@@ -91,9 +91,10 @@ SOUTHERN_GROUND_MOUNT_CEILING_VND_PER_KWH = 1012.0
 # is conservative vs the plant's full physical yield. All directional.
 SAMSUNG_TTC_INSTALLED_COST_USD_PER_KW = 750.0
 
-# Already the canonical rate (ASM-002); routed through the resolver so no bare
-# FX literal remains, but the caller_value pin keeps this parity-gated path
-# byte-identical (RISK-05-02) - see plans/2026-07-26-post-backlog-architecture-plan.md.
+# Deliberate caller_value pin (CON-001, ASM-009): this parity-gated path is
+# intentionally insulated from future edits to the deal-defaults data layer so
+# the Samsung golden cannot move under it. The 8 general-purpose sites derive
+# from the data layer; this is the one exception.
 EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 WHOLESALE_RATE_VND_PER_KWH = 671.0
 WHOLESALE_RATE_USD_PER_KWH = 0.0254

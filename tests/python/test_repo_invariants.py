@@ -82,7 +82,7 @@ def test_regulatory_watch_rows_are_not_overdue():
     header_cells = [c.strip() for c in header_line.strip("|").split("|")]
     next_review_idx = header_cells.index("Next review")
 
-    today = datetime.date.today()
+    today = datetime.datetime.now(datetime.timezone.utc).date()
     overdue: list[tuple[str, str]] = []
     for line in watch.splitlines():
         if not line.startswith("|"):

@@ -40,7 +40,7 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data())
 HOURS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 DEFAULT_REGIME_REGISTRY_PATH = "data/vietnam/vn_regime_registry_2026.json"
 DEFAULT_DECREE146_REGIME_ID = "decree146_two_part_trial_2026"

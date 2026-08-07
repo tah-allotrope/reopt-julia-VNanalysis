@@ -30,7 +30,7 @@ from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 DEFAULT_RESULTS_JSON = REPO_ROOT / "examples" / "saigon18_scenario-a_reopt-solve.example.json"
 DEFAULT_OUT_MD = REPO_ROOT / "reports" / "2026-07-18-decree243-export-cap-delta.md"
-DEFAULT_EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
+DEFAULT_EXCHANGE_RATE = _resolve_exchange_rate(load_vietnam_data())
 
 
 def build_memo(results_json_path: Path, delta: dict, exchange_rate: float) -> str:
