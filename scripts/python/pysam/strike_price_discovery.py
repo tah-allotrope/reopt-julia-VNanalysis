@@ -9,7 +9,6 @@ from pathlib import Path
 from reopt_pysam_vn.integration.bridge import build_ninhsim_single_owner_inputs
 from reopt_pysam_vn.integration.strike_search import build_strike_price_summary
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_PHASE4 = (
     REPO_ROOT

@@ -8,7 +8,6 @@ and Case-2 settlement-engine compatibility of the extracted contract.
 from __future__ import annotations
 
 import pytest
-
 from reopt_pysam_vn.integration.dppa_samsung_ttc import (
     SAMSUNG_TTC_ANNUAL_SOLAR_GWH,
     SAMSUNG_TTC_SOLAR_MWAC,

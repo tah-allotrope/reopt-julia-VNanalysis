@@ -110,6 +110,7 @@ def _julia_process(input_path: str, output_path: str, regime_id: str) -> dict:
         capture_output=True,
         text=True,
         timeout=600,
+        check=False,
     )
 
     if result.returncode != 0:

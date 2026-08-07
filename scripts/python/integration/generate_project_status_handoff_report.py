@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_PHASE4_JSON = (
     REPO_ROOT

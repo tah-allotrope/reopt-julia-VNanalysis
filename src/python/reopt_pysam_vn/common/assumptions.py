@@ -13,7 +13,7 @@ Never a module-level literal. There is no step 5.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.reopt.preprocess import VNData, resolve_vietnam_regime
 
@@ -23,8 +23,8 @@ DEFAULT_REGIME_ID = "decision_963_2026_current"
 def exchange_rate(
     vn: VNData,
     *,
-    caller_value: Optional[float] = None,
-    extracted: Optional[Dict[str, Any]] = None,
+    caller_value: float | None = None,
+    extracted: dict[str, Any] | None = None,
 ) -> float:
     """Resolve VND-per-USD per S2's precedence chain.
 

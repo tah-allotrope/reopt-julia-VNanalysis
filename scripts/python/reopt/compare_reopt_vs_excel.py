@@ -9,7 +9,6 @@ import argparse
 import json
 from pathlib import Path
 
-
 EXCEL_TARGETS = {
     "pv_gen_mwh": {"value": 71_808.0, "tolerance": 0.01, "unit": "MWh"},
     "pv_to_load_mwh": {"value": 62_106.0, "tolerance": 0.02, "unit": "MWh"},
@@ -78,7 +77,7 @@ def _pad_to_8760(series: list[float]) -> list[float]:
 
 
 def get_tariff_rate_levels(rates: list[float]) -> tuple[float, float, float] | None:
-    unique_rates = sorted(set(round(r, 10) for r in rates))
+    unique_rates = sorted({round(r, 10) for r in rates})
     if len(unique_rates) < 3:
         return None
     return unique_rates[0], unique_rates[1], unique_rates[-1]
@@ -191,15 +190,13 @@ def compare_metrics(reopt_metrics: dict, excel_targets: dict) -> list[dict]:
             delta_pct = None
             status = "MISSING"
         elif excel_val == 0:
-            delta_pct = None if reopt_val == 0 else None
+            delta_pct = None
             status = "INFO"
         else:
             delta_pct = (reopt_val - excel_val) / abs(excel_val)
             if tol is None:
                 status = "INFO"
-            elif unit == "years":
-                status = "OK" if abs(reopt_val - excel_val) <= tol else "WARN"
-            elif unit == "fraction":
+            elif unit == "years" or unit == "fraction":
                 status = "OK" if abs(reopt_val - excel_val) <= tol else "WARN"
             else:
                 status = "OK" if abs(delta_pct) <= tol else "WARN"

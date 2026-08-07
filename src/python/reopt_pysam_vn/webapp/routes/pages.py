@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -40,7 +39,7 @@ def runs_index(request: Request) -> HTMLResponse:
 
 
 @router.get("/deals/new", response_class=HTMLResponse)
-def new_deal_form(request: Request, from_: Optional[str] = None, template: Optional[str] = None) -> HTMLResponse:
+def new_deal_form(request: Request, from_: str | None = None, template: str | None = None) -> HTMLResponse:
     storage = request.app.state.storage
     from_run_id = request.query_params.get("from")
     tmpls = list_templates()
@@ -86,7 +85,7 @@ def run_detail(run_id: str, request: Request) -> HTMLResponse:
 
 
 @router.get("/compare", response_class=HTMLResponse)
-def compare_page(request: Request, a: Optional[str] = None, b: Optional[str] = None) -> HTMLResponse:
+def compare_page(request: Request, a: str | None = None, b: str | None = None) -> HTMLResponse:
     storage = request.app.state.storage
     runs = storage.list_runs()
     model = None

@@ -11,7 +11,6 @@ import numpy_financial as npf
 
 from reopt_pysam_vn.pysam.cashflow import build_annual_cashflow_table, trim_year_zero
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 DEFAULT_RESOURCE_CACHE = REPO_ROOT / "data" / "interim" / "pysam_resources"
 DEFAULT_SOLAR_RESOURCE_TYPE = "himawari"

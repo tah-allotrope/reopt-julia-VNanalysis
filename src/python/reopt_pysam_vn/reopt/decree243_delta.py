@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.settlement import (
@@ -23,7 +23,7 @@ from reopt_pysam_vn.integration.settlement import (
 )
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-__all__ = ["extract_saigon18_series", "compute_export_cap_delta"]
+__all__ = ["compute_export_cap_delta", "extract_saigon18_series"]
 
 _DEFAULT_EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 
@@ -36,10 +36,10 @@ _PV_GENERATION_SERIES_KEYS = (
 
 
 def extract_saigon18_series(
-    results_json_path: Union[str, Path],
+    results_json_path: str | Path,
     *,
     exchange_rate_vnd_per_usd: float = _DEFAULT_EXCHANGE_RATE_VND_PER_USD,
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
     """Read a REopt results JSON and return the three 8760-length series
     needed for a Decree 243 export-cap delta: hourly load (kW), hourly PV
     generation (kW, summed across all four PV disposition series), and
@@ -50,7 +50,7 @@ def extract_saigon18_series(
     """
     path = Path(results_json_path)
     with open(path, "r", encoding="utf-8-sig") as f:
-        d: Dict[str, Any] = json.load(f)
+        d: dict[str, Any] = json.load(f)
 
     try:
         loads_kw = list(d["ElectricLoad"]["load_series_kw"])
@@ -90,12 +90,12 @@ def extract_saigon18_series(
 
 
 def compute_export_cap_delta(
-    loads_kw: List[float],
-    generation_kw: List[float],
-    tariff_vnd_per_kwh: List[float],
+    loads_kw: list[float],
+    generation_kw: list[float],
+    tariff_vnd_per_kwh: list[float],
     *,
     exchange_rate_vnd_per_usd: float = _DEFAULT_EXCHANGE_RATE_VND_PER_USD,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compare the Decree 57 (20% cap) and Decree 243 (50% cap) private-wire
     export presets on the same fixed hourly dispatch and return the annual
     exported/curtailed energy and surplus revenue under each cap, plus the

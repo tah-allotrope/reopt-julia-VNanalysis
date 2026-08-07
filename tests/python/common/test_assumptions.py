@@ -1,7 +1,6 @@
 """PHASE-04: canonical assumption resolver (S1-S3)."""
 
 import pytest
-
 from reopt_pysam_vn.common.assumptions import (
     dppa_adder_vnd_per_kwh,
     exchange_rate,

@@ -8,7 +8,6 @@ the no-viable-project edge case. Red/Green TDD.
 from __future__ import annotations
 
 import pytest
-
 from reopt_pysam_vn.integration.matching import (
     DEFAULT_WEIGHTS,
     FactoryProfile,

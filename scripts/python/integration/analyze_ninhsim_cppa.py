@@ -14,7 +14,6 @@ import argparse
 import json
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_STRIKE_ADJUSTMENT_FRACTIONS = [-0.15, -0.10, -0.05, 0.0, 0.05]
 DEFAULT_ANNUAL_GENERATION_DEGRADATION_FRACTION = 0.005
@@ -49,7 +48,7 @@ def _band_label(relative_to_ceiling_fraction: float) -> str:
         return "ceiling"
 
     percentage = abs(relative_to_ceiling_fraction) * 100.0
-    whole_percentage = int(round(percentage))
+    whole_percentage = round(percentage)
     if whole_percentage == percentage:
         percentage_text = str(whole_percentage)
     else:

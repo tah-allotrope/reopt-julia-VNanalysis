@@ -18,7 +18,6 @@ import argparse
 import json
 from pathlib import Path
 
-
 TEMPLATE_HTML = r"""<!DOCTYPE html>
 <html lang="en">
 <head>

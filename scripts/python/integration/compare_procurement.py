@@ -20,8 +20,8 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.integration.procurement import (
     ProjectConfig,
     compare_procurement_options,
-    evaluate_onsite,
     evaluate_offsite,
+    evaluate_onsite,
     load_factory_loads,
     load_tariff_rates,
 )

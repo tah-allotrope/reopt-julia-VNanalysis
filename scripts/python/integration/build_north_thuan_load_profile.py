@@ -9,9 +9,8 @@ scenario builder.
 import argparse
 import json
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
 
 PROJECT_NAME = "North Thuan Wind+Solar+BESS DPPA Feasibility (Scenario 3)"
 DATA_YEAR = 2025
@@ -58,8 +57,8 @@ FMP_YR1_USD_PER_KWH = (
 
 
 def _peak_hour_index(year: int) -> int:
-    peak_dt = datetime(year, 7, 15, 14, 0, 0)
-    return int((peak_dt - datetime(year, 1, 1, 0, 0, 0)).total_seconds() // 3600)
+    peak_dt = datetime(year, 7, 15, 14, 0, 0, tzinfo=timezone.utc)
+    return int((peak_dt - datetime(year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)).total_seconds() // 3600)
 
 
 def build_synthetic_load_profile(
@@ -69,7 +68,7 @@ def build_synthetic_load_profile(
     year: int = DATA_YEAR,
 ) -> list[float]:
     """Build a deterministic industrial 8760 profile matching annual energy and peak."""
-    start = datetime(year, 1, 1, 0, 0, 0)
+    start = datetime(year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     weights = []
 
     for hour_index in range(8760):
@@ -136,7 +135,7 @@ def build_wind_production_factor_series(
     year: int = DATA_YEAR,
 ) -> list[float]:
     """Build a deterministic 8760 wind production-factor series with the target annual CF."""
-    start = datetime(year, 1, 1, 0, 0, 0)
+    start = datetime(year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     weights = []
 
     for hour_index in range(8760):

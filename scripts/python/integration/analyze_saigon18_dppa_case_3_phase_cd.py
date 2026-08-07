@@ -23,7 +23,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_tou_series,
 )
 
-
 REPORT_DATE = "2026-04-21"
 DEFAULT_EXTRACTED = (
     REPO_ROOT

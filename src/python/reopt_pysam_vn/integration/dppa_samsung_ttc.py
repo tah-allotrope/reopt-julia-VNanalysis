@@ -31,10 +31,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import replace
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
     build_dppa_case_2_contract_risk_sensitivity,
@@ -42,7 +43,6 @@ from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
 )
-from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 # --- Disclosed deal facts (multi-source; see research brief) ------------------
@@ -121,7 +121,7 @@ def build_samsung_synthetic_load_8760(
     minimum hourly load stays well above the 41.4 MWac solar peak.
     """
     hours = 8760
-    start = datetime(reference_year, 1, 1)
+    start = datetime(reference_year, 1, 1, tzinfo=timezone.utc)
     weights: list[float] = []
     for hour_index in range(hours):
         ts = start + timedelta(hours=hour_index)
@@ -161,7 +161,7 @@ def _build_hourly_rate_series(
     )
 
     rates: list[float] = []
-    cursor = datetime(year, 1, 1)
+    cursor = datetime(year, 1, 1, tzinfo=timezone.utc)
     for _ in range(366 if _is_leap_year(year) else 365):
         rates.extend(sunday_rates if cursor.weekday() == 6 else weekday_rates)
         cursor += timedelta(days=1)
@@ -190,7 +190,7 @@ def build_samsung_ttc_extracted_inputs(
     """
     vn = load_vietnam_data()
     tariff_data = vn.tariff
-    site: Dict[str, Any] = dict(SAMSUNG_TTC_SOLAR_SITE)
+    site: dict[str, Any] = dict(SAMSUNG_TTC_SOLAR_SITE)
     customer_type = site["customer_type"]
     voltage_level = site["voltage_level"]
 
@@ -436,7 +436,7 @@ def _synthetic_south_solar_8760(
     annual_target_kwh: float, cap_kw: float, reference_year: int
 ) -> list[float]:
     """Deterministic representative southern profile (half-sine arc x seasonal)."""
-    start = datetime(reference_year, 1, 1)
+    start = datetime(reference_year, 1, 1, tzinfo=timezone.utc)
     weights: list[float] = []
     for hour_index in range(8760):
         ts = start + timedelta(hours=hour_index)
@@ -460,12 +460,13 @@ def _pvwatts_south_solar_8760(
     """Run PySAM PVWatts v8 on the cached southern resource. None if unavailable."""
     try:
         import PySAM.Pvwattsv8 as pv
-    except Exception:
+    except ImportError:
         return None
     default_resource_file: Path | None = None
     try:
         from reopt_pysam_vn.pysam.pvwatts_battery import DEFAULT_SOLAR_RESOURCE_FILE as default_resource_file
-    except Exception:
+    except (ImportError, AttributeError):
+        # Optional import: fall back to the default resource lookup path.
         pass
     resource = Path(resource_file) if resource_file else default_resource_file
     if resource is None or not Path(resource).is_file():
@@ -479,7 +480,7 @@ def _pvwatts_south_solar_8760(
         model.SystemDesign.losses = float(losses_pct)
         model.execute(0)
         gen = list(model.Outputs.gen)
-    except Exception:
+    except Exception:  # noqa: BLE001 - PySAM raises a bare Exception on simulation failure; None = unavailable.
         return None
     series = [max(0.0, float(value)) for value in gen[:8760]]
     if len(series) < 8760:
@@ -775,7 +776,7 @@ def build_samsung_ttc_strike_sweep(
                 from reopt_pysam_vn.pysam.single_owner import run_single_owner_model
 
                 runner = run_single_owner_model
-            except Exception:
+            except ImportError:
                 runner = None
 
     sweep: list[dict] = []
@@ -809,7 +810,7 @@ def build_samsung_ttc_strike_sweep(
                 dev_npv = outputs.get("project_return_aftertax_npv_usd")
                 dev_status = dev_result.get("status", "ok")
                 dev_passes = dev_irr is not None and float(dev_irr) >= target_irr
-            except Exception as exc:  # pragma: no cover - PySAM runtime guard
+            except Exception as exc:  # noqa: BLE001 - PySAM runtime guard; record and continue the sweep.
                 dev_status = f"error: {exc}"
 
         sweep.append(

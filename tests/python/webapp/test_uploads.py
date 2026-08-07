@@ -3,7 +3,6 @@
 import io
 
 import pytest
-
 from reopt_pysam_vn.webapp.uploads import UploadError, parse_load_csv, parse_load_xlsx
 
 _HOURS = 8760

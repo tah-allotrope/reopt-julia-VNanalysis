@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from importlib.machinery import ModuleSpec
 import importlib.util
 import math
 import sys
+from importlib.machinery import ModuleSpec
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
@@ -29,14 +28,13 @@ BUILD_NINHSIM_REOPT_INPUT = _load_module(
     "scripts/python/integration/build_ninhsim_reopt_input.py",
 )
 
-from reopt_pysam_vn.integration.dppa_case_2 import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
     build_dppa_case_2_market_proxy,
     build_dppa_case_2_physical_summary,
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
 )
-
 
 build_scenario_dppa_case_2 = BUILD_NINHSIM_REOPT_INPUT.build_scenario_dppa_case_2
 

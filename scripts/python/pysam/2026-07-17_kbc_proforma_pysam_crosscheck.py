@@ -31,7 +31,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src" / "python"))
 
 from reopt_pysam_vn.pysam.config import PySAMRuntimeConfig
 from reopt_pysam_vn.pysam.single_owner import (
-    SingleOwnerInputs, _configure_financial_model, build_single_owner_inputs,
+    SingleOwnerInputs,
+    _configure_financial_model,
+    build_single_owner_inputs,
 )
 
 

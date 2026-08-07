@@ -23,8 +23,7 @@ Usage:
 """
 
 from dataclasses import asdict, dataclass
-from datetime import date
-from typing import Dict, List, Optional
+from datetime import date, datetime, timezone
 
 from .preprocess import (
     HOURS_PER_YEAR,
@@ -50,7 +49,7 @@ FORWARD_REGIME_PRESETS = (
 )
 
 
-def _require_8760(series: List[float], name: str) -> None:
+def _require_8760(series: list[float], name: str) -> None:
     """Raise ValueError unless ``series`` has exactly 8760 elements."""
     if len(series) != HOURS_PER_YEAR:
         raise ValueError(
@@ -91,7 +90,7 @@ class RegimeImpact:
     customer_type: str
     voltage_level: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Return a JSON-serializable dict (used by the artifact writer in PHASE-02)."""
         return asdict(self)
 
@@ -107,7 +106,7 @@ def _weekday_peak_hours(resolved_tariff: dict) -> set:
     return {int(h) for h in weekday.get("peak_hours", [])}
 
 
-def _build_day_classes(schedule_block: dict) -> List[str]:
+def _build_day_classes(schedule_block: dict) -> list[str]:
     """Build a 24-element list mapping hour 0-23 to its TOU class.
 
     Mirrors ``preprocess._build_hourly_rates``: default to standard, then overlay
@@ -123,7 +122,7 @@ def _build_day_classes(schedule_block: dict) -> List[str]:
     return classes
 
 
-def _classify_8760(resolved_tariff: dict, year: int) -> List[str]:
+def _classify_8760(resolved_tariff: dict, year: int) -> list[str]:
     """Build an 8760-length list of TOU classes using the same calendar mapping
     as ``preprocess._build_8760_rates`` (weekday schedule Mon-Sat, Sunday schedule Sun).
     """
@@ -132,7 +131,7 @@ def _classify_8760(resolved_tariff: dict, year: int) -> List[str]:
     sunday_key = "sunday" if "sunday" in schedule else "sunday_and_public_holidays"
     sunday_classes = _build_day_classes(schedule[sunday_key])
 
-    classes: List[str] = []
+    classes: list[str] = []
     from datetime import timedelta
 
     start_date = date(year, 1, 1)
@@ -143,11 +142,11 @@ def _classify_8760(resolved_tariff: dict, year: int) -> List[str]:
     return classes
 
 
-def _month_index_8760(year: int) -> List[int]:
+def _month_index_8760(year: int) -> list[int]:
     """Return an 8760-length list of 0-based month indices using the 365-day calendar."""
     from datetime import timedelta
 
-    months: List[int] = []
+    months: list[int] = []
     start_date = date(year, 1, 1)
     for day_offset in range(365):
         d = start_date + timedelta(days=day_offset)
@@ -161,13 +160,13 @@ def _month_index_8760(year: int) -> List[int]:
 
 
 def _compute_regime_side(
-    loads_kw: List[float],
+    loads_kw: list[float],
     vn: VNData,
     regime_id: str,
     customer_type: str,
     voltage_level: str,
     year: int,
-    month_index: List[int],
+    month_index: list[int],
 ) -> RegimeSide:
     """Compute one regime's annual bill (VND) and peak/standard/off-peak MWh."""
     resolved = resolve_vietnam_regime(vn, regime_id)
@@ -196,8 +195,7 @@ def _compute_regime_side(
         else:
             normal_kwh += load
         m = month_index[h]
-        if load > monthly_peak_kw[m]:
-            monthly_peak_kw[m] = load
+        monthly_peak_kw[m] = max(monthly_peak_kw[m], load)
 
     demand_usd = sum(
         monthly_peak_kw[m] * demand_rates_usd[m] for m in range(12)
@@ -222,13 +220,13 @@ def _compute_regime_side(
 
 
 def compute_regime_impact(
-    loads_kw: List[float],
+    loads_kw: list[float],
     regime_a_id: str,
     regime_b_id: str,
     customer_type: str,
     voltage_level: str,
-    vn: Optional[VNData] = None,
-    year: Optional[int] = None,
+    vn: VNData | None = None,
+    year: int | None = None,
 ) -> RegimeImpact:
     """Compare a factory's annual EVN bill under two regulatory regimes.
 
@@ -251,7 +249,7 @@ def compute_regime_impact(
     if vn is None:
         vn = load_vietnam_data()
     if year is None:
-        year = date.today().year
+        year = datetime.now(timezone.utc).date().year
 
     month_index = _month_index_8760(year)
 
@@ -286,20 +284,20 @@ def compute_regime_impact(
         regime_a=side_a,
         regime_b=side_b,
         delta=delta,
-        analysis_timestamp=date.today().isoformat(),
+        analysis_timestamp=datetime.now(timezone.utc).date().isoformat(),
         customer_type=customer_type,
         voltage_level=voltage_level,
     )
 
 
 def compute_multi_regime_impact(
-    loads_kw: List[float],
-    regime_ids: List[str],
+    loads_kw: list[float],
+    regime_ids: list[str],
     customer_type: str,
     voltage_level: str,
-    vn: Optional[VNData] = None,
-    year: Optional[int] = None,
-) -> List[RegimeImpact]:
+    vn: VNData | None = None,
+    year: int | None = None,
+) -> list[RegimeImpact]:
     """Compare a load across 3+ regimes in one call against a common baseline.
 
     The first id in ``regime_ids`` is the baseline; the result list contains one
@@ -319,7 +317,7 @@ def compute_multi_regime_impact(
     if vn is None:
         vn = load_vietnam_data()
     if year is None:
-        year = date.today().year
+        year = datetime.now(timezone.utc).date().year
 
     baseline = regime_ids[0]
     return [
@@ -340,15 +338,15 @@ def regime_tou_rates_vnd(
     customer_type: str,
     voltage_level: str,
     regime_id: str,
-    year: Optional[int] = None,
-) -> List[float]:
+    year: int | None = None,
+) -> list[float]:
     """Return the 8760-hour TOU energy rate series for a regime in VND per kWh.
 
     Wraps ``build_vietnam_tariff()`` (which returns USD) and converts back to VND
     so downstream monetary outputs stay in VND, consistent with PHASE-01 bills.
     """
     if year is None:
-        year = date.today().year
+        year = datetime.now(timezone.utc).date().year
     tariff_dict = build_vietnam_tariff(
         vn, customer_type, voltage_level, regime_id=regime_id, year=year
     )
@@ -389,10 +387,10 @@ class BessArbitrageDelta:
 
 
 def estimate_solar_value_impact(
-    loads_kw: List[float],
-    regime_a_tariff: List[float],
-    regime_b_tariff: List[float],
-    pv_profile_kw: List[float],
+    loads_kw: list[float],
+    regime_a_tariff: list[float],
+    regime_b_tariff: list[float],
+    pv_profile_kw: list[float],
 ) -> SolarValueDelta:
     """Estimate the avoided-cost value of a PV profile under two regimes.
 
@@ -414,8 +412,7 @@ def estimate_solar_value_impact(
     value_b = 0.0
     for h in range(HOURS_PER_YEAR):
         avoided = pv_profile_kw[h]
-        if loads_kw[h] < avoided:
-            avoided = loads_kw[h]
+        avoided = min(avoided, loads_kw[h])
         value_a += avoided * regime_a_tariff[h]
         value_b += avoided * regime_b_tariff[h]
 
@@ -430,7 +427,7 @@ def estimate_solar_value_impact(
     )
 
 
-def _weekday_peak_window_count(rates: List[float]) -> int:
+def _weekday_peak_window_count(rates: list[float]) -> int:
     """Count distinct daily peak windows from an 8760 rate series.
 
     Peak hours-of-day are those that ever carry the maximum rate (peak appears only on
@@ -450,7 +447,7 @@ def _weekday_peak_window_count(rates: List[float]) -> int:
     return windows
 
 
-def _arbitrage_days(rates: List[float]) -> int:
+def _arbitrage_days(rates: list[float]) -> int:
     """Number of days in the year that contain at least one peak hour."""
     peak_rate = max(rates)
     days = 0
@@ -462,7 +459,7 @@ def _arbitrage_days(rates: List[float]) -> int:
 
 
 def _annual_arbitrage_vnd(
-    rates: List[float], bess_power_kw: float, bess_capacity_kwh: float
+    rates: list[float], bess_power_kw: float, bess_capacity_kwh: float
 ) -> tuple:
     """Return (cycles_per_day, annual_arbitrage_vnd) for one regime.
 
@@ -482,8 +479,8 @@ def _annual_arbitrage_vnd(
 
 
 def estimate_bess_arbitrage_impact(
-    regime_a_tariff: List[float],
-    regime_b_tariff: List[float],
+    regime_a_tariff: list[float],
+    regime_b_tariff: list[float],
     bess_power_kw: float,
     bess_capacity_kwh: float,
 ) -> BessArbitrageDelta:
@@ -515,12 +512,12 @@ class RegimeComparisonArtifact:
     """Combined PHASE-01 + PHASE-02 result, ready to serialize to JSON."""
 
     regime_impact: RegimeImpact
-    solar: Optional[SolarValueDelta]
-    bess: Optional[BessArbitrageDelta]
+    solar: SolarValueDelta | None
+    bess: BessArbitrageDelta | None
     generated_at: str
-    inputs: Dict
+    inputs: dict
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "regime_impact": self.regime_impact.to_dict(),
             "solar": asdict(self.solar) if self.solar is not None else None,
@@ -531,22 +528,22 @@ class RegimeComparisonArtifact:
 
 
 def build_regime_comparison(
-    loads_kw: List[float],
+    loads_kw: list[float],
     regime_a_id: str,
     regime_b_id: str,
     customer_type: str,
     voltage_level: str,
-    pv_profile_kw: Optional[List[float]] = None,
-    bess_power_kw: Optional[float] = None,
-    bess_capacity_kwh: Optional[float] = None,
-    vn: Optional[VNData] = None,
-    year: Optional[int] = None,
+    pv_profile_kw: list[float] | None = None,
+    bess_power_kw: float | None = None,
+    bess_capacity_kwh: float | None = None,
+    vn: VNData | None = None,
+    year: int | None = None,
 ) -> RegimeComparisonArtifact:
     """Orchestrate the full regime comparison: bill impact + optional solar + optional BESS."""
     if vn is None:
         vn = load_vietnam_data()
     if year is None:
-        year = date.today().year
+        year = datetime.now(timezone.utc).date().year
 
     impact = compute_regime_impact(
         loads_kw, regime_a_id, regime_b_id, customer_type, voltage_level, vn=vn, year=year
@@ -569,7 +566,7 @@ def build_regime_comparison(
         regime_impact=impact,
         solar=solar,
         bess=bess,
-        generated_at=date.today().isoformat(),
+        generated_at=datetime.now(timezone.utc).date().isoformat(),
         inputs={
             "regime_a_id": regime_a_id,
             "regime_b_id": regime_b_id,

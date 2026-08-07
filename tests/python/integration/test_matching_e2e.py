@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from reopt_pysam_vn.integration.matching import (
     DEFAULT_WEIGHTS,
     FactoryProfile,
@@ -51,6 +50,7 @@ def _run_cli(args: list[str]) -> subprocess.CompletedProcess:
         cwd=str(REPO_ROOT),
         capture_output=True,
         text=True,
+        check=False,
     )
 
 

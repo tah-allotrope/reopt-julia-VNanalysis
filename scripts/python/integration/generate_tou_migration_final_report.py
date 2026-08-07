@@ -123,7 +123,7 @@ flowchart LR
     "{{IMPLEMENTATION_PATH}}": """<div class="subcard">
   <h4>Immediate</h4>
   <ol>
-    <li>Run Julia solve: <code>.\scripts\run_tou_comparison.ps1 -Solve</code> (requires Julia 1.10+ with REopt.jl v0.56.4)</li>
+    <li>Run Julia solve: <code>.\\scripts\run_tou_comparison.ps1 -Solve</code> (requires Julia 1.10+ with REopt.jl v0.56.4)</li>
     <li>Re-run financial delta: <code>python scripts/python/reopt/tou_financial_delta.py</code></li>
     <li>Re-generate report: <code>python scripts/python/reopt/tou_comparison_report.py</code></li>
   </ol>

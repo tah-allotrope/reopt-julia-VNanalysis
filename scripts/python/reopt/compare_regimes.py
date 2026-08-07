@@ -21,8 +21,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.ingestion.loader import ingest_factory_load  # noqa: E402
-from reopt_pysam_vn.reopt.regime_impact import build_regime_comparison  # noqa: E402
+from reopt_pysam_vn.ingestion.loader import ingest_factory_load
+from reopt_pysam_vn.reopt.regime_impact import build_regime_comparison
 
 
 def _load_series(path: str) -> list:

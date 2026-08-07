@@ -2,13 +2,11 @@ import json
 from pathlib import Path
 
 import pytest
-
 from reopt_pysam_vn.integration.bridge import build_ninhsim_single_owner_inputs
 from reopt_pysam_vn.integration.strike_search import (
     build_strike_price_summary,
     sweep_strike_prices,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 PHASE4_ARTIFACT = (

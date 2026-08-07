@@ -17,7 +17,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
 
-from extract_excel_inputs import (  # noqa: E402
+from extract_excel_inputs import (
     PV_KW_RATED,
     extract_data_input,
     validate_extracted,

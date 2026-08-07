@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Optional
-
 
 _REFERENCE_SHAPES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "data" / "vietnam" / "reference_load_shapes"
 
@@ -52,7 +50,7 @@ def synthesize_from_monthly(
     latitude: float = 10.8,
     longitude: float = 106.6,
     building_type: str = "LargeOffice",
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> tuple[list[float], str]:
     """Synthesize 8760 hourly kW from 12 monthly kWh totals.
 
@@ -72,7 +70,8 @@ def synthesize_from_monthly(
             )
             if loads and len(loads) == 8760:
                 return loads, "api_simulated_load"
-        except Exception:
+        except (OSError, ValueError, KeyError):
+            # Network or response-format failure: fall back to offline archetype scaling.
             pass
 
     loads = _offline_shape_scaling(monthly_kwh, annual_kwh)
@@ -87,8 +86,8 @@ def _call_simulated_load_api(
     api_key: str,
 ) -> list[float]:
     """Call REopt simulated_load API to generate an 8760 profile."""
-    import urllib.request
     import urllib.parse
+    import urllib.request
 
     params = urllib.parse.urlencode({
         "api_key": api_key,

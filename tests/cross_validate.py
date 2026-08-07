@@ -11,4 +11,4 @@ if __name__ == "__main__":
 
     runpy.run_module("tests.cross_language.cross_validate", run_name="__main__")
 else:
-    from tests.cross_language.cross_validate import *  # noqa: F401,F403
+    from tests.cross_language.cross_validate import *

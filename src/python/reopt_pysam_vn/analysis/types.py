@@ -18,15 +18,15 @@ Design notes
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.analysis.validation import validate_deal_config
 
 __all__ = [
-    "DealConfig",
-    "OnsiteResult",
-    "OffsiteDppaResult",
     "CombinedDecision",
+    "DealConfig",
+    "OffsiteDppaResult",
+    "OnsiteResult",
 ]
 
 # Analysis modes a DealConfig can request.
@@ -56,19 +56,19 @@ class DealConfig:
     case: str
     mode: str
     title: str = ""
-    site: Dict[str, Any] = field(default_factory=dict)
-    plant: Dict[str, Any] = field(default_factory=dict)
-    load: Dict[str, Any] = field(default_factory=dict)
-    contract: Dict[str, Any] = field(default_factory=dict)
-    finance: Dict[str, Any] = field(default_factory=dict)
-    raw: Dict[str, Any] = field(default_factory=dict)
+    site: dict[str, Any] = field(default_factory=dict)
+    plant: dict[str, Any] = field(default_factory=dict)
+    load: dict[str, Any] = field(default_factory=dict)
+    contract: dict[str, Any] = field(default_factory=dict)
+    finance: dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.mode not in MODES:
             raise ValueError(f"DealConfig.mode must be one of {MODES}, got {self.mode!r}")
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any], *, validate: bool = True) -> "DealConfig":
+    def from_dict(cls, d: dict[str, Any], *, validate: bool = True) -> DealConfig:
         """Build a DealConfig from a dict.
 
         When ``validate`` is True (the default), structurally validates ``d``
@@ -93,8 +93,8 @@ class DealConfig:
             raw={k: v for k, v in d.items() if k not in known},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
-        out: Dict[str, Any] = {"case": self.case, "mode": self.mode, "title": self.title}
+    def to_dict(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"case": self.case, "mode": self.mode, "title": self.title}
         for section in ("site", "plant", "load", "contract", "finance"):
             out[section] = dict(getattr(self, section))
         out.update(self.raw)
@@ -106,13 +106,13 @@ class OnsiteResult:
     """Behind-the-meter REopt PV+BESS outcome for a deal config."""
 
     case: str
-    sizing: Dict[str, Any] = field(default_factory=dict)
-    dispatch: Dict[str, Any] = field(default_factory=dict)
-    economics: Dict[str, Any] = field(default_factory=dict)
-    raw: Dict[str, Any] = field(default_factory=dict)
+    sizing: dict[str, Any] = field(default_factory=dict)
+    dispatch: dict[str, Any] = field(default_factory=dict)
+    economics: dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "OnsiteResult":
+    def from_dict(cls, d: dict[str, Any]) -> OnsiteResult:
         known = {"case", "sizing", "dispatch", "economics"}
         return cls(
             case=d["case"],
@@ -122,8 +122,8 @@ class OnsiteResult:
             raw={k: v for k, v in d.items() if k not in known},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
-        out: Dict[str, Any] = {"case": self.case}
+    def to_dict(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"case": self.case}
         for section in ("sizing", "dispatch", "economics"):
             out[section] = dict(getattr(self, section))
         out.update(self.raw)
@@ -137,17 +137,17 @@ class OffsiteDppaResult:
 
     case: str
     model: str = ""
-    deal: Dict[str, Any] = field(default_factory=dict)
-    base_settlement: Dict[str, Any] = field(default_factory=dict)
-    strike_sweep: Dict[str, Any] = field(default_factory=dict)
-    adder_sensitivity: Dict[str, Any] = field(default_factory=dict)
-    regime_stress: Dict[str, Any] = field(default_factory=dict)
-    decision: Dict[str, Any] = field(default_factory=dict)
-    quality: Dict[str, Any] = field(default_factory=dict)
-    raw: Dict[str, Any] = field(default_factory=dict)
+    deal: dict[str, Any] = field(default_factory=dict)
+    base_settlement: dict[str, Any] = field(default_factory=dict)
+    strike_sweep: dict[str, Any] = field(default_factory=dict)
+    adder_sensitivity: dict[str, Any] = field(default_factory=dict)
+    regime_stress: dict[str, Any] = field(default_factory=dict)
+    decision: dict[str, Any] = field(default_factory=dict)
+    quality: dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "OffsiteDppaResult":
+    def from_dict(cls, d: dict[str, Any]) -> OffsiteDppaResult:
         known = {"case", "model", *_OFFSITE_BLOCKS}
         return cls(
             case=d["case"],
@@ -156,8 +156,8 @@ class OffsiteDppaResult:
             **{block: dict(d.get(block, {})) for block in _OFFSITE_BLOCKS},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
-        out: Dict[str, Any] = {"case": self.case}
+    def to_dict(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"case": self.case}
         if self.model:
             out["model"] = self.model
         for block in _OFFSITE_BLOCKS:
@@ -171,13 +171,13 @@ class CombinedDecision:
     """Top-level wrapper combining the two analysis modes plus a recommendation."""
 
     case: str
-    onsite: Optional[OnsiteResult] = None
-    offsite_dppa: Optional[OffsiteDppaResult] = None
+    onsite: OnsiteResult | None = None
+    offsite_dppa: OffsiteDppaResult | None = None
     recommendation: str = ""
-    raw: Dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "CombinedDecision":
+    def from_dict(cls, d: dict[str, Any]) -> CombinedDecision:
         known = {"case", "onsite", "offsite_dppa", "recommendation"}
         onsite = d.get("onsite")
         offsite = d.get("offsite_dppa")
@@ -189,8 +189,8 @@ class CombinedDecision:
             raw={k: v for k, v in d.items() if k not in known},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
-        out: Dict[str, Any] = {
+    def to_dict(self) -> dict[str, Any]:
+        out: dict[str, Any] = {
             "case": self.case,
             "recommendation": self.recommendation,
             "onsite": self.onsite.to_dict() if self.onsite else None,

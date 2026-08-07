@@ -15,7 +15,8 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.regime_impact import (  # noqa: E402
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+from reopt_pysam_vn.reopt.regime_impact import (
     BessArbitrageDelta,
     RegimeComparisonArtifact,
     SolarValueDelta,
@@ -24,7 +25,6 @@ from reopt_pysam_vn.reopt.regime_impact import (  # noqa: E402
     estimate_solar_value_impact,
     regime_tou_rates_vnd,
 )
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
 
 DECISION_963 = "decision_963_2026_current"
 DECISION_14 = "decision_14_2025_legacy"

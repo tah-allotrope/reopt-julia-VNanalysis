@@ -85,7 +85,7 @@ def _verdict(metric: str, repo_val: float | None, slide_val: float) -> str:
         return "UNTESTABLE"
     if slide_val == 0:
         return "PASS" if abs(repo_val) < 1e-9 else "FLAG"
-    tier, rel_tol, abs_tol = TOLERANCES.get(metric, ("WIDE", 0.25, None))
+    _tier, rel_tol, abs_tol = TOLERANCES.get(metric, ("WIDE", 0.25, None))
     rel_diff = abs(repo_val - slide_val) / abs(slide_val)
     within_rel = rel_diff <= rel_tol
     within_abs = (abs_tol is not None) and (abs(repo_val - slide_val) <= abs_tol)

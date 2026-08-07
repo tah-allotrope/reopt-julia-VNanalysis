@@ -13,18 +13,18 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig
 
 
-def _load_json(path: str) -> Dict[str, Any]:
+def _load_json(path: str) -> dict[str, Any]:
     # utf-8-sig tolerates a UTF-8 BOM (common from Windows editors/PowerShell) and
     # plain UTF-8 alike, so user-supplied config/results JSON loads either way.
     return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
-def _emit(payload: Dict[str, Any], out: Optional[str]) -> None:
+def _emit(payload: dict[str, Any], out: str | None) -> None:
     text = json.dumps(payload, indent=2)
     if out:
         Path(out).write_text(text, encoding="utf-8")
@@ -88,7 +88,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Optional[list] = None) -> int:
+def main(argv: list | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:

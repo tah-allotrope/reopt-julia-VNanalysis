@@ -12,7 +12,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.analysis.types import (  # noqa: E402
+from reopt_pysam_vn.analysis.types import (
     CombinedDecision,
     DealConfig,
     OffsiteDppaResult,

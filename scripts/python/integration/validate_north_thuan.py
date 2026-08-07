@@ -18,7 +18,6 @@ from pathlib import Path
 
 import numpy_financial as npf
 
-
 # ---------------------------------------------------------------------------
 # Inputs from DPPA_FS_Study.pdf (Scenario 3 — Wind+Solar+BESS)
 # ---------------------------------------------------------------------------

@@ -5,7 +5,6 @@ from __future__ import annotations
 from reopt_pysam_vn.integration.assumptions import DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-
 DEFAULT_REQUESTED_TARGET_FRACTION = 0.60
 DEFAULT_TARGET_STEP_DOWN = 0.025
 DEFAULT_MINIMUM_TARGET_FRACTION = 0.50

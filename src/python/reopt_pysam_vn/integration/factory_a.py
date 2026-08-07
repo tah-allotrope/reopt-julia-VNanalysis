@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import csv
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
@@ -175,7 +175,7 @@ def build_factory_a_load_8760(
     AMP_FRAC = 0.945    # daytime production amplitude
     SUNDAY_DIP = 0.90   # Sunday scaling factor
 
-    start = datetime(reference_year, 1, 1)
+    start = datetime(reference_year, 1, 1, tzinfo=timezone.utc)
     weights: list[float] = []
     for h in range(8760):
         ts = start + timedelta(hours=h)
@@ -321,7 +321,7 @@ def build_hourly_rate_series_vnd(
     sunday = _daily(schedule.get("sunday_and_public_holidays", schedule["weekday"]))
 
     rates: list[float] = []
-    cursor = datetime(reference_year, 1, 1)
+    cursor = datetime(reference_year, 1, 1, tzinfo=timezone.utc)
     for _ in range(366 if _is_leap_year(reference_year) else 365):
         rates.extend(sunday if cursor.weekday() == 6 else weekday)
         cursor += timedelta(days=1)

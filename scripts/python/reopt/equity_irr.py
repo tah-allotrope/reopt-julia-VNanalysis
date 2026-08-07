@@ -25,7 +25,6 @@ from pathlib import Path
 
 import numpy_financial as npf
 
-
 # ---------------------------------------------------------------------------
 # Defaults (used when no --config is provided; match Saigon18 Excel Section 7.2)
 # ---------------------------------------------------------------------------

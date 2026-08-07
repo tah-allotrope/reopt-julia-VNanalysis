@@ -44,9 +44,8 @@ def stub_nrel_api_key(monkeypatch):
 
 @pytest.fixture()
 def client(storage_root):
-    from reopt_pysam_vn.webapp import create_app
-
     from fastapi.testclient import TestClient
+    from reopt_pysam_vn.webapp import create_app
 
     app = create_app()
     with TestClient(app) as c:

@@ -12,7 +12,7 @@ names what to fix.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from reopt_pysam_vn.webapp.service import (
     AnalysisError,
@@ -34,7 +34,7 @@ _SOLVER_ERROR_HINT = "Check site coordinates and load profile; retry, or run off
 _INTERNAL_HINT = "See the server log for the full traceback (run_id is logged)."
 
 
-def to_user_error(exc: Exception) -> Dict[str, Any]:
+def to_user_error(exc: Exception) -> dict[str, Any]:
     """Return ``{"code", "message", "hint"}`` for ``exc``, suitable for display."""
     message = str(exc)
 

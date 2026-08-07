@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-__all__ = ["list_templates", "template_defaults", "deal_config_from_form"]
+__all__ = ["deal_config_from_form", "list_templates", "template_defaults"]
 
 _TEMPLATES_DIR = Path(__file__).resolve().parents[4] / "scenarios" / "templates"
 
@@ -24,11 +24,11 @@ def _template_path(template_id: str) -> Path:
     return path
 
 
-def _load_template(template_id: str) -> Dict[str, Any]:
+def _load_template(template_id: str) -> dict[str, Any]:
     return json.loads(_template_path(template_id).read_text(encoding="utf-8-sig"))
 
 
-def list_templates() -> List[Dict[str, str]]:
+def list_templates() -> list[dict[str, str]]:
     out = []
     for path in sorted(_TEMPLATES_DIR.glob("*.json")):
         raw = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -43,7 +43,7 @@ def list_templates() -> List[Dict[str, str]]:
     return out
 
 
-def template_defaults(template_id: str) -> Dict[str, Any]:
+def template_defaults(template_id: str) -> dict[str, Any]:
     """Prefill values for the guided form, derived from a scenario template."""
     raw = _load_template(template_id)
     meta = raw.get("_template", {})
@@ -65,7 +65,7 @@ def template_defaults(template_id: str) -> Dict[str, Any]:
     }
 
 
-def deal_config_from_form(form: Dict[str, Any], *, loads_kw: List[float]) -> Dict[str, Any]:
+def deal_config_from_form(form: dict[str, Any], *, loads_kw: list[float]) -> dict[str, Any]:
     """Build a schema-shaped DealConfig dict from guided-form input.
 
     ``form`` sections mirror ``data/schemas/deal_config.schema.json``: only

@@ -27,7 +27,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
 )
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-
 REPORT_DATE = "2026-04-21"
 DEFAULT_EXTRACTED = (
     REPO_ROOT

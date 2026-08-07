@@ -7,11 +7,10 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.dppa_case_3 import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_case_3 import (
     build_dppa_case_3_assumptions_register,
     build_dppa_case_3_edge_case_matrix,
     build_dppa_case_3_gap_register,
@@ -20,7 +19,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (  # noqa: E402
     build_dppa_case_3_settlement_design,
     build_dppa_case_3_settlement_schema,
 )
-
 
 REPORT_DATE = "2026-04-20"
 DEFAULT_EXTRACTED = (

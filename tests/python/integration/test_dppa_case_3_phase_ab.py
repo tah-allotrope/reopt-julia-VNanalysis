@@ -7,11 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.dppa_case_3 import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_case_3 import (
     DEFAULT_DPPA_ADDER_VND_PER_KWH,
     DEFAULT_KPP_FACTOR,
     DEFAULT_STRIKE_DISCOUNT_FRACTION,
@@ -28,7 +27,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (  # noqa: E402
     load_saigon18_tou_series,
     scale_load_to_annual_kwh,
 )
-
 
 EXTRACTED_PATH = (
     REPO_ROOT
@@ -270,7 +268,7 @@ def test_tou_series_returns_8760_elements_with_known_rates():
 
     assert len(tou) == 8760
     assumptions = extracted["assumptions"]
-    unique_rates = set(int(round(v)) for v in tou)
+    unique_rates = {round(v) for v in tou}
     assert int(assumptions["tariff_peak_vnd_per_kwh"]) in unique_rates
     assert int(assumptions["tariff_offpeak_vnd_per_kwh"]) in unique_rates
     assert int(assumptions["tariff_standard_vnd_per_kwh"]) in unique_rates

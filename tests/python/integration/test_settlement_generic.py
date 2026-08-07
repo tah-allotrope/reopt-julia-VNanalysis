@@ -13,10 +13,9 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.integration.settlement import (
     ContractParams,
     SettlementResult,
-    compute_hourly_settlement,
     compute_buyer_benchmark,
+    compute_hourly_settlement,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures: synthetic 8760 inputs
@@ -27,17 +26,17 @@ def _constant_series(value: float, n: int = 8760) -> list[float]:
 
 
 def _make_params(**overrides) -> ContractParams:
-    defaults = dict(
-        mode="virtual_cfd",
-        strike_vnd_kwh=1800.0,
-        escalation_rate=0.05,
-        settlement_quantity_rule="matched_only",
-        excess_treatment="curtail",
-        export_cap_pct=20.0,
-        surplus_rate_vnd_kwh=671.0,
-        dppa_adder_vnd_kwh=523.34,
-        kpp_pct=2.7263,
-    )
+    defaults = {
+        "mode": "virtual_cfd",
+        "strike_vnd_kwh": 1800.0,
+        "escalation_rate": 0.05,
+        "settlement_quantity_rule": "matched_only",
+        "excess_treatment": "curtail",
+        "export_cap_pct": 20.0,
+        "surplus_rate_vnd_kwh": 671.0,
+        "dppa_adder_vnd_kwh": 523.34,
+        "kpp_pct": 2.7263,
+    }
     defaults.update(overrides)
     return ContractParams(**defaults)
 

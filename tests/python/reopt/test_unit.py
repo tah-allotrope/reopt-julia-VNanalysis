@@ -96,7 +96,7 @@ class TestLoadVietnamData:
         assert "decision_963_2026_current" in vn.regimes["regimes"]
 
     def test_bad_manifest_path(self):
-        with pytest.raises(Exception):
+        with pytest.raises((FileNotFoundError, OSError)):
             load_vietnam_data(manifest_path="nonexistent.json")
 
 

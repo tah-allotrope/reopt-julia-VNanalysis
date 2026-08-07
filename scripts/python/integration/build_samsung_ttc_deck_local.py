@@ -8,9 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from pptx import Presentation
-from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 REPO = Path(__file__).resolve().parent.parent.parent.parent
 # Template is a local-only input (the pristine Allotrope deck); not tracked in git.

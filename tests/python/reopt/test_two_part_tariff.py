@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from reopt_pysam_vn.reopt.two_part_tariff import (
     build_trial_energy_rate_series,
     compute_two_part_impact,

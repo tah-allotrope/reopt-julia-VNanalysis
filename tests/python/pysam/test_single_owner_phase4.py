@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from reopt_pysam_vn.integration.bridge import (
     build_ninhsim_single_owner_inputs,
     build_ninhsim_solar_storage_single_owner_inputs,
@@ -11,7 +10,6 @@ from reopt_pysam_vn.pysam.single_owner import (
     build_single_owner_inputs,
     run_single_owner_model,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 NINHSIM_REOPT = (

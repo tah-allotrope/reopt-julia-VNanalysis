@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 from reopt_pysam_vn.integration.project_catalog import (
     ProjectRecord,
     load_catalog_schema,

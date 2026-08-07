@@ -22,7 +22,6 @@ from reopt_pysam_vn.ingestion.loader import (
     sanitize_load_series,
 )
 
-
 CASE_STUDIES = REPO_ROOT / "scenarios" / "case_studies"
 
 

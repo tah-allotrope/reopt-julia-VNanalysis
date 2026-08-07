@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import csv
 import io
-from typing import List
 
 __all__ = ["UploadError", "parse_load_csv", "parse_load_xlsx"]
 
@@ -16,7 +15,7 @@ class UploadError(ValueError):
     pass
 
 
-def _first_numeric_column(rows: List[List[str]]) -> List[float]:
+def _first_numeric_column(rows: list[list[str]]) -> list[float]:
     cells = [row[0].strip() for row in rows if row and row[0].strip()]
     if not cells:
         return []
@@ -33,7 +32,7 @@ def _first_numeric_column(rows: List[List[str]]) -> List[float]:
             pass
 
     data_cells = cells[1:] if has_header else cells
-    values: List[float] = []
+    values: list[float] = []
     for cell in data_cells:
         try:
             values.append(float(cell))
@@ -42,7 +41,7 @@ def _first_numeric_column(rows: List[List[str]]) -> List[float]:
     return values
 
 
-def _validate_length(values: List[float]) -> List[float]:
+def _validate_length(values: list[float]) -> list[float]:
     if not values:
         raise UploadError("upload is empty; expected an 8760-row hourly kW column")
     if len(values) != _HOURS:
@@ -52,7 +51,7 @@ def _validate_length(values: List[float]) -> List[float]:
     return values
 
 
-def parse_load_csv(content: bytes) -> List[float]:
+def parse_load_csv(content: bytes) -> list[float]:
     if not content.strip():
         raise UploadError("upload is empty; expected an 8760-row hourly kW column")
     text = content.decode("utf-8-sig")
@@ -62,7 +61,7 @@ def parse_load_csv(content: bytes) -> List[float]:
     return _validate_length(values)
 
 
-def parse_load_xlsx(content: bytes) -> List[float]:
+def parse_load_xlsx(content: bytes) -> list[float]:
     import openpyxl
 
     wb = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)

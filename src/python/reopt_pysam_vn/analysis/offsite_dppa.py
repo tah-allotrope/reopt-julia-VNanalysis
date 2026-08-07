@@ -20,17 +20,18 @@ New deals register their orchestrator here (or inject one).
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig, OffsiteDppaResult
 
-__all__ = ["run_offsite_dppa", "register_orchestrator"]
+__all__ = ["register_orchestrator", "run_offsite_dppa"]
 
 # orchestrator signature: (extracted: dict, *, run_developer: bool) -> dict
-CombinedDecisionFn = Callable[..., Dict[str, Any]]
+CombinedDecisionFn = Callable[..., dict[str, Any]]
 
 
-def _samsung_ttc_orchestrator(extracted: Dict[str, Any], *, run_developer: bool = True) -> Dict[str, Any]:
+def _samsung_ttc_orchestrator(extracted: dict[str, Any], *, run_developer: bool = True) -> dict[str, Any]:
     # Lazy import: keep `analysis` importable without pulling the heavy case module
     # (and PySAM) until an offsite run actually needs it.
     from reopt_pysam_vn.integration.dppa_samsung_ttc import build_samsung_ttc_combined_decision
@@ -38,7 +39,7 @@ def _samsung_ttc_orchestrator(extracted: Dict[str, Any], *, run_developer: bool 
     return build_samsung_ttc_combined_decision(extracted, run_developer=run_developer)
 
 
-_ORCHESTRATORS: Dict[str, CombinedDecisionFn] = {
+_ORCHESTRATORS: dict[str, CombinedDecisionFn] = {
     "DPPA_SAMSUNG_TTC": _samsung_ttc_orchestrator,
 }
 
@@ -51,8 +52,8 @@ def register_orchestrator(case: str, fn: CombinedDecisionFn) -> None:
 def run_offsite_dppa(
     deal_config: DealConfig,
     *,
-    extracted: Optional[Dict[str, Any]] = None,
-    combined_decision_fn: Optional[CombinedDecisionFn] = None,
+    extracted: dict[str, Any] | None = None,
+    combined_decision_fn: CombinedDecisionFn | None = None,
     run_developer: bool = True,
 ) -> OffsiteDppaResult:
     """Run offsite/DPPA analysis for ``deal_config``.

@@ -3,7 +3,7 @@ submission endpoint the new-deal form posts to (PHASE-03)."""
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -20,21 +20,21 @@ router = APIRouter()
 
 
 @router.get("/health")
-def health() -> Dict[str, str]:
+def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
 @router.get("/projects")
-def get_projects() -> Dict[str, Any]:
+def get_projects() -> dict[str, Any]:
     return {"projects": list_projects()}
 
 
 def _submit_deal_config(
     request: Request,
-    deal_config_dict: Dict[str, Any],
+    deal_config_dict: dict[str, Any],
     *,
-    results: Optional[Dict[str, Any]] = None,
-    extracted: Optional[Dict[str, Any]] = None,
+    results: dict[str, Any] | None = None,
+    extracted: dict[str, Any] | None = None,
     force_resolve: bool = False,
 ) -> str:
     storage = request.app.state.storage
@@ -69,7 +69,7 @@ def _submit_deal_config(
 
 
 @router.post("/runs", status_code=202)
-def create_run(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
+def create_run(payload: dict[str, Any], request: Request) -> dict[str, Any]:
     deal_config_dict = payload.get("deal_config")
     if not isinstance(deal_config_dict, dict):
         raise HTTPException(status_code=422, detail="`deal_config` is required and must be an object")
@@ -83,9 +83,9 @@ def create_run(payload: Dict[str, Any], request: Request) -> Dict[str, Any]:
     return {"run_id": run_id}
 
 
-def _nest_form_fields(form_data: FormData) -> Dict[str, Any]:
-    result: Dict[str, Any] = {}
-    for key in form_data.keys():
+def _nest_form_fields(form_data: FormData) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key in form_data:
         if key in ("load_file", "extracted_file", "force_resolve"):
             continue
         value: Any = form_data.get(key)
@@ -105,7 +105,7 @@ def _nest_form_fields(form_data: FormData) -> Dict[str, Any]:
 
 
 @router.post("/deals", status_code=202)
-async def create_deal(request: Request) -> Dict[str, Any]:
+async def create_deal(request: Request) -> dict[str, Any]:
     """Multipart submission from the guided new-deal form (DEC-006/007/016)."""
     form_data = await request.form()
 
@@ -146,13 +146,13 @@ async def create_deal(request: Request) -> Dict[str, Any]:
 
 
 @router.get("/runs")
-def list_runs(request: Request) -> Dict[str, Any]:
+def list_runs(request: Request) -> dict[str, Any]:
     storage = request.app.state.storage
     return {"runs": storage.list_runs()}
 
 
 @router.get("/runs/{run_id}")
-def get_run(run_id: str, request: Request) -> Dict[str, Any]:
+def get_run(run_id: str, request: Request) -> dict[str, Any]:
     storage = request.app.state.storage
     try:
         status = storage.get_status(run_id)

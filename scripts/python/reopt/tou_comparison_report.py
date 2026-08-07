@@ -145,11 +145,8 @@ def main() -> None:
         print(f"CSV not found: {csv_path}", file=sys.stderr)
         sys.exit(1)
 
-    rows = []
     with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
+        rows = [row for row in csv.DictReader(f)]
 
     labels = []
     legacy_costs = []

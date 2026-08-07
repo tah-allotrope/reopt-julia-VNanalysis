@@ -15,7 +15,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.dppa_samsung_ttc import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_samsung_ttc import (
     build_samsung_ttc_definition,
     build_samsung_ttc_extracted_inputs,
     build_scenario_samsung_ttc,

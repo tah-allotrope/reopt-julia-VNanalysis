@@ -7,21 +7,19 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.bridge import build_dppa_case_1_pvwatts_inputs  # noqa: E402
-from reopt_pysam_vn.integration.dppa_case_1 import (  # noqa: E402
+from reopt_pysam_vn.integration.bridge import build_dppa_case_1_pvwatts_inputs
+from reopt_pysam_vn.integration.dppa_case_1 import (
     build_dppa_case_1_placeholder_pysam_results,
     build_dppa_case_1_reopt_summary,
 )
-from reopt_pysam_vn.pysam import (  # noqa: E402
+from reopt_pysam_vn.pysam import (
     DEFAULT_SOLAR_RESOURCE_FILE,
     ensure_solar_resource_file,
     run_pvwatts_battery_single_owner_model,
 )
-
 
 DEFAULT_REOPT = (
     REPO_ROOT

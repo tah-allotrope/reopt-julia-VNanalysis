@@ -12,13 +12,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.integration.procurement import (
-    ProjectConfig,
-    OnsiteEvaluation,
     OffsiteEvaluation,
-    evaluate_onsite,
+    OnsiteEvaluation,
+    ProjectConfig,
     evaluate_offsite,
+    evaluate_onsite,
 )
-
 
 SAIGON18_EXTRACTED = (
     REPO_ROOT / "data" / "interim" / "saigon18"

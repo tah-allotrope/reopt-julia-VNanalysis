@@ -27,8 +27,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 EXCHANGE_RATE_VND_PER_USD = _resolve_exchange_rate(load_vietnam_data(), caller_value=26_400.0)
 
@@ -344,7 +344,7 @@ def main():
 
     tou_rates = scenario.get("ElectricTariff", {}).get("tou_energy_rates_per_kwh", [])
     tou_rates = _pad_to_8760(tou_rates)
-    unique_rates = sorted(set(round(r, 10) for r in tou_rates))
+    unique_rates = sorted({round(r, 10) for r in tou_rates})
     if len(unique_rates) >= 3:
         offpeak_rate, standard_rate, peak_rate = unique_rates[0], unique_rates[1], unique_rates[-1]
     else:

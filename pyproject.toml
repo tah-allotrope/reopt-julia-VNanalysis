@@ -25,6 +25,12 @@ webapp = [
   "python-multipart>=0.0.9",
   "httpx>=0.27",
 ]
+dev = [
+  "ruff==0.16.1",
+  "mypy==2.3.0",
+  "pytest==8.4.2",
+  "pytest-cov==7.1.0",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src/python"}
@@ -57,7 +63,8 @@ extend-exclude = [".venv", "legacy", "artifacts", "present"]
 [tool.ruff.lint]
 # E402 (import-not-at-top) is repo-wide intentional: scripts under scripts/python/
 # bootstrap sys.path before importing reopt_pysam_vn. Do not "fix" these.
-ignore = ["E402"]
+# ISC004: multi-line string literals inside list/tuple literals in report builders are deliberate.
+ignore = ["E402", "ISC004"]
 
 [tool.mypy]
 python_version = "3.10"

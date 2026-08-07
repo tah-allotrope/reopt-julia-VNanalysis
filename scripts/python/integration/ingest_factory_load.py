@@ -19,10 +19,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.ingestion import (
-    ingest_factory_load,
-    extract_load_metadata,
-    classify_tou_consumption,
     classify_industry_archetype,
+    classify_tou_consumption,
+    extract_load_metadata,
+    ingest_factory_load,
 )
 
 
@@ -48,7 +48,8 @@ def build_artifact(
         vn = None
         from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
         vn = load_vietnam_data()
-    except Exception:
+    except (ImportError, KeyError, OSError, ValueError):
+        # Vietnam data unavailable: proceed without regime-aware TOU classification.
         pass
 
     tou = classify_tou_consumption(

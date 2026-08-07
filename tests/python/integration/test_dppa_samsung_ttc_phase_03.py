@@ -7,8 +7,9 @@ the real PySAM Single Owner run happens in the analyze script under .venv.
 
 from __future__ import annotations
 
-import pytest
+import itertools
 
+import pytest
 from reopt_pysam_vn.integration.dppa_samsung_ttc import (
     build_samsung_ttc_adder_sensitivity,
     build_samsung_ttc_extracted_inputs,
@@ -45,7 +46,7 @@ def test_buyer_premium_monotonic_in_strike():
     sweep = build_samsung_ttc_strike_sweep(ex, run_developer=False)
     deltas = [r["buyer_minus_benchmark_vnd"] for r in sweep["sweep"]]
     # Higher strike => buyer pays more => buyer-minus-benchmark strictly increases.
-    assert all(b > a for a, b in zip(deltas, deltas[1:]))
+    assert all(b > a for a, b in itertools.pairwise(deltas))
     # At the base strike (Southern ceiling 1,012) the buyer saves vs EVN.
     assert sweep["sweep"][0]["buyer_minus_benchmark_vnd"] < 0
     assert sweep["sweep"][0]["buyer_passes"] is True
@@ -57,7 +58,7 @@ def test_developer_screen_with_injected_runner():
     irrs = [r["developer_irr_fraction"] for r in sweep["sweep"]]
     assert all(v is not None for v in irrs)
     # Developer IRR rises with the strike (more revenue per kWh).
-    assert all(b > a for a, b in zip(irrs, irrs[1:]))
+    assert all(b > a for a, b in itertools.pairwise(irrs))
     assert sweep["developer_screen"]["ran"] is True
     assert sweep["developer_screen"]["target_irr_fraction"] == pytest.approx(0.15)
     assert sweep["developer_screen"]["system_capacity_kw"] == pytest.approx(49_000.0)
@@ -77,7 +78,7 @@ def test_adder_sensitivity_flips_buyer_to_premium():
     results = risk["adder_sensitivity"]["results"]
     deltas = [r["buyer_minus_benchmark_vnd"] for r in results]
     # Higher DPPA grid-service adder => worse for buyer => delta increasing.
-    assert all(b > a for a, b in zip(deltas, deltas[1:]))
+    assert all(b > a for a, b in itertools.pairwise(deltas))
     # Zero adder => buyer clearly saves; 2x adder => buyer flips to a premium.
     assert deltas[0] < 0
     assert deltas[-1] > 0

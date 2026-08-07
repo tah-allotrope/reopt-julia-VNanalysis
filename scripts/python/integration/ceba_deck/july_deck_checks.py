@@ -52,9 +52,9 @@ from the ℹ️ method+directional verdict used for the un-solvable CEBA Cases.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Any, Optional
+from typing import Any
 
-__all__ = ["Check", "CHECKS", "to_dict", "all_rows"]
+__all__ = ["CHECKS", "Check", "all_rows", "to_dict"]
 
 
 @dataclass
@@ -67,14 +67,14 @@ class Check:
     claim: str
     deck_value: Any
     deck_unit: str
-    deck_citation: Optional[str]
+    deck_citation: str | None
     repo_fn: str
     repo_source_ref: str
     assumptions: list[str] = field(default_factory=list)
     repo_value: Any = None
-    delta_pct: Optional[float] = None
-    verdict: Optional[str] = None
-    takeaway: Optional[str] = None
+    delta_pct: float | None = None
+    verdict: str | None = None
+    takeaway: str | None = None
     notes: dict[str, Any] = field(default_factory=dict)
 
 
@@ -85,10 +85,10 @@ def _line(
     claim: str,
     deck_value: Any,
     deck_unit: str,
-    citation: Optional[str],
+    citation: str | None,
     repo_fn: str,
     repo_source_ref: str,
-    assumptions: Optional[list[str]] = None,
+    assumptions: list[str] | None = None,
 ) -> Check:
     return Check(
         id=cid,

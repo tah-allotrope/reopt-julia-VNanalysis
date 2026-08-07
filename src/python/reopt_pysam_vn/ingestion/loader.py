@@ -6,7 +6,6 @@ import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from openpyxl import load_workbook
 
@@ -51,7 +50,7 @@ def _guess_resolution(length: int) -> str:
     return resolutions.get(length, f"unknown ({length} rows)")
 
 
-def clean_numeric(raw_value: object) -> Optional[float]:
+def clean_numeric(raw_value: object) -> float | None:
     if raw_value is None:
         return None
     text = str(raw_value).replace("﻿", "").strip()
@@ -63,7 +62,7 @@ def clean_numeric(raw_value: object) -> Optional[float]:
 
 
 def interpolate_missing(
-    values: list[Optional[float]],
+    values: list[float | None],
 ) -> tuple[list[float], dict]:
     filled = list(values)
     interpolated_indices: list[int] = []
@@ -101,10 +100,10 @@ def interpolate_missing(
 
 
 def sanitize_load_series(
-    values: list[Optional[float]],
+    values: list[float | None],
 ) -> tuple[list[float], dict]:
     clipped_negative_count = 0
-    precleaned: list[Optional[float]] = []
+    precleaned: list[float | None] = []
 
     for value in values:
         if value is not None and value < 0:
@@ -136,8 +135,8 @@ def _detect_load_column_index(headers: list[str]) -> tuple[int, str]:
 
 
 def _read_csv(
-    path: Path, column_hint: Optional[str], timestamp_column: Optional[str],
-) -> tuple[list[Optional[float]], str]:
+    path: Path, column_hint: str | None, timestamp_column: str | None,
+) -> tuple[list[float | None], str]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
         rows = list(csv.reader(handle))
 
@@ -169,10 +168,10 @@ def _read_csv(
 
 def _read_xlsx(
     path: Path,
-    column_hint: Optional[str],
-    timestamp_column: Optional[str],
-    sheet_name: Optional[str] = None,
-) -> tuple[list[Optional[float]], str]:
+    column_hint: str | None,
+    timestamp_column: str | None,
+    sheet_name: str | None = None,
+) -> tuple[list[float | None], str]:
     workbook = load_workbook(path, read_only=True, data_only=True)
     try:
         if sheet_name:
@@ -223,7 +222,7 @@ def _read_xlsx(
     return values, detected
 
 
-def _scan_sheets_for_load(workbook) -> Optional[str]:
+def _scan_sheets_for_load(workbook) -> str | None:
     """Scan all sheets for one containing 8760-row numeric data."""
     best_sheet = None
     best_score = -1
@@ -254,8 +253,8 @@ def _scan_sheets_for_load(workbook) -> Optional[str]:
 
 
 def _read_json(
-    path: Path, column_hint: Optional[str], timestamp_column: Optional[str],
-) -> tuple[list[Optional[float]], str]:
+    path: Path, column_hint: str | None, timestamp_column: str | None,
+) -> tuple[list[float | None], str]:
     with path.open(encoding="utf-8") as handle:
         data = json.load(handle)
 
@@ -294,9 +293,9 @@ def _read_json(
 
 def ingest_factory_load(
     path: str | Path,
-    column_hint: Optional[str] = None,
-    timestamp_column: Optional[str] = None,
-    sheet_name: Optional[str] = None,
+    column_hint: str | None = None,
+    timestamp_column: str | None = None,
+    sheet_name: str | None = None,
 ) -> FactoryLoadResult:
     path = Path(path)
     if not path.exists():

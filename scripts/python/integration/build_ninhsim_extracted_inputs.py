@@ -14,14 +14,14 @@ import json
 import math
 import sys
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 PROJECT_NAME = "Ninhsim Solar+BESS+Wind Bundled CPPA Optimization"
 DATA_YEAR = 2024
@@ -177,7 +177,7 @@ def build_wind_production_factor_series(
     year: int = DATA_YEAR,
 ) -> list[float]:
     """Build a deterministic 8760 wind production-factor fallback for Ninhsim."""
-    start = datetime(year, 1, 1, 0, 0, 0)
+    start = datetime(year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     weights = []
 
     for hour_index in range(8760):

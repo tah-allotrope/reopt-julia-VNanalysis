@@ -1,7 +1,6 @@
 """PHASE-03: scenario-template seeding and form -> DealConfig mapping."""
 
 import pytest
-
 from reopt_pysam_vn.webapp.forms import (
     deal_config_from_form,
     list_templates,

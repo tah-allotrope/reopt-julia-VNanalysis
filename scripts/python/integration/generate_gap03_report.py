@@ -174,7 +174,7 @@ def phase_02_sections() -> dict[str, str]:
   D4 --> O
   D5 --> O
   O --> R[ranked list&#91;ProjectMatch&#93;]""",
-        "MATH_ALGORITHM_SECTION": """
+        "MATH_ALGORITHM_SECTION": f"""
         <p>Five equally-weighted dimensions (20% each); overall is their weighted mean.</p>
         <ul>
           <li><strong>Physical:</strong> with a generation profile, solar-absorption ratio
@@ -192,9 +192,9 @@ def phase_02_sections() -> dict[str, str]:
             light 110kV-vs-low-voltage compatibility check.</li>
         </ul>
         <p>Annual generation is estimated from nameplate via Vietnam capacity factors
-        (solar {sf}, wind {wf}), using explicit <code>solar_mw</code>/<code>wind_mw</code> splits when present.</p>
-        <p><code>is_viable</code> = no BLOCKER flag <em>and</em> overall &ge; {vm}.</p>
-        """.format(sf=0.18, wf=0.32, vm=50),
+        (solar {0.18}, wind {0.32}), using explicit <code>solar_mw</code>/<code>wind_mw</code> splits when present.</p>
+        <p><code>is_viable</code> = no BLOCKER flag <em>and</em> overall &ge; {50}.</p>
+        """,
         "TOOLS_METHODS": """
         <ul>
           <li>Pure-Python heuristic scoring — no Julia solve, deterministic and fast.</li>

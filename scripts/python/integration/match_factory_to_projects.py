@@ -21,13 +21,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.ingestion import ingest_factory_load  # noqa: E402
-from reopt_pysam_vn.integration.matching import (  # noqa: E402
+from reopt_pysam_vn.ingestion import ingest_factory_load
+from reopt_pysam_vn.integration.matching import (
     FactoryProfile,
     build_match_artifact,
     match_projects_to_factory,
 )
-from reopt_pysam_vn.integration.project_catalog import load_project_catalog  # noqa: E402
+from reopt_pysam_vn.integration.project_catalog import load_project_catalog
 
 DEFAULT_CATALOG = REPO_ROOT / "data" / "projects"
 DEFAULT_BASELINE_USC_KWH = 7.8

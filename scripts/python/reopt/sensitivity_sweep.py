@@ -93,7 +93,7 @@ def compute_equity_irr(
 
     try:
         irr = float(npf.irr(net_cashflows))
-    except Exception:
+    except ValueError:
         irr = None
 
     return {

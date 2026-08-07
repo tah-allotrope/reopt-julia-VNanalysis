@@ -30,6 +30,7 @@ def _run(*args: str):
         text=True,
         env=env,
         timeout=300,
+        check=False,
     )
 
 

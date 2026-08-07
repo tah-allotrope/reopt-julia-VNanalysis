@@ -7,12 +7,10 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data  # noqa: E402
-
+from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 STRIKE_USD_PER_KWH = 0.055
 VOLTAGE_LEVEL = "medium_voltage_22kv_to_110kv"

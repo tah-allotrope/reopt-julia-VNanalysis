@@ -8,12 +8,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 PYTHON = sys.executable
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (  # noqa: E402
+from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
     build_target_fraction_candidates,
 )
 

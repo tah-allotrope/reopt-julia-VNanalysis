@@ -14,11 +14,12 @@ Bonus:
 10. Partner logo placeholders (NEW from Deck 2)
 """
 import os
+
 from pptx import Presentation
-from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 # Colors from rubric
 PRIMARY_TEAL = RGBColor(0x15, 0x5B, 0x55)
@@ -77,8 +78,10 @@ def add_footer(slide, prs, slide_num, total_slides, skip_footer=False):
         num_run.text = f"{slide_num}"
         set_font(num_run, "Cabin", 8, True, FOOTER_BLACK)
 
-def add_green_rule(slide, prs, top_offset=Inches(0.15)):
+def add_green_rule(slide, prs, top_offset=None):
     """Add a green accent rule line at top of slide."""
+    if top_offset is None:
+        top_offset = Inches(0.15)
     left = Inches(0.5)
     top = top_offset
     width = Inches(1.2)

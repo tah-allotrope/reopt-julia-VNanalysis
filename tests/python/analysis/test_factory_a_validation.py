@@ -114,7 +114,7 @@ def test_clean_self_supply_within_tolerance(pysam_results, case_id):
 def test_load_profile_sanity():
     """Verify Factory A synthetic load meets basic constraints."""
     try:
-        from reopt_pysam_vn.integration.factory_a import build_factory_a_load_8760, FACTORY_A_ANNUAL_KWH
+        from reopt_pysam_vn.integration.factory_a import FACTORY_A_ANNUAL_KWH, build_factory_a_load_8760
     except ImportError:
         pytest.skip("factory_a module not importable")
 
@@ -136,10 +136,10 @@ def test_tariff_series_sanity():
     """Verify both TOU rate series are 8760 values with expected rate ranges."""
     try:
         from reopt_pysam_vn.integration.factory_a import (
-            build_hourly_rate_series_vnd,
-            _decision_14_tou_schedule,
             FACTORY_A_CUSTOMER_TYPE,
             FACTORY_A_VOLTAGE,
+            _decision_14_tou_schedule,
+            build_hourly_rate_series_vnd,
         )
         from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
     except ImportError:

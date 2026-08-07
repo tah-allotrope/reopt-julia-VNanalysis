@@ -18,7 +18,6 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 CASE_STUDIES_DIR = REPO_ROOT / "scenarios" / "case_studies"
 DEFAULT_JSON_OUT = (

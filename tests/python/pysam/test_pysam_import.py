@@ -1,6 +1,5 @@
 import pytest
 
-
 PySAM = pytest.importorskip("PySAM")
 
 

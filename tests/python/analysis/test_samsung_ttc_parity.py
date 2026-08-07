@@ -19,8 +19,8 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.analysis.offsite_dppa import run_offsite_dppa  # noqa: E402
-from reopt_pysam_vn.analysis.types import DealConfig  # noqa: E402
+from reopt_pysam_vn.analysis.offsite_dppa import run_offsite_dppa
+from reopt_pysam_vn.analysis.types import DealConfig
 
 SAMSUNG_EXTRACTED = REPO_ROOT / "data" / "interim" / "samsung_ttc" / "samsung_ttc_extracted_inputs.json"
 SAMSUNG_CONFIG = REPO_ROOT / "scenarios" / "case_studies" / "samsung_ttc" / "samsung_ttc_deal_config.json"

@@ -7,7 +7,6 @@ import json
 import re
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPORT_DATE = "2026-03-31"
 PROJECT = "North Thuan REopt Validation"

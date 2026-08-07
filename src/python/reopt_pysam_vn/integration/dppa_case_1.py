@@ -5,7 +5,6 @@ from __future__ import annotations
 from reopt_pysam_vn.integration.assumptions import DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-
 DEFAULT_EXPORT_NEGLIGIBLE_FRACTION = 0.005
 DEFAULT_EQUITY_IRR_TARGET_FRACTION = 0.15
 

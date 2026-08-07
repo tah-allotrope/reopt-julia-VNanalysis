@@ -9,7 +9,6 @@ the Samsung Southern-ceiling strike (not the Case-2 default).
 from __future__ import annotations
 
 import pytest
-
 from reopt_pysam_vn.integration.dppa_samsung_ttc import (
     SAMSUNG_TTC_ANNUAL_SOLAR_GWH,
     SAMSUNG_TTC_SOLAR_MWAC,

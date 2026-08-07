@@ -15,8 +15,9 @@ def test_create_run_writes_deal_config_and_queued_status(storage_root):
 
 
 def test_run_ids_are_unique_and_sortable_by_creation_order():
-    from reopt_pysam_vn.webapp.storage import RunStorage
     import tempfile
+
+    from reopt_pysam_vn.webapp.storage import RunStorage
 
     with tempfile.TemporaryDirectory() as d:
         store = RunStorage(d)

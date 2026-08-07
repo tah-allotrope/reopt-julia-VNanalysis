@@ -12,13 +12,13 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.regime_impact import (  # noqa: E402
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+from reopt_pysam_vn.reopt.regime_impact import (
     FORWARD_REGIME_PRESETS,
     RegimeImpact,
     compute_multi_regime_impact,
     compute_regime_impact,
 )
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
 
 CUSTOMER_TYPE = "industrial"
 VOLTAGE = "medium_voltage_22kv_to_110kv"
@@ -36,9 +36,9 @@ def vn():
 
 @pytest.fixture(scope="module")
 def saigon18_loads():
-    d = json.load(open(SAIGON18_SCENARIO, encoding="utf-8"))
+    with open(SAIGON18_SCENARIO, encoding="utf-8") as f:
+        d = json.load(f)
     return d["ElectricLoad"]["loads_kw"]
-
 
 def test_multi_regime_returns_one_result_per_id(saigon18_loads, vn):
     regime_ids = [

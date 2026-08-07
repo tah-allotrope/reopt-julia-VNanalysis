@@ -13,28 +13,29 @@ below intentionally mirror that module's ``_pad_to_8760`` / ``_sum_series``.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig, OnsiteResult
 
-__all__ = ["run_onsite", "build_onsite_scenario"]
+__all__ = ["build_onsite_scenario", "run_onsite"]
 
 _HOURS = 8760
 _DEFAULT_TARGET_FRACTION = 0.6
 
 
-def _pad_to_8760(series: List[float]) -> List[float]:
+def _pad_to_8760(series: list[float]) -> list[float]:
     if len(series) >= _HOURS:
         return list(series[:_HOURS])
     return list(series) + [0.0] * (_HOURS - len(series))
 
 
-def _sum_series(*series_list: List[float]) -> List[float]:
+def _sum_series(*series_list: list[float]) -> list[float]:
     padded = [_pad_to_8760(series) for series in series_list]
     return [sum(values) for values in zip(*padded)]
 
 
-def _delivery_profile(results: Dict[str, Any]) -> List[float]:
+def _delivery_profile(results: dict[str, Any]) -> list[float]:
     pv = results.get("PV", {})
     wind = results.get("Wind", {})
     storage = results.get("ElectricStorage", {})
@@ -45,7 +46,7 @@ def _delivery_profile(results: Dict[str, Any]) -> List[float]:
     )
 
 
-def _export_profile(results: Dict[str, Any]) -> List[float]:
+def _export_profile(results: dict[str, Any]) -> list[float]:
     pv = results.get("PV", {})
     wind = results.get("Wind", {})
     return _sum_series(
@@ -54,11 +55,11 @@ def _export_profile(results: Dict[str, Any]) -> List[float]:
     )
 
 
-def _grid_profile(results: Dict[str, Any]) -> List[float]:
+def _grid_profile(results: dict[str, Any]) -> list[float]:
     return _pad_to_8760(results.get("ElectricUtility", {}).get("electric_to_load_series_kw", []))
 
 
-def _coverage(results: Dict[str, Any], extracted: Dict[str, Any], target_fraction: float) -> Dict[str, Any]:
+def _coverage(results: dict[str, Any], extracted: dict[str, Any], target_fraction: float) -> dict[str, Any]:
     renewable_delivered_kwh = sum(max(0.0, v) for v in _delivery_profile(results))
     exported_renewable_kwh = sum(max(0.0, v) for v in _export_profile(results))
     grid_supplied_kwh = sum(max(0.0, v) for v in _grid_profile(results))
@@ -76,7 +77,7 @@ def _coverage(results: Dict[str, Any], extracted: Dict[str, Any], target_fractio
     }
 
 
-def _sizing(results: Dict[str, Any]) -> Dict[str, Any]:
+def _sizing(results: dict[str, Any]) -> dict[str, Any]:
     storage = results.get("ElectricStorage", {})
     return {
         "pv_kw": float(results.get("PV", {}).get("size_kw", 0.0) or 0.0),
@@ -86,7 +87,7 @@ def _sizing(results: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _economics(results: Dict[str, Any]) -> Dict[str, Any]:
+def _economics(results: dict[str, Any]) -> dict[str, Any]:
     fin = results.get("Financial", {})
     keys = (
         "npv",
@@ -98,7 +99,7 @@ def _economics(results: Dict[str, Any]) -> Dict[str, Any]:
     return {k: float(fin[k]) for k in keys if fin.get(k) is not None}
 
 
-def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
+def build_onsite_scenario(deal_config: DealConfig) -> dict[str, Any]:
     """Map a DealConfig onto a REopt input dict with Vietnam defaults applied.
 
     Used by the solve path (``solve_fn``). Kept import-light so the deterministic
@@ -108,12 +109,12 @@ def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
 
     site = deal_config.site
     plant = deal_config.plant
-    site_block: Dict[str, Any] = {}
+    site_block: dict[str, Any] = {}
     if site.get("latitude") is not None:
         site_block["latitude"] = float(site["latitude"])
     if site.get("longitude") is not None:
         site_block["longitude"] = float(site["longitude"])
-    scenario: Dict[str, Any] = {
+    scenario: dict[str, Any] = {
         "Site": site_block,
         "ElectricLoad": {},
         "PV": {"max_kw": float(plant.get("capacity_mwp", 0.0)) * 1000.0},
@@ -126,7 +127,7 @@ def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
         scenario["ElectricLoad"]["loads_kw"] = list(deal_config.load["loads_kw"])
     vn = load_vietnam_data()
     voltage_level = site.get("voltage_level")
-    defaults_kwargs: Dict[str, Any] = {
+    defaults_kwargs: dict[str, Any] = {
         "customer_type": site.get("customer_type", "industrial"),
         "region": site.get("region", "south"),
     }
@@ -139,10 +140,10 @@ def build_onsite_scenario(deal_config: DealConfig) -> Dict[str, Any]:
 def run_onsite(
     deal_config: DealConfig,
     *,
-    results: Optional[Dict[str, Any]] = None,
-    extracted: Optional[Dict[str, Any]] = None,
-    target_fraction: Optional[float] = None,
-    solve_fn: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
+    results: dict[str, Any] | None = None,
+    extracted: dict[str, Any] | None = None,
+    target_fraction: float | None = None,
+    solve_fn: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> OnsiteResult:
     """Run the onsite BTM analysis for ``deal_config``.
 

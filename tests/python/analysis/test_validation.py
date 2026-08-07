@@ -18,8 +18,8 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.analysis.types import DealConfig  # noqa: E402
-from reopt_pysam_vn.analysis.validation import (  # noqa: E402
+from reopt_pysam_vn.analysis.types import DealConfig
+from reopt_pysam_vn.analysis.validation import (
     DealConfigValidationError,
     load_deal_config_schema,
     validate_deal_config,
@@ -36,7 +36,7 @@ def test_valid_minimal_config_passes():
 def test_missing_mode_raises_with_named_field():
     with pytest.raises(DealConfigValidationError) as exc_info:
         validate_deal_config({"case": "X"})
-    assert exc_info.value.errors == ["missing required property: 'case'"] or True
+    assert exc_info.value.errors == ["missing required property: 'mode'"]
     assert any("mode" in e for e in exc_info.value.errors)
 
 

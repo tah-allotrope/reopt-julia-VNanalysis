@@ -11,7 +11,6 @@ carries the "clean_slate" note when the flag is on.
 from __future__ import annotations
 
 import pytest
-
 from reopt_pysam_vn.pysam.single_owner import build_single_owner_inputs
 
 CLEAN_SLATE_FIELDS = (
@@ -118,11 +117,11 @@ def test_apply_clean_slate_financials_zeroes_all_twelve_fields_in_place():
 def test_run_single_owner_model_flag_on_yields_strictly_higher_npv_than_flag_off():
     from reopt_pysam_vn.pysam.single_owner import run_single_owner_model
 
-    common_kwargs = dict(
-        system_capacity_kw=1000.0,
-        installed_cost_usd=550_000.0,
-        ppa_price_input_usd_per_kwh=0.065,
-    )
+    common_kwargs = {
+        "system_capacity_kw": 1000.0,
+        "installed_cost_usd": 550_000.0,
+        "ppa_price_input_usd_per_kwh": 0.065,
+    }
 
     flag_off_inputs = build_single_owner_inputs(**common_kwargs)
     flag_on_inputs = build_single_owner_inputs(

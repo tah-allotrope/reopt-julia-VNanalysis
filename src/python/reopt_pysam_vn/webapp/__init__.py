@@ -6,15 +6,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from fastapi import FastAPI
 
-__all__ = ["create_app", "app"]
+__all__ = ["app", "create_app"]
 
 
-def create_app() -> "FastAPI":
+def create_app() -> FastAPI:
     from contextlib import asynccontextmanager
 
     from fastapi import FastAPI

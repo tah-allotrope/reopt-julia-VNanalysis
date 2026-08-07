@@ -16,9 +16,9 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.analysis import offsite_dppa as od  # noqa: E402
-from reopt_pysam_vn.analysis.offsite_dppa import run_offsite_dppa  # noqa: E402
-from reopt_pysam_vn.analysis.types import DealConfig, OffsiteDppaResult  # noqa: E402
+from reopt_pysam_vn.analysis import offsite_dppa as od
+from reopt_pysam_vn.analysis.offsite_dppa import run_offsite_dppa
+from reopt_pysam_vn.analysis.types import DealConfig, OffsiteDppaResult
 
 GOLDEN = REPO_ROOT / "examples" / "samsung-ttc_combined-decision.example.json"
 

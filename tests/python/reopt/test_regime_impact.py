@@ -16,7 +16,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.reopt.regime_impact import (  # noqa: E402
+from reopt_pysam_vn.reopt.regime_impact import (
     RegimeImpact,
     compute_regime_impact,
 )

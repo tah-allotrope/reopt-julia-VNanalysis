@@ -140,7 +140,7 @@ class OrchestratorVerdictTest(unittest.TestCase):
     def test_dec007_never_yields_bad(self) -> None:
         """Even with a 300% delta, a DEC-007 check must be info, not bad."""
         sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
-        from verify_ceba_dppa_deck import classify, DEC_007_METHOD_DIRECTIONAL_CHECKS
+        from verify_ceba_dppa_deck import DEC_007_METHOD_DIRECTIONAL_CHECKS, classify
         sample = next(c for c in CHECKS if c.id in DEC_007_METHOD_DIRECTIONAL_CHECKS)
         verdict, takeaway = classify(sample, repo_value=-100.0, delta_pct=-3.0)
         self.assertEqual(

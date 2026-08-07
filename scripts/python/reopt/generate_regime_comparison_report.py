@@ -15,20 +15,20 @@ Example:
 import argparse
 import json
 import sys
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.ingestion.loader import ingest_factory_load  # noqa: E402
-from reopt_pysam_vn.reopt.preprocess import (  # noqa: E402
+from reopt_pysam_vn.ingestion.loader import ingest_factory_load
+from reopt_pysam_vn.reopt.preprocess import (
     load_vietnam_data,
     resolve_vietnam_regime,
 )
-from reopt_pysam_vn.reopt.regime_impact import (  # noqa: E402
-    PEAK,
+from reopt_pysam_vn.reopt.regime_impact import (
     OFFPEAK,
+    PEAK,
     STANDARD,
     build_regime_comparison,
     compute_multi_regime_impact,
@@ -316,7 +316,7 @@ def main(argv=None):
 
     data = {
         "factory_name": args.factory_name or Path(args.factory).stem,
-        "generated_at": date.today().isoformat(),
+        "generated_at": datetime.now(timezone.utc).date().isoformat(),
         "regimes": regimes_payload,
         "avg_hourly": _avg_hourly_profile(loads),
         "solar": (

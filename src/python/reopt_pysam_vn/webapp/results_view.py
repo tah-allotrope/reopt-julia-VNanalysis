@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import html
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 __all__ = ["build_view_model", "render_standalone_report_html"]
 
 
-def _onsite_metrics(result: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _onsite_metrics(result: dict[str, Any]) -> list[dict[str, Any]]:
     sizing = result.get("sizing", {})
     dispatch = result.get("dispatch", {})
     economics = result.get("economics", {})
@@ -36,7 +36,7 @@ def _onsite_metrics(result: Dict[str, Any]) -> List[Dict[str, Any]]:
     return [m for m in metrics if m["value"] is not None]
 
 
-def _onsite_charts(result: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _onsite_charts(result: dict[str, Any]) -> list[dict[str, Any]]:
     dispatch = result.get("dispatch", {})
     if not dispatch:
         return []
@@ -56,7 +56,7 @@ def _onsite_charts(result: Dict[str, Any]) -> List[Dict[str, Any]]:
     ]
 
 
-def _offsite_metrics(result: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _offsite_metrics(result: dict[str, Any]) -> list[dict[str, Any]]:
     decision = result.get("decision", {})
     settlement = result.get("base_settlement", {}).get("contracted_slice", {})
     metrics = [
@@ -67,7 +67,7 @@ def _offsite_metrics(result: Dict[str, Any]) -> List[Dict[str, Any]]:
     return [m for m in metrics if m["value"] is not None]
 
 
-def _offsite_charts(result: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _offsite_charts(result: dict[str, Any]) -> list[dict[str, Any]]:
     strike = result.get("strike_sweep", {}).get("strike_band", {})
     if not strike:
         return []
@@ -83,7 +83,7 @@ def _offsite_charts(result: Dict[str, Any]) -> List[Dict[str, Any]]:
     ]
 
 
-def _single_mode_view(mode: str, result: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def _single_mode_view(mode: str, result: dict[str, Any] | None) -> dict[str, Any]:
     if result is None:
         return {"mode": mode, "metrics": [], "charts": []}
     if mode == "onsite":
@@ -91,7 +91,7 @@ def _single_mode_view(mode: str, result: Optional[Dict[str, Any]]) -> Dict[str, 
     return {"mode": mode, "metrics": _offsite_metrics(result), "charts": _offsite_charts(result)}
 
 
-def build_view_model(mode: str, result: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def build_view_model(mode: str, result: dict[str, Any] | None) -> dict[str, Any]:
     """Build the results-page view model for ``mode`` ("onsite" | "offsite_dppa" | "both")."""
     if mode == "both":
         onsite_result = (result or {}).get("onsite")
@@ -106,7 +106,7 @@ def build_view_model(mode: str, result: Optional[Dict[str, Any]]) -> Dict[str, A
     return _single_mode_view(mode, result)
 
 
-def render_standalone_report_html(run_id: str, deal_config: Dict[str, Any], result: Dict[str, Any]) -> str:
+def render_standalone_report_html(run_id: str, deal_config: dict[str, Any], result: dict[str, Any]) -> str:
     """A minimal, self-contained HTML report (no external assets) for download."""
     mode = deal_config.get("mode", "")
     vm = build_view_model(mode, result)

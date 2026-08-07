@@ -84,7 +84,7 @@ class FactoryProfile:
         annual_consumption_kwh: float,
         peak_demand_kw: float,
         **kwargs: Any,
-    ) -> "FactoryProfile":
+    ) -> FactoryProfile:
         return cls(
             name=name,
             region=region,
@@ -96,7 +96,7 @@ class FactoryProfile:
     @classmethod
     def from_loads(
         cls, name: str, region: str, loads_kw: list[float], **kwargs: Any
-    ) -> "FactoryProfile":
+    ) -> FactoryProfile:
         if not loads_kw:
             raise ValueError("loads_kw must be non-empty")
         return cls(

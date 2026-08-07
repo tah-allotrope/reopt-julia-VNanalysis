@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from importlib.machinery import ModuleSpec
 import importlib.util
 import math
 import sys
+from importlib.machinery import ModuleSpec
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
@@ -33,14 +32,13 @@ BUILD_NINHSIM_REOPT_INPUT = _load_module(
     "scripts/python/integration/build_ninhsim_reopt_input.py",
 )
 
-from reopt_pysam_vn.integration.dppa_case_1 import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_case_1 import (
     build_dppa_case_1_combined_decision,
     build_dppa_case_1_comparison,
     build_dppa_case_1_placeholder_pysam_results,
     build_dppa_case_1_reopt_summary,
     calculate_private_wire_strike_basis,
 )
-
 
 build_extracted_inputs = BUILD_NINHSIM_EXTRACTED.build_extracted_inputs
 build_scenario_dppa_case_1 = BUILD_NINHSIM_REOPT_INPUT.build_scenario_dppa_case_1

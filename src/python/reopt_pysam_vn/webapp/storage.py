@@ -16,7 +16,7 @@ import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 __all__ = ["RunStorage", "default_runs_dir"]
 
@@ -44,7 +44,7 @@ def _write_json_atomic(path: Path, data: Any) -> None:
     """
     tmp_path = path.with_name(f"{path.name}.{uuid.uuid4().hex[:8]}.tmp")
     tmp_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    last_error: Optional[OSError] = None
+    last_error: OSError | None = None
     for attempt in range(20):
         try:
             os.replace(tmp_path, path)
@@ -56,7 +56,7 @@ def _write_json_atomic(path: Path, data: Any) -> None:
     raise last_error  # type: ignore[misc]
 
 
-def _read_json_with_retry(path: Path) -> Dict[str, Any]:
+def _read_json_with_retry(path: Path) -> dict[str, Any]:
     """Read JSON, retrying briefly on Windows sharing-violation ``PermissionError``.
 
     Mirrors ``_write_json_atomic``'s retry: ``status.json`` is written by a
@@ -64,7 +64,7 @@ def _read_json_with_retry(path: Path) -> Dict[str, Any]:
     time, so a read can land in the same narrow Windows-only window where
     ``os.replace`` momentarily holds the destination path.
     """
-    last_error: Optional[OSError] = None
+    last_error: OSError | None = None
     for attempt in range(20):
         try:
             return json.loads(path.read_text(encoding="utf-8"))
@@ -92,7 +92,7 @@ def _slugify(text: str) -> str:
 class RunStorage:
     """Reads and writes run state under ``root`` (created lazily)."""
 
-    def __init__(self, root: Union[str, Path]):
+    def __init__(self, root: str | Path):
         self.root = Path(root)
         self._lock = threading.Lock()
 
@@ -106,7 +106,7 @@ class RunStorage:
 
     _counter = 0
 
-    def create_run(self, deal_config: Dict[str, Any]) -> str:
+    def create_run(self, deal_config: dict[str, Any]) -> str:
         with self._lock:
             timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
             RunStorage._counter += 1
@@ -127,11 +127,11 @@ class RunStorage:
             _write_json_atomic(run_dir / "status.json", status)
             return run_id
 
-    def get_deal_config(self, run_id: str) -> Dict[str, Any]:
+    def get_deal_config(self, run_id: str) -> dict[str, Any]:
         run_dir = self._run_dir(run_id)
         return json.loads((run_dir / "deal_config.json").read_text(encoding="utf-8"))
 
-    def get_status(self, run_id: str) -> Dict[str, Any]:
+    def get_status(self, run_id: str) -> dict[str, Any]:
         run_dir = self._run_dir(run_id)
         return _read_json_with_retry(run_dir / "status.json")
 
@@ -143,33 +143,33 @@ class RunStorage:
             status.update(fields)
             _write_json_atomic(status_path, status)
 
-    def save_result(self, run_id: str, result: Dict[str, Any]) -> None:
+    def save_result(self, run_id: str, result: dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
         _write_json_atomic(run_dir / "result.json", result)
 
-    def get_result(self, run_id: str) -> Optional[Dict[str, Any]]:
+    def get_result(self, run_id: str) -> dict[str, Any] | None:
         run_dir = self._run_dir(run_id)
         result_path = run_dir / "result.json"
         if not result_path.exists():
             return None
         return json.loads(result_path.read_text(encoding="utf-8"))
 
-    def save_reopt_results(self, run_id: str, reopt_results: Dict[str, Any]) -> None:
+    def save_reopt_results(self, run_id: str, reopt_results: dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
         _write_json_atomic(run_dir / "reopt_results.json", reopt_results)
 
-    def get_reopt_results(self, run_id: str) -> Optional[Dict[str, Any]]:
+    def get_reopt_results(self, run_id: str) -> dict[str, Any] | None:
         run_dir = self._run_dir(run_id)
         path = run_dir / "reopt_results.json"
         if not path.exists():
             return None
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def write_provenance(self, run_id: str, provenance: Dict[str, Any]) -> None:
+    def write_provenance(self, run_id: str, provenance: dict[str, Any]) -> None:
         run_dir = self._run_dir(run_id)
         _write_json_atomic(run_dir / "provenance.json", provenance)
 
-    def get_provenance(self, run_id: str) -> Optional[Dict[str, Any]]:
+    def get_provenance(self, run_id: str) -> dict[str, Any] | None:
         run_dir = self._run_dir(run_id)
         path = run_dir / "provenance.json"
         if not path.exists():
@@ -178,7 +178,7 @@ class RunStorage:
 
     _TERMINAL_STATES = frozenset({"done", "error"})
 
-    def prune(self, older_than_days: int, *, dry_run: bool = True) -> List[str]:
+    def prune(self, older_than_days: int, *, dry_run: bool = True) -> list[str]:
         """Return run_ids in a terminal state older than ``older_than_days``.
 
         Never selects a run whose state is not terminal (``queued``/``solving``/
@@ -188,7 +188,7 @@ class RunStorage:
         if not self.root.exists():
             return []
         cutoff = datetime.now(timezone.utc) - timedelta(days=older_than_days)
-        stale: List[str] = []
+        stale: list[str] = []
         for run in self.list_runs():
             if run.get("state") not in self._TERMINAL_STATES:
                 continue
@@ -208,7 +208,7 @@ class RunStorage:
                     shutil.rmtree(run_dir)
         return stale
 
-    def list_runs(self) -> List[Dict[str, Any]]:
+    def list_runs(self) -> list[dict[str, Any]]:
         if not self.root.exists():
             return []
         runs = []
@@ -222,13 +222,13 @@ class RunStorage:
         runs.sort(key=lambda r: r.get("seq", 0), reverse=True)
         return runs
 
-    def mark_interrupted_runs(self) -> List[str]:
+    def mark_interrupted_runs(self) -> list[str]:
         """Mark every run whose state is non-terminal (``queued``/``solving``/
         ``analyzing``) as ``error``. Called on app startup: a non-terminal run
         found at that point was orphaned by a previous process exiting mid-solve
         and can never progress on its own. Never auto-requeued (would silently
         re-spend NREL API quota on a run the user may have abandoned)."""
-        interrupted: List[str] = []
+        interrupted: list[str] = []
         for run in self.list_runs():
             if run.get("state") in _NON_TERMINAL_STATES:
                 run_id = run["run_id"]
@@ -242,7 +242,7 @@ class RunStorage:
                 interrupted.append(run_id)
         return interrupted
 
-    def find_cached_run_id(self, solve_hash: str) -> Optional[str]:
+    def find_cached_run_id(self, solve_hash: str) -> str | None:
         for run in self.list_runs():
             if run.get("solve_hash") == solve_hash and run.get("state") == "done":
                 return run["run_id"]

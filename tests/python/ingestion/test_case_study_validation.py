@@ -13,13 +13,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
 
+from ingest_factory_load import build_artifact
 from reopt_pysam_vn.ingestion import (
-    ingest_factory_load,
-    extract_load_metadata,
     classify_industry_archetype,
     classify_tou_consumption,
+    extract_load_metadata,
+    ingest_factory_load,
 )
-from ingest_factory_load import build_artifact
 
 CASE_STUDIES = REPO_ROOT / "scenarios" / "case_studies"
 
@@ -142,7 +142,7 @@ class TestArtifactWriter:
                     "commercial_extended",
                 ]
                 valid_count += 1
-            except Exception as e:
+            except (KeyError, TypeError, ValueError, OSError) as e:
                 pytest.fail(f"{name} failed: {e}")
 
         assert valid_count >= 5, f"Only {valid_count} case studies produced valid artifacts"
@@ -170,6 +170,7 @@ class TestCLIEntrypoint:
                 capture_output=True,
                 text=True,
                 timeout=30,
+                check=False,
             )
             assert result.returncode == 0, f"CLI failed: {result.stderr}"
 

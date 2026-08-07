@@ -11,7 +11,6 @@ from reopt_pysam_vn.integration.bridge import (
 )
 from reopt_pysam_vn.pysam.single_owner import run_single_owner_model
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_REOPT = (
     REPO_ROOT

@@ -3,13 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from reopt_pysam_vn.integration.bridge import build_dppa_case_1_pvwatts_inputs
 from reopt_pysam_vn.pysam.pvwatts_battery import (
     build_pvwatts_battery_single_owner_inputs,
     ensure_solar_resource_file,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 

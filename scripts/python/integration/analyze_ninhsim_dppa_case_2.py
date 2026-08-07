@@ -7,17 +7,15 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.dppa_case_2 import (  # noqa: E402
+from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_buyer_benchmark,
     build_dppa_case_2_physical_summary,
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
 )
-
 
 DEFAULT_REOPT = (
     REPO_ROOT

@@ -6,7 +6,6 @@ import json
 import re
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPORT_DATE = "2026-04-09"
 PROJECT = "Saigon18 REopt Integration"

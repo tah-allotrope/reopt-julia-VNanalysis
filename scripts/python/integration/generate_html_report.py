@@ -5,7 +5,6 @@ Generate the final self-contained Saigon18 HTML analysis report.
 import json
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 RESULTS_DIR = REPO_ROOT / "artifacts" / "results" / "saigon18"
 REPORTS_DIR = REPO_ROOT / "artifacts" / "reports" / "saigon18"
@@ -104,7 +103,7 @@ def build_scenario_summary(
 def split_bess(result: dict, scenario_json: dict) -> dict:
     rates = scenario_json["ElectricTariff"]["tou_energy_rates_per_kwh"]
     series = result.get("ElectricStorage", {}).get("storage_to_load_series_kw", [])
-    levels = sorted(set(round(v, 10) for v in rates))
+    levels = sorted({round(v, 10) for v in rates})
     offpeak, _standard, peak = levels[0], levels[1], levels[-1]
     buckets = {"peak": 0.0, "standard": 0.0, "offpeak": 0.0}
     for rate, value in zip(rates, series):

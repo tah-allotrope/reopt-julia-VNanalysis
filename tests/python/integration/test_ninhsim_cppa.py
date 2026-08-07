@@ -2,10 +2,10 @@
 Regression tests for the Ninhsim bundled-CPPA optimization workflow.
 """
 
-from importlib.machinery import ModuleSpec
-import math
 import importlib.util
+import math
 import sys
+from importlib.machinery import ModuleSpec
 from pathlib import Path
 
 import pytest
@@ -54,7 +54,7 @@ calculate_financial_screening_view = (
     ANALYZE_NINHSIM_CPPA.calculate_financial_screening_view
 )
 calculate_multi_year_cppa_path = ANALYZE_NINHSIM_CPPA.calculate_multi_year_cppa_path
-from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (  # noqa: E402
+from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
     build_combined_decision_artifact,
     build_ninhsim_60pct_analysis,
     build_target_fraction_candidates,

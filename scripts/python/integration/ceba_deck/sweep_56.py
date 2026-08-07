@@ -59,23 +59,22 @@ for _p in (str(SRC_PYTHON), str(SCRIPTS_PYTHON)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from integration.ceba_deck.deck_config import get_deck  # noqa: E402
-from reopt_pysam_vn.integration.factory_a import (  # noqa: E402
-    FACTORY_A_ANNUAL_KWH,
+from integration.ceba_deck.deck_config import get_deck
+from reopt_pysam_vn.integration.factory_a import (
     EXCHANGE_RATE_VND_PER_USD,
-    build_hourly_rate_series_vnd,
+    FACTORY_A_ANNUAL_KWH,
     build_factory_a_load_8760,
+    build_hourly_rate_series_vnd,
     load_emivest_8760,
 )
-from reopt_pysam_vn.integration.settlement import (  # noqa: E402
+from reopt_pysam_vn.integration.settlement import (
     ContractParams,
     compute_hourly_settlement,
 )
-from reopt_pysam_vn.pysam.single_owner import (  # noqa: E402
+from reopt_pysam_vn.pysam.single_owner import (
     SingleOwnerInputs,
     run_single_owner_model,
 )
-
 
 # --------------------------------------------------------------------------
 # Sweep configuration (deck slide 25)

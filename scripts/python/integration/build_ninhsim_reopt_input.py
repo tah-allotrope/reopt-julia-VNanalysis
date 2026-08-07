@@ -9,13 +9,11 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.integration.dppa_case_2 import build_scenario_dppa_case_2  # noqa: E402
-from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data  # noqa: E402
-
+from reopt_pysam_vn.integration.dppa_case_2 import build_scenario_dppa_case_2
+from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 PV_CAPEX_PER_KW = 750.0
 PV_OM_PER_KW = 6.0

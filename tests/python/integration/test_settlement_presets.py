@@ -5,15 +5,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.integration.settlement import (
-    ContractParams,
     PRESET_CONTRACTS,
-    compute_hourly_settlement,
+    ContractParams,
     compute_buyer_benchmark,
+    compute_hourly_settlement,
     run_strike_sweep,
 )
 

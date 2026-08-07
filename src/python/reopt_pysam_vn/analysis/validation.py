@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 __all__ = [
     "DealConfigValidationError",
@@ -30,7 +30,7 @@ _JSON_TYPE_CHECKS = {
     "array": lambda v: isinstance(v, list),
 }
 
-_schema_cache: Optional[Dict[str, Any]] = None
+_schema_cache: dict[str, Any] | None = None
 
 
 class DealConfigValidationError(ValueError):
@@ -39,12 +39,12 @@ class DealConfigValidationError(ValueError):
     Carries every violation found (not just the first) in ``.errors``.
     """
 
-    def __init__(self, errors: List[str]):
+    def __init__(self, errors: list[str]):
         self.errors = errors
         super().__init__("; ".join(errors))
 
 
-def load_deal_config_schema() -> Dict[str, Any]:
+def load_deal_config_schema() -> dict[str, Any]:
     """Load and cache data/schemas/deal_config.schema.json (utf-8-sig, per repo convention)."""
     global _schema_cache
     if _schema_cache is None:
@@ -68,7 +68,7 @@ def _type_name(value: Any) -> str:
     return type(value).__name__
 
 
-def _check_type(value: Any, expected_type: str, path: str, errors: List[str]) -> bool:
+def _check_type(value: Any, expected_type: str, path: str, errors: list[str]) -> bool:
     """Return True if value matches expected_type; append an error and return False otherwise."""
     checker = _JSON_TYPE_CHECKS.get(expected_type)
     if checker is None:
@@ -79,17 +79,17 @@ def _check_type(value: Any, expected_type: str, path: str, errors: List[str]) ->
     return True
 
 
-def _check_enum(value: Any, allowed: List[Any], path: str, errors: List[str]) -> None:
+def _check_enum(value: Any, allowed: list[Any], path: str, errors: list[str]) -> None:
     if value not in allowed:
         allowed_str = ", ".join(repr(a) for a in allowed)
         errors.append(f"{path}: value {value!r} is not one of the allowed values [{allowed_str}]")
 
 
 def _validate_object(
-    data: Dict[str, Any],
-    schema: Dict[str, Any],
+    data: dict[str, Any],
+    schema: dict[str, Any],
     path_prefix: str,
-    errors: List[str],
+    errors: list[str],
 ) -> None:
     for required_key in schema.get("required", []):
         if required_key not in data:
@@ -110,7 +110,7 @@ def _validate_object(
             _validate_object(value, prop_schema, field_path, errors)
 
 
-def validate_deal_config(d: Dict[str, Any], *, schema: Optional[Dict[str, Any]] = None) -> None:
+def validate_deal_config(d: dict[str, Any], *, schema: dict[str, Any] | None = None) -> None:
     """Validate ``d`` against the deal-config schema.
 
     Returns ``None`` on success. Raises ``DealConfigValidationError`` carrying
@@ -118,7 +118,7 @@ def validate_deal_config(d: Dict[str, Any], *, schema: Optional[Dict[str, Any]] 
     """
     if schema is None:
         schema = load_deal_config_schema()
-    errors: List[str] = []
+    errors: list[str] = []
     _validate_object(d, schema, "", errors)
     if errors:
         raise DealConfigValidationError(errors)

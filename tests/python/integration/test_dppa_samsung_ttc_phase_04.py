@@ -7,7 +7,6 @@ roll-up is exercised with an injected fake runner for determinism.
 from __future__ import annotations
 
 import pytest
-
 from reopt_pysam_vn.integration.dppa_samsung_ttc import (
     build_samsung_ttc_combined_decision,
     build_samsung_ttc_extracted_inputs,

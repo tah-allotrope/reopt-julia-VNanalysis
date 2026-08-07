@@ -8,7 +8,7 @@ intersection of metrics rather than erroring.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.webapp.results_view import build_view_model
 
@@ -16,8 +16,8 @@ __all__ = ["build_compare_model"]
 
 
 def build_compare_model(
-    mode_a: str, result_a: Optional[Dict[str, Any]], mode_b: str, result_b: Optional[Dict[str, Any]]
-) -> Dict[str, Any]:
+    mode_a: str, result_a: dict[str, Any] | None, mode_b: str, result_b: dict[str, Any] | None
+) -> dict[str, Any]:
     view_a = build_view_model(mode_a, result_a)
     view_b = build_view_model(mode_b, result_b)
 
@@ -25,10 +25,10 @@ def build_compare_model(
     metrics_b = {m["label"]: m["value"] for m in view_b.get("metrics", [])}
 
     rows = []
-    for label in metrics_a:
+    for label, a_val in metrics_a.items():
         if label not in metrics_b:
             continue
-        a_val, b_val = metrics_a[label], metrics_b[label]
+        b_val = metrics_b[label]
         delta = None
         if isinstance(a_val, (int, float)) and isinstance(b_val, (int, float)):
             delta = b_val - a_val

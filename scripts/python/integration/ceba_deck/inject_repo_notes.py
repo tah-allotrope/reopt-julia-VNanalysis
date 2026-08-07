@@ -27,7 +27,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 SCRIPTS_PYTHON = REPO_ROOT / "scripts" / "python"
 if str(SCRIPTS_PYTHON) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_PYTHON))
-from integration.ceba_deck.deck_config import get_deck  # noqa: E402
+from integration.ceba_deck.deck_config import get_deck
 
 DELIMITER = "=== [Repo check] (generated) ==="
 VERDICT_ICON = {

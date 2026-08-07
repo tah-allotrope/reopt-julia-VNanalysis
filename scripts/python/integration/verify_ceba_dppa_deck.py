@@ -37,9 +37,10 @@ import json
 import math
 import sys
 import traceback
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_PYTHON = REPO_ROOT / "src" / "python"
@@ -50,7 +51,7 @@ for path in (str(SRC_PYTHON), str(SCRIPTS_PYTHON)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from integration.ceba_deck.deck_config import get_deck  # noqa: E402
+from integration.ceba_deck.deck_config import get_deck
 
 if TYPE_CHECKING:  # pragma: no cover - annotation-only; Check is loaded dynamically at runtime
     from integration.ceba_deck.deck_checks import Check
@@ -62,9 +63,9 @@ def _load_registry(config):
     """
     module = importlib.import_module(config.registry_module)
     # The Check dataclass and CHECKS are the only mandatory members.
-    Check = getattr(module, "Check")
-    CHECKS = getattr(module, "CHECKS")
-    all_rows = getattr(module, "all_rows")
+    Check = module.Check
+    CHECKS = module.CHECKS
+    all_rows = module.all_rows
     KNOWN_GAPS = getattr(module, "KNOWN_GAPS", [])
     return Check, CHECKS, all_rows, KNOWN_GAPS
 
@@ -873,11 +874,11 @@ def run_C05_bankability_floor(check: Check) -> dict:
     exists; below it, no project) is verifiable.
     """
     try:
+        from reopt_pysam_vn.integration.strike_search import sweep_strike_prices
         from reopt_pysam_vn.pysam.single_owner import (
             SingleOwnerInputs,
             run_single_owner_model,
         )
-        from reopt_pysam_vn.integration.strike_search import sweep_strike_prices
     except Exception as exc:  # noqa: BLE001
         return {"skipped": True, "reason": f"PySAM or strike_search import failed: {exc}"}
 
@@ -1217,7 +1218,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     config = get_deck(args.deck)
-    Check, CHECKS, all_rows, KNOWN_GAPS = _load_registry(config)
+    _Check, CHECKS, _all_rows, KNOWN_GAPS = _load_registry(config)
     out_path = args.out or config.results_json
     extra_runners = _load_july_runners() if config.key == "july" else {}
 

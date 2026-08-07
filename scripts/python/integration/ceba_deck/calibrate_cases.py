@@ -44,10 +44,11 @@ import argparse
 import json
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SRC_PYTHON = REPO_ROOT / "src" / "python"
@@ -56,17 +57,16 @@ for _p in (str(SRC_PYTHON), str(SCRIPTS_PYTHON)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from integration.ceba_deck.deck_config import get_deck  # noqa: E402
-from reopt_pysam_vn.integration.factory_a import (  # noqa: E402
+from integration.ceba_deck.deck_config import get_deck
+from reopt_pysam_vn.integration.factory_a import (
+    EXCHANGE_RATE_VND_PER_USD,
     FACTORY_A_ANNUAL_KWH,
     FACTORY_A_PEAK_KW,
-    EXCHANGE_RATE_VND_PER_USD,
 )
-from reopt_pysam_vn.pysam.single_owner import (  # noqa: E402
+from reopt_pysam_vn.pysam.single_owner import (
     SingleOwnerInputs,
     run_single_owner_model,
 )
-
 
 # --------------------------------------------------------------------------
 # Calibration inputs — locked by the plan + Grill Me defaults
@@ -172,7 +172,7 @@ def _bess_replacement_year_cashflow(
 
 def _metrics_from_results(
     base_results: dict,
-    bess_replacement_year: Optional[int],
+    bess_replacement_year: int | None,
     bess_replacement_usd: float,
     fixed_om_usd_per_year: float,
 ) -> dict:
@@ -191,7 +191,7 @@ def _metrics_from_results(
     # Payback: first year the cumulative aftertax cash turns non-negative.
     aftertax_series = [c["aftertax_cashflow_usd"] for c in base_results["annual_cashflows"]]
     cumulative = 0.0
-    payback_years: Optional[int] = None
+    payback_years: int | None = None
     for c in aftertax_series:
         cumulative += c
         if cumulative > 0 and payback_years is None:
@@ -233,9 +233,9 @@ def _solve_for_target_irr(
     capex_hi: float,
     tol: float,
     max_iter: int,
-    bess_replacement_year: Optional[int],
+    bess_replacement_year: int | None,
     bess_replacement_usd: float,
-    on_iteration: Optional[Callable[[int, float, Optional[float]], None]] = None,
+    on_iteration: Callable[[int, float, float | None], None] | None = None,
 ) -> dict:
     """1-D bisection on ``installed_cost_usd`` to find the CAPEX at which
     the modeled seller equity IRR matches ``target_irr`` within ``tol``.
@@ -265,7 +265,7 @@ def _solve_for_target_irr(
         metadata={"case": case_id, "phase": "calibration"},
     )
 
-    def irr_at_capex(capex: float) -> Optional[float]:
+    def irr_at_capex(capex: float) -> float | None:
         inputs = SingleOwnerInputs(
             **{**asdict(base_inputs), "installed_cost_usd": capex,
                 "fixed_om_usd_per_year": 0.015 * capex}
@@ -282,7 +282,7 @@ def _solve_for_target_irr(
 
     trace: list[dict] = []
 
-    def _record(iter_idx: int, capex: float, irr: Optional[float]) -> None:
+    def _record(iter_idx: int, capex: float, irr: float | None) -> None:
         trace.append({"iter": iter_idx, "capex_usd": capex, "modeled_irr": irr})
         if on_iteration is not None:
             on_iteration(iter_idx, capex, irr)

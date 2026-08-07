@@ -5,7 +5,6 @@ Generate the North Thuan REopt validation HTML report.
 import json
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPORTS_DIR = REPO_ROOT / "artifacts" / "reports" / "north_thuan"
 

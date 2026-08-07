@@ -7,9 +7,9 @@ from typing import Any
 from reopt_pysam_vn.integration.assumptions import DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
 from reopt_pysam_vn.integration.dppa_case_1 import calculate_private_wire_strike_basis
 from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
+    calculate_ninhsim_coverage_summary,
     calculate_ninhsim_developer_revenue_path,
     calculate_ninhsim_fixed_strike,
-    calculate_ninhsim_coverage_summary,
 )
 from reopt_pysam_vn.pysam.config import build_vietnam_finance_defaults
 from reopt_pysam_vn.pysam.ppa import convert_vnd_to_usd

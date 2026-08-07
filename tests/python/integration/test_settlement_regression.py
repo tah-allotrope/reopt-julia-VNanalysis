@@ -21,7 +21,6 @@ from reopt_pysam_vn.integration.settlement import (
     compute_hourly_settlement,
 )
 
-
 NINHSIM_SETTLEMENT = (
     REPO_ROOT / "artifacts" / "reports" / "ninhsim"
     / "2026-04-14_ninhsim_dppa-case-2_buyer-settlement.json"

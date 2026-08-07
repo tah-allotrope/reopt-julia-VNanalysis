@@ -24,9 +24,9 @@ import time
 import warnings
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import requests
 
@@ -90,18 +90,18 @@ GENERATOR_INCENTIVE_FIELDS = [
 class VNData:
     """Immutable container for all Vietnam assumption data loaded from manifest-driven JSON files."""
 
-    tariff: Dict[str, Any]
-    tech_costs: Dict[str, Any]
-    financials: Dict[str, Any]
-    emissions: Dict[str, Any]
-    export_rules: Dict[str, Any]
-    regimes: Dict[str, Any]
-    deal_defaults: Dict[str, Any]
+    tariff: dict[str, Any]
+    tech_costs: dict[str, Any]
+    financials: dict[str, Any]
+    emissions: dict[str, Any]
+    export_rules: dict[str, Any]
+    regimes: dict[str, Any]
+    deal_defaults: dict[str, Any]
     exchange_rate: float
     data_dir: str
 
 
-def _deep_merge_dicts(base: Dict[str, Any], overrides: Dict[str, Any]) -> Dict[str, Any]:
+def _deep_merge_dicts(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
     """Recursively overlay overrides onto a deep copy of base."""
     merged = deepcopy(base)
     for key, value in overrides.items():
@@ -112,7 +112,7 @@ def _deep_merge_dicts(base: Dict[str, Any], overrides: Dict[str, Any]) -> Dict[s
     return merged
 
 
-def resolve_vietnam_regime(vn: VNData, regime_id: str = DEFAULT_REGIME_ID) -> Dict[str, Any]:
+def resolve_vietnam_regime(vn: VNData, regime_id: str = DEFAULT_REGIME_ID) -> dict[str, Any]:
     """Resolve a named regime bundle onto the base tariff and export-rule payloads.
 
     If the regime entry contains an ``alias_of`` key, the alias is followed
@@ -163,7 +163,7 @@ def resolve_vietnam_regime(vn: VNData, regime_id: str = DEFAULT_REGIME_ID) -> Di
 # ---------------------------------------------------------------------------
 
 
-def load_vietnam_data(manifest_path: Optional[Union[str, Path]] = None) -> VNData:
+def load_vietnam_data(manifest_path: str | Path | None = None) -> VNData:
     """Read manifest.json, load all active versioned data files, return a VNData instance.
 
     Call once at startup; the returned object is immutable and reusable across scenarios.
@@ -277,7 +277,7 @@ def _ensure_block(d: dict, key: str) -> dict:
 def zero_us_incentives(d: dict) -> dict:
     """Zero out all US-specific incentive fields on every tech block present in the dict."""
 
-    def _zero_fields(block: dict, fields: List[str]) -> None:
+    def _zero_fields(block: dict, fields: list[str]) -> None:
         for f in fields:
             block[f] = 0
 
@@ -372,8 +372,8 @@ def build_vietnam_tariff(
     customer_type: str,
     voltage_level: str,
     regime_id: str = DEFAULT_REGIME_ID,
-    exchange_rate: Optional[float] = None,
-    year: Optional[int] = None,
+    exchange_rate: float | None = None,
+    year: int | None = None,
 ) -> dict:
     """Generate an 8760-hour TOU energy rate array from the tariff data file.
 
@@ -382,7 +382,7 @@ def build_vietnam_tariff(
     if exchange_rate is None:
         exchange_rate = vn.exchange_rate
     if year is None:
-        year = date.today().year
+        year = datetime.now(timezone.utc).date().year
 
     tariff = resolve_vietnam_regime(vn, regime_id)["tariff"]
     base_vnd = tariff["base_avg_price_vnd_per_kwh"]
@@ -439,7 +439,7 @@ def build_vietnam_tariff(
 
 def _build_hourly_rates(
     schedule_block: dict, peak: float, standard: float, offpeak: float
-) -> List[float]:
+) -> list[float]:
     """Build a 24-element list mapping hour index (0-23) to the appropriate rate."""
     rates = [standard] * 24
     for h in schedule_block.get("peak_hours", []):
@@ -516,10 +516,10 @@ def _resolve_tariff_multiplier_block(
 
 
 def _build_8760_rates(
-    weekday_rates: List[float], sunday_rates: List[float], year: int
-) -> List[float]:
+    weekday_rates: list[float], sunday_rates: list[float], year: int
+) -> list[float]:
     """Build 8760-length rate list. Weekday schedule Mon-Sat; Sunday schedule Sun."""
-    rates: List[float] = []
+    rates: list[float] = []
     start_date = date(year, 1, 1)
     for day_offset in range(365):
         d = start_date + timedelta(days=day_offset)
@@ -553,7 +553,7 @@ def apply_vietnam_tech_costs(
     region: str = "south",
     pv_type: str = "rooftop",
     wind_type: str = "onshore",
-    exchange_rate: Optional[float] = None,
+    exchange_rate: float | None = None,
     currency: str = "USD",
 ) -> dict:
     """Inject PV, Wind, Battery, and Generator costs from the tech costs data file."""
@@ -671,8 +671,8 @@ def apply_decree57_export(
     d: dict,
     vn: VNData,
     regime_id: str = DEFAULT_REGIME_ID,
-    max_export_fraction: Optional[float] = None,
-    exchange_rate: Optional[float] = None,
+    max_export_fraction: float | None = None,
+    exchange_rate: float | None = None,
 ) -> dict:
     """Configure export rules per Decree 57/2025 as amended by Decree 243/2026
     (surplus cap 50% from 2026-06-26; resolved from the active export-rules
@@ -738,7 +738,7 @@ def apply_decree57_export(
 
 def apply_vietnam_defaults(
     d: dict,
-    vn: Optional[VNData] = None,
+    vn: VNData | None = None,
     customer_type: str = "industrial",
     voltage_level: str = "medium_voltage_22kv_to_110kv",
     region: str = "south",
@@ -747,7 +747,7 @@ def apply_vietnam_defaults(
     financial_profile: str = "standard",
     regime_id: str = DEFAULT_REGIME_ID,
     currency: str = "USD",
-    exchange_rate: Optional[float] = None,
+    exchange_rate: float | None = None,
     apply_tariff: bool = True,
     apply_emissions: bool = True,
     apply_tech_costs: bool = True,
@@ -832,7 +832,7 @@ def apply_vietnam_defaults(
 def run_vietnam_reopt(
     d: dict,
     api_key: str,
-    vn: Optional[VNData] = None,
+    vn: VNData | None = None,
     poll_interval: int = 5,
     max_polls: int = 120,
     apply_defaults: bool = True,

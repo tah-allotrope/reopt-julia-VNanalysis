@@ -28,7 +28,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -42,7 +41,7 @@ class DeckConfig:
     registry_module: str
     results_json: Path
     report_md: Path
-    calibration_json: Optional[Path]
+    calibration_json: Path | None
     deck_title: str
     plan_path: str
 
@@ -79,7 +78,7 @@ DECKS: dict[str, DeckConfig] = {
 }
 
 
-def get_deck(name: Optional[str]) -> DeckConfig:
+def get_deck(name: str | None) -> DeckConfig:
     """Resolve a deck name (or alias) to a DeckConfig. Defaults to CEBA_2026."""
     if name is None:
         return CEBA_2026

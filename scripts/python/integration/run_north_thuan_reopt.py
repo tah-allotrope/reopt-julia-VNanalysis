@@ -8,13 +8,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python"))
 
-from build_north_thuan_load_profile import main as build_inputs_main  # noqa: E402
-from build_north_thuan_reopt_input import main as build_scenarios_main  # noqa: E402
-
+from build_north_thuan_load_profile import main as build_inputs_main
+from build_north_thuan_reopt_input import main as build_scenarios_main
 
 SCENARIO_PATHS = {
     "a": REPO_ROOT

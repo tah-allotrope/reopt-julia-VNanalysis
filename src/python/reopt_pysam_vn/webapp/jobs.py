@@ -16,7 +16,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.webapp import service
@@ -33,14 +33,14 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 _MANIFEST_PATH = _REPO_ROOT / "data" / "vietnam" / "manifest.json"
 
 
-def _policy_data_versions() -> Dict[str, str]:
+def _policy_data_versions() -> dict[str, str]:
     """Read ``data/vietnam/manifest.json`` and return ``{key: version}`` for
     every active policy data file, using each file's own ``_meta.version``
     (falling back to the filename if a file has no version field)."""
     if not _MANIFEST_PATH.exists():
         return {}
     manifest = json.loads(_MANIFEST_PATH.read_text(encoding="utf-8-sig"))
-    versions: Dict[str, str] = {}
+    versions: dict[str, str] = {}
     for key, filename in manifest.items():
         if key == "_meta":
             continue
@@ -79,8 +79,8 @@ class JobManager:
 
     def __init__(self, storage: RunStorage):
         self.storage = storage
-        self._queue: "queue.Queue[Any]" = queue.Queue()
-        self._thread: Optional[threading.Thread] = None
+        self._queue: queue.Queue[Any] = queue.Queue()
+        self._thread: threading.Thread | None = None
 
     def start(self) -> None:
         if self._thread is not None:
@@ -98,7 +98,7 @@ class JobManager:
         self._thread.join(timeout=5)
         self._thread = None
 
-    def submit_solve(self, run_id: str, deal_config: Dict[str, Any], *, force_resolve: bool = False) -> None:
+    def submit_solve(self, run_id: str, deal_config: dict[str, Any], *, force_resolve: bool = False) -> None:
         self._queue.put((run_id, deal_config, force_resolve))
 
     def _worker_loop(self) -> None:
@@ -109,7 +109,7 @@ class JobManager:
             run_id, deal_config, force_resolve = item
             try:
                 self._process(run_id, deal_config, force_resolve=force_resolve)
-            except Exception as exc:  # noqa: BLE001 - surfaced to the run's status, not swallowed
+            except Exception as exc:
                 logger.exception("run %s failed", run_id)
                 user_error = to_user_error(exc)
                 self.storage.set_status(
@@ -120,7 +120,7 @@ class JobManager:
                     error_hint=user_error["hint"],
                 )
 
-    def _process(self, run_id: str, deal_config: Dict[str, Any], *, force_resolve: bool) -> None:
+    def _process(self, run_id: str, deal_config: dict[str, Any], *, force_resolve: bool) -> None:
         start_time = time.perf_counter()
         deal = DealConfig.from_dict(deal_config)
         if deal.mode != "onsite":
@@ -143,7 +143,7 @@ class JobManager:
         cached_run_id = None if force_resolve else self.storage.find_cached_run_id(solve_hash)
 
         self.storage.set_status(run_id, state="solving", solve_hash=solve_hash)
-        key_fingerprint: Optional[str] = None
+        key_fingerprint: str | None = None
         if cached_run_id is not None:
             reopt_results = self.storage.get_reopt_results(cached_run_id)
             assert reopt_results is not None, (

@@ -7,14 +7,12 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python"))
 
-from dppa_settlement import compute_virtual_dppa_developer_revenue  # noqa: E402
-from validate_north_thuan import STAFF_CLAIMS, TOLERANCE_PCT, compare_result  # noqa: E402
-
+from dppa_settlement import compute_virtual_dppa_developer_revenue
+from validate_north_thuan import STAFF_CLAIMS, TOLERANCE_PCT, compare_result
 
 REOPT_TARGET_KEYS = [
     "solar_gwh_yr1",

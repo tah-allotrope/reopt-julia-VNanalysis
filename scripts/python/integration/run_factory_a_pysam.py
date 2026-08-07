@@ -25,29 +25,29 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.integration.factory_a import (
+    CAPACITY_CHARGE_REPO_VND_PER_KW_MONTH,
+    CAPACITY_CHARGE_SLIDE_VND_PER_KW_MONTH,
     CAPEX_USD,
     EXCHANGE_RATE_VND_PER_USD,
     FACTORY_A_ANALYSIS_YEARS,
+    FACTORY_A_CUSTOMER_TYPE,
     FACTORY_A_DEBT_FRACTION,
     FACTORY_A_DEBT_INTEREST_RATE,
     FACTORY_A_DEBT_TENOR_YEARS,
+    FACTORY_A_ESCO_FRACTION,
     FACTORY_A_OWNER_DISCOUNT_RATE,
+    FACTORY_A_VOLTAGE,
     OM_USD_PER_YEAR,
     SLIDE_REFERENCE,
-    CAPACITY_CHARGE_SLIDE_VND_PER_KW_MONTH,
-    CAPACITY_CHARGE_REPO_VND_PER_KW_MONTH,
-    load_emivest_8760,
-    build_hourly_rate_series_vnd,
     _decision_14_tou_schedule,
     _load_weighted_avg_vnd,
-    FACTORY_A_CUSTOMER_TYPE,
-    FACTORY_A_VOLTAGE,
-    FACTORY_A_ESCO_FRACTION,
+    build_hourly_rate_series_vnd,
+    load_emivest_8760,
 )
 from reopt_pysam_vn.pysam.pvwatts_battery import (
     DEFAULT_SOLAR_RESOURCE_FILE,
-    run_pvwatts_battery_single_owner_model,
     PVWattsBatterySingleOwnerInputs,
+    run_pvwatts_battery_single_owner_model,
 )
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
@@ -136,9 +136,9 @@ def _compute_demand_charge_savings(
     (hourly resolution; slide Case 3 note says 30-min cycle but repo data
     is hourly — Q-002 answer: use hourly max).
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    start = datetime(2024, 1, 1)
+    start = datetime(2024, 1, 1, tzinfo=timezone.utc)
     monthly_bau_peak: dict[int, float] = {m: 0.0 for m in range(1, 13)}
     monthly_post_peak: dict[int, float] = {m: 0.0 for m in range(1, 13)}
 

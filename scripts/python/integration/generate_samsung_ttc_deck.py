@@ -20,10 +20,10 @@ import json
 import os
 
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
-from pptx.chart.data import CategoryChartData
+from pptx.util import Inches, Pt
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 TEMPLATE = os.path.join(REPO, "reports", "decks", "conformance", "template", "allotrope-template.pptx")
@@ -111,7 +111,8 @@ def style_chart(chart, font_pt=9):
     try:
         chart.font.size = Pt(font_pt)
         chart.font.name = "Cabin"
-    except Exception:
+    except (AttributeError, TypeError):
+        # Some chart types expose no font attribute; leave them unstyled.
         pass
 
 
@@ -221,8 +222,8 @@ card_bodies = [
          buyer_save_b, slice_["buyer_savings_usd"] / 1e6,
          slice_["buyer_effective_cost_vnd_per_kwh"], slice_["evn_avoided_cost_vnd_per_kwh"])),
     ("Google Shape;316;p55",
-     "PySAM Single Owner NPV runs −${:.1f}M → −${:.1f}M across the strike band (IRR null) on a "
-     "conservative 70 GWh / $750/kW basis. No buyer–developer overlap.".format(abs(npv_lo), abs(npv_hi))),
+     f"PySAM Single Owner NPV runs −${abs(npv_lo):.1f}M → −${abs(npv_hi):.1f}M across the strike band (IRR null) on a "
+     "conservative 70 GWh / $750/kW basis. No buyer–developer overlap."),
     ("Google Shape;317;p55",
      "The DPPA grid-service adder (523 VND/kWh, inherited) is the single biggest lever on buyer cost; "
      "the buyer flips from saving to a premium near ~0.9× that adder."),
@@ -470,4 +471,4 @@ set_tf(shape_by_name(s, "Google Shape;402;p63").text_frame, [
 # ---------------------------------------------------------------- save
 os.makedirs(OUT_DIR, exist_ok=True)
 prs.save(OUT)
-print("Saved {} ({} slides)".format(OUT, len(list(prs.slides))))
+print(f"Saved {OUT} ({len(list(prs.slides))} slides)")

@@ -6,12 +6,12 @@ import hashlib
 import json
 import subprocess
 import time
+from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any
 
 from .preprocess import apply_vietnam_defaults, load_vietnam_data, resolve_vietnam_regime
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 DEFAULT_ASSUMPTION_SET_DIR = REPO_ROOT / "scenarios" / "regime_engine" / "assumption_sets"
@@ -21,17 +21,17 @@ JULIA_RUNNER = REPO_ROOT / "legacy" / "julia" / "scripts" / "run_vietnam_scenari
 JULIA_PROJECT_DIR = REPO_ROOT / "legacy" / "julia"
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
+def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _write_json(path: Path, payload: Dict[str, Any]) -> Path:
+def _write_json(path: Path, payload: dict[str, Any]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
 
 
-def _deep_merge(base: Dict[str, Any], overrides: Dict[str, Any]) -> Dict[str, Any]:
+def _deep_merge(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
     merged = deepcopy(base)
     for key, value in overrides.items():
         if isinstance(value, dict) and isinstance(merged.get(key), dict):
@@ -56,7 +56,7 @@ def _slugify(value: str) -> str:
     return slug or "project"
 
 
-def canonicalize_for_hash(payload: Dict[str, Any]) -> str:
+def canonicalize_for_hash(payload: dict[str, Any]) -> str:
     """Return canonical JSON text for stable scenario hashing."""
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -65,7 +65,7 @@ def scenario_hash(canonical_json: str) -> str:
     return hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()[:16]
 
 
-def load_assumption_set(assumption_set_id: str, assumption_set_dir: Path = DEFAULT_ASSUMPTION_SET_DIR) -> Dict[str, Any]:
+def load_assumption_set(assumption_set_id: str, assumption_set_dir: Path = DEFAULT_ASSUMPTION_SET_DIR) -> dict[str, Any]:
     path = assumption_set_dir / f"{assumption_set_id}.json"
     if not path.is_file():
         raise FileNotFoundError(f"Assumption set not found: {path}")
@@ -79,7 +79,7 @@ def load_assumption_set(assumption_set_id: str, assumption_set_dir: Path = DEFAU
     return payload
 
 
-def _template_context(base_scenario: Dict[str, Any], fallback_name: str) -> Dict[str, Any]:
+def _template_context(base_scenario: dict[str, Any], fallback_name: str) -> dict[str, Any]:
     template = base_scenario.get("_template", {})
     return {
         "customer_type": template.get("customer_type", "industrial"),
@@ -99,7 +99,7 @@ def materialize_regime_scenario(
     *,
     generated_root: Path = DEFAULT_GENERATED_SCENARIO_DIR,
     result_store_root: Path = DEFAULT_RESULT_STORE_DIR,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     vn = load_vietnam_data()
     base_scenario = _read_json(scenario_path)
     context = _template_context(base_scenario, scenario_path.stem)
@@ -218,8 +218,8 @@ def build_regime_matrix(
     result_store_root: Path = DEFAULT_RESULT_STORE_DIR,
     solve: bool = False,
     force: bool = False,
-) -> List[Dict[str, Any]]:
-    runs: List[Dict[str, Any]] = []
+) -> list[dict[str, Any]]:
+    runs: list[dict[str, Any]] = []
     for regime_id in regime_ids:
         for assumption_set_id in assumption_set_ids:
             run = materialize_regime_scenario(
@@ -271,7 +271,7 @@ def build_regime_scenarios(
     assumption_set_ids: Iterable[str],
     generated_root: Path = DEFAULT_GENERATED_SCENARIO_DIR,
     result_store_root: Path = DEFAULT_RESULT_STORE_DIR,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     outputs = []
     for regime_id in regime_ids:
         for assumption_set_id in assumption_set_ids:

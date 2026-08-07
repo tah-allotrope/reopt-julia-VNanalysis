@@ -22,7 +22,6 @@ from reopt_pysam_vn.ingestion.synthesize import (
     synthesize_from_monthly,
 )
 
-
 # ── detect_resolution ──────────────────────────────────────────────────
 
 

@@ -14,9 +14,9 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-from reopt_pysam_vn.analysis.onsite import run_onsite  # noqa: E402
-from reopt_pysam_vn.analysis.types import DealConfig, OnsiteResult  # noqa: E402
-from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (  # noqa: E402
+from reopt_pysam_vn.analysis.onsite import run_onsite
+from reopt_pysam_vn.analysis.types import DealConfig, OnsiteResult
+from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
     calculate_ninhsim_coverage_summary,
 )
 

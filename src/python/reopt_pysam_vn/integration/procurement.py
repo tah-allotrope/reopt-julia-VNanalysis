@@ -377,9 +377,9 @@ def load_tariff_rates(vn_data_path: str | Path, customer_type: str = "industrial
     Falls back to a flat rate if the tariff data cannot be loaded.
     """
     try:
-        from reopt_pysam_vn.reopt.preprocess import load_vietnam_data, build_vietnam_tariff
+        from reopt_pysam_vn.reopt.preprocess import build_vietnam_tariff, load_vietnam_data
         vn = load_vietnam_data(str(vn_data_path))
         tariff = build_vietnam_tariff(vn, customer_type, voltage_level)
         return tariff.get("tou_energy_rates_per_kwh", [2000.0] * 8760)[:8760]
-    except Exception:
-        return [2000.0] * 8760  # Flat fallback
+    except (KeyError, TypeError, ValueError, OSError):
+        return [2000.0] * 8760  # Flat fallback if the tariff data cannot be loaded.

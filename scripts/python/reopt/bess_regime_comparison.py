@@ -25,26 +25,25 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from bess_dispatch_analysis import (
-    EXCHANGE_RATE_VND_PER_USD,
-    DEFAULT_DEGRADATION_RATE,
     DEFAULT_BESS_LIFETIME_YEARS,
+    DEFAULT_DEGRADATION_RATE,
     DEFAULT_DISCOUNT_RATE,
-    load_deal_config,
-    load_tou_periods_from_tariff,
-    load_regime_tou_periods,
-    load_tech_costs,
-    make_classify_hour,
+    EXCHANGE_RATE_VND_PER_USD,
     _pad_to_8760,
-    simulate_option_b_dispatch,
-    compute_dispatch_value,
     compute_bess_capex,
-    compute_net_arbitrage,
-    compute_simple_payback,
     compute_bess_npv,
     compute_cycles_per_day,
+    compute_dispatch_value,
+    compute_net_arbitrage,
+    compute_simple_payback,
+    load_deal_config,
+    load_regime_tou_periods,
+    load_tech_costs,
+    load_tou_periods_from_tariff,
+    make_classify_hour,
     model_degradation,
+    simulate_option_b_dispatch,
 )
-
 
 REGIMES_TO_COMPARE = [
     ("decision_14_2025_legacy", "Decision 14/2025 legacy (split peak)"),
@@ -53,7 +52,7 @@ REGIMES_TO_COMPARE = [
 
 
 def _extract_tariff_rates(tou_rates_8760: list[float]) -> tuple[float, float, float]:
-    unique = sorted(set(round(r, 10) for r in tou_rates_8760))
+    unique = sorted({round(r, 10) for r in tou_rates_8760})
     if len(unique) >= 3:
         return unique[0], unique[1], unique[-1]
     return 0.0, 0.0, 0.0

@@ -9,6 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.dppa_case_3 import (
     BASE_BESS_KW,
     BASE_BESS_KWH,
@@ -20,7 +21,6 @@ from reopt_pysam_vn.integration.dppa_case_3 import (
     load_saigon18_load_series,
     load_saigon18_tou_series,
 )
-from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.pysam.single_owner import (
     build_single_owner_inputs,
     run_single_owner_model,

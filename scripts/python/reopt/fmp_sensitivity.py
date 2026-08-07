@@ -33,8 +33,8 @@ import numpy_financial as npf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "src" / "python"))
 
-from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate  # noqa: E402
-from reopt_pysam_vn.reopt.preprocess import load_vietnam_data  # noqa: E402
+from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
@@ -160,7 +160,7 @@ def compute_equity_irr(
 
     try:
         irr = float(npf.irr(equity_cashflows))
-    except Exception:
+    except ValueError:
         irr = None
 
     npv = float(npf.npv(DISCOUNT_RATE, equity_cashflows))

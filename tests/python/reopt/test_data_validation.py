@@ -41,14 +41,14 @@ def _load_data_file(manifest: dict, key: str):
 
 
 class TestManifestStructure:
-    REQUIRED_KEYS = [
+    REQUIRED_KEYS = (
         "tariff",
         "tech_costs",
         "financials",
         "emissions",
         "export_rules",
         "regimes",
-    ]
+    )
 
     def test_required_keys_present(self, manifest):
         for k in self.REQUIRED_KEYS:
@@ -67,7 +67,7 @@ class TestManifestStructure:
 
 
 class TestSchemaCompliance:
-    REQUIRED_META_FIELDS = ["version", "effective_date", "source", "last_updated"]
+    REQUIRED_META_FIELDS = ("version", "effective_date", "source", "last_updated")
 
     @pytest.mark.parametrize(
         "key",
@@ -167,7 +167,7 @@ class TestTariffSanity:
 
 
 class TestRegimeRegistrySanity:
-    VALID_STATUS = {"active", "legacy", "draft", "preview", "archived"}
+    VALID_STATUS = frozenset({"active", "legacy", "draft", "preview", "archived"})
 
     @pytest.fixture(scope="class")
     def regime_data(self, manifest):

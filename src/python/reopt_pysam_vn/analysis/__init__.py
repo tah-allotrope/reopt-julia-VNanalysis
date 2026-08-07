@@ -34,13 +34,13 @@ from reopt_pysam_vn.analysis.validation import DealConfigValidationError
 
 __all__ = [
     # contract
+    "CombinedDecision",
     "DealConfig",
     "DealConfigValidationError",
-    "OnsiteResult",
     "OffsiteDppaResult",
-    "CombinedDecision",
+    "OnsiteResult",
     # pipelines (first-class entry points)
-    "run_onsite",
-    "run_offsite_dppa",
     "register_orchestrator",
+    "run_offsite_dppa",
+    "run_onsite",
 ]

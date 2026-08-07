@@ -16,7 +16,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig
 
@@ -24,10 +24,10 @@ __all__ = [
     "AnalysisError",
     "MissingInputsError",
     "OrchestratorNotRegisteredError",
-    "run_analysis",
-    "solve_relevant_hash",
     "load_nrel_api_key",
+    "run_analysis",
     "solve_onsite_via_nrel",
+    "solve_relevant_hash",
 ]
 
 
@@ -46,10 +46,10 @@ class OrchestratorNotRegisteredError(AnalysisError):
 def run_analysis(
     deal_config: DealConfig,
     *,
-    results: Optional[Dict[str, Any]] = None,
-    extracted: Optional[Dict[str, Any]] = None,
+    results: dict[str, Any] | None = None,
+    extracted: dict[str, Any] | None = None,
     run_developer: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run the pipeline(s) ``deal_config.mode`` selects and return a result dict.
 
     For ``mode == "both"`` the result is ``{"onsite": {...}, "offsite_dppa": {...}}``.
@@ -61,7 +61,7 @@ def run_analysis(
 
     mode = deal_config.mode
 
-    def _run_onsite() -> Dict[str, Any]:
+    def _run_onsite() -> dict[str, Any]:
         if results is None:
             raise MissingInputsError(
                 "onsite analysis needs pre-solved `results`; submit without `results` "
@@ -69,7 +69,7 @@ def run_analysis(
             )
         return run_onsite(deal_config, results=results, extracted=extracted).to_dict()
 
-    def _run_offsite() -> Dict[str, Any]:
+    def _run_offsite() -> dict[str, Any]:
         if extracted is None:
             raise MissingInputsError(
                 "offsite_dppa analysis needs pre-solved `extracted` inputs; there is "
@@ -92,7 +92,7 @@ def run_analysis(
     raise AnalysisError(f"unsupported mode {mode!r}")
 
 
-def solve_relevant_hash(deal_config: Dict[str, Any]) -> str:
+def solve_relevant_hash(deal_config: dict[str, Any]) -> str:
     """Hash of the solve-relevant DealConfig subset, for the solve cache (DEC-005).
 
     Only ``site``/``plant``/``load`` affect the REopt solve; ``contract``/
@@ -132,7 +132,7 @@ def load_nrel_api_key() -> str:
     )
 
 
-def solve_onsite_via_nrel(deal_config: DealConfig) -> Dict[str, Any]:
+def solve_onsite_via_nrel(deal_config: DealConfig) -> dict[str, Any]:
     """Build the REopt scenario from ``deal_config`` and solve it via the NREL
     REopt API (DEC-003). Kept import-light: ``reopt`` (network/requests) is
     only imported when a live solve is actually requested."""

@@ -130,7 +130,7 @@ class TestTOUClassification:
         try:
             from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
             vn = load_vietnam_data()
-        except Exception:
+        except (ImportError, KeyError, OSError, ValueError):
             pytest.skip("VNData not loadable")
 
         tou = classify_tou_consumption(
@@ -235,7 +235,9 @@ class TestArchetypeClassification:
                     "commercial_extended",
                 ]
                 classified_count += 1
-            except Exception:
+            except (KeyError, TypeError, ValueError, OSError):
+                # Some case studies do not yield a recognized archetype; they are
+                # excluded from the count rather than failing the loop.
                 pass
 
         assert classified_count >= 4, f"Only classified {classified_count}/5 case studies"

@@ -8,26 +8,25 @@ metrics, and virtual DPPA revenue helper used by the North Thuan pipeline.
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "reopt"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "python" / "integration"))
 
-from build_north_thuan_load_profile import (  # noqa: E402
+from build_north_thuan_load_profile import (
     NORTH_THUAN_INPUTS,
     build_extracted_inputs,
     build_synthetic_load_profile,
 )
-from build_north_thuan_reopt_input import (  # noqa: E402
+from build_north_thuan_reopt_input import (
     build_scenario_a,
     build_scenario_b,
     build_scenario_c,
 )
-from compare_north_thuan_reopt_vs_staff import (  # noqa: E402
+from compare_north_thuan_reopt_vs_staff import (
     build_staff_comparison,
     extract_scenario_metrics,
 )
-from dppa_settlement import compute_virtual_dppa_developer_revenue  # noqa: E402
+from dppa_settlement import compute_virtual_dppa_developer_revenue
 
 
 def _synthetic_results() -> dict:

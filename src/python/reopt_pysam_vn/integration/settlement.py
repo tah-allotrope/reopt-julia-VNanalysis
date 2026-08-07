@@ -7,8 +7,7 @@ support any factory+project pair. See GAP-04 plan for design rationale.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any, Optional
-
+from typing import Any
 
 VALID_MODES = ("private_wire", "virtual_cfd")
 VALID_SETTLEMENT_RULES = ("matched_only", "contracted_volume")
@@ -56,9 +55,9 @@ class ContractParams:
         *,
         mode: str,
         strike_vnd_kwh: float,
-        vn: Optional[Any] = None,
+        vn: Any | None = None,
         **overrides: Any,
-    ) -> "ContractParams":
+    ) -> ContractParams:
         """Build a `ContractParams` whose policy fields resolve from the data
         layer for `regime_id`. `**overrides` wins over resolution."""
         from reopt_pysam_vn.common.assumptions import (

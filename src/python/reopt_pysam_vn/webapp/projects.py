@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 __all__ = ["list_projects"]
 
@@ -23,14 +23,14 @@ def _is_numeric(value: Any) -> bool:
         return False
 
 
-def list_projects() -> List[Dict[str, Any]]:
+def list_projects() -> list[dict[str, Any]]:
     """Return catalog projects with valid point locations.
 
     Skips ``catalog_schema.json`` and any record whose ``location.lat`` or
     ``location.lon`` is missing or non-numeric so a malformed file cannot break
     the map overlay.
     """
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     if not _PROJECTS_DIR.exists():
         return out
 

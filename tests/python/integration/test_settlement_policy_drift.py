@@ -6,7 +6,6 @@ Decree 243 repeal drift previously went uncaught.
 """
 
 import pytest
-
 from reopt_pysam_vn.common.assumptions import export_cap_fraction, surplus_rate_vnd_per_kwh
 from reopt_pysam_vn.integration.settlement import PRESET_CONTRACTS
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data

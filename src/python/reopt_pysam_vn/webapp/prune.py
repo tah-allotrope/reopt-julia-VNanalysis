@@ -13,14 +13,14 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from reopt_pysam_vn.webapp.storage import RunStorage, default_runs_dir
 
 __all__ = ["main"]
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Prune stale webapp runs.")
     parser.add_argument("--days", type=int, required=True, help="age threshold in days")
     parser.add_argument(

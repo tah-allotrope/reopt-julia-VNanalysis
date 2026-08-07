@@ -42,7 +42,7 @@ class ProjectRecord:
     extra: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> "ProjectRecord":
+    def from_dict(cls, raw: dict[str, Any]) -> ProjectRecord:
         known = {
             "project_id",
             "name",
@@ -123,9 +123,13 @@ def _validate_field(name: str, value: Any, spec: dict[str, Any]) -> list[str]:
     if enum is not None and value not in enum:
         errors.append(f"{name}: {value!r} not in allowed values {enum}")
     minimum = spec.get("min")
-    if minimum is not None and isinstance(value, (int, float)) and not isinstance(value, bool):
-        if value < minimum:
-            errors.append(f"{name}: {value} below minimum {minimum}")
+    if (
+        minimum is not None
+        and isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and value < minimum
+    ):
+        errors.append(f"{name}: {value} below minimum {minimum}")
     return errors
 
 

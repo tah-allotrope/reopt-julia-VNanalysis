@@ -24,7 +24,7 @@ def _candidate_strikes(
     if maximum < minimum:
         raise ValueError("max_strike_cents_per_kwh must be >= min_strike_cents_per_kwh")
 
-    count = int(round((maximum - minimum) / step))
+    count = round((maximum - minimum) / step)
     values = [round(minimum + step * idx, 10) for idx in range(count + 1)]
     if abs(values[-1] - maximum) > 1e-9:
         raise ValueError("strike sweep bounds must align with the requested step size")
