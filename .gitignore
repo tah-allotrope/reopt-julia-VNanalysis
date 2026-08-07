@@ -33,6 +33,9 @@ deps/build.log
 Thumbs.db
 .DS_Store
 
+# Stray test-run logs at the repository root only (nested logs elsewhere unaffected)
+/*.log
+
 # Temporary generated reports
 artifacts/reports/test_runs/*.html
 

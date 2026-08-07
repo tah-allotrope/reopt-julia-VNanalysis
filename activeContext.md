@@ -20,7 +20,8 @@ All phases from `plans/2026-07-22-ci-truth-correctness-sprint-plan.md` and
 - **PHASE-04 (07-24):** Plans directory hygiene sweep (13 shipped plans archived, 9 remain active)
 
 **Test results (2026-07-25):** 589 passed, 18 deselected, 3 xfailed, 0 failed, 85% coverage  
-**CI status:** Green on `main`  
+**Test results (2026-08-06):** 634 passed, 18 deselected, 3 xfailed, 0 failed (portable suite, verified locally)  
+**CI status:** Green on `main` — run `31159536433` (2026-08-06, both matrix legs success); verified with `gh run list`, not just a local run  
 **Final report:** `reports/2026-07-25-post-ci-hygiene-finance-audit-final.md`
 
 ## Environment

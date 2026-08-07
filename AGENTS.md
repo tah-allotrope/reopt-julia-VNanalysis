@@ -4,10 +4,11 @@
 > **Mission:** Techno-economic optimization for cost-optimal energy generation (Solar, Wind, Battery) for buildings and microgrids in Vietnam using NREL REopt, with PySAM-based developer finance. The primary solve path is the NREL REopt web API via Python; a Julia local-solve layer is retained in `legacy/julia/` for offline solves and the Decree 57/243 export-cap constraint.
 
 ## 2. Environment & Commands
-- **Environment (primary, Python):** Python 3.10+, `nrel-pysam` 7.1.0, editable install (`python -m pip install -e ".[webapp]"`).
+- **Environment (primary, Python):** Python 3.10+, `nrel-pysam` 7.1.0, editable install (`python -m pip install -e ".[webapp,dev]"`). Gate tools pinned in the `dev` extra: `ruff==0.16.1`, `mypy==2.3.0`, `pytest==8.4.2`, `pytest-cov==7.1.0`. A deliberate version bump is a conscious task; never install gates unpinned.
 - **Environment (Julia, `legacy/julia/`, offline/export-cap-constraint use only):** Julia 1.10+ with REopt.jl v0.56.4 (`julia --project=legacy/julia` for interactive use).
 - **Run Command (Julia):** `$env:JULIA_PKG_PRECOMPILE_AUTO="0"; julia --project=legacy/julia --compile=min legacy/julia/<script>.jl` (Bypasses precompilation hangs for scripts).
 - **Test Command:** `.\\tests\\run_all_tests.ps1` (Runs all validation layers; CI itself only runs `pytest tests/python` — see `docs/testing.md`).
+- **Verify CI, not just local tests:** before reporting any work complete, run `gh run list --limit 3` and confirm the latest run on `main` reports `success` on both matrix legs. Local green and CI green are different claims — a local run is the precondition, not the proof (2026-08-06).
 
 ## 3. Documentation Directory
 Detailed instructions have been organized into the `docs/` folder for progressive disclosure. When working on specific areas, read the relevant file:
@@ -35,17 +36,12 @@ Detailed instructions have been organized into the `docs/` folder for progressiv
 8. Test runner `tests/run_all_tests.ps1`
 9. Documentation (`AGENTS.md` → `docs/`, `README.md`)
 
-### Test Suite Status (last run: Mar 2026)
-| Layer | Result |
-|---|---|
-| L1 Julia + Python data validation | PASS |
-| L2 Julia + Python unit tests | PASS |
-| L3 Julia vs Python cross-validation | PASS (exact match, max diff 0.00e+00) |
-| L4 Python: Template smoke tests (9 tests) | PASS |
-| L4 Python: `test_nlr_domain_connectivity` | PASS — new domain confirmed healthy |
-| L4 Python: `test_commercial_rooftop_api_solve` | FAIL (pre-existing HTTP 400 — payload issue, not domain) |
-| L4 Python: `test_api_vs_baseline_regression` | FAIL (same root cause) |
-| L4 Julia: Integration tests | NOT RUN — cold-start takes 3-8 min; use `-JuliaTimeoutSeconds 1800` |
+### Test Suite Status
+The authority for current test state is `activeContext.md`. Standing notes:
+CI runs `pytest tests/python` with the four-marker exclusion filter (`-m "not
+network and not requires_artifacts and not golden_machine and not requires_julia"`);
+the portable suite is `634+ passed, 3 xfailed`. Verify CI status with
+`gh run list --limit 3` before reporting work complete.
 
 ## 5. Key Learnings & Notes
 - REopt.jl outage modeling is a **soft constraint** by default. Use `Site.min_resil_time_steps` for hard constraint.
@@ -72,4 +68,8 @@ A dedicated branch `real-project-data` was created to test the `REoptVietnam.jl`
 **Next steps (real-project-data branch):**
 1. Synthesize load profile via REopt `simulated_load` API.
 2. Run comparison scenario: REopt vs. Excel feasibility study results.
-3. Custom JuMP constraint for 20% generation export cap (Decree 57).
+
+Note: the originally planned "Custom JuMP constraint for 20% generation export
+cap (Decree 57)" is obsolete — Decree 243/2026 raised the cap to 50 % effective
+2026-06-26, and the data layer reflects it in
+`data/vietnam/vn_export_rules_2026_decree243.json`.

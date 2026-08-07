@@ -61,6 +61,9 @@ $env:PYTHONPATH = ""
 ```
 
 All NREL calls are mocked; nothing in the suite touches the network. The
-Samsung/TTC golden-parity test (`test_golden_parity.py`) proves the web API
-path reproduces `examples/samsung-ttc_combined-decision.example.json`
-bit-for-bit.
+Samsung/TTC golden-parity test (`test_golden_parity.py`) proves `POST /api/runs`
+reproduces a direct `run_offsite_dppa` call bit-for-bit — the contract that the
+webapp forks no analytics logic (CON-002). It deliberately does **not** re-assert
+parity against `examples/samsung-ttc_combined-decision.example.json`, which
+carries a known pre-existing divergence documented in
+`reports/2026-07-26-samsung-parity-diagnosis.md`.

@@ -15,7 +15,9 @@ drift out of scope for the web app to fix.
 """
 
 import json
+import re
 from pathlib import Path
+from typing import Any, Iterator
 
 import pytest
 
@@ -24,9 +26,73 @@ SAMSUNG_EXTRACTED = REPO_ROOT / "data" / "interim" / "samsung_ttc" / "samsung_tt
 SAMSUNG_CONFIG = REPO_ROOT / "scenarios" / "case_studies" / "samsung_ttc" / "samsung_ttc_deal_config.json"
 GOLDEN = REPO_ROOT / "examples" / "samsung-ttc_combined-decision.example.json"
 
+_MISSING = object()
+
 
 def _read(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
+def _leaf_paths(obj: Any, prefix: str = "") -> Iterator[tuple[str, Any]]:
+    """Yield (dotted_path, scalar_value) for every leaf in a nested structure.
+
+    List indices render as ``[i]`` (e.g. ``c[0]``).
+    """
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            child = f"{prefix}.{key}" if prefix else str(key)
+            yield from _leaf_paths(value, child)
+    elif isinstance(obj, list):
+        for index, value in enumerate(obj):
+            yield from _leaf_paths(value, f"{prefix}[{index}]")
+    else:
+        yield prefix, obj
+
+
+def _scalar_equivalent(a: Any, b: Any) -> bool:
+    """Scalar equality that treats ``bool`` as ``bool``, never as ``int``.
+
+    ``True == 1`` is ``True`` in Python, so a naive comparator would call a
+    boolean field equal to an integer field that differs in meaning.
+    """
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a is b
+    return a == b
+
+
+def _diverging_paths(actual: dict, golden: dict) -> set[str]:
+    """Return dotted leaf paths whose values differ between the two structures.
+
+    A path present in only one side counts as diverging.
+    """
+    actual_leaves = dict(_leaf_paths(actual))
+    golden_leaves = dict(_leaf_paths(golden))
+    diverged: set[str] = set()
+    for key in set(actual_leaves) | set(golden_leaves):
+        if not _scalar_equivalent(actual_leaves.get(key, _MISSING), golden_leaves.get(key, _MISSING)):
+            diverged.add(key)
+    return diverged
+
+
+# Measured on 2026-08-06 against a live run_offsite_dppa call; the golden's
+# developer screen was built before the Single-Owner reference-plant defaults
+# audit, so the developer NPV/IRR family diverges. `[*]` matches any list index.
+KNOWN_DRIFTED_PATHS = frozenset({
+    "strike_sweep.negotiation_summary.buyer_saves_candidates[*].developer_irr_fraction",
+    "strike_sweep.negotiation_summary.buyer_saves_candidates[*].developer_npv_usd",
+    "strike_sweep.sweep[*].developer_irr_fraction",
+    "strike_sweep.sweep[*].developer_npv_usd",
+    "strike_sweep.sweep[*].developer_passes",
+})
+
+
+def _unexpected_drift_paths(actual: dict, golden: dict) -> set[str]:
+    diverged = _diverging_paths(actual, golden)
+    return {
+        path
+        for path in diverged
+        if re.sub(r"\[\d+\]", "[*]", path) not in KNOWN_DRIFTED_PATHS
+    }
 
 
 def test_samsung_ttc_web_api_matches_direct_library_call_bit_exact(client):
@@ -51,9 +117,13 @@ def test_samsung_ttc_web_api_matches_direct_library_call_bit_exact(client):
     assert body["result"] == direct_result, "web API result diverges from a direct run_offsite_dppa call"
 
 
-def test_samsung_ttc_golden_drift_is_the_known_pre_existing_gap():
-    """Documents (does not re-litigate) the analytics-level golden drift so a
-    future fix to the library is immediately visible here too."""
+def test_samsung_ttc_golden_drift_stays_within_the_known_manifest():
+    """The analytics-level golden drift is bounded and catalogued.
+
+    Shrinking the divergence stays green (subset), a *new* divergence turns red
+    (outside the manifest), and fixing everything yields the empty set - which
+    is also a subset, so the manifest can be emptied in a follow-up.
+    """
     if not (SAMSUNG_EXTRACTED.exists() and SAMSUNG_CONFIG.exists() and GOLDEN.exists()):
         pytest.skip("Samsung-TTC golden fixtures not present")
 
@@ -69,12 +139,8 @@ def test_samsung_ttc_golden_drift_is_the_known_pre_existing_gap():
     if "pvwatts" not in got_source:
         pytest.skip(f"PVWatts not the active solar path (got {got_source!r})")
 
-    drifted = (
-        result["strike_sweep"]["negotiation_summary"]["buyer_saves_candidates"][0]["developer_irr_fraction"]
-        != golden["strike_sweep"]["negotiation_summary"]["buyer_saves_candidates"][0]["developer_irr_fraction"]
-    )
-    assert drifted, (
-        "expected the known pre-existing golden drift on developer_irr_fraction; "
-        "if this now passes, the analytics-level golden may have been refreshed - "
-        "re-enable full parity checking in this test."
+    unexpected = _unexpected_drift_paths(result, golden)
+    assert not unexpected, (
+        "golden drift grew beyond the known manifest; catalog each path or fix "
+        f"the analytics before re-running: {sorted(unexpected)}"
     )
