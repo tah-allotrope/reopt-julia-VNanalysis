@@ -25,8 +25,8 @@ implemented:
 - **PHASE-03 (08-06):** FX derivation completed — data layer now authoritative for the canonical rate; 8 sites unpinned, Samsung + Saigon18 pins retained (report: `reports/2026-08-06-fx-derivation-delta.md`)
 - **PHASE-04 (08-06):** Second offsite orchestrator registered — `DPPA_CASE_1_NINHSIM` behind a widened `(extracted, *, run_developer, results=None, scenario=None)` contract (report: `reports/2026-08-06-second-orchestrator.md`)
 
-**Test results (2026-08-06):** 654 passed, 18 deselected, 3 xfailed, 0 failed (portable suite, verified locally)  
-**CI status:** Green on `main` — run `31159536433` (2026-08-06, both matrix legs success); verified with `gh run list`, not just a local run
+**Test results (2026-08-06):** 653 passed, 19 deselected, 3 xfailed, 0 failed (portable suite, CI's exact marker filter, verified locally)  
+**CI status:** Green on `main` — run `31162599693` (2026-08-06, both matrix legs success: `test (3.10)` + `test (3.12)`); verified with `gh run list`, not just a local run
 
 ## Environment
 - PySAM 7.1.0 + python-pptx 1.0.2 live in the repo **`.venv` (Python 3.12)** — use
