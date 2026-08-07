@@ -102,7 +102,9 @@ authoritative signal, not a local run.
 `gh run list --limit 2 --json conclusion --jq '[.[].conclusion] | unique'` →
 `["success"]`.
 
-Green run id: **TBD (appended after push)**.
+Green run id: **31159536433** (pushed `5c12476`, verified 2026-08-06). Both
+matrix legs (`test (3.10)`, `test (3.12)`) report `success`; the previous run
+(`30722078575`) is the last red run this phase replaced.
 
 ## Residual-category triage decisions
 
