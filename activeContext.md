@@ -6,10 +6,12 @@
 > July 2026 deck verification (completed 2026-06-26, all 5 phases): rotated to
 > [`docs/worklog/2026-07-04-july-deck-verification-archive.md`](docs/worklog/2026-07-04-july-deck-verification-archive.md).
 
-## Current state — CI green, all planned phases complete (2026-07-25)
+## Current state — CI green, all planned phases complete (2026-08-06)
 
-All phases from `plans/2026-07-22-ci-truth-correctness-sprint-plan.md` and
-`plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md` have been implemented:
+All phases from `plans/2026-07-22-ci-truth-correctness-sprint-plan.md`,
+`plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md`, and
+`plans/2026-08-06-ci-gate-integrity-and-second-orchestrator-plan.md` have been
+implemented:
 
 - **PHASE-01/02 (07-22):** Workspace hygiene + CI truth (worktree cleanup, pytest markers, PySAM pin, hermetic tests, red-test triage, repo-invariants, flat-script relocation)
 - **PHASE-03 (07-22):** Security & hygiene (untrack binaries, fix `.gitignore`, single dependency source, key-rotation documentation)
@@ -18,11 +20,13 @@ All phases from `plans/2026-07-22-ci-truth-correctness-sprint-plan.md` and
 - **PHASE-01/02 (07-24):** Security hygiene + Single Owner finance audit (already complete)
 - **PHASE-03 (07-24):** Report-only test coverage in CI (85% coverage, non-blocking)
 - **PHASE-04 (07-24):** Plans directory hygiene sweep (13 shipped plans archived, 9 remain active)
+- **PHASE-01 (08-06):** CI gate integrity restored — pinned `ruff==0.16.1`/`mypy==2.3.0`/`pytest==8.4.2`/`pytest-cov==7.1.0` in a `dev` extra, CI installs `".[webapp,dev]"`, 766 ruff violations cleared (report: `reports/2026-08-06-ci-restoration.md`)
+- **PHASE-02 (08-06):** Truth sweep — corrected the two surviving bit-for-bit parity claims, re-polarized the drift tripwire to a catalogued manifest, rewrote `AGENTS.md` §4/§6, added regulatory-watch review dates + invariant, deleted `tests/cross_validate.py` shim + three stale branches (report: `reports/2026-08-06-truth-sweep.md`)
+- **PHASE-03 (08-06):** FX derivation completed — data layer now authoritative for the canonical rate; 8 sites unpinned, Samsung + Saigon18 pins retained (report: `reports/2026-08-06-fx-derivation-delta.md`)
+- **PHASE-04 (08-06):** Second offsite orchestrator registered — `DPPA_CASE_1_NINHSIM` behind a widened `(extracted, *, run_developer, results=None, scenario=None)` contract (report: `reports/2026-08-06-second-orchestrator.md`)
 
-**Test results (2026-07-25):** 589 passed, 18 deselected, 3 xfailed, 0 failed, 85% coverage  
-**Test results (2026-08-06):** 634 passed, 18 deselected, 3 xfailed, 0 failed (portable suite, verified locally)  
-**CI status:** Green on `main` — run `31159536433` (2026-08-06, both matrix legs success); verified with `gh run list`, not just a local run  
-**Final report:** `reports/2026-07-25-post-ci-hygiene-finance-audit-final.md`
+**Test results (2026-08-06):** 654 passed, 18 deselected, 3 xfailed, 0 failed (portable suite, verified locally)  
+**CI status:** Green on `main` — run `31159536433` (2026-08-06, both matrix legs success); verified with `gh run list`, not just a local run
 
 ## Environment
 - PySAM 7.1.0 + python-pptx 1.0.2 live in the repo **`.venv` (Python 3.12)** — use

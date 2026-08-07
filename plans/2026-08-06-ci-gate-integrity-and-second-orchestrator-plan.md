@@ -1,8 +1,7 @@
 ---
 title: "CI Gate Integrity, Truth Sweep, FX Derivation, and a Second Offsite Orchestrator"
 date: "2026-08-06"
-status: "draft"
-request: "Execute the 2026-08-06 gate-integrity brainstorm: restore CI integrity with a pinned dev toolchain and cleared ruff backlog, finish the truth sweep across AGENTS.md / webapp README / drift test / stale branches / regulatory-watch dates, complete the FX derivation by dropping the caller_value pins, and register a second offsite DPPA orchestrator so the public analysis API serves more than one deal."
+status: "complete - PHASE-01..04 shipped (commits 5c12476, 3b462c4, a48fa48, 71c5c4a, 901ab12): CI gate pinned + 766 ruff violations cleared and both matrix legs verified green via gh run list (run 31159536433); truth sweep (parity docs, drift manifest, AGENTS.md, regulatory-watch dates, branch/shim triage); FX derivation made the data layer authoritative; second offsite orchestrator DPPA_CASE_1_NINHSIM registered behind a widened contract"
 plan_type: "multi-phase"
 research_inputs:
   - "research/2026-08-06-reopt-pysam-gate-integrity-brainstorm.md"
