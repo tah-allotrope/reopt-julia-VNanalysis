@@ -1,0 +1,893 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: CI Gate Integrity, Truth Sweep, FX Derivation &amp; a Second Offsite Orchestrator</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a {
+      color: var(--accent-2);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-index,
+    .eyebrow,
+    .stat-label,
+    .stat-value,
+    .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 12ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card,
+    .section,
+    .subcard,
+    .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+    }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .stat-grid,
+    .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3,
+    .subcard h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .subcard p:first-child,
+    .subcard ul:first-child,
+    .subcard ol:first-child {
+      margin-top: 0;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+    .narrative,
+    .chart-frame,
+    .technical-frame,
+    .diagram-frame,
+    .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame,
+    .viz-frame {
+      overflow: hidden;
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--ink);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram {
+      padding: 12px;
+      max-height: min(62vh, 560px);
+    }
+
+    .diagram-frame.compact-diagram .mermaid {
+      min-width: 900px;
+    }
+
+    .chart-frame canvas,
+    .technical-frame > canvas,
+    .viz-frame canvas,
+    canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    p:last-child,
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .summary-grid,
+      .dual-grid,
+      .phase-grid,
+      .stat-grid,
+      .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        max-width: none;
+      }
+
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, var(--page-width));
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: clamp(2.1rem, 12vw, 3.2rem);
+      }
+
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .meta-card,
+      .section,
+      .subcard,
+      .narrative,
+      .chart-frame,
+      .technical-frame,
+      .diagram-frame,
+      .viz-frame,
+      .empty-state,
+      .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .hero,
+      .section {
+        margin-top: 0;
+        margin-bottom: 10mm;
+      }
+
+      .diagram-frame {
+        overflow: visible;
+        max-height: none;
+      }
+
+      .diagram-frame.compact-diagram .mermaid {
+        min-width: 0;
+      }
+
+      .section-header,
+      .takeaway {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">CI Gate Integrity, Truth Sweep, FX Derivation &amp; a Second Offsite Orchestrator</h1>
+          <p class="lede">
+            A presentation-ready synthesis of a multi-phase analysis, written for readers who need context, judgment, and a clear path forward.
+          </p>
+          <div class="takeaway">A four-phase hardening of the reopt-pysam-vn toolkit: restore a CI pipeline that ran red for eleven days, make every documented guarantee real, make the exchange-rate data layer authoritative, and let the public offsite API serve two deals instead of one.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">REopt Vietnam Toolkit (reopt-pysam-vn)</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">tah-allotrope/reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-08-06 / 2026-08-07</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+  <h3>The pipeline is green again, and the claims it masked are now true</h3>
+  <p>Every push since 2026-07-26 had failed at the lint gate because the gate tool was unpinned and ruff expanded its default rule set between releases. Three consecutive red runs (30211921197, 30693998928, 30722078575) masked three structural gaps. This effort closed all four phases: CI is green on both matrix legs (verified with <code>gh run list</code>, run 31162599693), all 766 ruff violations are cleared against a pinned ruff 0.16.1, no document claims a guarantee the code does not enforce, the canonical VND/USD rate is now truly data-layer-driven, and <code>run_offsite_dppa</code> executes two registered deals.</p>
+</div>
+<div class="subcard">
+  <h3>What changed, in one line per phase</h3>
+  <ul>
+    <li><strong>PHASE-01</strong> - pinned the gate toolchain, cleared 766 violations, CI green on both legs.</li>
+    <li><strong>PHASE-02</strong> - corrected every overstated claim (parity docs, AGENTS.md, drift test), added a regulatory-watch invariant, triaged stale branches and a test shim.</li>
+    <li><strong>PHASE-03</strong> - the data layer now owns the canonical exchange rate; zero published numbers moved.</li>
+    <li><strong>PHASE-04</strong> - widened the orchestrator contract and registered DPPA_CASE_1_NINHSIM.</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>The repository is a techno-economic optimization toolkit for Vietnamese solar/wind/battery deals, with outputs that go to external counterparties. The plan (plans/2026-08-06-ci-gate-integrity-and-second-orchestrator-plan.md) was written because verification found the standing record wrong: <code>activeContext.md</code> said "CI status: Green on main" while the pipeline had been red on every push for eleven days and five commits. The red pipeline was not a code regression - it was a supply-chain-timing regression in an unpinned lint gate. But its redness also hid three genuine structural gaps:</p>
+<ul>
+  <li><strong>Documentation advertised guarantees the code did not make.</strong> The webapp README and a module docstring claimed a bit-for-bit parity the tests deliberately do not assert; AGENTS.md carried a March-2026 test table and a repealed 20% export cap.</li>
+  <li><strong>The FX resolver was threaded but short-circuited.</strong> 14 call sites pinned <code>caller_value=26_400.0</code>, which always wins, so editing the canonical data file moved 5 sites, not 19.</li>
+  <li><strong>The public offsite API served exactly one deal.</strong> Any non-Samsung <code>DealConfig.case</code> raised "no offsite orchestrator registered".</li>
+</ul>
+<p>The objective: restore CI integrity, finish the truth sweep, complete the FX derivation, and register a second offsite orchestrator - in that dependency order.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h3>Inputs</h3>
+  <ul>
+    <li>Research brief: research/2026-08-06-reopt-pysam-gate-integrity-brainstorm.md</li>
+    <li>Predecessor: research/2026-07-26-reopt-pysam-post-backlog-architecture-brainstorm.md</li>
+    <li>CI workflow .github/workflows/ci.yml, pyproject.toml, ruff 0.16.1 census</li>
+    <li>AGENTS.md, activeContext.md, docs/regulatory-watch.md, webapp/README.md</li>
+    <li>common/assumptions.py, analysis/offsite_dppa.py, integration/dppa_case_1.py</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h3>Scope decisions</h3>
+  <ul>
+    <li>Kept: expanded ruff rule set (only ISC004 ignored, deliberately).</li>
+    <li>Kept: Samsung/TTC parity pin and 5 Saigon18 25,450 pins.</li>
+    <li>Kept: examples/samsung-ttc_combined-decision.example.json untouched (CON-001).</li>
+    <li>Out of scope: API-key rotation, Samsung IRR root-causing, report-builder consolidation, Julia revival, a third orchestrator.</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h3>Assumptions</h3>
+  <ul>
+    <li>766 violations are ruff 0.16.1's expanded defaults, not code regressions (verified: same tree under narrow select passes).</li>
+    <li>mypy/pytest had not run in CI since 2026-07-24; both legs may have hidden failures (none found).</li>
+    <li>Annotation modernizations are safe: every affected module carries <code>from __future__ import annotations</code>.</li>
+    <li>dppa_case_1, not dppa_case_2, is the right second orchestrator (347 lines, 99% coverage, in-process chain).</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h3>Constraints</h3>
+  <ul>
+    <li>CON-001: Samsung bit-exact parity inviolable; golden never edited.</li>
+    <li>CON-002: webapp never forks analytics.</li>
+    <li>CON-005: portable-suite passing count never decreases.</li>
+    <li>Windows-first; CI changes target Linux runners only.</li>
+    <li>bool must be guarded before int in comparisons.</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>Four phases, executed in strict dependency order, each with its own report and each verified end-to-end before the next began:</p>
+<ul>
+  <li><strong>PHASE-01 (CI restoration)</strong> - baseline recorded (634 passed), gate tools pinned in a <code>dev</code> extra, CI pointed at it, 671 auto-fixable violations cleared with <code>ruff check --fix</code> (no unsafe fixes), 101 redundant <code># noqa: E402</code> comments removed, 72 manual violations triaged by category (BLE001/S110 narrowed per site; PySAM guards kept broad with documented noqa since PySAM raises a bare Exception), then the suite re-run byte-identical and both matrix legs verified green via <code>gh run list</code>.</li>
+  <li><strong>PHASE-02 (truth sweep)</strong> - every surviving claim corrected to what the tests actually assert; the drift tripwire inverted to a measured, catalogued manifest; AGENTS.md sections rewritten; regulatory-watch dates + an overdue-row invariant added; three fully-merged branches deleted; the tests/cross_validate.py shim deleted and flat test shims banned.</li>
+  <li><strong>PHASE-03 (FX derivation)</strong> - TDD: an authority test written first (failed on the 8 pinned sites), then the <code>caller_value=26_400.0</code> argument removed from 8 general-purpose sites, the Samsung pin retained with a CON-001 comment, all 5 Saigon18 pins confirmed, suite re-run with zero numeric movement.</li>
+  <li><strong>PHASE-04 (second orchestrator)</strong> - TDD: the case-1 test suite written first (failed with "no offsite orchestrator registered"), then the contract widened to <code>(extracted, *, run_developer, results=None, scenario=None)</code> with backward-compatible forwarding, the <code>analysis/orchestrators/</code> package created, DPPA_CASE_1_NINHSIM registered, and a webapp acceptance test added proving <code>POST /api/runs</code> reaches <code>done</code>.</li>
+</ul>
+<p>A post-hoc correction surfaced in CI: the drift-manifest test measured 15 diverging paths on the golden machine, but CI's Python 3.10 reproduces the golden nowhere near that (the whole settlement diverges), so that comparison now carries the <code>golden_machine</code> marker - the same exclusion the library-level parity test uses.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+  <h3>PHASE-01 - CI Gate Integrity</h3>
+  <p><strong>Before:</strong> unpinned gates; ruff 0.16.1 reports 766 errors; CI red on every push since 07-26. <strong>After:</strong> 0 errors, suite byte-identical (634 passed), mypy clean, both matrix legs green (run 31159536433).</p>
+  <p>Deliverable: reports/2026-08-06-ci-restoration.md</p>
+</div>
+<div class="subcard">
+  <h3>PHASE-02 - Truth Sweep</h3>
+  <p><strong>Before:</strong> two bit-for-bit claims that tests deliberately do not make; a drift test that turned green <em>because</em> the analytics were wrong; a March-2026 test table; a repealed 20% export cap as a "next step". <strong>After:</strong> all corrected; drift test re-polarized to a manifest; regulatory-watch rows carry review dates with an invariant; branches and shim removed. Suite 634 -> 636.</p>
+  <p>Deliverable: reports/2026-08-06-truth-sweep.md</p>
+</div>
+<div class="subcard">
+  <h3>PHASE-03 - FX Derivation</h3>
+  <p><strong>Before:</strong> 14 sites pinned <code>caller_value=26_400.0</code>; the data layer was never authoritative. <strong>After:</strong> 8 sites derive from the data layer; the Samsung pin (1) and Saigon18 pins (5) are deliberate and commented; editing vn_deal_defaults_2026.json now moves every general-purpose module. Zero published numbers moved. Suite 636 -> 643.</p>
+  <p>Deliverable: reports/2026-08-06-fx-derivation-delta.md</p>
+</div>
+<div class="subcard">
+  <h3>PHASE-04 - Second Offsite Orchestrator</h3>
+  <p><strong>Before:</strong> run_offsite_dppa served exactly DPPA_SAMSUNG_TTC. <strong>After:</strong> contract widened to accept <code>results</code>/<code>scenario</code> (forwarded only when non-None, so the Samsung call shape is unchanged); DPPA_CASE_1_NINHSIM registered behind a new <code>analysis/orchestrators/</code> package; a webapp acceptance test reaches <code>done</code>. Suite 643 -> 654.</p>
+  <p>Deliverable: reports/2026-08-06-second-orchestrator.md</p>
+</div>
+      </div>
+      <div class="diagram-frame compact-diagram">
+  <pre class="mermaid">
+flowchart LR
+  A[CI red on every push<br/>11 days, 5 commits] --> B[PHASE-01 pin gate<br/>clear 766 violations]
+  B --> C{CI green?}
+  C -->|yes both legs| D[PHASE-02 truth sweep<br/>docs + drift test + invariants]
+  C -->|no| B
+  D --> E[PHASE-03 FX derivation<br/>data layer authoritative]
+  E --> F[PHASE-04 second orchestrator<br/>DPPA_CASE_1_NINHSIM]
+  F --> G[CI green 31162599693<br/>653 passed, 3 xfailed]
+  E -.drift measured 15 paths.-> D
+  F -.post-hoc: golden_machine marker.-> D
+  </pre>
+</div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>Four findings drive the recommendation:</p>
+<ul>
+  <li><strong>The gate was the bug, not the code.</strong> An unpinned linter that redefines its own defaults is not a control. Pinning every gate tool to an exact version and having CI install the pinned group removes the entire failure class.</li>
+  <li><strong>"Green" must mean CI.</strong> Eleven days of unverified pushes came from reporting local runs as CI status. The repo's verification convention now mandates <code>gh run list --limit 3</code> before any work is reported complete.</li>
+  <li><strong>Unification is not derivation.</strong> FX was one value everywhere but one source nowhere. Making the data layer authoritative is provably value-preserving today precisely because values already agree - the window closes the moment any rate diverges again.</li>
+  <li><strong>One deal is a front door with one key.</strong> A registry with two entries converts six sessions of "config-driven case runner" into a diff, and reveals which parts of the result vocabulary generalize (three of seven blocks came back empty for case 1 - an honest signal, not a bug).</li>
+</ul>
+<p><strong>Recommendation:</strong> adopt the pinned gate + CI-verification convention as standing policy (now in AGENTS.md and lessons.md), keep the data layer authoritative for FX, and treat DPPA_CASE_1_NINHSIM as the template for a third registration rather than a one-off.</p>
+      </div>
+      <div class="viz-frame chart-frame">
+  <canvas id="suiteChart" height="300"></canvas>
+</div>
+<script>
+(function () {
+  if (!window.Chart) { return; }
+  window.__REPORT_CHART_DEFAULTS__ = window.__REPORT_CHART_DEFAULTS__ || {};
+  new Chart(document.getElementById('suiteChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Baseline', 'After PHASE-01', 'After PHASE-02', 'After PHASE-03', 'After PHASE-04'],
+      datasets: [{
+        label: 'Portable-suite passing tests',
+        data: [634, 634, 636, 643, 654],
+        backgroundColor: ['#dccdb6', '#dccdb6', '#9d6b37', '#3b6f76', '#3b6f76'],
+        borderRadius: 6
+      }]
+    },
+    options: Object.assign({}, window.__REPORT_CHART_DEFAULTS__, {
+      scales: { y: { beginAtZero: true, max: 700 } },
+      plugins: { legend: { display: false }, title: { display: true, text: 'Portable-suite passing count across phases' } }
+    })
+  });
+})();
+</script>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+  <h3>Standing conventions (already committed)</h3>
+  <ul>
+    <li>AGENTS.md section 2: verify CI with <code>gh run list --limit 3</code> before reporting work complete.</li>
+    <li>AGENTS.md section 5: currency note - resolve FX via common.assumptions.exchange_rate(); never a bare literal.</li>
+    <li>lessons.md: pinned-gate rule + local-vs-CI rule + CI-job-duration heuristic.</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h3>Natural next steps</h3>
+  <ul>
+    <li>Register a third orchestrator (dppa_case_2) once the contract has been proven by a smaller case.</li>
+    <li>Migrate the 9 hand-rolled report builders onto assets/report-template.html.</li>
+    <li>Webapp to PPTX deck export (a consumer of the two-deal API).</li>
+    <li>Human action: rotate the NREL Developer API key committed in history (ASM-011).</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+  <h3>Open risks</h3>
+  <ul>
+    <li>Samsung/TTC developer_irr_fraction divergence is documented but not fixed - deliberately out of scope; the drift manifest keeps it catalogued.</li>
+    <li>The drift comparison is machine-dependent; the golden_machine marker excludes it from CI, so a CI-leg-only divergence is not caught (the web-vs-direct gate still is).</li>
+    <li>The widened orchestrator contract is the second design with only two implementations; a third deal may reveal more.</li>
+  </ul>
+</div>
+<div class="subcard">
+  <h3>Open questions</h3>
+  <ul>
+    <li>Has the NREL API key from commits 3911032 / b14bc0b been rotated? (Out-of-band human action; open across eight sessions.)</li>
+    <li>Has any deliverable already gone to a counterparty carrying a non-26,400 FX rate or reference-plant defaults?</li>
+  </ul>
+</div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="subcard">
+  <h3>Evidence: CI runs</h3>
+  <table>
+    <tr><th>Run</th><th>Date</th><th>Outcome</th></tr>
+    <tr><td>31159536433</td><td>2026-08-06</td><td>success (both legs) - PHASE-01</td></tr>
+    <tr><td>31162058872</td><td>2026-08-07</td><td>failure - drift test machine-dependence</td></tr>
+    <tr><td>31162599693</td><td>2026-08-07</td><td>success (both legs) - golden fix</td></tr>
+    <tr><td>31162752294</td><td>2026-08-07</td><td>success (both legs) - docs update</td></tr>
+  </table>
+</div>
+<div class="subcard">
+  <h3>Evidence: violation census (ruff 0.16.1)</h3>
+  <table>
+    <tr><th>Rule family</th><th>Count</th><th>Resolution</th></tr>
+    <tr><td>UP006 / UP045 / UP035 / UP037 / UP007 / UP032</td><td>373</td><td>auto-fixed (PEP 585/604)</td></tr>
+    <tr><td>I001 import sorting</td><td>142</td><td>auto-fixed</td></tr>
+    <tr><td>RUF100 unused noqa</td><td>101</td><td>removed (redundant)</td></tr>
+    <tr><td>ISC004</td><td>57</td><td>ignored deliberately</td></tr>
+    <tr><td>BLE001 / S110 / DTZ001 / DTZ011</td><td>38</td><td>narrowed / fixed per site</td></tr>
+    <tr><td>others (C401, RUF007, RUF012, ...)</td><td>55</td><td>fixed per site</td></tr>
+  </table>
+</div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+  </script>
+</body>
+</html>
+
