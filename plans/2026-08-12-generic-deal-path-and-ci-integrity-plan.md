@@ -1,7 +1,7 @@
 ---
 title: "Generic Deal Path and CI Integrity"
 date: "2026-08-12"
-status: "draft"
+status: "complete"
 request: "Implement the roadmap from research/2026-08-12-reopt-pysam-generic-deal-path-brainstorm.md — Theme J (regulatory reviews + offsite 500 fix + CI skip visibility), Theme K (dependency constraints + scheduled CI), Theme L (generic deal path: market-price data file, shared market reference, generic_vn_dppa fallback orchestrator, extracted-inputs schema validation), Theme M (auditable test surface)."
 plan_type: "multi-phase"
 research_inputs:

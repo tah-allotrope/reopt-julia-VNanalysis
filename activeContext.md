@@ -35,9 +35,13 @@ are implemented (themes J/K/L/M from the ninth-pass brainstorm):
   extracted-inputs schema was corrected (DEC-005) and `validate_extracted_inputs`
   now runs at the offsite boundary.
 
-**Test results (2026-08-13):** 681 passed, 0 skipped, 20 deselected, 3 xfailed
-(portable suite, CI's six-marker filter + skip budget 0, verified locally).  
-**CI status:** see `gh run list --limit 3` on `main` (both matrix legs).
+**Test results (2026-08-13):** 655 passed, 0 skipped, 46 deselected, 3 xfailed
+(portable suite, CI's six-marker filter + skip budget 0, verified locally).
+The 46 deselected = 19 prior + 26 artifact-dependent tests (now `requires_artifacts`)
++ 1 `requires_pysam_resource` test; the 3 xfailed are the long-standing numeric-drift
+tests, correctly not counted against the skip budget.  
+**CI status:** Green on `main` — run `31677162076` (both matrix legs success:
+`test (3.10)` + `test (3.12)`); verified with `gh run list`, not just a local run.
 
 ## Environment
 - PySAM 7.1.0 + python-pptx 1.0.2 live in the repo **`.venv` (Python 3.12)** — use

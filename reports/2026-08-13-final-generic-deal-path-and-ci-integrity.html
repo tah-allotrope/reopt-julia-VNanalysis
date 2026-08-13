@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Final Report :: Generic Deal Path &amp; CI Integrity</title>
+  <meta name="color-scheme" content="dark light">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    async function initMermaid() {
+      const blocks = document.querySelectorAll('.mermaid');
+      if (!blocks.length) {
+        return;
+      }
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        securityLevel: 'loose',
+        themeVariables: {
+          primaryColor: '#f3ead9',
+          primaryTextColor: '#1f1912',
+          primaryBorderColor: '#9d6b37',
+          lineColor: '#3b6f76',
+          secondaryColor: '#efe4d0',
+          tertiaryColor: '#ffffff',
+          background: '#fbf7f1',
+          mainBkg: '#fbf7f1',
+          nodeBorder: '#9d6b37',
+          clusterBkg: '#f7efdf',
+          clusterBorder: '#3b6f76',
+          edgeLabelBackground: '#fbf7f1'
+        }
+      });
+
+      await mermaid.run({ nodes: blocks });
+    }
+
+    const run = () => initMermaid().catch((error) => console.error('Mermaid render failed', error));
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+      run();
+    }
+  </script>
+  <style>
+    :root {
+      --paper: #fbf7f1;
+      --paper-strong: #fffdf9;
+      --ink: #1f1912;
+      --ink-soft: #5f564c;
+      --line: #dccdb6;
+      --line-strong: #bfa37d;
+      --accent: #9d6b37;
+      --accent-soft: #efe4d0;
+      --accent-2: #3b6f76;
+      --shadow: 0 18px 40px rgba(49, 33, 16, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --page-width: 1040px;
+      --display-font: Georgia, "Times New Roman", serif;
+      --body-font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --mono-font: "Cascadia Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(157, 107, 55, 0.09), transparent 26%),
+        radial-gradient(circle at 88% 10%, rgba(59, 111, 118, 0.08), transparent 22%),
+        linear-gradient(180deg, #f7f1e7 0%, #fbf7f1 28%, #f6efe5 100%);
+      font-family: var(--body-font);
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+    }
+
+    a {
+      color: var(--accent-2);
+    }
+
+    code,
+    pre,
+    .technical,
+    .meta-chip,
+    .section-index,
+    .eyebrow,
+    .stat-label,
+    .stat-value,
+    .mermaid {
+      font-family: var(--mono-font);
+    }
+
+    .page-shell {
+      width: min(var(--page-width), calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      padding: 34px;
+      border: 1px solid rgba(159, 123, 79, 0.28);
+      border-radius: 30px;
+      background:
+        linear-gradient(135deg, rgba(157, 107, 55, 0.1), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.86)),
+        var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .title {
+      margin: 0;
+      max-width: 12ch;
+      font-family: var(--display-font);
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+
+    .takeaway {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      background: rgba(59, 111, 118, 0.08);
+      color: #20373a;
+      font-size: 1.02rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-card,
+    .section,
+    .subcard,
+    .empty-state {
+      border: 1px solid rgba(95, 72, 46, 0.12);
+      background: rgba(255, 253, 249, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .meta-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+    }
+
+    .meta-label {
+      color: var(--ink-soft);
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .meta-chip {
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .section {
+      margin-top: 22px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px 18px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--display-font);
+      font-size: clamp(1.45rem, 2vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .stat-grid,
+    .appendix-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid,
+    .dual-grid,
+    .phase-grid,
+    .appendix-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .subcard {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .subcard h3,
+    .subcard h4 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .subcard p:first-child,
+    .subcard ul:first-child,
+    .subcard ol:first-child {
+      margin-top: 0;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border: 1px solid rgba(59, 111, 118, 0.16);
+      border-radius: var(--radius-sm);
+      background: rgba(59, 111, 118, 0.06);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .stat-label {
+      color: var(--ink-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      color: var(--accent-2);
+      font-size: 1.18rem;
+      font-weight: 700;
+    }
+
+    .narrative,
+    .chart-frame,
+    .technical-frame,
+    .diagram-frame,
+    .viz-frame {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.54);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-frame {
+      overflow-x: auto;
+      overflow-y: auto;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: contain;
+      max-height: min(70vh, 720px);
+    }
+
+    .chart-frame,
+    .viz-frame {
+      overflow: hidden;
+    }
+
+    .mermaid {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      color: var(--ink);
+    }
+
+    .mermaid svg {
+      display: block;
+      width: auto !important;
+      min-width: 100%;
+      max-width: none !important;
+      height: auto !important;
+    }
+
+    .diagram-frame.compact-diagram {
+      padding: 12px;
+      max-height: min(62vh, 560px);
+    }
+
+    .diagram-frame.compact-diagram .mermaid {
+      min-width: 900px;
+    }
+
+    .chart-frame canvas,
+    .technical-frame > canvas,
+    .viz-frame canvas,
+    canvas.report-chart {
+      display: block;
+      width: 100% !important;
+      max-width: 100%;
+      height: 300px !important;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .technical-frame table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .technical-frame th,
+    .technical-frame td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .technical-frame th {
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--ink-soft);
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    p:last-child,
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: rgba(95, 86, 76, 0.74);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .summary-grid,
+      .dual-grid,
+      .phase-grid,
+      .stat-grid,
+      .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        max-width: none;
+      }
+
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100vw - 20px, var(--page-width));
+        padding-top: 16px;
+        padding-bottom: 36px;
+      }
+
+      .hero,
+      .section {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: clamp(2.1rem, 12vw, 3.2rem);
+      }
+
+    }
+
+    @media print {
+      :root {
+        --paper: #ffffff;
+        --paper-strong: #ffffff;
+        --ink: #111111;
+        --ink-soft: #444444;
+        --line: #d6d1c8;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+
+      body {
+        background: #ffffff;
+      }
+
+      .page-shell {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero,
+      .meta-card,
+      .section,
+      .subcard,
+      .narrative,
+      .chart-frame,
+      .technical-frame,
+      .diagram-frame,
+      .viz-frame,
+      .empty-state,
+      .stat {
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .hero,
+      .section {
+        margin-top: 0;
+        margin-bottom: 10mm;
+      }
+
+      .diagram-frame {
+        overflow: visible;
+        max-height: none;
+      }
+
+      .diagram-frame.compact-diagram .mermaid {
+        min-width: 0;
+      }
+
+      .section-header,
+      .takeaway {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="title-hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Final Report / Shareable Analysis Artifact</p>
+          <h1 class="title">Generic Deal Path &amp; CI Integrity</h1>
+          <p class="lede">
+            The ninth pass over the REopt Vietnam toolkit: make offsite/DPPA analysis work for <em>any</em> deal
+            (not just two hard-registered ones), and close three defects that made the "green" CI signal weaker
+            than it looked.
+          </p>
+          <div class="takeaway">Any unregistered offsite case now returns a directional result instead of an error, and CI is honest, reproducible, scheduled, and green on both matrix legs with zero silently-skipped tests.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Project</div>
+            <div class="meta-chip">reopt-pysam (REopt Vietnam)</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Repository</div>
+            <div class="meta-chip">tah-allotrope/reopt-pysam</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Date</div>
+            <div class="meta-chip">2026-08-13</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="executive-summary">
+      <div class="section-header">
+        <div>
+          <div class="section-index">01 / Executive Summary</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="subcard">
+          <h3>The problem</h3>
+          <p>The offsite/DPPA pipeline could only analyze two named historical deals. A third deal — or any free-text
+          <code>Case id</code> — hit a hard error even though the web UI promised a "generic runner" that did not exist.
+          Separately, three things made the "green" CI badge misleading: a regulatory-watch invariant that would turn red on
+          2026-08-19 with no code change, a reproducible HTTP 500 on the second registered deal, and 26 tests that silently
+          skipped in CI because they read git-ignored files the CI environment lacks.</p>
+        </div>
+        <div class="subcard">
+          <h3>What changed</h3>
+          <p>Five phases shipped a <strong>generic fallback orchestrator</strong> (any unregistered case now returns a
+          <code>directional</code> result), a <strong>versioned market-price data layer</strong>, honest
+          <strong>extracted-inputs validation</strong>, a <strong>reproducible + scheduled CI</strong> with a skip budget,
+          and <strong>declarative test markers</strong> replacing runtime skips. CI is green on both Python 3.10 and 3.12.</p>
+        </div>
+        <div class="subcard">
+          <h3>The result</h3>
+          <p>The free-text <code>Case id</code> field is now honest, the offsite 500 is a clean 422, and the CI-enforced test
+          surface is auditable: <code>655 passed, 0 skipped, 46 deselected, 3 xfailed</code> on both legs
+          (run <code>31677162076</code>), verified with <code>gh run list</code>, not a local run.</p>
+        </div>
+        <div class="subcard">
+          <h3>The recommendation</h3>
+          <p>Land the generic path as the registry default (done), flag every generic result <code>directional</code> so a
+          bespoke model is never silently bypassed, and keep the market-price file behind the data manifest so a real
+          published FMP/CFMP series can replace the proxy without a schema change.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="background-objective">
+      <div class="section-header">
+        <div>
+          <div class="section-index">02 / Background &amp; Objective</div>
+          <h2 class="section-title">Background &amp; Objective</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>The repo's key function is techno-economic analysis of Vietnam clean-energy deals via a <code>DealConfig</code>
+        descriptor routed through <code>reopt_pysam_vn.analysis</code>. After the eighth pass, the offsite registry had grown
+        from one deal to two (<code>DPPA_SAMSUNG_TTC</code>, <code>DPPA_CASE_1_NINHSIM</code>), but registering historical
+        deals one at a time would never make this a product. The ninth-pass brainstorm identified one named missing artifact —
+        a versioned market-reference price series — as the last ingredient for a genuinely deal-generic DPPA path, plus three
+        concrete defects in the CI signal.</p>
+        <p>The objective was to (1) make any <code>DealConfig</code> runnable through <code>run_offsite_dppa</code>; (2) fix the
+        offsite consumer surfaces so the second registered deal is reachable end-to-end; (3) make CI self-firing, reproducible,
+        and honest about skips; and (4) clear a dated regulatory-watch fuse before it fired on an unrelated push.</p>
+      </div>
+    </section>
+
+    <section class="section" id="inputs-scope">
+      <div class="section-header">
+        <div>
+          <div class="section-index">03 / Inputs &amp; Scope</div>
+          <h2 class="section-title">Inputs &amp; Scope</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Inputs</h3>
+          <ul>
+            <li>Plan: <code>plans/2026-08-12-generic-deal-path-and-ci-integrity-plan.md</code> (5 phases).</li>
+            <li>Research: <code>research/2026-08-12-reopt-pysam-generic-deal-path-brainstorm.md</code> (themes J/K/L/M).</li>
+            <li>Key surfaces: <code>analysis/</code> (offsite_dppa, __main__, validation, orchestrators), <code>integration/</code> (settlement, dppa_case_2), <code>webapp/</code> (service, routes/api, errors), <code>data/vietnam/</code> + <code>manifest.json</code>, <code>docs/regulatory-watch.md</code>, <code>.github/workflows/ci.yml</code>.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Scope boundaries</h3>
+          <ul>
+            <li><strong>In scope:</strong> generic offsite path, market-price data layer, extracted-inputs validation, CI reproducibility + schedule + skip budget, marker conversion, regulatory-watch review.</li>
+            <li><strong>Out of scope:</strong> rotating the historically committed NREL key (out-of-band), reviving the Julia path, the web-app→PPTX deck export, and any change to the Samsung-TTC golden example.</li>
+            <li><strong>Preserved:</strong> Samsung-TTC bit-for-bit parity (CON-002) and <code>ContractParams</code> field stability (CON-003).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="assumptions-constraints">
+      <div class="section-header">
+        <div>
+          <div class="section-index">04 / Assumptions &amp; Constraints</div>
+          <h2 class="section-title">Assumptions &amp; Constraints</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Binding assumptions</h3>
+          <ul>
+            <li><strong>No published hourly FMP/CFMP series</strong> is ingestible yet — the market-price file ships a documented <code>PROXY</code> (wholesale reference 671 VND/kWh, the Decree 243/2026 surplus rate) flagged <code>proxy_cfmp_or_fmp</code>.</li>
+            <li><strong>A new deal's load must arrive as 8760 values</strong>; synthesizing a load from an annual total is explicitly out of scope (upstream callers use <code>ingestion.synthesize</code>).</li>
+            <li><strong>The generic orchestrator never fetches over the network</strong> for generation — it prefers an explicit <code>generation_kw</code>, then a cached PVWatts resource, then a deterministic synthetic shape.</li>
+            <li>The <strong>exact composition of CI skips was read from the CI <code>-rs</code> output</strong>, not inferred locally (ASM-003).</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Honesty constraints</h3>
+          <ul>
+            <li>Every generic result is flagged <code>quality.basis == "directional"</code> and echoes the resolved orchestrator name, so a fat-fingered case id is never silently given a bespoke-model answer.</li>
+            <li>Two regulatory-watch rows (<code>tech_costs</code>, <code>emissions</code>) could not be confirmed against a named primary source, so they were marked <code>UNVERIFIED</code> rather than bumping <code>Last verified</code> (ASM-001).</li>
+            <li>The extracted-inputs schema was corrected to describe the files that actually exist (DEC-005) — data files were not "fixed" to match a stale schema.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="methodology">
+      <div class="section-header">
+        <div>
+          <div class="section-index">05 / Methodology</div>
+          <h2 class="section-title">Methodology</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p>The work proceeded in five phases with dependency-aware ordering: the deadline-critical CI phase and the two
+        independent code phases ran first, the marker phase consumed the CI skip list, and the generic orchestrator landed
+        last on top of the market-price layer and the error-handling refactor. Each phase was gated on its own exit criteria —
+        <code>ruff</code>, <code>mypy</code>, the full portable suite, and <code>gh run list --limit 3</code> showing green on
+        both matrix legs. The market-reference refactor was value-preserving by construction (the shared helper reads per-deal
+        data first and only falls back to the data layer), verified by recomputing the Case-2 proxy inline rather than trusting
+        a stored golden. The skip-budget hook was validated against a deliberately skipped test to prove it fires, and against
+        the xfail edge case to prove it does not fire spuriously.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Orientation</div>
+          <div class="stat-value">multi-phase</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Audience</div>
+          <div class="stat-value">stakeholder-safe</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Evidence Rule</div>
+          <div class="stat-value">no invented data</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="phase-analysis">
+      <div class="section-header">
+        <div>
+          <div class="section-index">06 / Phase-by-Phase Analysis</div>
+          <h2 class="section-title">Phase-by-Phase Analysis</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>PHASE-01 — CI integrity</h3>
+          <p>Reviewed the three expiring regulatory-watch rows (financials confirmed against CIT Law 67/2025/QH15; tech_costs +
+          emissions marked <code>UNVERIFIED</code>). Added a weekly <code>schedule:</code> cron, <code>-rs</code>, and a
+          skip budget (<code>tests/conftest.py</code>, <code>REOPT_PYSAM_VN_MAX_SKIPS</code>), and pinned the full dependency set
+          in <code>constraints-ci.txt</code> (universal, 3.10-floor resolution) wired in via <code>-c</code>.</p>
+        </div>
+        <div class="subcard">
+          <h3>PHASE-02 — offsite consumer surfaces</h3>
+          <p>Added <code>OrchestratorInputError</code> + signature-aware keyword forwarding in <code>run_offsite_dppa</code>;
+          added <code>--results</code>/<code>--scenario</code> CLI flags and threaded both through the web API. A missing input is
+          now a clean 422 (<code>MISSING_INPUTS</code>) with the run marked <code>error</code>, never a 500 with a run stranded
+          in <code>queued</code>.</p>
+        </div>
+        <div class="subcard">
+          <h3>PHASE-03 — auditable test surface</h3>
+          <p>Converted the environment-dependent skips to declarative <code>requires_nrel_key</code> /
+          <code>requires_pysam_resource</code> / <code>requires_artifacts</code> markers, enabled <code>--strict-markers</code>,
+          and added an in-process <code>main(argv)</code> CLI test so the public CLI is coverage-measured. The skip budget is
+          now <code>0</code>.</p>
+        </div>
+        <div class="subcard">
+          <h3>PHASE-04 — market-price data layer</h3>
+          <p>Added <code>data/vietnam/vn_market_prices_2026.json</code> behind <code>manifest.json</code> (proxy, wholesale
+          reference 671 VND/kWh) and a shared <code>integration/market_reference.py</code>. <code>dppa_case_2</code> now
+          delegates to it — value-preserving, verified by an inline recompute.</p>
+        </div>
+        <div class="subcard">
+          <h3>PHASE-05 — generic fallback orchestrator</h3>
+          <p>Built <code>analysis/orchestrators/generic_vn_dppa.py</code> (load + generation + tariff + market reference +
+          <code>ContractParams.from_regime</code> + settlement + 21-point strike sweep) and registered it as the registry
+          fallback. Corrected the extracted-inputs schema (DEC-005) and wired <code>validate_extracted_inputs</code> at the
+          offsite boundary.</p>
+        </div>
+        <div class="subcard">
+          <h3>Verification</h3>
+          <p><code>ruff check src scripts tests</code> → clean. <code>mypy</code> → "no issues found in 24 source files".
+          Full portable suite → <code>655 passed, 0 skipped, 46 deselected, 3 xfailed</code>. CI run <code>31677162076</code>
+          success on both legs (<code>test (3.10)</code> + <code>test (3.12)</code>).</p>
+        </div>
+      </div>
+      <div class="diagram-frame compact-diagram" style="margin-top:16px;">
+        <pre class="mermaid">
+flowchart LR
+  A[PHASE-01<br/>CI integrity] --> B[PHASE-02<br/>offsite 500 fix]
+  A --> C[PHASE-04<br/>market-price layer]
+  B --> D[PHASE-05<br/>generic orchestrator]
+  C --> D
+  A --> E[PHASE-03<br/>auditable markers]
+  D --> F[CI green<br/>both legs]
+  E --> F
+        </pre>
+      </div>
+    </section>
+
+    <section class="section" id="findings-recommendation">
+      <div class="section-header">
+        <div>
+          <div class="section-index">07 / Findings &amp; Recommendation</div>
+          <h2 class="section-title">Findings &amp; Recommendation</h2>
+        </div>
+      </div>
+      <div class="narrative">
+        <p><strong>Finding 1 — the generic path was one missing data artifact, not a new engine.</strong> Every building block
+        for a deal-generic DPPA run already existed and was tested (hourly settlement, contract terms from the policy data
+        layer, strike sweep, PVWatts, load synthesis, 8760 TOU tariff). The only gap was a market-reference series, now shipped
+        as an honest proxy behind the manifest. This turned "config-driven case runner" — a six-pass-old aspiration — into a
+        half-built feature completed in one phase.</p>
+        <p><strong>Finding 2 — the "green" signal hid three real defects.</strong> A dated invariant fuse, a reproducible 500 on
+        a shipped deal, and 26 silently-skipped tests. The fixes were small but load-bearing: a scheduled workflow, a typed
+        error mapped to 422, and declarative markers plus a skip budget. The skip budget itself had a subtle bug — a failing
+        <code>xfail</code> test also carries <code>report.skipped</code> — that would have under-counted the true skip surface
+        had it gone unnoticed.</p>
+        <p><strong>Finding 3 — local and CI are genuinely different environments.</strong> The dev box has a warm
+        <code>artifacts/</code> tree, an NREL key, and a PVWatts resource cache; CI has none. Only the CI <code>-rs</code> output
+        enumerated the true skip set, which was the git-ignored <code>artifacts/</code> readers, not the NREL-key family a local
+        simulation suggested.</p>
+        <p><strong>Recommendation:</strong> keep the generic fallback as the registry default with <code>directional</code>
+        flags, and treat the market-price file as a placeholder for a real published FMP/CFMP ingest. Do not register a third
+        bespoke orchestrator — the free-text Case id would stay broken for everything not already in the repository.</p>
+      </div>
+      <div class="viz-frame" style="margin-top:16px;">
+        <canvas id="ciSurfaceChart"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="implementation-path">
+      <div class="section-header">
+        <div>
+          <div class="section-index">08 / Implementation Path</div>
+          <h2 class="section-title">Implementation Path</h2>
+        </div>
+      </div>
+      <div class="phase-grid">
+        <div class="subcard">
+          <h3>Done (this effort)</h3>
+          <ul>
+            <li>Generic fallback orchestrator + registry fallback (PHASE-05).</li>
+            <li>Market-price data layer + shared reference module (PHASE-04).</li>
+            <li>Offsite 500 → 422; CLI + web forwarding (PHASE-02).</li>
+            <li>CI cron + constraints + skip budget + markers (PHASE-01/03).</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Next steps</h3>
+          <ul>
+            <li>Ingest a real published FMP/CFMP series into <code>vn_market_prices_*.json</code> and flip the manifest key.</li>
+            <li>Rotate the historically committed NREL API key (out-of-band human action).</li>
+            <li>Reconcile <code>vn_emissions_2024.json</code> (0.681) with the 2023 MONRE factor (0.6592).</li>
+            <li>Then: consolidate the nine hand-rolled report builders onto the shared templates, and the webapp→deck export.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks-open-questions">
+      <div class="section-header">
+        <div>
+          <div class="section-index">09 / Risks / Open Questions</div>
+          <h2 class="section-title">Risks / Open Questions</h2>
+        </div>
+      </div>
+      <div class="dual-grid">
+        <div class="subcard">
+          <h3>Risks</h3>
+          <ul>
+            <li><strong>Generic results are directional, not bankable.</strong> A contract shape the generic path does not model
+            (e.g. contracted-volume CfD with a floor) could produce plausible-but-wrong numbers; mitigated by the
+            <code>directional</code> flag and a warning naming the registered cases.</li>
+            <li><strong>The proxy market reference is a placeholder.</strong> It must not be mistaken for a published market
+            price in client output.</li>
+            <li><strong>A constraints file freezes security fixes out of the build</strong> until regenerated; the weekly cron +
+            regeneration command in the header make refresh routine.</li>
+          </ul>
+        </div>
+        <div class="subcard">
+          <h3>Open questions</h3>
+          <ul>
+            <li>Has the NREL key from commits <code>3911032</code>/<code>b14bc0b</code> been rotated? (open ~40 days).</li>
+            <li>Should the regulatory-watch invariant block or warn? (adopted: block + scheduled run + 30-day warn tier).</li>
+            <li>Is a flagged proxy acceptable in client-facing output? (adopted: yes, flagged).</li>
+            <li>Should the generic orchestrator be the fallback or an explicit opt-in case id? (adopted: fallback, with the
+            resolved orchestrator echoed in <code>quality.orchestrator</code>).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendices-evidence">
+      <div class="section-header">
+        <div>
+          <div class="section-index">10 / Appendices / Evidence Notes</div>
+          <h2 class="section-title">Appendices / Evidence Notes</h2>
+        </div>
+      </div>
+      <div class="appendix-grid">
+        <div class="technical-frame">
+          <h3>CI test surface (before → after)</h3>
+          <table>
+            <thead><tr><th>Metric</th><th>Baseline CI</th><th>After</th></tr></thead>
+            <tbody>
+              <tr><td>Passed</td><td>627</td><td>655</td></tr>
+              <tr><td>Skipped</td><td>26</td><td>0</td></tr>
+              <tr><td>Deselected (markers)</td><td>19</td><td>46</td></tr>
+              <tr><td>Xfailed (documented drift)</td><td>3</td><td>3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="technical-frame">
+          <h3>Files landed</h3>
+          <table>
+            <thead><tr><th>Area</th><th>Representative files</th></tr></thead>
+            <tbody>
+              <tr><td>Generic path</td><td><code>analysis/orchestrators/generic_vn_dppa.py</code>, <code>integration/market_reference.py</code></td></tr>
+              <tr><td>Data</td><td><code>data/vietnam/vn_market_prices_2026.json</code>, <code>data/schemas/extracted_inputs.schema.json</code></td></tr>
+              <tr><td>CI</td><td><code>constraints-ci.txt</code>, <code>tests/conftest.py</code>, <code>.github/workflows/ci.yml</code>, <code>pyproject.toml</code></td></tr>
+              <tr><td>Docs</td><td><code>docs/regulatory-watch.md</code>, <code>docs/testing.md</code>, <code>activeContext.md</code>, <code>lessons.md</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer-note">designed for html first, printable without reconstruction</div>
+    </section>
+  </main>
+  <script>
+    (function() {
+      const chartCanvases = document.querySelectorAll('canvas');
+      chartCanvases.forEach((canvas) => {
+        canvas.classList.add('report-chart');
+        const parent = canvas.parentElement;
+        if (parent && parent.classList.contains('technical-frame') && !parent.classList.contains('chart-frame')) {
+          parent.classList.add('chart-frame');
+        }
+      });
+    })();
+
+    if (window.Chart) {
+      Chart.defaults.devicePixelRatio = 1;
+      Chart.defaults.animation = false;
+      Chart.defaults.resizeDelay = 150;
+      Chart.defaults.normalized = true;
+      Chart.defaults.maintainAspectRatio = false;
+      Chart.defaults.responsive = true;
+      window.__REPORT_CHART_DEFAULTS__ = {
+        animation: false,
+        resizeDelay: 150,
+        normalized: true,
+        maintainAspectRatio: false,
+        responsive: true
+      };
+    }
+
+    (function() {
+      if (!window.Chart) return;
+      const canvas = document.getElementById('ciSurfaceChart');
+      if (!canvas) return;
+      new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Passed', 'Skipped', 'Deselected', 'Xfailed'],
+          datasets: [
+            { label: 'Baseline CI', data: [627, 26, 19, 3], backgroundColor: 'rgba(157, 107, 55, 0.55)' },
+            { label: 'After (green)', data: [655, 0, 46, 3], backgroundColor: 'rgba(59, 111, 118, 0.65)' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          normalized: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'CI-enforced test surface: before vs after' }
+          },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'test count' } }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
