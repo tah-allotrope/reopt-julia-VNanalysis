@@ -17,11 +17,14 @@ _skip_count = 0
 
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     global _skip_count
-    if report.skipped:
-        # A skipped test emits exactly one skipped report: `when == "setup"` for
-        # ``@pytest.mark.skip`` and `when == "call"` for ``pytest.skip()`` inside
-        # the body (verified empirically), so counting every skipped report
-        # counts each skipped test exactly once.
+    # A test that fails as expected under ``@pytest.mark.xfail`` also carries
+    # ``report.skipped=True`` (with ``report.wasxfail`` set) — that is an xfail
+    # outcome, not a skip, and must not count against the skip budget. A real
+    # skip has ``wasxfail`` unset. A skipped test emits exactly one skipped
+    # report (``setup`` for ``@pytest.mark.skip``/fixture skips, ``call`` for
+    # ``pytest.skip()`` in the body), so counting every real-skip report counts
+    # each skipped test once.
+    if report.skipped and not getattr(report, "wasxfail", None):
         _skip_count += 1
 
 

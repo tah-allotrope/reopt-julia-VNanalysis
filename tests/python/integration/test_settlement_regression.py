@@ -48,6 +48,7 @@ def _pct_deviation(actual: float, expected: float) -> float:
     return abs(actual - expected) / abs(expected) * 100.0
 
 
+@pytest.mark.requires_artifacts
 class TestNinhsimCaseRegression:
     """Replay ninhsim DPPA Case 2 buyer settlement through generalized engine."""
 
@@ -138,6 +139,7 @@ class TestNinhsimCaseRegression:
         assert actual == expected
 
 
+@pytest.mark.requires_artifacts
 class TestSaigon18CaseRegression:
     """Replay saigon18 DPPA private-wire settlement through generalized engine.
 

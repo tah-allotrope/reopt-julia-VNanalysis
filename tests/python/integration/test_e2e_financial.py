@@ -67,6 +67,7 @@ def _extract_base_ebitda(results: dict, analysis_years: int = DEFAULT_ANALYSIS_Y
     ]
 
 
+@pytest.mark.requires_artifacts
 def test_e2e_financial_pipeline():
     if not EXAMPLE_RESULTS.is_file():
         pytest.skip(f"Example results not found: {EXAMPLE_RESULTS}")

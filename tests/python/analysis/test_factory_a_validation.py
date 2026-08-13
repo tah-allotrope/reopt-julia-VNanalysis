@@ -67,6 +67,7 @@ def pysam_results():
     return results
 
 
+@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_equity_irr_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]
@@ -82,6 +83,7 @@ def test_equity_irr_within_tolerance(pysam_results, case_id):
     )
 
 
+@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_avg_dscr_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]
@@ -96,6 +98,7 @@ def test_avg_dscr_within_tolerance(pysam_results, case_id):
     )
 
 
+@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_clean_self_supply_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]
