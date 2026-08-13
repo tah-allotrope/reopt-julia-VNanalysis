@@ -1,10 +1,10 @@
-# constraints-ci.txt — reproducible CI dependency pins (Theme K, PHASE-01).
+# constraints-ci.txt - reproducible CI dependency pins (Theme K, PHASE-01).
 #
 # What: pins every runtime + dev dependency CI installs, so a third-party
 #       release cannot break main unannounced the way ruff's expanded default
 #       rule set did (the eleven-day outage). pyproject.toml keeps permissive
 #       >= floors for library consumers; CI installs with -c this file.
-# How:  generated on the Python 3.10 floor (the repo's equires-python), with
+# How:  generated on the Python 3.10 floor (the repo's requires-python), with
 #       a universal (cross-platform, cross-version) resolution so both matrix
 #       legs (3.10 and 3.12, Linux) resolve. Regeneration command:
 #         uv pip compile pyproject.toml --universal --python-version 3.10 --extra webapp --extra dev --output-file constraints-ci.txt
