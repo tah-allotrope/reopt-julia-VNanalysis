@@ -34,6 +34,7 @@ def _submit_deal_config(
     deal_config_dict: dict[str, Any],
     *,
     results: dict[str, Any] | None = None,
+    scenario: dict[str, Any] | None = None,
     extracted: dict[str, Any] | None = None,
     force_resolve: bool = False,
 ) -> str:
@@ -52,7 +53,9 @@ def _submit_deal_config(
         jobs.submit_solve(run_id, deal_config_dict, force_resolve=force_resolve)
     else:
         try:
-            result = service.run_analysis(deal, results=results, extracted=extracted)
+            result = service.run_analysis(
+                deal, results=results, scenario=scenario, extracted=extracted
+            )
             storage.save_result(run_id, result)
             storage.set_status(run_id, state="done")
         except service.AnalysisError as exc:
@@ -77,6 +80,7 @@ def create_run(payload: dict[str, Any], request: Request) -> dict[str, Any]:
         request,
         deal_config_dict,
         results=payload.get("results"),
+        scenario=payload.get("scenario"),
         extracted=payload.get("extracted"),
         force_resolve=bool(payload.get("force_resolve", False)),
     )

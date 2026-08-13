@@ -1,7 +1,7 @@
 """CLI for the generalized analysis pipelines (DEC-004).
 
     python -m reopt_pysam_vn.analysis onsite       --config deal.json [--results r.json] [--out o.json]
-    python -m reopt_pysam_vn.analysis offsite_dppa  --config deal.json [--extracted e.json] [--out o.json]
+    python -m reopt_pysam_vn.analysis offsite_dppa  --config deal.json [--extracted e.json] [--results r.json] [--scenario s.json] [--out o.json]
 
 Loads a DealConfig JSON, runs the requested pipeline, and writes (or prints) the
 result JSON. Returns exit code 0 on success, 2 on a usage/runtime error.
@@ -54,7 +54,15 @@ def _cmd_offsite_dppa(args: argparse.Namespace) -> int:
 
     deal = DealConfig.from_dict(_load_json(args.config))
     extracted = _load_json(args.extracted) if args.extracted else None
-    result = run_offsite_dppa(deal, extracted=extracted, run_developer=args.run_developer)
+    results = _load_json(args.results) if args.results else None
+    scenario = _load_json(args.scenario) if args.scenario else None
+    result = run_offsite_dppa(
+        deal,
+        extracted=extracted,
+        results=results,
+        scenario=scenario,
+        run_developer=args.run_developer,
+    )
     _emit(result.to_dict(), args.out)
     return 0
 
@@ -77,6 +85,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_off = sub.add_parser("offsite_dppa", help="Offsite/DPPA settlement + finance analysis.")
     p_off.add_argument("--config", required=True, help="Path to a deal_config JSON.")
     p_off.add_argument("--extracted", help="Path to an *_extracted_inputs JSON.")
+    p_off.add_argument("--results", help="Path to a pre-solved REopt results JSON.")
+    p_off.add_argument("--scenario", help="Path to the REopt Scenario JSON the solve was built from.")
     p_off.add_argument("--out", help="Write result JSON here instead of stdout.")
     p_off.add_argument(
         "--no-developer",

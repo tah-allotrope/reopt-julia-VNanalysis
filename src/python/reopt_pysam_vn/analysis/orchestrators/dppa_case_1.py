@@ -16,6 +16,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorInputError
+
 DeveloperRunner = Callable[[dict[str, Any]], dict[str, Any]]
 
 _DEVELOPER_RUNNER_MISSING_WARNING = (
@@ -69,16 +71,16 @@ def build_case_1_offsite_artifact(
     """Compose the four ``dppa_case_1`` builders per S3 and adapt to the
     ``OffsiteDppaResult`` block vocabulary per S4.
 
-    Raises ``ValueError`` naming the missing argument when ``results`` or
-    ``scenario`` is ``None``.
+    Raises ``OrchestratorInputError`` naming the missing argument when ``results``
+    or ``scenario`` is ``None``.
     """
     if results is None:
-        raise ValueError(
+        raise OrchestratorInputError(
             "run_offsite_dppa for DPPA_CASE_1_NINHSIM needs `results` (the REopt "
             "solve's results block); pass results=... or set deal_config.raw['results']."
         )
     if scenario is None:
-        raise ValueError(
+        raise OrchestratorInputError(
             "run_offsite_dppa for DPPA_CASE_1_NINHSIM needs `scenario` (the REopt "
             "Scenario dict the solve was built from); pass scenario=... or set "
             "deal_config.raw['scenario']."

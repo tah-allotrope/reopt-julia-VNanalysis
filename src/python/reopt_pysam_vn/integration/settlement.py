@@ -71,7 +71,7 @@ class ContractParams:
         if vn is None:
             vn = load_vietnam_data()
 
-        resolved = {
+        resolved: dict[str, Any] = {
             "export_cap_pct": export_cap_fraction(vn, regime_id=regime_id) * 100.0,
             "surplus_rate_vnd_kwh": surplus_rate_vnd_per_kwh(vn, regime_id=regime_id),
             "dppa_adder_vnd_kwh": dppa_adder_vnd_per_kwh(vn),

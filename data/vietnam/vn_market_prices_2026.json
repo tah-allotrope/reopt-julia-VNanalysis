@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "version": "2026.1",
+    "description": "Wholesale/market price reference for DPPA settlement. No published hourly FMP/CFMP series has been ingested; the proxy block below drives a tariff-scaled reference series.",
+    "status": "PROXY - no published hourly FMP/CFMP series ingested",
+    "source": "Surplus purchase rate carried by data/vietnam/vn_export_rules_2026_decree243.json (Decree 243/2026/ND-CP), used as the wholesale reference",
+    "last_updated": "2026-08-13",
+    "units": "VND per kWh unless a key says otherwise"
+  },
+  "data": {
+    "hourly_shape_24": null,
+    "proxy": {
+      "wholesale_reference_vnd_per_kwh": 671.0,
+      "method": "hourly_evn_tariff_scaled_by_wholesale_ratio",
+      "market_reference_price_type": "proxy_cfmp_or_fmp"
+    }
+  }
+}

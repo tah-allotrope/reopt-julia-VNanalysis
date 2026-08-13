@@ -2,34 +2,20 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/anomalyco/reopt-pysam/data/schemas/extracted_inputs.schema.json",
   "title": "Extracted Excel Inputs",
-  "description": "Schema defining required fields for data extracted from a Vietnam project Excel model for use as REopt and PySAM inputs.",
+  "description": "Schema describing the offsite/DPPA extracted-input layer (*_extracted_inputs.json). Only `loads_kw` is required; every other property is optional and validated for type and length only when present, because the five tracked files are deliberately heterogeneous (DEC-005).",
   "type": "object",
   "required": [
-    "project",
-    "site",
-    "loads_kw",
-    "load_cleaning",
-    "benchmark",
-    "pv_production_factor",
-    "fmp_vnd_per_mwh",
-    "evn_tariff"
+    "loads_kw"
   ],
   "properties": {
     "project": {
       "type": "string",
-      "description": "Project name identifier",
+      "description": "Project name identifier; consumed by report builders and the offsite settlement path.",
       "minLength": 1
     },
     "site": {
       "type": "object",
-      "description": "Site geographic and tariff metadata",
-      "required": [
-        "latitude",
-        "longitude",
-        "customer_type",
-        "region",
-        "voltage_level"
-      ],
+      "description": "Site geographic and tariff metadata; required by the PVWatts generation path (latitude/longitude) and tariff resolution.",
       "properties": {
         "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
         "longitude": { "type": "number", "minimum": -180, "maximum": 180 },
@@ -49,32 +35,32 @@
     },
     "loads_kw": {
       "type": "array",
-      "description": "8760-hour site load profile in kW",
+      "description": "8760-hour site load profile in kW (the only required field).",
+      "minItems": 8760,
+      "maxItems": 8760,
+      "items": { "type": "number", "minimum": 0 }
+    },
+    "generation_kw": {
+      "type": "array",
+      "description": "Optional 8760-hour generation profile in kW; the generic orchestrator uses it when a PVWatts resource is unavailable.",
       "minItems": 8760,
       "maxItems": 8760,
       "items": { "type": "number", "minimum": 0 }
     },
     "load_cleaning": {
       "type": "object",
-      "description": "Summary of load cleaning / validation steps applied",
-      "required": ["missing_count", "final_count"],
+      "description": "Summary of load cleaning / validation steps applied; optional metadata only.",
       "properties": {
         "missing_count": { "type": "integer", "minimum": 0 },
         "final_count": { "type": "integer", "minimum": 1 },
         "interpolated_count": { "type": "integer", "minimum": 0 },
         "negative_replaced_count": { "type": "integer", "minimum": 0 }
-      }
+      },
+      "additionalProperties": true
     },
     "benchmark": {
       "type": "object",
-      "description": "Benchmark tariff and load summary metrics",
-      "required": [
-        "annual_load_kwh",
-        "annual_load_gwh",
-        "weighted_evn_price_vnd_per_kwh",
-        "weighted_evn_price_usd_per_kwh",
-        "exchange_rate_vnd_per_usd"
-      ],
+      "description": "Benchmark tariff and load summary metrics; required by the market-proxy and settlement paths when present.",
       "properties": {
         "annual_load_kwh": { "type": "number", "minimum": 0 },
         "annual_load_gwh": { "type": "number", "minimum": 0 },
@@ -89,27 +75,29 @@
     },
     "pv_production_factor": {
       "type": "number",
-      "description": "PV production factor (fraction of rated capacity per hour) or site-specific scaling factor",
+      "description": "PV production factor (fraction of rated capacity per hour) or site-specific scaling factor.",
       "minimum": 0,
       "maximum": 2
     },
     "fmp_vnd_per_mwh": {
       "type": "array",
-      "description": "8760-hour Forward Market Price series in VND/MWh (or VND/kWh per normalization)",
+      "description": "8760-hour Forward Market Price series in VND/MWh (or VND/kWh per normalization).",
       "minItems": 8760,
       "maxItems": 8760,
       "items": { "type": "number", "minimum": 0 }
     },
     "evn_tariff": {
       "type": "object",
-      "description": "EVN tariff parameters for the project",
-      "required": ["tou_energy_rates_usd_per_kwh"],
+      "description": "EVN tariff parameters for the project; required by the settlement and market-proxy paths when present.",
       "properties": {
         "tou_energy_rates_usd_per_kwh": {
           "type": "array",
-          "description": "8760-hour TOU energy rates in USD/kWh",
-          "minItems": 8760,
-          "maxItems": 8760,
+          "description": "Hourly TOU energy rates in USD/kWh. Not exact-8760: the settlement engine pads/truncates to 8760, and some tracked files carry 8784 (leap-year) series.",
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "tou_energy_rates_vnd_per_kwh": {
+          "type": "array",
+          "description": "Hourly TOU energy rates in VND/kWh (the settlement and market-proxy paths consume this when the USD series is absent).",
           "items": { "type": "number", "minimum": 0 }
         },
         "monthly_demand_rates_usd_per_kw": {

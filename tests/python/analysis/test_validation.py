@@ -21,8 +21,10 @@ sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.analysis.validation import (
     DealConfigValidationError,
+    ExtractedInputsValidationError,
     load_deal_config_schema,
     validate_deal_config,
+    validate_extracted_inputs,
 )
 
 SAMSUNG_CONFIG = REPO_ROOT / "scenarios" / "case_studies" / "samsung_ttc" / "samsung_ttc_deal_config.json"
@@ -169,3 +171,36 @@ def test_deal_config_from_dict_accepts_sample_fixture():
     deal = DealConfig.from_dict(d)
     assert deal.case
     assert deal.mode in ("onsite", "offsite_dppa", "both")
+
+
+# ---------------------------------------------------------------------------
+# PHASE-05: extracted-inputs schema validation.
+# ---------------------------------------------------------------------------
+
+
+def test_validate_extracted_inputs_accepts_minimal_8760_load():
+    assert validate_extracted_inputs({"loads_kw": [1.0] * 8760}) is None
+
+
+def test_validate_extracted_inputs_empty_dict_reports_loads_kw_required():
+    with pytest.raises(ExtractedInputsValidationError) as exc_info:
+        validate_extracted_inputs({})
+    assert exc_info.value.errors == ["missing required property: 'loads_kw'"]
+
+
+def test_validate_extracted_inputs_wrong_length_names_8760_and_actual():
+    with pytest.raises(ExtractedInputsValidationError) as exc_info:
+        validate_extracted_inputs({"loads_kw": [1.0] * 100})
+    joined = "; ".join(exc_info.value.errors)
+    assert "8760" in joined
+    assert "100" in joined
+
+
+def test_all_tracked_offsite_extracted_files_validate():
+    import glob
+
+    for path in sorted(glob.glob(str(REPO_ROOT / "data" / "interim" / "*" / "*extracted_inputs.json"))):
+        d = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+        if "loads_kw" not in d:
+            continue  # factory_a is an ingestion artifact of a different shape
+        validate_extracted_inputs(d)  # raises on failure

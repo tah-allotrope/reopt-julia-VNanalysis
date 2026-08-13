@@ -599,8 +599,14 @@ def build_scenario_dppa_case_2(extracted: dict) -> dict:
 
 
 def build_dppa_case_2_market_proxy(extracted: dict) -> dict:
+    # Delegates the proxy fraction to the shared market-reference module (PHASE-04)
+    # while preserving the exact dict shape and note strings this function has
+    # always emitted. The shared helper reproduces the same `wholesale / weighted`
+    # division, so the series is value-preserving by construction (CON-004).
+    from reopt_pysam_vn.integration.market_reference import market_proxy_fraction
+
     retail_series = _load_retail_series(extracted)
-    fraction = _proxy_market_fraction(extracted)
+    fraction = market_proxy_fraction(extracted)
     hourly = [rate * fraction for rate in retail_series]
     return {
         "model": "Ninhsim DPPA Case 2 Market Proxy",

@@ -246,9 +246,9 @@ def test_two_parameter_orchestrator_keeps_its_call_shape(monkeypatch):
     register_orchestrator("TWO_PARAM_STUB", _two_param)
     result = run_offsite_dppa(
         DealConfig.from_dict({"case": "TWO_PARAM_STUB", "mode": "offsite_dppa"}),
-        extracted={"loads_kw": [1.0]},
+        extracted={"loads_kw": [1.0] * 8760},
     )
     assert result.case == "TWO_PARAM_STUB"
     assert len(calls) == 1
-    assert calls[0][0] == {"loads_kw": [1.0]}
+    assert calls[0][0] == {"loads_kw": [1.0] * 8760}
     assert calls[0][1] is True  # run_developer forwarded positionally by keyword only

@@ -272,6 +272,7 @@ class TestTemplateSmokeTests:
 class TestAPIIntegration:
     """Tests that require the REopt API. Skipped if no API key available."""
 
+    @pytest.mark.requires_nrel_key
     def test_nlr_domain_connectivity(self, api_key):
         """Verify the new developer.nlr.gov domain is reachable and returns a valid load profile.
 
@@ -279,9 +280,6 @@ class TestAPIIntegration:
         no polling, completes in ~2 seconds. Confirms DNS, TLS, and API key all
         work on the new domain after the nrel.gov → nlr.gov migration.
         """
-        if api_key is None:
-            pytest.skip("No NREL API key available")
-
         try:
             import requests
         except ImportError:
@@ -309,11 +307,9 @@ class TestAPIIntegration:
             f"Expected 8760 hourly load values, got {len(data['loads_kw'])}"
         )
 
+    @pytest.mark.requires_nrel_key
     def test_commercial_rooftop_api_solve(self, vn, api_key):
         """Submit commercial rooftop PV template to REopt API and verify results."""
-        if api_key is None:
-            pytest.skip("No NREL API key available")
-
         try:
             import requests  # noqa: F401
         except ImportError:
@@ -351,11 +347,9 @@ class TestAPIIntegration:
         lcc = fin.get("lcc", 0)
         assert lcc > 0
 
+    @pytest.mark.requires_nrel_key
     def test_api_vs_baseline_regression(self, vn, api_key):
         """Compare API results against saved baseline (if exists)."""
-        if api_key is None:
-            pytest.skip("No NREL API key available")
-
         try:
             import requests  # noqa: F401
         except ImportError:
@@ -431,15 +425,13 @@ class TestJuliaVsAPICrossCheck:
     Requires both Julia solver results (from baselines) and API access.
     """
 
+    @pytest.mark.requires_nrel_key
     def test_industrial_julia_vs_api_structure(self, api_key):
         """
         Structural cross-check: verify that Julia baseline and API results
         have the same key metrics within ~2% tolerance.
         Only runs if both Julia baseline and API key are available.
         """
-        if api_key is None:
-            pytest.skip("No NREL API key available")
-
         julia_baseline_path = BASELINES_DIR / "industrial_vietnam_baseline.json"
         if not julia_baseline_path.is_file():
             pytest.skip(

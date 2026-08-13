@@ -22,7 +22,12 @@ Public surface (built across Sprint 3 phases):
 - ``__main__``     — ``python -m reopt_pysam_vn.analysis {onsite,offsite_dppa}`` CLI.
 """
 
-from reopt_pysam_vn.analysis.offsite_dppa import register_orchestrator, run_offsite_dppa
+from reopt_pysam_vn.analysis.offsite_dppa import (
+    OrchestratorInputError,
+    register_orchestrator,
+    run_offsite_dppa,
+    set_generic_orchestrator,
+)
 from reopt_pysam_vn.analysis.onsite import run_onsite
 from reopt_pysam_vn.analysis.types import (
     CombinedDecision,
@@ -38,8 +43,11 @@ def _register_offsite_orchestrators() -> None:
     # integration.dppa_case_1 module (and PySAM) at import time. Mirrors the
     # lazy-import comment on _samsung_ttc_orchestrator.
     from reopt_pysam_vn.analysis.orchestrators.dppa_case_1 import build_case_1_offsite_artifact
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import build_generic_offsite_artifact
 
     register_orchestrator("DPPA_CASE_1_NINHSIM", build_case_1_offsite_artifact)
+    # Generic fallback: any unregistered `case` routes here (DEC-004/PHASE-05).
+    set_generic_orchestrator(build_generic_offsite_artifact)
 
 
 _register_offsite_orchestrators()
@@ -51,6 +59,7 @@ __all__ = [
     "DealConfigValidationError",
     "OffsiteDppaResult",
     "OnsiteResult",
+    "OrchestratorInputError",
     # pipelines (first-class entry points)
     "register_orchestrator",
     "run_offsite_dppa",

@@ -164,6 +164,7 @@ def test_ensure_solar_resource_file_returns_cached_path_when_present(tmp_path: P
 PySAM = pytest.importorskip("PySAM")
 
 
+@pytest.mark.requires_pysam_resource
 def test_run_pvwatts_battery_model_returns_canonical_result_shape():
     from reopt_pysam_vn.pysam.pvwatts_battery import (
         run_pvwatts_battery_single_owner_model,

@@ -33,20 +33,29 @@ dict or a `solve_fn`. `run_offsite_dppa` resolves the orchestrator from
 `deal_config.case` via a registry (`register_orchestrator(case, fn)`), or accepts an
 injected `combined_decision_fn`.
 
-`run_offsite_dppa` currently serves two registered cases:
+`run_offsite_dppa` serves two registered cases plus a generic fallback:
 - **`DPPA_SAMSUNG_TTC`** — derives its generation profile internally (PySAM /
   PVWatts); call it with just `extracted=`.
 - **`DPPA_CASE_1_NINHSIM`** — consumes a REopt `results` dict plus the
   `scenario` dict it was solved from; call it with `extracted=`, `results=`,
   and `scenario=` (or carry them on the deal config — they land in
   `DealConfig.raw` and are resolved automatically).
+- **any other `case`** — routes to the **generic fallback orchestrator**
+  (`analysis/orchestrators/generic_vn_dppa.py`), which assembles load +
+  generation + tariff + market reference + `ContractParams.from_regime` +
+  settlement + strike sweep into a result flagged `quality.basis == "directional"`
+  (and `quality.orchestrator == "generic_vn_dppa"`). The free-text **Case id**
+  field on `/deals/new` is therefore meaningful: an unregistered case no longer
+  errors, it returns a directional result.
 
 The orchestrator contract is `(extracted, *, run_developer=True, results=None,
-scenario=None) -> dict`; `run_offsite_dppa` only forwards `results`/`scenario`
-to an orchestrator when they are not `None`, so a third deal that derives
-generation internally keeps the same two-parameter call shape Samsung uses. A
-deal that consumes a REopt solve supplies its own `results=`/`scenario=`
-builders. Register a third via `register_orchestrator(case, fn)`.
+scenario=None, deal_config=None) -> dict`; `run_offsite_dppa` filters the
+candidate keyword set down to what the chosen orchestrator actually accepts
+(via `inspect.signature`), so a two-parameter orchestrator and a four-parameter
+one keep their exact call shape. The resolved orchestrator name is echoed in
+`quality.orchestrator`. Register another bespoke case via
+`register_orchestrator(case, fn)`; disable the fallback with
+`set_generic_orchestrator(None)`.
 
 ## CLI usage
 

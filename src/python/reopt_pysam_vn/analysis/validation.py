@@ -1,10 +1,10 @@
-"""Structural validation for DealConfig against data/schemas/deal_config.schema.json.
+"""Structural validation for the deal-config and extracted-inputs schemas.
 
-Hand-rolled rather than the ``jsonschema`` package: the schema file's own
-``description`` promises "no jsonschema dependency required at runtime", and
-this schema only ever uses three JSON Schema keywords — ``required``, ``type``,
-and ``enum`` (one level of ``properties`` nesting for the six known sections).
-Supporting exactly those keeps the validator small and keeps the promise.
+Hand-rolled rather than the ``jsonschema`` package: both schema files promise
+"no jsonschema dependency required at runtime". ``deal_config.schema.json`` only
+ever uses ``required``/``type``/``enum``; ``extracted_inputs.schema.json`` adds
+``minItems``/``maxItems``/``minLength``/``minimum``/``maximum``. Supporting
+exactly those keeps the validator small and keeps the promise.
 """
 
 from __future__ import annotations
@@ -15,11 +15,16 @@ from typing import Any
 
 __all__ = [
     "DealConfigValidationError",
+    "ExtractedInputsValidationError",
     "load_deal_config_schema",
+    "load_extracted_inputs_schema",
     "validate_deal_config",
+    "validate_extracted_inputs",
 ]
 
-_SCHEMA_PATH = Path(__file__).resolve().parents[3].parent / "data" / "schemas" / "deal_config.schema.json"
+_SCHEMA_DIR = Path(__file__).resolve().parents[3].parent / "data" / "schemas"
+_DEAL_CONFIG_SCHEMA_PATH = _SCHEMA_DIR / "deal_config.schema.json"
+_EXTRACTED_INPUTS_SCHEMA_PATH = _SCHEMA_DIR / "extracted_inputs.schema.json"
 
 _JSON_TYPE_CHECKS = {
     "string": lambda v: isinstance(v, str),
@@ -30,7 +35,8 @@ _JSON_TYPE_CHECKS = {
     "array": lambda v: isinstance(v, list),
 }
 
-_schema_cache: dict[str, Any] | None = None
+_deal_config_schema_cache: dict[str, Any] | None = None
+_extracted_inputs_schema_cache: dict[str, Any] | None = None
 
 
 class DealConfigValidationError(ValueError):
@@ -44,12 +50,33 @@ class DealConfigValidationError(ValueError):
         super().__init__("; ".join(errors))
 
 
+class ExtractedInputsValidationError(ValueError):
+    """Raised when a dict fails structural validation against the extracted-inputs schema.
+
+    Carries every violation found (not just the first) in ``.errors``.
+    """
+
+    def __init__(self, errors: list[str]):
+        self.errors = errors
+        super().__init__("; ".join(errors))
+
+
 def load_deal_config_schema() -> dict[str, Any]:
     """Load and cache data/schemas/deal_config.schema.json (utf-8-sig, per repo convention)."""
-    global _schema_cache
-    if _schema_cache is None:
-        _schema_cache = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8-sig"))
-    return _schema_cache
+    global _deal_config_schema_cache
+    if _deal_config_schema_cache is None:
+        _deal_config_schema_cache = json.loads(_DEAL_CONFIG_SCHEMA_PATH.read_text(encoding="utf-8-sig"))
+    return _deal_config_schema_cache
+
+
+def load_extracted_inputs_schema() -> dict[str, Any]:
+    """Load and cache data/schemas/extracted_inputs.schema.json (utf-8-sig, per repo convention)."""
+    global _extracted_inputs_schema_cache
+    if _extracted_inputs_schema_cache is None:
+        _extracted_inputs_schema_cache = json.loads(
+            _EXTRACTED_INPUTS_SCHEMA_PATH.read_text(encoding="utf-8-sig")
+        )
+    return _extracted_inputs_schema_cache
 
 
 def _type_name(value: Any) -> str:
@@ -85,6 +112,25 @@ def _check_enum(value: Any, allowed: list[Any], path: str, errors: list[str]) ->
         errors.append(f"{path}: value {value!r} is not one of the allowed values [{allowed_str}]")
 
 
+def _apply_constraints(value: Any, prop_schema: dict[str, Any], path: str, errors: list[str]) -> None:
+    """Apply the numeric/length bound keywords (minimum/maximum/minItems/maxItems/minLength)."""
+    if isinstance(value, bool):
+        return
+    if isinstance(value, (int, float)):
+        if "minimum" in prop_schema and value < prop_schema["minimum"]:
+            errors.append(f"{path}: expected value >= {prop_schema['minimum']}, got {value!r}")
+        if "maximum" in prop_schema and value > prop_schema["maximum"]:
+            errors.append(f"{path}: expected value <= {prop_schema['maximum']}, got {value!r}")
+    elif isinstance(value, list):
+        if "minItems" in prop_schema and len(value) < prop_schema["minItems"]:
+            errors.append(f"{path}: expected at least {prop_schema['minItems']} items, got {len(value)}")
+        if "maxItems" in prop_schema and len(value) > prop_schema["maxItems"]:
+            errors.append(f"{path}: expected at most {prop_schema['maxItems']} items, got {len(value)}")
+    elif isinstance(value, str):
+        if "minLength" in prop_schema and len(value) < prop_schema["minLength"]:
+            errors.append(f"{path}: expected at least {prop_schema['minLength']} characters, got {len(value)}")
+
+
 def _validate_object(
     data: dict[str, Any],
     schema: dict[str, Any],
@@ -106,6 +152,7 @@ def _validate_object(
             continue
         if "enum" in prop_schema:
             _check_enum(value, prop_schema["enum"], field_path, errors)
+        _apply_constraints(value, prop_schema, field_path, errors)
         if expected_type == "object" and "properties" in prop_schema:
             _validate_object(value, prop_schema, field_path, errors)
 
@@ -122,3 +169,18 @@ def validate_deal_config(d: dict[str, Any], *, schema: dict[str, Any] | None = N
     _validate_object(d, schema, "", errors)
     if errors:
         raise DealConfigValidationError(errors)
+
+
+def validate_extracted_inputs(d: dict[str, Any], *, schema: dict[str, Any] | None = None) -> None:
+    """Validate ``d`` against the extracted-inputs schema.
+
+    Returns ``None`` on success. Raises ``ExtractedInputsValidationError``
+    carrying every violation found (not just the first) when ``d`` does not
+    conform.
+    """
+    if schema is None:
+        schema = load_extracted_inputs_schema()
+    errors: list[str] = []
+    _validate_object(d, schema, "", errors)
+    if errors:
+        raise ExtractedInputsValidationError(errors)

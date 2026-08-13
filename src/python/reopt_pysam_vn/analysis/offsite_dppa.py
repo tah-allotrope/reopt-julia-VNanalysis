@@ -16,12 +16,14 @@ The orchestrator is resolved in this order:
    ``results`` dict + the ``scenario`` it was solved from).
 
 Orchestrator contract (S1): ``(extracted, *, run_developer=True, results=None,
-scenario=None) -> dict``. ``results`` is the ``results`` block of a REopt solve
-output; ``scenario`` is the ``Scenario`` input dict the solve was built from.
-Orchestrators that derive generation internally (Samsung) take neither. For
-backward compatibility, ``run_offsite_dppa`` only forwards ``results`` and
-``scenario`` when they are not ``None``, so existing two-parameter orchestrators
-keep their exact call shape.
+scenario=None, deal_config=None) -> dict``. ``results`` is the ``results`` block
+of a REopt solve output; ``scenario`` is the ``Scenario`` input dict the solve
+was built from; ``deal_config`` is the driving ``DealConfig`` (consumed by the
+generic fallback orchestrator). Orchestrators that derive generation internally
+(Samsung) take only ``run_developer``. ``run_offsite_dppa`` filters the
+candidate keyword set down to the parameter names the chosen orchestrator
+actually accepts (via ``inspect.signature``), so a two-parameter orchestrator
+and a four-parameter one keep their exact call shape without per-deal branching.
 
 Input resolution order (S2): for each of ``extracted``, ``results``, and
 ``scenario``, the first non-``None`` of (a) the explicit keyword argument, (b)
@@ -34,17 +36,29 @@ New deals register their orchestrator here (or inject one).
 
 from __future__ import annotations
 
+import inspect
 from collections.abc import Callable
 from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig, OffsiteDppaResult
+from reopt_pysam_vn.analysis.validation import ExtractedInputsValidationError, validate_extracted_inputs
 
-__all__ = ["register_orchestrator", "run_offsite_dppa"]
+__all__ = ["OrchestratorInputError", "register_orchestrator", "run_offsite_dppa"]
 
 # orchestrator signature:
 #   (extracted: dict, *, run_developer: bool = True,
-#    results: dict | None = None, scenario: dict | None = None) -> dict
+#    results: dict | None = None, scenario: dict | None = None,
+#    deal_config: DealConfig | None = None) -> dict
 CombinedDecisionFn = Callable[..., dict[str, Any]]
+
+
+class OrchestratorInputError(ValueError):
+    """Raised when an orchestrator's required inputs are missing.
+
+    A ``ValueError`` subclass so existing callers that catch ``ValueError`` keep
+    working, but typed so the web layer can map it to HTTP 422 without
+    broadening an ``except`` clause to bare ``ValueError``.
+    """
 
 
 def _samsung_ttc_orchestrator(extracted: dict[str, Any], *, run_developer: bool = True) -> dict[str, Any]:
@@ -59,10 +73,37 @@ _ORCHESTRATORS: dict[str, CombinedDecisionFn] = {
     "DPPA_SAMSUNG_TTC": _samsung_ttc_orchestrator,
 }
 
+# Registry fallback: any unregistered ``case`` routes here (PHASE-05). None
+# disables the fallback and restores the "no orchestrator" error path.
+_GENERIC_ORCHESTRATOR: CombinedDecisionFn | None = None
+
 
 def register_orchestrator(case: str, fn: CombinedDecisionFn) -> None:
     """Register an offsite orchestrator for a deal ``case`` id."""
     _ORCHESTRATORS[case] = fn
+
+
+def set_generic_orchestrator(fn: CombinedDecisionFn | None) -> None:
+    """Install (or, with ``None``, remove) the registry fallback orchestrator."""
+    global _GENERIC_ORCHESTRATOR
+    _GENERIC_ORCHESTRATOR = fn
+
+
+def _supported_kwargs(fn: CombinedDecisionFn, candidates: dict[str, Any]) -> dict[str, Any]:
+    """Return the subset of ``candidates`` whose keys ``fn`` accepts as keywords.
+
+    A callable declaring ``**kwargs`` receives all candidates unchanged. Any
+    failure to introspect ``fn`` (e.g. a ``functools.partial`` or a C callable)
+    falls back to passing the full candidate set, preserving prior behaviour.
+    """
+    try:
+        signature = inspect.signature(fn)
+    except (TypeError, ValueError):
+        return dict(candidates)
+    parameters = signature.parameters
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()):
+        return dict(candidates)
+    return {key: value for key, value in candidates.items() if key in parameters}
 
 
 def _resolve_input(
@@ -109,12 +150,19 @@ def run_offsite_dppa(
     """
     extracted = _resolve_input(deal_config, "extracted", extracted)
     if extracted is None:
-        raise ValueError(
+        raise OrchestratorInputError(
             "run_offsite_dppa needs `extracted` inputs (the *_extracted_inputs dict); "
             "pass extracted=... or set deal_config.raw['extracted']."
         )
 
-    fn = combined_decision_fn or _ORCHESTRATORS.get(deal_config.case)
+    try:
+        validate_extracted_inputs(extracted)
+    except ExtractedInputsValidationError as exc:
+        raise OrchestratorInputError(
+            "offsite `extracted` inputs failed validation: " + str(exc)
+        ) from exc
+
+    fn = combined_decision_fn or _ORCHESTRATORS.get(deal_config.case) or _GENERIC_ORCHESTRATOR
     if fn is None:
         raise ValueError(
             f"no offsite orchestrator registered for case {deal_config.case!r}; "
@@ -125,11 +173,16 @@ def run_offsite_dppa(
     results = _resolve_input(deal_config, "results", results)
     scenario = _resolve_input(deal_config, "scenario", scenario)
 
-    kwargs: dict[str, Any] = {"run_developer": run_developer}
-    if results is not None:
-        kwargs["results"] = results
-    if scenario is not None:
-        kwargs["scenario"] = scenario
+    candidates: dict[str, Any] = {
+        "run_developer": run_developer,
+        "results": results,
+        "scenario": scenario,
+        "deal_config": deal_config,
+    }
+    if results is None:
+        candidates.pop("results")
+    if scenario is None:
+        candidates.pop("scenario")
 
-    raw = fn(extracted, **kwargs)
+    raw = fn(extracted, **_supported_kwargs(fn, candidates))
     return OffsiteDppaResult.from_dict(raw)

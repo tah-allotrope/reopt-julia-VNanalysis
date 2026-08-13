@@ -6,13 +6,15 @@ CON-002: never forks analytics logic — always calls ``run_onsite`` /
 Repo constraint discovered during PHASE-01 research: ``run_offsite_dppa`` has
 no generic fresh-solve path — it requires pre-solved ``extracted`` inputs and a
 registered orchestrator keyed by ``deal_config.case`` (today
-``DPPA_SAMSUNG_TTC`` and ``DPPA_CASE_1_NINHSIM``). So offsite/both modes always
-need an ``extracted`` upload; only onsite can be solved live via the NREL REopt
+``DPPA_SAMSUNG_TTC`` and ``DPPA_CASE_1_NINHSIM``, plus a generic fallback that
+answers any unregistered case). So offsite/both modes always need an
+``extracted`` upload; only onsite can be solved live via the NREL REopt
 API. Offsite deals that consume a REopt ``results`` dict (currently
 ``DPPA_CASE_1_NINHSIM``) must also supply the ``results`` and ``scenario``
 payloads — those may ride on the deal config (landing in ``DealConfig.raw`` and
-resolved by ``run_offsite_dppa``) or be added to the submission payload and
-forwarded here in a future change.
+resolved by ``run_offsite_dppa``) or be submitted in the payload and forwarded
+here (both ``results`` and ``scenario`` are now forwarded to
+``run_offsite_dppa``).
 """
 
 from __future__ import annotations
@@ -52,6 +54,7 @@ def run_analysis(
     deal_config: DealConfig,
     *,
     results: dict[str, Any] | None = None,
+    scenario: dict[str, Any] | None = None,
     extracted: dict[str, Any] | None = None,
     run_developer: bool = True,
 ) -> dict[str, Any]:
@@ -61,7 +64,7 @@ def run_analysis(
     Raises ``MissingInputsError`` / ``OrchestratorNotRegisteredError`` (both
     ``AnalysisError``) on bad input rather than a bare stack trace.
     """
-    from reopt_pysam_vn.analysis.offsite_dppa import _ORCHESTRATORS, run_offsite_dppa
+    from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorInputError, run_offsite_dppa
     from reopt_pysam_vn.analysis.onsite import run_onsite
 
     mode = deal_config.mode
@@ -81,12 +84,16 @@ def run_analysis(
                 "no generic fresh-solve path for offsite/DPPA yet (only onsite can "
                 "be solved live via the NREL REopt API)."
             )
-        if deal_config.case not in _ORCHESTRATORS:
-            raise OrchestratorNotRegisteredError(
-                f"no offsite orchestrator registered for case {deal_config.case!r}; "
-                f"registered cases: {sorted(_ORCHESTRATORS)}."
-            )
-        return run_offsite_dppa(deal_config, extracted=extracted, run_developer=run_developer).to_dict()
+        try:
+            return run_offsite_dppa(
+                deal_config,
+                extracted=extracted,
+                results=results,
+                scenario=scenario,
+                run_developer=run_developer,
+            ).to_dict()
+        except OrchestratorInputError as exc:
+            raise MissingInputsError(str(exc)) from exc
 
     if mode == "onsite":
         return _run_onsite()

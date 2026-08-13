@@ -26,7 +26,8 @@ _MISSING_INPUTS_HINT = (
     "Upload the required pre-solved inputs, or submit an onsite deal for a live solve."
 )
 _NO_ORCHESTRATOR_HINT = (
-    "This deal case has no offsite model yet; use a registered case or the generic runner."
+    "No offsite orchestrator is registered for this case and the generic fallback "
+    "runner is disabled; unregistered cases normally route to the generic runner."
 )
 _NO_API_KEY_HINT = "Set NREL_DEVELOPER_API_KEY or run in offline mode."
 _SOLVER_HTTP_HINT = "Check site coordinates and load profile; retry, or run offline."

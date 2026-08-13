@@ -36,9 +36,12 @@ def _deal(case="DPPA_SAMSUNG_TTC"):
     return DealConfig.from_dict({"case": case, "mode": "offsite_dppa"})
 
 
+_VALID_EXTRACTED = {"loads_kw": [1.0] * 8760}
+
+
 def test_run_offsite_dppa_uses_injected_orchestrator():
     res = run_offsite_dppa(
-        _deal(), extracted={"loads_kw": [1.0]}, combined_decision_fn=_fake_combined
+        _deal(), extracted=_VALID_EXTRACTED, combined_decision_fn=_fake_combined
     )
     assert isinstance(res, OffsiteDppaResult)
     assert res.case == "DPPA_SAMSUNG_TTC"
@@ -49,21 +52,22 @@ def test_run_offsite_dppa_uses_injected_orchestrator():
 
 def test_run_offsite_dppa_passes_run_developer_flag():
     res = run_offsite_dppa(
-        _deal(), extracted={"loads_kw": [1.0]}, run_developer=False, combined_decision_fn=_fake_combined
+        _deal(), extracted=_VALID_EXTRACTED, run_developer=False, combined_decision_fn=_fake_combined
     )
     assert res.raw["_run_developer_seen"] is False
 
 
 def test_run_offsite_dppa_resolves_registered_orchestrator(monkeypatch):
     monkeypatch.setitem(od._ORCHESTRATORS, "DPPA_SAMSUNG_TTC", _fake_combined)
-    res = run_offsite_dppa(_deal(), extracted={"loads_kw": [1.0]})
+    res = run_offsite_dppa(_deal(), extracted=_VALID_EXTRACTED)
     assert res.case == "DPPA_SAMSUNG_TTC"
     assert res.raw["_extracted_keys"] == ["loads_kw"]
 
 
-def test_run_offsite_dppa_unregistered_deal_without_fn_raises():
+def test_run_offsite_dppa_unregistered_deal_without_fallback_raises(monkeypatch):
+    monkeypatch.setattr(od, "_GENERIC_ORCHESTRATOR", None)
     with pytest.raises(ValueError, match="orchestrator"):
-        run_offsite_dppa(_deal(case="BRAND_NEW_DEAL"), extracted={"loads_kw": [1.0]})
+        run_offsite_dppa(_deal(case="BRAND_NEW_DEAL"), extracted=_VALID_EXTRACTED)
 
 
 def test_run_offsite_dppa_requires_extracted():

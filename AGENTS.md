@@ -38,10 +38,13 @@ Detailed instructions have been organized into the `docs/` folder for progressiv
 
 ### Test Suite Status
 The authority for current test state is `activeContext.md`. Standing notes:
-CI runs `pytest tests/python` with the four-marker exclusion filter (`-m "not
-network and not requires_artifacts and not golden_machine and not requires_julia"`);
-the portable suite is `634+ passed, 3 xfailed`. Verify CI status with
-`gh run list --limit 3` before reporting work complete.
+CI runs `pytest tests/python` with the six-marker exclusion filter (`-m "not
+network and not requires_artifacts and not golden_machine and not requires_julia
+and not requires_nrel_key and not requires_pysam_resource"`) plus `-rs` and a
+skip budget (`REOPT_PYSAM_VN_MAX_SKIPS: "0"`, enforced by `tests/conftest.py`),
+against a pinned dependency set (`-c constraints-ci.txt`) on a weekly `cron`
+schedule. Verify CI status with `gh run list --limit 3` before reporting work
+complete.
 
 ## 5. Key Learnings & Notes
 - REopt.jl outage modeling is a **soft constraint** by default. Use `Site.min_resil_time_steps` for hard constraint.

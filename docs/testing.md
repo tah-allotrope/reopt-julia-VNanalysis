@@ -45,13 +45,20 @@ python -m pytest tests/python/reopt/test_integration.py::TestAPIIntegration::tes
 
 ## What CI Actually Runs
 
-CI (`.github/workflows/ci.yml`) runs exactly one command:
+CI (`.github/workflows/ci.yml`) runs exactly one test command, against a pinned
+dependency set (`pip install -e ".[webapp,dev]" -c constraints-ci.txt`) and also
+on a weekly `cron` schedule:
 
 ```bash
 PYTHONPATH= python -m pytest tests/python \
-  -m "not network and not requires_artifacts and not golden_machine and not requires_julia" \
-  --cov=reopt_pysam_vn --cov-report=term-missing
+  -m "not network and not requires_artifacts and not golden_machine and not requires_julia and not requires_nrel_key and not requires_pysam_resource" \
+  -rs -q --cov=reopt_pysam_vn --cov-report=term-missing
 ```
+
+with `REOPT_PYSAM_VN_MAX_SKIPS: "0"` set — a skip budget enforced by
+`tests/conftest.py` that fails the build if any test in the portable suite
+skips (so the number cannot drift upward unnoticed). `-rs` prints every skip
+reason in the log.
 
 That means:
 
@@ -68,10 +75,15 @@ That means:
   additionally carry `xfail`. See `reports/2026-07-26-samsung-parity-diagnosis.md`
   for why, and the "Samsung-TTC" bullets in `README.md` / `docs/onsite_vs_offsite.md`
   for the honest current status.
-- `analysis/__main__.py` reports 0% coverage in the term-missing report. This
-  is a measurement artifact, not a testing gap: `tests/python/analysis/test_cli.py`
-  drives the CLI as a subprocess, which `coverage` does not instrument across
-  the process boundary.
+- **Environment-dependent skips are declarative markers, not runtime guards.**
+  Tests that need a live NREL key or network are `@pytest.mark.requires_nrel_key`;
+  tests that need a git-untracked PVWatts solar-resource cache are
+  `@pytest.mark.requires_pysam_resource`. Both are excluded by the CI filter and
+  auditable in `pyproject.toml`'s `markers` list. `--strict-markers` (in
+  `addopts`) makes a typo'd marker an error.
+- `analysis/__main__.py` is measured by coverage via the in-process
+  `main(argv)` call in `tests/python/analysis/test_cli.py`
+  (`test_cli_onsite_subcommand_in_process`), alongside the subprocess smoke tests.
 
 ## Known L4 Status (as of 2026-03)
 

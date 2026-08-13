@@ -66,3 +66,17 @@ def dppa_adder_vnd_per_kwh(vn: VNData) -> float:
 def kpp_loss_pct(vn: VNData) -> float:
     """Return ``data.dppa_settlement.kpp_loss_pct`` as a percentage (e.g. ``2.7263``)."""
     return float(vn.deal_defaults["dppa_settlement"]["kpp_loss_pct"])
+
+
+def market_wholesale_reference_vnd_per_kwh(vn: VNData) -> float:
+    """Return the wholesale reference rate in VND/kWh from the market-prices file.
+
+    Raises ``KeyError`` naming the manifest key when ``market_prices`` is empty
+    (a manifest that predates the ``market_prices`` data file).
+    """
+    if not vn.market_prices:
+        raise KeyError(
+            "market_prices data not loaded; add a 'market_prices' key to "
+            "data/vietnam/manifest.json"
+        )
+    return float(vn.market_prices["proxy"]["wholesale_reference_vnd_per_kwh"])

@@ -23,7 +23,7 @@ import logging
 import time
 import warnings
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -99,6 +99,9 @@ class VNData:
     deal_defaults: dict[str, Any]
     exchange_rate: float
     data_dir: str
+    # Optional: absent from manifests that predate the market_prices key (PHASE-04).
+    # Declared last with a default so the frozen dataclass stays constructible.
+    market_prices: dict[str, Any] = field(default_factory=dict)
 
 
 def _deep_merge_dicts(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
@@ -210,6 +213,9 @@ def load_vietnam_data(manifest_path: str | Path | None = None) -> VNData:
     regimes_raw = _load("regimes")
     deal_defaults_raw = _load("deal_defaults")
 
+    # market_prices is optional (PHASE-04): manifests that predate the key still load.
+    market_prices_raw = _load("market_prices") if "market_prices" in manifest else {}
+
     # Extract exchange rate from tariff _meta (VND-denominated file), with fallback
     exchange_rate = tariff_raw.get("_meta", {}).get(
         "exchange_rate_vnd_per_usd", DEFAULT_EXCHANGE_RATE
@@ -225,6 +231,7 @@ def load_vietnam_data(manifest_path: str | Path | None = None) -> VNData:
         deal_defaults=deal_defaults_raw["data"],
         exchange_rate=float(exchange_rate),
         data_dir=str(data_dir),
+        market_prices=market_prices_raw["data"] if market_prices_raw else {},
     )
 
 

@@ -48,11 +48,16 @@ pythonpath = [
 testpaths = [
   "tests",
 ]
+addopts = [
+  "--strict-markers",
+]
 markers = [
   "network: makes real HTTP calls to external services; excluded in CI",
   "requires_artifacts: reads git-ignored machine-local files under artifacts/; excluded in CI",
   "golden_machine: bit-exact golden comparison only valid on the primary dev machine's resources; excluded in CI",
   "requires_julia: shells out to a local Julia subprocess; CI has no Julia install step; excluded in CI",
+  "requires_nrel_key: needs a live NREL developer API key or a network fetch of a solar resource; excluded in CI",
+  "requires_pysam_resource: needs a cached PVWatts solar-resource file not tracked in git; excluded in CI",
 ]
 
 [tool.ruff]

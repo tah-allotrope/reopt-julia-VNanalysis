@@ -175,3 +175,132 @@ def test_offsite_dppa_case_1_run_reaches_done(client):
     body = client.get(f"/api/runs/{run_id}").json()
     assert body["status"]["state"] == "done", body["status"]
     assert body["result"]["case"] == "DPPA_CASE_1_NINHSIM"
+
+
+# ---------------------------------------------------------------------------
+# PHASE-02: `results` / `scenario` in the POST payload are forwarded, and a
+# missing required input lands in `error` (MISSING_INPUTS) — never a dangling
+# `queued` run.
+# ---------------------------------------------------------------------------
+
+
+def _case_1_results():
+    return {
+        "status": "optimal",
+        "PV": {
+            "size_kw": 20_000.0,
+            "year_one_energy_produced_kwh": 43_800_000.0,
+            "electric_to_load_series_kw": [4_500.0] * _HOURS,
+            "electric_to_grid_series_kw": [20.0] * _HOURS,
+            "electric_to_storage_series_kw": [300.0] * _HOURS,
+            "electric_curtailed_series_kw": [50.0] * _HOURS,
+        },
+        "Wind": {
+            "size_kw": 0.0,
+            "year_one_energy_produced_kwh": 0.0,
+            "electric_to_load_series_kw": [0.0] * _HOURS,
+            "electric_to_grid_series_kw": [0.0] * _HOURS,
+        },
+        "ElectricStorage": {
+            "size_kw": 2_500.0,
+            "size_kwh": 5_000.0,
+            "storage_to_load_series_kw": [260.0] * _HOURS,
+        },
+        "ElectricUtility": {"electric_to_load_series_kw": [6_000.0] * _HOURS},
+        "Financial": {"npv": 4_200_000.0, "analysis_years": 20},
+    }
+
+
+def _case_1_extracted():
+    return {
+        "loads_kw": [100.0] * _HOURS,
+        "benchmark": {"annual_load_gwh": 200.0},
+        "site": {
+            "region": "south",
+            "customer_type": "industrial",
+            "voltage_level": "medium_voltage_22kv_to_110kv",
+        },
+    }
+
+
+def _case_1_scenario():
+    return {"Site": {}, "_meta": {"contract_type": "private_wire"}}
+
+
+def test_offsite_case_1_payload_results_and_scenario_reach_done(client):
+    deal_config = {
+        "case": "DPPA_CASE_1_NINHSIM",
+        "mode": "offsite_dppa",
+        "title": "Payload-forwarded case 1",
+        "site": {"region": "central"},
+    }
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": deal_config,
+            "extracted": _case_1_extracted(),
+            "results": _case_1_results(),
+            "scenario": _case_1_scenario(),
+        },
+    )
+    assert resp.status_code == 202, resp.text
+    run_id = resp.json()["run_id"]
+    body = client.get(f"/api/runs/{run_id}").json()
+    assert body["status"]["state"] == "done", body["status"]
+    assert body["result"]["case"] == "DPPA_CASE_1_NINHSIM"
+
+
+def test_offsite_case_1_missing_results_marks_error_not_queued(client):
+    deal_config = {
+        "case": "DPPA_CASE_1_NINHSIM",
+        "mode": "offsite_dppa",
+        "title": "Missing results",
+        "site": {"region": "central"},
+    }
+    resp = client.post(
+        "/api/runs",
+        json={
+            "deal_config": deal_config,
+            "extracted": _case_1_extracted(),
+            "scenario": _case_1_scenario(),
+        },
+    )
+    assert resp.status_code == 202, resp.text
+    run_id = resp.json()["run_id"]
+    body = client.get(f"/api/runs/{run_id}").json()
+    status = body["status"]
+    assert status["state"] == "error", status
+    assert status["state"] != "queued", "regression: run stranded in `queued`"
+    assert status["error_code"] == "MISSING_INPUTS"
+    assert "`results`" in status["message"]
+
+
+def _generic_extracted():
+    return {
+        "loads_kw": [1000.0] * _HOURS,
+        "generation_kw": [500.0] * _HOURS,
+        "evn_tariff": {"tou_energy_rates_vnd_per_kwh": [2000.0] * _HOURS},
+        "benchmark": {
+            "weighted_evn_price_vnd_per_kwh": 2000.0,
+            "wholesale_rate_vnd_per_kwh": 671.0,
+        },
+    }
+
+
+def test_offsite_unregistered_case_reaches_done_via_generic(client):
+    deal_config = {
+        "case": "MY_NEW_DEAL",
+        "mode": "offsite_dppa",
+        "title": "Generic",
+        "contract": {"settlement_mechanism": "physical", "strike_vnd_per_kwh": 1200.0},
+    }
+    resp = client.post(
+        "/api/runs",
+        json={"deal_config": deal_config, "extracted": _generic_extracted()},
+    )
+    assert resp.status_code == 202, resp.text
+    run_id = resp.json()["run_id"]
+    body = client.get(f"/api/runs/{run_id}").json()
+    assert body["status"]["state"] == "done", body["status"]
+    assert body["result"]["case"] == "MY_NEW_DEAL"
+    assert body["result"]["quality"]["orchestrator"] == "generic_vn_dppa"
