@@ -70,6 +70,25 @@ def test_no_root_level_binaries():
     assert root_binaries == [], f"tracked root-level binaries found: {root_binaries}"
 
 
+def test_regression_fixtures_are_small():
+    """Gzipped regression fixtures must stay under 2 MB each and 5 MB total."""
+    fixtures = [
+        REPO_ROOT / "tests" / "fixtures" / "regression" / "ninhsim_case2_settlement.json.gz",
+        REPO_ROOT / "tests" / "fixtures" / "regression" / "saigon18_scenario_d.json.gz",
+    ]
+    total = 0
+    for path in fixtures:
+        assert path.exists(), f"fixture missing: {path}"
+        size = path.stat().st_size
+        assert size < 2_000_000, f"{path.name} is {size} bytes, exceeds 2 MB"
+        total += size
+    assert total < 5_000_000, f"total fixture size {total} exceeds 5 MB"
+    factory = REPO_ROOT / "tests" / "fixtures" / "factory_a"
+    assert factory.is_dir()
+    total_factory = sum(p.stat().st_size for p in factory.glob("*.json"))
+    assert total_factory < 5_000_000, f"factory_a fixtures too large: {total_factory}"
+
+
 def test_regulatory_watch_rows_are_not_overdue():
     """Every row in docs/regulatory-watch.md must carry a Next review date that
     is today or later; the failure message names every overdue row and date."""

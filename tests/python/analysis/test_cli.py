@@ -220,3 +220,27 @@ def test_cli_offsite_missing_extracted_in_process_returns_2(tmp_path):
     cfg.write_text(json.dumps({"case": "MY_NEW_DEAL", "mode": "offsite_dppa"}), encoding="utf-8")
     rc = main(["offsite_dppa", "--config", str(cfg)])
     assert rc == 2
+
+
+def test_cli_offsite_derive_extracted_in_process(tmp_path):
+    import json as _json
+
+    from reopt_pysam_vn.analysis.__main__ import main
+
+    cfg = tmp_path / "deal.json"
+    cfg.write_text(
+        _json.dumps(
+            {
+                "case": "DERIVE_TEST",
+                "mode": "offsite_dppa",
+                "contract": {"strike_vnd_per_kwh": 1200, "annual_solar_gwh": 1.0},
+                "load": {"loads_kw": [1000.0] * _HOURS},
+            }
+        ),
+        encoding="utf-8",
+    )
+    out = tmp_path / "out.json"
+    rc = main(["offsite_dppa", "--config", str(cfg), "--derive-extracted", "--no-developer", "--out", str(out)])
+    assert rc == 0, f"derive-extracted failed: {rc}"
+    res = _json.loads(out.read_text(encoding="utf-8"))
+    assert res["quality"]["orchestrator"] == "generic_vn_dppa"

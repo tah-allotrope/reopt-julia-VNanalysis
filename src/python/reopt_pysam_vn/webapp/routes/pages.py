@@ -77,10 +77,20 @@ def run_detail(run_id: str, request: Request) -> HTMLResponse:
         deal_config = {}
     site = deal_config.get("site", {})
     provenance = storage.get_provenance(run_id)
+    has_ledger = storage.get_ledger_csv_path(run_id) is not None
+    load_cleaning = deal_config.get("load", {}).get("load_cleaning")
     return templates_engine.TemplateResponse(
         request,
         "run.html",
-        {"run_id": run_id, "status": status, "view": view, "site": site, "provenance": provenance},
+        {
+            "run_id": run_id,
+            "status": status,
+            "view": view,
+            "site": site,
+            "provenance": provenance,
+            "has_ledger": has_ledger,
+            "load_cleaning": load_cleaning,
+        },
     )
 
 

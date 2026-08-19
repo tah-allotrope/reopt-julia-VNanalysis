@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from starlette.datastructures import FormData, UploadFile
 
 from reopt_pysam_vn.analysis.types import DealConfig
@@ -14,7 +14,7 @@ from reopt_pysam_vn.webapp import service
 from reopt_pysam_vn.webapp.errors import to_user_error
 from reopt_pysam_vn.webapp.forms import deal_config_from_form
 from reopt_pysam_vn.webapp.projects import list_projects
-from reopt_pysam_vn.webapp.uploads import UploadError, parse_load_csv, parse_load_xlsx
+from reopt_pysam_vn.webapp.uploads import UploadError, parse_load_upload
 
 router = APIRouter()
 
@@ -53,9 +53,11 @@ def _submit_deal_config(
         jobs.submit_solve(run_id, deal_config_dict, force_resolve=force_resolve)
     else:
         try:
-            result = service.run_analysis(
+            result, ledger = service.run_analysis(
                 deal, results=results, scenario=scenario, extracted=extracted
             )
+            if ledger is not None:
+                storage.save_ledger_csv(run_id, ledger)
             storage.save_result(run_id, result)
             storage.set_status(run_id, state="done")
         except service.AnalysisError as exc:
@@ -114,18 +116,16 @@ async def create_deal(request: Request) -> dict[str, Any]:
     form_data = await request.form()
 
     load_file = form_data.get("load_file")
-    loads_kw = None
+    loads_kw: list[float] | None = None
+    load_cleaning: dict[str, Any] | None = None
     if isinstance(load_file, UploadFile) and load_file.filename:
         content = await load_file.read()
         try:
-            if load_file.filename.lower().endswith(".xlsx"):
-                loads_kw = parse_load_xlsx(content)
-            else:
-                loads_kw = parse_load_csv(content)
+            loads_kw, load_cleaning = parse_load_upload(content, load_file.filename)
         except UploadError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
     if loads_kw is None:
-        raise HTTPException(status_code=422, detail="a load-profile file (CSV or .xlsx) is required")
+        raise HTTPException(status_code=422, detail="a load-profile file (CSV, XLSX, or JSON) is required")
 
     extracted = None
     extracted_file = form_data.get("extracted_file")
@@ -140,7 +140,8 @@ async def create_deal(request: Request) -> dict[str, Any]:
 
     nested = _nest_form_fields(form_data)
     try:
-        deal_config_dict = deal_config_from_form(nested, loads_kw=loads_kw)
+        assert loads_kw is not None
+        deal_config_dict = deal_config_from_form(nested, loads_kw=loads_kw, load_cleaning=load_cleaning)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -178,6 +179,24 @@ def download_result(run_id: str, request: Request) -> JSONResponse:
     return JSONResponse(
         content=result,
         headers={"Content-Disposition": f'attachment; filename="{run_id}_result.json"'},
+    )
+
+
+@router.get("/runs/{run_id}/ledger.csv")
+def download_ledger(run_id: str, request: Request) -> PlainTextResponse:
+    storage = request.app.state.storage
+    try:
+        storage.get_status(run_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="no such run") from exc
+    path = storage.get_ledger_csv_path(run_id)
+    if path is None:
+        raise HTTPException(status_code=404, detail="no ledger for this run")
+    content = path.read_text(encoding="utf-8")
+    return PlainTextResponse(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{run_id}_ledger.csv"'},
     )
 
 

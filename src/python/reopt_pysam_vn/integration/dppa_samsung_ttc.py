@@ -461,7 +461,7 @@ def _pvwatts_south_solar_8760(
     inv_eff_pct: float = 96.0,
     resource_file: str | None = None,
 ) -> list[float] | None:
-    """Run PySAM PVWatts v8 on the cached southern resource. None if unavailable."""
+    """Run PySAM PVWatts v8 on the cached southern resource (Ninh Thuan Himawari 2019 file at 12.5257N, 109.0200E). None if unavailable."""
     try:
         import PySAM.Pvwattsv8 as pv
     except ImportError:
@@ -482,6 +482,10 @@ def _pvwatts_south_solar_8760(
         model.SystemDesign.dc_ac_ratio = float(dc_ac_ratio)
         model.SystemDesign.inv_eff = float(inv_eff_pct)
         model.SystemDesign.losses = float(losses_pct)
+        # Pin to inherited defaults (plan 2026-08-19-last-mile-and-physical-truth) so
+        # Samsung output is bit-identical before and after the fixed-tilt change.
+        model.SystemDesign.array_type = 2.0
+        model.SystemDesign.tilt = 0.0
         model.execute(0)
         gen = list(model.Outputs.gen)
     except Exception:  # noqa: BLE001 - PySAM raises a bare Exception on simulation failure; None = unavailable.

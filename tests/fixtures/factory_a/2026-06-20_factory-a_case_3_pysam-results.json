@@ -1,0 +1,341 @@
+{
+  "model": "PySAM PVWatts Battery Single Owner",
+  "status": "ok",
+  "runtime": {
+    "country": "Vietnam",
+    "currency": "USD",
+    "python": ".venv/Scripts/python.exe",
+    "system_config": "PVWattsSingleOwner + Battwatts + Utilityrate5 + Singleowner",
+    "solar_resource_file": "C:\\Users\\tukum\\Downloads\\reopt-pysam\\data\\interim\\pysam_resources\\ninhsim_himawari_2019_60min.csv"
+  },
+  "inputs": {
+    "system_capacity_kw": 5770.0,
+    "battery_power_kw": 1830.0,
+    "battery_capacity_kwh": 11700.0,
+    "battery_duration_hours": 6.39344262295082,
+    "installed_cost_usd": 4320000.0,
+    "fixed_om_usd_per_year": 47000.0,
+    "ppa_price_input_usd_per_kwh": 0.07155647375293996,
+    "analysis_years": 25,
+    "debt_fraction": 0.7,
+    "owner_tax_rate_fraction": 0.2,
+    "om_escalation_rate_fraction": 0.03,
+    "depreciation_schedule": "vn_sl_15yr",
+    "battery_can_grid_charge": false,
+    "battery_dispatch_mode": "peak_shaving_look_ahead"
+  },
+  "case": {
+    "case_id": "case_3",
+    "tariff_regime": "decree146_two_part_trial_2026",
+    "solar_only": false,
+    "pv_kw_slide": 5770.0,
+    "bess_kw_slide": 1830.0,
+    "bess_kwh_slide": 11700.0,
+    "esco_usd_per_kwh": 0.07155647375293996,
+    "load_weighted_avg_vnd": 2098.989896752905,
+    "sizing_source": "slide_reference"
+  },
+  "outputs": {
+    "project_return_aftertax_npv_usd": -653422.934606964,
+    "project_return_aftertax_irr_fraction": 0.11884131365186516,
+    "project_return_pretax_npv_usd": -224114.09141896246,
+    "project_return_pretax_irr_fraction": 0.13227694958854658,
+    "size_of_debt_usd": 5500287.070790741,
+    "debt_fraction": 0.6997455977622594,
+    "min_dscr": 0.7891079406407526,
+    "npv_ppa_revenue_usd": 7350960.813866527,
+    "equity_irr_fraction": 0.13227698134389043,
+    "size_of_equity_usd": 2360122.610070844
+  },
+  "energy_summary": {
+    "annual_pv_ac_energy_kwh": 10895327.792434117,
+    "annual_matched_load_kwh": 5097293.674099106,
+    "annual_export_kwh": 5800220.811889259,
+    "annual_battery_charge_from_system_kwh": 1156522.6545062603,
+    "annual_battery_charge_from_grid_kwh": 131608.53849114338,
+    "annual_battery_discharge_to_load_kwh": 1158709.3480605218,
+    "annual_estimated_curtailment_kwh": 1.30385160446167e-08
+  },
+  "annual_cashflows": [
+    {
+      "year": 1,
+      "total_revenue_usd": 780181.4671937381,
+      "aftertax_cashflow_usd": -170697.4472900973,
+      "debt_service_usd": 838286.1298994742,
+      "debt_balance_usd": 5129525.3419084735,
+      "dscr": 0.7891079406407526
+    },
+    {
+      "year": 2,
+      "total_revenue_usd": 815094.587850658,
+      "aftertax_cashflow_usd": -138249.40424979583,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 4727248.86607122,
+      "dscr": 0.8266090860904131
+    },
+    {
+      "year": 3,
+      "total_revenue_usd": 851570.0706569749,
+      "aftertax_cashflow_usd": -104461.40618852607,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 4290778.889787799,
+      "dscr": 0.8657146099060863
+    },
+    {
+      "year": 4,
+      "total_revenue_usd": 889677.8313188747,
+      "aftertax_cashflow_usd": -69277.60676501371,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 3817208.9655202874,
+      "dscr": 0.9064915111566156
+    },
+    {
+      "year": 5,
+      "total_revenue_usd": 929490.9142703942,
+      "aftertax_cashflow_usd": -32639.92809619737,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 3303385.5976900375,
+      "dscr": 0.949009475323077
+    },
+    {
+      "year": 6,
+      "total_revenue_usd": 971085.6326839946,
+      "aftertax_cashflow_usd": 5512.0217114392435,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 2745887.243594216,
+      "dscr": 0.9933409742489826
+    },
+    {
+      "year": 7,
+      "total_revenue_usd": 1014541.7147466033,
+      "aftertax_cashflow_usd": 45241.03359046916,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 2141001.52940025,
+      "dscr": 1.0395613692459111
+    },
+    {
+      "year": 8,
+      "total_revenue_usd": 1059942.4564815138,
+      "aftertax_cashflow_usd": 86612.3851421423,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 1484700.529499797,
+      "dscr": 1.0877490174101572
+    },
+    {
+      "year": 9,
+      "total_revenue_usd": 1107374.8814090616,
+      "aftertax_cashflow_usd": 129693.9309051442,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": 772613.9446078053,
+      "dscr": 1.1379853812028864
+    },
+    {
+      "year": 10,
+      "total_revenue_usd": 1156929.907352117,
+      "aftertax_cashflow_usd": 593699.2602479958,
+      "debt_service_usd": 838286.1298994743,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 1.1903551413427271
+    },
+    {
+      "year": 11,
+      "total_revenue_usd": 1208702.5207061244,
+      "aftertax_cashflow_usd": 1052223.594530673,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 12,
+      "total_revenue_usd": 1262791.9585077234,
+      "aftertax_cashflow_usd": 1100870.0299293075,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 13,
+      "total_revenue_usd": 1319301.898650944,
+      "aftertax_cashflow_usd": 1151525.7466475226,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 14,
+      "total_revenue_usd": 1378340.658615574,
+      "aftertax_cashflow_usd": 1204272.9325140936,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 15,
+      "total_revenue_usd": 1440021.403088621,
+      "aftertax_cashflow_usd": 1259196.9509749645,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 16,
+      "total_revenue_usd": 1504462.3608768368,
+      "aftertax_cashflow_usd": 1362307.4652436413,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 17,
+      "total_revenue_usd": 1571787.051526075,
+      "aftertax_cashflow_usd": 1420764.8405804448,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 18,
+      "total_revenue_usd": 1642124.522081867,
+      "aftertax_cashflow_usd": 1481675.3010209359,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 19,
+      "total_revenue_usd": 1715609.5944450304,
+      "aftertax_cashflow_usd": 1545138.0347647315,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 20,
+      "total_revenue_usd": 1792383.123796446,
+      "aftertax_cashflow_usd": 1611255.9805050653,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 21,
+      "total_revenue_usd": 1872592.2685863366,
+      "aftertax_cashflow_usd": 1680135.9505317775,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 22,
+      "total_revenue_usd": 1956390.7726055756,
+      "aftertax_cashflow_usd": 1751888.7564356283,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 23,
+      "total_revenue_usd": 2043939.2596796753,
+      "aftertax_cashflow_usd": 1826629.3373413172,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 24,
+      "total_revenue_usd": 2135405.541550341,
+      "aftertax_cashflow_usd": 1904476.890581123,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    },
+    {
+      "year": 25,
+      "total_revenue_usd": 2230964.9395347186,
+      "aftertax_cashflow_usd": 2113073.29034683,
+      "debt_service_usd": 0.0,
+      "debt_balance_usd": -5.471520125865936e-09,
+      "dscr": 0.0
+    }
+  ],
+  "notes": {
+    "phase_scope": "DPPA Case 1 uses PVWatts plus Battwatts plus Single Owner to provide a fuller PV+BESS workflow than the earlier custom-generation finance shortcut.",
+    "dispatch_note": "Battwatts simple dispatch is used as the stable fuller-PySAM battery path on this workstation; grid charging is represented as disabled in the case inputs and sell rate is zeroed to discourage export."
+  },
+  "factory_a_metrics": {
+    "clean_self_supply_pct": 52.28,
+    "avg_dscr_yr1_10": 0.9785924506567609,
+    "min_dscr_yr1_10": 0.7891079406407526,
+    "approx_annual_savings_usd": 40527.0,
+    "equity_irr_fraction": 0.13227698134389043,
+    "npv_usd": -653422.934606964
+  },
+  "demand_charge_post_processing": {
+    "slide_rate": {
+      "monthly_bau_peak_kw": {
+        "1": 2443.3217373205925,
+        "2": 1972.3382642076779,
+        "3": 2129.6145221672477,
+        "4": 2151.7533517475827,
+        "5": 2126.1326880605225,
+        "6": 1901.805965785602,
+        "7": 1800.0076021334803,
+        "8": 2433.822166809758,
+        "9": 2151.099249964527,
+        "10": 2089.724376505226,
+        "11": 1881.8810191633004,
+        "12": 2068.5314787342327
+      },
+      "monthly_post_solar_peak_kw": {
+        "1": 1861.4388978115621,
+        "2": 1390.4554246986474,
+        "3": 1547.7316826582173,
+        "4": 1569.8705122385522,
+        "5": 1544.249848551492,
+        "6": 1319.9231262765716,
+        "7": 1218.1247626244499,
+        "8": 1851.9393273007277,
+        "9": 1569.2164104554968,
+        "10": 1507.8415369961954,
+        "11": 1299.99817965427,
+        "12": 1486.6486392252023
+      },
+      "capacity_rate_vnd_per_kw_month": 209459.0,
+      "annual_demand_savings_usd": 55400.27167305545
+    },
+    "repo_rate": {
+      "monthly_bau_peak_kw": {
+        "1": 2443.3217373205925,
+        "2": 1972.3382642076779,
+        "3": 2129.6145221672477,
+        "4": 2151.7533517475827,
+        "5": 2126.1326880605225,
+        "6": 1901.805965785602,
+        "7": 1800.0076021334803,
+        "8": 2433.822166809758,
+        "9": 2151.099249964527,
+        "10": 2089.724376505226,
+        "11": 1881.8810191633004,
+        "12": 2068.5314787342327
+      },
+      "monthly_post_solar_peak_kw": {
+        "1": 1861.4388978115621,
+        "2": 1390.4554246986474,
+        "3": 1547.7316826582173,
+        "4": 1569.8705122385522,
+        "5": 1544.249848551492,
+        "6": 1319.9231262765716,
+        "7": 1218.1247626244499,
+        "8": 1851.9393273007277,
+        "9": 1569.2164104554968,
+        "10": 1507.8415369961954,
+        "11": 1299.99817965427,
+        "12": 1486.6486392252023
+      },
+      "capacity_rate_vnd_per_kw_month": 235414.0,
+      "annual_demand_savings_usd": 62265.166718263135
+    },
+    "total_savings_usd_slide_rate": 95927.42289546652,
+    "total_savings_usd_repo_rate": 102792.3179406742
+  }
+}

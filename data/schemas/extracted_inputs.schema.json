@@ -42,7 +42,7 @@
     },
     "generation_kw": {
       "type": "array",
-      "description": "Optional 8760-hour generation profile in kW; the generic orchestrator uses it when a PVWatts resource is unavailable.",
+      "description": "Optional 8760-hour generation profile in kW; when present it takes precedence over the PVWatts and synthetic paths in the generic orchestrator.",
       "minItems": 8760,
       "maxItems": 8760,
       "items": { "type": "number", "minimum": 0 }

@@ -1,10 +1,12 @@
 """CLI for the generalized analysis pipelines (DEC-004).
 
     python -m reopt_pysam_vn.analysis onsite       --config deal.json [--results r.json] [--out o.json]
-    python -m reopt_pysam_vn.analysis offsite_dppa  --config deal.json [--extracted e.json] [--results r.json] [--scenario s.json] [--out o.json]
+    python -m reopt_pysam_vn.analysis offsite_dppa  --config deal.json [--extracted e.json] [--derive-extracted] [--results r.json] [--scenario s.json] [--out o.json]
 
 Loads a DealConfig JSON, runs the requested pipeline, and writes (or prints) the
 result JSON. Returns exit code 0 on success, 2 on a usage/runtime error.
+When --derive-extracted is set and --extracted is absent, extracted inputs are
+derived from deal_config.load['loads_kw'] via build_extracted_inputs.
 """
 
 from __future__ import annotations
@@ -54,6 +56,12 @@ def _cmd_offsite_dppa(args: argparse.Namespace) -> int:
 
     deal = DealConfig.from_dict(_load_json(args.config))
     extracted = _load_json(args.extracted) if args.extracted else None
+    if extracted is None and getattr(args, "derive_extracted", False):
+        from reopt_pysam_vn.analysis.extracted import build_extracted_inputs
+
+        extracted = build_extracted_inputs(deal)
+    elif extracted is not None and getattr(args, "derive_extracted", False):
+        print("--extracted supplied; ignoring --derive-extracted", file=sys.stderr)
     results = _load_json(args.results) if args.results else None
     scenario = _load_json(args.scenario) if args.scenario else None
     result = run_offsite_dppa(
@@ -85,6 +93,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_off = sub.add_parser("offsite_dppa", help="Offsite/DPPA settlement + finance analysis.")
     p_off.add_argument("--config", required=True, help="Path to a deal_config JSON.")
     p_off.add_argument("--extracted", help="Path to an *_extracted_inputs JSON.")
+    p_off.add_argument(
+        "--derive-extracted",
+        action="store_true",
+        dest="derive_extracted",
+        help="Derive extracted inputs from deal_config.load['loads_kw'] when --extracted is absent.",
+    )
     p_off.add_argument("--results", help="Path to a pre-solved REopt results JSON.")
     p_off.add_argument("--scenario", help="Path to the REopt Scenario JSON the solve was built from.")
     p_off.add_argument("--out", help="Write result JSON here instead of stdout.")
@@ -94,7 +108,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="run_developer",
         help="Skip the PySAM developer screen.",
     )
-    p_off.set_defaults(func=_cmd_offsite_dppa, run_developer=True)
+    p_off.set_defaults(func=_cmd_offsite_dppa, run_developer=True, derive_extracted=False)
     return parser
 
 

@@ -147,6 +147,28 @@ class RunStorage:
         run_dir = self._run_dir(run_id)
         _write_json_atomic(run_dir / "result.json", result)
 
+    def save_ledger_csv(self, run_id: str, ledger: list[dict[str, Any]] | None) -> None:
+        if not ledger:
+            return
+        run_dir = self._run_dir(run_id)
+        header = list(ledger[0].keys())
+        import csv
+
+        path = run_dir / "ledger.csv"
+        # Write atomically via temp file.
+        tmp = path.with_name(f"{path.name}.{uuid.uuid4().hex[:8]}.tmp")
+        with tmp.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=header)
+            writer.writeheader()
+            for row in ledger:
+                writer.writerow({k: str(v) if isinstance(v, float) else v for k, v in row.items()})
+        os.replace(tmp, path)
+
+    def get_ledger_csv_path(self, run_id: str) -> Path | None:
+        run_dir = self._run_dir(run_id)
+        p = run_dir / "ledger.csv"
+        return p if p.exists() else None
+
     def get_result(self, run_id: str) -> dict[str, Any] | None:
         run_dir = self._run_dir(run_id)
         result_path = run_dir / "result.json"

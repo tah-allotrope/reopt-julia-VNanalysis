@@ -3,18 +3,15 @@
 CON-002: never forks analytics logic — always calls ``run_onsite`` /
 ``run_offsite_dppa`` / ``run_vietnam_reopt`` from ``reopt_pysam_vn`` as-is.
 
-Repo constraint discovered during PHASE-01 research: ``run_offsite_dppa`` has
-no generic fresh-solve path — it requires pre-solved ``extracted`` inputs and a
-registered orchestrator keyed by ``deal_config.case`` (today
-``DPPA_SAMSUNG_TTC`` and ``DPPA_CASE_1_NINHSIM``, plus a generic fallback that
-answers any unregistered case). So offsite/both modes always need an
-``extracted`` upload; only onsite can be solved live via the NREL REopt
-API. Offsite deals that consume a REopt ``results`` dict (currently
-``DPPA_CASE_1_NINHSIM``) must also supply the ``results`` and ``scenario``
-payloads — those may ride on the deal config (landing in ``DealConfig.raw`` and
-resolved by ``run_offsite_dppa``) or be submitted in the payload and forwarded
-here (both ``results`` and ``scenario`` are now forwarded to
-``run_offsite_dppa``).
+Offsite/both modes need either a pre-solved ``extracted`` payload or a
+``deal_config.load["loads_kw"]`` 8760-hour series (from which ``extracted`` is
+derived via ``analysis.extracted.build_extracted_inputs``). Only onsite can be
+solved live via the NREL REopt API. Offsite deals that consume a REopt
+``results`` dict (currently ``DPPA_CASE_1_NINHSIM``) must also supply the
+``results`` and ``scenario`` payloads — those may ride on the deal config
+(landing in ``DealConfig.raw`` and resolved by ``run_offsite_dppa``) or be
+submitted in the payload and forwarded here (both ``results`` and ``scenario``
+are now forwarded to ``run_offsite_dppa``).
 """
 
 from __future__ import annotations
@@ -57,10 +54,15 @@ def run_analysis(
     scenario: dict[str, Any] | None = None,
     extracted: dict[str, Any] | None = None,
     run_developer: bool = True,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], list[dict[str, Any]] | None]:
     """Run the pipeline(s) ``deal_config.mode`` selects and return a result dict.
 
     For ``mode == "both"`` the result is ``{"onsite": {...}, "offsite_dppa": {...}}``.
+    Returns ``(summary_result, ledger_rows_or_None)`` where the ledger is the
+    8760-hour hourly ledger that was previously inlined in
+    ``base_settlement["hourly_ledger"]``.  The returned summary no longer
+    contains the ledger.
+
     Raises ``MissingInputsError`` / ``OrchestratorNotRegisteredError`` (both
     ``AnalysisError``) on bad input rather than a bare stack trace.
     """
@@ -69,25 +71,35 @@ def run_analysis(
 
     mode = deal_config.mode
 
+    # Derive extracted once when a load series is present (PHASE-02).
+    derived_extracted: dict[str, Any] | None = extracted
+    if derived_extracted is None and isinstance(deal_config.load.get("loads_kw"), list):
+        try:
+            from reopt_pysam_vn.analysis.extracted import build_extracted_inputs
+
+            derived_extracted = build_extracted_inputs(deal_config)
+        except OrchestratorInputError as exc:
+            raise MissingInputsError(str(exc)) from exc
+
     def _run_onsite() -> dict[str, Any]:
         if results is None:
             raise MissingInputsError(
                 "onsite analysis needs pre-solved `results`; submit without `results` "
                 "to trigger a background NREL solve instead."
             )
-        return run_onsite(deal_config, results=results, extracted=extracted).to_dict()
+        return run_onsite(deal_config, results=results, extracted=derived_extracted).to_dict()
 
     def _run_offsite() -> dict[str, Any]:
-        if extracted is None:
+        if derived_extracted is None:
             raise MissingInputsError(
-                "offsite_dppa analysis needs pre-solved `extracted` inputs; there is "
-                "no generic fresh-solve path for offsite/DPPA yet (only onsite can "
-                "be solved live via the NREL REopt API)."
+                "offsite_dppa analysis needs pre-solved `extracted` inputs or a "
+                "load series in `deal_config.load['loads_kw']` (8760 hourly kW values); "
+                "neither was supplied."
             )
         try:
             return run_offsite_dppa(
                 deal_config,
-                extracted=extracted,
+                extracted=derived_extracted,
                 results=results,
                 scenario=scenario,
                 run_developer=run_developer,
@@ -95,12 +107,28 @@ def run_analysis(
         except OrchestratorInputError as exc:
             raise MissingInputsError(str(exc)) from exc
 
+    def _pop_ledger(result: dict[str, Any]) -> list[dict[str, Any]] | None:
+        base = result.get("base_settlement")
+        if isinstance(base, dict) and "hourly_ledger" in base:
+            ledger = base.pop("hourly_ledger")
+            return ledger if isinstance(ledger, list) else None
+        return None
+
     if mode == "onsite":
-        return _run_onsite()
+        result = _run_onsite()
+        ledger = _pop_ledger(result)
+        return result, ledger
     if mode == "offsite_dppa":
-        return _run_offsite()
+        result = _run_offsite()
+        ledger = _pop_ledger(result)
+        return result, ledger
     if mode == "both":
-        return {"onsite": _run_onsite(), "offsite_dppa": _run_offsite()}
+        onsite = _run_onsite()
+        offsite = _run_offsite()
+        ledger = _pop_ledger(offsite)
+        # Also pop from onsite if it ever carries one (currently not).
+        _pop_ledger(onsite)
+        return {"onsite": onsite, "offsite_dppa": offsite}, ledger
     raise AnalysisError(f"unsupported mode {mode!r}")
 
 

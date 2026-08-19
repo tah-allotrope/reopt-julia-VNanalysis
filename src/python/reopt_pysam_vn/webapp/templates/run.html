@@ -27,7 +27,8 @@
 {% if status.state == 'done' %}
 <p>
   <a href="/api/runs/{{ run_id }}/result.json">Download result JSON</a> &middot;
-  <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a> &middot;
+  <a href="/api/runs/{{ run_id }}/report.html">Download HTML report</a>
+  {% if has_ledger %} &middot; <a href="/api/runs/{{ run_id }}/ledger.csv">Download hourly ledger (CSV)</a>{% endif %} &middot;
   <a href="/deals/new?from={{ run_id }}">Duplicate as new deal</a>
 </p>
 
@@ -58,6 +59,17 @@ try {
 {{ render_section(view.offsite_dppa) }}
 {% else %}
 {{ render_section(view) }}
+{% endif %}
+
+{% if load_cleaning %}
+<div class="card">
+  <h3>Load data quality</h3>
+  <table>
+    {% for key, value in load_cleaning.items() %}
+    <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
 {% endif %}
 
 {% if provenance %}

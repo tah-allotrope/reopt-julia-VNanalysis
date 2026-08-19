@@ -39,7 +39,12 @@
         "technology": { "type": "string" },
         "bess_power_mw": { "type": "number" },
         "bess_energy_mwh": { "type": "number" },
-        "cod_date": { "type": "string" }
+        "cod_date": { "type": "string" },
+        "mounting": {
+          "type": "string",
+          "enum": ["fixed_open_rack", "fixed_roof", "single_axis_tracking"],
+          "description": "PV array mounting configuration."
+        }
       }
     },
     "load": {

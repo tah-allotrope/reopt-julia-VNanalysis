@@ -14,7 +14,6 @@ report renderer written for the generalized contract instead.
 from __future__ import annotations
 
 import html
-import json
 from typing import Any
 
 __all__ = ["build_view_model", "render_standalone_report_html"]
@@ -128,7 +127,6 @@ def render_standalone_report_html(run_id: str, deal_config: dict[str, Any], resu
     title = html.escape(deal_config.get("title") or deal_config.get("case", run_id))
     case = html.escape(deal_config.get("case", ""))
     body = "\n".join(rows)
-    raw_json = json.dumps(result).replace("</", "<\\/")
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>{title} - report</title>
 <style>body{{font-family:sans-serif;margin:2rem;}}table{{border-collapse:collapse;}}td{{padding:4px 12px;border-bottom:1px solid #ccc;}}</style>
@@ -136,5 +134,4 @@ def render_standalone_report_html(run_id: str, deal_config: dict[str, Any], resu
 <h1>{title}</h1>
 <p>Case: {case} &middot; Run: {html.escape(run_id)}</p>
 {body}
-<script type="application/json" id="raw-result">{raw_json}</script>
 </body></html>"""

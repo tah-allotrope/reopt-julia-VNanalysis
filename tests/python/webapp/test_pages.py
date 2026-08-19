@@ -34,7 +34,7 @@ def test_multipart_deal_submission_queues_a_background_solve(client):
     import io
     import time
 
-    csv_text = "\n".join(str(150.0) for _ in range(_HOURS))
+    csv_text = "load_kw\n" + "\n".join(str(150.0) for _ in range(_HOURS))
     resp = client.post(
         "/api/deals",
         data={

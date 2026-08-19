@@ -65,7 +65,9 @@ def template_defaults(template_id: str) -> dict[str, Any]:
     }
 
 
-def deal_config_from_form(form: dict[str, Any], *, loads_kw: list[float]) -> dict[str, Any]:
+def deal_config_from_form(
+    form: dict[str, Any], *, loads_kw: list[float], load_cleaning: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Build a schema-shaped DealConfig dict from guided-form input.
 
     ``form`` sections mirror ``data/schemas/deal_config.schema.json``: only
@@ -81,13 +83,17 @@ def deal_config_from_form(form: dict[str, Any], *, loads_kw: list[float]) -> dic
     if not mode:
         raise ValueError("form is missing required field `mode`")
 
+    load_block: dict[str, Any] = {**dict(form.get("load", {})), "loads_kw": list(loads_kw)}
+    if load_cleaning is not None:
+        load_block["load_cleaning"] = dict(load_cleaning)
+
     return {
         "case": case,
         "mode": mode,
         "title": form.get("title", ""),
         "site": dict(form.get("site", {})),
         "plant": dict(form.get("plant", {})),
-        "load": {**dict(form.get("load", {})), "loads_kw": list(loads_kw)},
+        "load": load_block,
         "contract": dict(form.get("contract", {})),
         "finance": dict(form.get("finance", {})),
     }

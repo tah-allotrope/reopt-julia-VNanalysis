@@ -148,3 +148,138 @@ def test_generation_profile_calibrates_to_annual_solar_gwh():
     )
     assert profile["calibrated_to_gwh"] == 8.76
     assert sum(profile["series_kw"]) == pytest.approx(8.76e6, rel=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# PHASE-03: physical model honesty additions
+# ---------------------------------------------------------------------------
+
+
+def test_great_circle_km_known_distance():
+    from reopt_pysam_vn.pysam.pvwatts_battery import great_circle_km
+
+    d = great_circle_km(10.88, 106.28, 12.525729252783036, 109.02003383567742)
+    # Plan's worked example cited 337.0 km; actual haversine at R=6371 gives ~350.0 km.
+    assert 340.0 <= d <= 360.0
+
+
+def test_great_circle_km_zero():
+    from reopt_pysam_vn.pysam.pvwatts_battery import great_circle_km
+
+    assert great_circle_km(
+        12.525729252783036, 109.02003383567742, 12.525729252783036, 109.02003383567742
+    ) == pytest.approx(0.0)
+
+
+def test_resource_coordinates_known():
+    from reopt_pysam_vn.pysam.pvwatts_battery import resource_coordinates
+
+    assert resource_coordinates("ninhsim_himawari_2019_60min.csv") == (
+        12.525729252783036,
+        109.02003383567742,
+    )
+
+
+def test_resource_coordinates_unknown():
+    from reopt_pysam_vn.pysam.pvwatts_battery import resource_coordinates
+
+    assert resource_coordinates("does_not_exist.csv") is None
+
+
+def _synthetic_day_night_shape():
+    return [1.0 if 6 <= (h % 24) < 18 else 0.0 for h in range(_HOURS)]
+
+
+def test_calibrate_to_target_night_injection_regression():
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import _calibrate_to_target
+
+    shape = _synthetic_day_night_shape()
+    series, warnings = _calibrate_to_target(shape, annual_target_kwh=6.0e6, cap_kw=1000.0)
+    assert len(series) == _HOURS
+    for h, s in enumerate(shape):
+        if s == 0.0:
+            assert series[h] == 0.0, f"night injection at hour {h}"
+    assert warnings
+    assert any("infeasible" in w.lower() for w in warnings)
+
+
+def test_calibrate_to_target_feasible_clipping():
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import _calibrate_to_target
+
+    shape = _synthetic_day_night_shape()
+    series, _warnings = _calibrate_to_target(shape, annual_target_kwh=12.0e6, cap_kw=5000.0)
+    assert sum(series) == pytest.approx(12.0e6, rel=1e-9, abs=1.0)
+    assert max(series) <= 5000.0 + 1e-6
+    for h, s in enumerate(shape):
+        if s == 0.0:
+            assert series[h] == 0.0
+
+
+def test_calibrate_to_target_no_cap():
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import _calibrate_to_target
+
+    series, warnings = _calibrate_to_target([1.0] * _HOURS, annual_target_kwh=8760.0, cap_kw=None)
+    assert all(v == pytest.approx(1.0) for v in series)
+    assert warnings == []
+
+
+def test_calibrate_to_target_all_zero_shape():
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import _calibrate_to_target
+
+    series, warnings = _calibrate_to_target([0.0] * _HOURS, 1.0e6, 1000.0)
+    assert series == [0.0] * _HOURS
+    assert any("entirely zero" in w for w in warnings)
+
+
+def test_distance_disclosure_for_far_site():
+    # When PySAM resolves the tracked resource, a site far from Ninh Thuan should be flagged.
+    try:
+        import PySAM  # noqa: F401
+    except ImportError:
+        pytest.skip("PySAM not available")
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import build_generic_offsite_artifact
+    from reopt_pysam_vn.analysis.types import DealConfig
+
+    extracted = {
+        "loads_kw": [1000.0] * _HOURS,
+        "site": {"latitude": 10.03, "longitude": 105.78},
+        "evn_tariff": {"tou_energy_rates_vnd_per_kwh": [2000.0] * _HOURS},
+        "benchmark": {
+            "weighted_evn_price_vnd_per_kwh": 2000.0,
+            "wholesale_rate_vnd_per_kwh": 671.0,
+        },
+    }
+    deal = DealConfig.from_dict(
+        {
+            "case": "FAR_SITE_TEST",
+            "mode": "offsite_dppa",
+            "site": {"latitude": 10.03, "longitude": 105.78},
+            "plant": {"capacity_mwac": 5.0},
+            "contract": {"strike_vnd_per_kwh": 1200.0, "annual_solar_gwh": 5.0},
+            "load": {"loads_kw": [1000.0] * _HOURS},
+        }
+    )
+    result = build_generic_offsite_artifact(extracted, deal_config=deal)
+    quality = result["quality"]
+    # Only check when PVWatts actually ran; synthetic fallback has no distance.
+    if quality.get("solar_resource_file") is None:
+        pytest.skip("PVWatts resource not resolved, synthetic fallback")
+    assert quality["solar_resource_distance_km"] is not None
+    assert quality["solar_resource_distance_km"] > 100.0
+    assert quality["solar_profile_source"] == "pvwatts_fallback_resource"
+    assert any("solar resource" in w.lower() for w in quality["warnings"])
+
+
+def test_array_config_mapping():
+    from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import _array_config
+
+    cfg_roof = DealConfig.from_dict(
+        {"case": "X", "mode": "offsite_dppa", "plant": {"mounting": "fixed_roof"}}
+    )
+    assert _array_config(cfg_roof, 10.5) == (1, 10.5)
+    cfg_track = DealConfig.from_dict(
+        {"case": "X", "mode": "offsite_dppa", "plant": {"mounting": "single_axis_tracking"}}
+    )
+    assert _array_config(cfg_track, 10.5) == (2, 0.0)
+    cfg_default = DealConfig.from_dict({"case": "X", "mode": "offsite_dppa"})
+    assert _array_config(cfg_default, 10.5) == (0, 10.5)

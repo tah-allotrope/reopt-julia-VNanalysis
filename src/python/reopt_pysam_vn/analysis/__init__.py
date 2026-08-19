@@ -22,6 +22,7 @@ Public surface (built across Sprint 3 phases):
 - ``__main__``     — ``python -m reopt_pysam_vn.analysis {onsite,offsite_dppa}`` CLI.
 """
 
+from reopt_pysam_vn.analysis.extracted import build_extracted_inputs
 from reopt_pysam_vn.analysis.offsite_dppa import (
     OrchestratorInputError,
     register_orchestrator,
@@ -61,6 +62,7 @@ __all__ = [
     "OnsiteResult",
     "OrchestratorInputError",
     # pipelines (first-class entry points)
+    "build_extracted_inputs",
     "register_orchestrator",
     "run_offsite_dppa",
     "run_onsite",

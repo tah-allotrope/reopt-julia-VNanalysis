@@ -1,9 +1,12 @@
-"""Gate tests for Factory A BESS slide validation — real Emivest 2024 load.
+"""Recorded-output conformance gate for Factory A BESS slide validation — real Emivest 2024 load.
 
-Asserts that PySAM-computed metrics are within tolerance of slide reference
-figures. Tests skip cleanly when:
-  - PySAM result files are absent (not yet run)
-  - PySAM package is not available
+This module is a *recorded-output conformance* gate: it compares four
+tracked, pre-generated PySAM result JSON files in ``tests/fixtures/factory_a/``
+against slide reference figures. It does **not** prove that PySAM was re-run
+in this environment — the fixtures are static files, not live execution.
+Genuine model-execution coverage in CI comes from the settlement-regression
+tests, which replay real series through ``compute_hourly_settlement`` on every
+run.
 
 Tolerance bands:
   - Equity IRR: ±7pp absolute (BIAS-02: PySAM hybrid IRR vs equity model;
@@ -24,7 +27,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-REPORTS_DIR = REPO_ROOT / "artifacts" / "reports" / "factory_a"
+REPORTS_DIR = REPO_ROOT / "tests" / "fixtures" / "factory_a"
 
 SLIDE_REFERENCE = {
     "case_1": {"equity_irr_fraction": 0.187, "avg_dscr": 1.33, "clean_self_supply_pct": 59.5},
@@ -39,35 +42,19 @@ DSCR_TOLERANCE = 0.40        # ±0.40 abs — BIAS-03 US vs VN debt model; Case 
 CLEAN_SUPPLY_TOLERANCE_PP = 15.0  # ±15pp — tightened: BIAS-01 resolved, max gap = 13.5pp
 
 
-def _load_result(case_id: str) -> dict | None:
+def _load_result(case_id: str) -> dict:
     path = REPORTS_DIR / f"2026-06-20_factory-a_{case_id}_pysam-results.json"
-    if not path.exists():
-        return None
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _pysam_available() -> bool:
-    try:
-        import PySAM  # noqa: F401
-        return True
-    except ImportError:
-        return False
 
 
 @pytest.fixture(scope="module")
 def pysam_results():
-    if not _pysam_available():
-        pytest.skip("PySAM package not installed")
     results = {}
     for cid in SLIDE_REFERENCE:
-        r = _load_result(cid)
-        if r is None:
-            pytest.skip(f"PySAM result file not found for {cid}; run run_factory_a_pysam.py first")
-        results[cid] = r
+        results[cid] = _load_result(cid)
     return results
 
 
-@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_equity_irr_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]
@@ -83,7 +70,6 @@ def test_equity_irr_within_tolerance(pysam_results, case_id):
     )
 
 
-@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_avg_dscr_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]
@@ -98,7 +84,6 @@ def test_avg_dscr_within_tolerance(pysam_results, case_id):
     )
 
 
-@pytest.mark.requires_artifacts
 @pytest.mark.parametrize("case_id", list(SLIDE_REFERENCE.keys()))
 def test_clean_self_supply_within_tolerance(pysam_results, case_id):
     result = pysam_results[case_id]

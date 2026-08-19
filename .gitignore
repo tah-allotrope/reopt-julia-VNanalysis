@@ -101,3 +101,8 @@ ceba-review/*.idempotency-test.pptx
 ceba-review/*\[reviewed\].pptx
 ceba-review/cong bess session.pptx
 ceba-review/CEBA DPPA 2026.pptx
+
+# === PHASE-06: regression fixtures are tracked (small, gzipped) ===
+!tests/fixtures/
+
+src/python/*.egg-info/

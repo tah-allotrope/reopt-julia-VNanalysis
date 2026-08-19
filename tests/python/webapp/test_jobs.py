@@ -189,6 +189,8 @@ def test_job_manager_start_marks_interrupted_runs_as_error(storage_root):
 def test_offsite_mode_error_has_friendly_code(client):
     deal = _deal_config("OFFSITE_NOT_ONSITE")
     deal["mode"] = "offsite_dppa"
+    # Remove load so derived extracted cannot succeed — must be a clean MISSING_INPUTS error.
+    deal.pop("load", None)
     resp = client.post("/api/runs", json={"deal_config": deal})
     run_id = resp.json()["run_id"]
     status = _wait_for_terminal(client, run_id)

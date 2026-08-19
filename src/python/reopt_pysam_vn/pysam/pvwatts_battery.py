@@ -18,6 +18,32 @@ DEFAULT_SOLAR_RESOURCE_YEAR = "2019"
 DEFAULT_SOLAR_RESOURCE_INTERVAL_MIN = 60
 DEFAULT_SOLAR_RESOURCE_FILE = DEFAULT_RESOURCE_CACHE / "ninhsim_himawari_2019_60min.csv"
 
+# Catalog of tracked solar resource files (PHASE-03, ASM-002).
+SOLAR_RESOURCE_CATALOG: dict[str, tuple[float, float]] = {
+    "ninhsim_himawari_2019_60min.csv": (12.525729252783036, 109.02003383567742),
+    "nsrdb_12.525729252783036_109.02003383567742_himawari_60_2019.csv": (
+        12.525729252783036,
+        109.02003383567742,
+    ),
+}
+
+
+def resource_coordinates(resource_file: Path | str) -> tuple[float, float] | None:
+    """Return (latitude, longitude) for a catalogued resource file, or None."""
+    name = Path(resource_file).name
+    return SOLAR_RESOURCE_CATALOG.get(name)
+
+
+def great_circle_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle separation in kilometres per Specification S1 (R=6371.0 km)."""
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return 6371.0 * c
+
 
 @dataclass
 class PVWattsBatterySingleOwnerInputs:

@@ -304,3 +304,43 @@ def test_offsite_unregistered_case_reaches_done_via_generic(client):
     assert body["status"]["state"] == "done", body["status"]
     assert body["result"]["case"] == "MY_NEW_DEAL"
     assert body["result"]["quality"]["orchestrator"] == "generic_vn_dppa"
+
+
+def test_generic_offsite_via_deals_form_with_load_csv_reaches_done(client):
+    # PHASE-02: the guided form + load CSV for an unregistered case reaches done
+    # via the extracted assembler (derived extracted inputs).
+    load_csv = "load_kw\n" + "\n".join(["1000"] * _HOURS)
+    resp = client.post(
+        "/api/deals",
+        data={
+            "case": "MEKONG_NEW_DEAL",
+            "mode": "offsite_dppa",
+            "site.latitude": "10.03",
+            "site.longitude": "105.78",
+            "site.region": "south",
+            "contract.settlement_mechanism": "physical",
+            "contract.strike_vnd_per_kwh": "1200",
+            "contract.annual_solar_gwh": "8.76",
+            "plant.capacity_mwac": "5",
+        },
+        files={"load_file": ("load.csv", load_csv.encode("utf-8"), "text/csv")},
+    )
+    assert resp.status_code == 202, resp.text
+    run_id = resp.json()["run_id"]
+    body = client.get(f"/api/runs/{run_id}").json()
+    assert body["status"]["state"] == "done", body["status"]
+    assert body["result"]["quality"]["orchestrator"] == "generic_vn_dppa"
+    assert body["result"]["quality"]["basis"] == "directional"
+
+
+def test_offsite_without_loads_or_extracted_is_error(client):
+    resp = client.post(
+        "/api/runs",
+        json={"deal_config": {"case": "NO_INPUTS", "mode": "offsite_dppa", "contract": {"strike_vnd_per_kwh": 1200.0}}},
+    )
+    assert resp.status_code == 202, resp.text
+    run_id = resp.json()["run_id"]
+    body = client.get(f"/api/runs/{run_id}").json()
+    status = body["status"]
+    assert status["state"] == "error", status
+    assert status["error_code"] == "MISSING_INPUTS"

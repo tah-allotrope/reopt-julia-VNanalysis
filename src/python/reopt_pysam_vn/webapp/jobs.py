@@ -146,10 +146,11 @@ class JobManager:
         key_fingerprint: str | None = None
         if cached_run_id is not None:
             reopt_results = self.storage.get_reopt_results(cached_run_id)
-            assert reopt_results is not None, (
-                f"cache invariant violated: run {cached_run_id!r} matched solve_hash "
-                f"{solve_hash!r} in state 'done' but has no saved reopt_results"
-            )
+            if reopt_results is None:
+                raise RuntimeError(
+                    f"cache invariant violated: run {cached_run_id!r} matched solve_hash "
+                    f"{solve_hash!r} in state 'done' but has no saved reopt_results"
+                )
             solver = "cached"
         else:
             api_key = service.load_nrel_api_key()
@@ -160,7 +161,9 @@ class JobManager:
 
         self.storage.set_status(run_id, state="analyzing")
         extracted = {"loads_kw": list(deal.load.get("loads_kw", []))}
-        result = service.run_analysis(deal, results=reopt_results, extracted=extracted)
+        result, ledger = service.run_analysis(deal, results=reopt_results, extracted=extracted)
+        if ledger is not None:
+            self.storage.save_ledger_csv(run_id, ledger)
         self.storage.save_result(run_id, result)
 
         provenance = {

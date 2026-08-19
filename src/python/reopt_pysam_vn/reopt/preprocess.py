@@ -374,6 +374,49 @@ def apply_vietnam_financials(
 # ---------------------------------------------------------------------------
 
 
+def build_evn_tou_series_vnd_per_kwh(
+    vn: VNData,
+    *,
+    customer_type: str,
+    voltage_level: str,
+    regime_id: str = DEFAULT_REGIME_ID,
+    year: int | None = None,
+) -> list[float]:
+    """Return an 8760-element EVN TOU energy-rate series in VND per kWh."""
+    if year is None:
+        year = datetime.now(timezone.utc).date().year
+
+    tariff = resolve_vietnam_regime(vn, regime_id)["tariff"]
+    base_vnd = tariff["base_avg_price_vnd_per_kwh"]
+    schedule = tariff["tou_schedule"]
+    multipliers = tariff["rate_multipliers"]
+
+    if customer_type == "household":
+        avg_mult = multipliers["household"].get("tier_2_101_to_200kwh", 1.0)
+        rate_vnd = base_vnd * avg_mult
+        return [float(rate_vnd)] * HOURS_PER_YEAR
+
+    if customer_type not in VALID_CUSTOMER_TYPES:
+        raise ValueError(
+            f'Unknown customer_type "{customer_type}". '
+            f"Valid: {', '.join(VALID_CUSTOMER_TYPES)}, household"
+        )
+    if customer_type not in multipliers:
+        raise ValueError(f'No rate multipliers for customer_type "{customer_type}"')
+    cust_mults = multipliers[customer_type]
+    vl = _resolve_tariff_multiplier_block(customer_type, cust_mults, voltage_level)
+
+    peak_vnd = base_vnd * vl["peak"]
+    standard_vnd = base_vnd * vl["standard"]
+    offpeak_vnd = base_vnd * vl["offpeak"]
+
+    weekday_rates = _build_hourly_rates(schedule["weekday"], peak_vnd, standard_vnd, offpeak_vnd)
+    sunday_key = "sunday" if "sunday" in schedule else "sunday_and_public_holidays"
+    sunday_rates = _build_hourly_rates(schedule[sunday_key], peak_vnd, standard_vnd, offpeak_vnd)
+
+    return _build_8760_rates(weekday_rates, sunday_rates, year)
+
+
 def build_vietnam_tariff(
     vn: VNData,
     customer_type: str,
@@ -391,46 +434,16 @@ def build_vietnam_tariff(
     if year is None:
         year = datetime.now(timezone.utc).date().year
 
+    vnd_rates = build_evn_tou_series_vnd_per_kwh(
+        vn,
+        customer_type=customer_type,
+        voltage_level=voltage_level,
+        regime_id=regime_id,
+        year=year,
+    )
+    rates = [convert_vnd_to_usd(v, exchange_rate=exchange_rate) for v in vnd_rates]
+
     tariff = resolve_vietnam_regime(vn, regime_id)["tariff"]
-    base_vnd = tariff["base_avg_price_vnd_per_kwh"]
-    schedule = tariff["tou_schedule"]
-    multipliers = tariff["rate_multipliers"]
-
-    if customer_type == "household":
-        avg_mult = multipliers["household"].get("tier_2_101_to_200kwh", 1.0)
-        rate_usd = convert_vnd_to_usd(base_vnd * avg_mult, exchange_rate=exchange_rate)
-        rates = [rate_usd] * HOURS_PER_YEAR
-    else:
-        if customer_type not in VALID_CUSTOMER_TYPES:
-            raise ValueError(
-                f'Unknown customer_type "{customer_type}". '
-                f"Valid: {', '.join(VALID_CUSTOMER_TYPES)}, household"
-            )
-        if customer_type not in multipliers:
-            raise ValueError(f'No rate multipliers for customer_type "{customer_type}"')
-        cust_mults = multipliers[customer_type]
-        vl = _resolve_tariff_multiplier_block(customer_type, cust_mults, voltage_level)
-
-        peak_rate = convert_vnd_to_usd(
-            base_vnd * vl["peak"], exchange_rate=exchange_rate
-        )
-        standard_rate = convert_vnd_to_usd(
-            base_vnd * vl["standard"], exchange_rate=exchange_rate
-        )
-        offpeak_rate = convert_vnd_to_usd(
-            base_vnd * vl["offpeak"], exchange_rate=exchange_rate
-        )
-
-        weekday_rates = _build_hourly_rates(
-            schedule["weekday"], peak_rate, standard_rate, offpeak_rate
-        )
-        sunday_key = "sunday" if "sunday" in schedule else "sunday_and_public_holidays"
-        sunday_rates = _build_hourly_rates(
-            schedule[sunday_key], peak_rate, standard_rate, offpeak_rate
-        )
-
-        rates = _build_8760_rates(weekday_rates, sunday_rates, year)
-
     demand_vnd = tariff.get("demand_charge", {}).get(
         "monthly_demand_rate_vnd_per_kw", 0
     )

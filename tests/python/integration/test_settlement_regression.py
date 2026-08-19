@@ -21,24 +21,13 @@ from reopt_pysam_vn.integration.settlement import (
     compute_hourly_settlement,
 )
 
-NINHSIM_SETTLEMENT = (
-    REPO_ROOT / "artifacts" / "reports" / "ninhsim"
-    / "2026-04-14_ninhsim_dppa-case-2_buyer-settlement.json"
-)
+NINHSIM_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "regression" / "ninhsim_case2_settlement.json.gz"
 
-SAIGON18_SETTLEMENT = (
-    REPO_ROOT / "artifacts" / "reports" / "saigon18"
-    / "2026-03-29_scenario-d_dppa-settlement.json"
-)
+SAIGON18_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "regression" / "saigon18_scenario_d.json.gz"
 
 SAIGON18_EXTRACTED = (
     REPO_ROOT / "data" / "interim" / "saigon18"
     / "2026-03-20_saigon18_extracted_inputs.json"
-)
-
-SAIGON18_REOPT = (
-    REPO_ROOT / "artifacts" / "results" / "saigon18"
-    / "2026-03-20_scenario-d_dppa-baseline_reopt-results.json"
 )
 
 
@@ -48,23 +37,22 @@ def _pct_deviation(actual: float, expected: float) -> float:
     return abs(actual - expected) / abs(expected) * 100.0
 
 
-@pytest.mark.requires_artifacts
 class TestNinhsimCaseRegression:
     """Replay ninhsim DPPA Case 2 buyer settlement through generalized engine."""
 
     @pytest.fixture(scope="class")
     def reference(self):
-        if not NINHSIM_SETTLEMENT.exists():
-            pytest.skip("Ninhsim settlement artifact not available")
-        return json.loads(NINHSIM_SETTLEMENT.read_text(encoding="utf-8"))
+        import gzip
+
+        with gzip.open(NINHSIM_FIXTURE, "rt", encoding="utf-8") as fh:
+            return json.load(fh)
 
     @pytest.fixture(scope="class")
     def generalized_result(self, reference):
-        ledger = reference["hourly_ledger"]
-        loads = [entry["load_kwh"] for entry in ledger]
-        generation = [entry["contracted_generation_kwh"] for entry in ledger]
-        market = [entry["market_reference_price_vnd_per_kwh"] for entry in ledger]
-        retail = [entry["evn_retail_rate_vnd_per_kwh"] for entry in ledger]
+        loads = reference["load_kwh"]
+        generation = reference["contracted_generation_kwh"]
+        market = reference["market_reference_price_vnd_per_kwh"]
+        retail = reference["evn_retail_rate_vnd_per_kwh"]
 
         params = reference["parameters"]
         kpp_factor = params["kpp_factor"]
@@ -139,7 +127,6 @@ class TestNinhsimCaseRegression:
         assert actual == expected
 
 
-@pytest.mark.requires_artifacts
 class TestSaigon18CaseRegression:
     """Replay saigon18 DPPA private-wire settlement through generalized engine.
 
@@ -151,21 +138,22 @@ class TestSaigon18CaseRegression:
 
     @pytest.fixture(scope="class")
     def reference(self):
-        if not SAIGON18_SETTLEMENT.exists():
-            pytest.skip("Saigon18 settlement artifact not available")
-        return json.loads(SAIGON18_SETTLEMENT.read_text(encoding="utf-8"))
+        import gzip
+
+        with gzip.open(SAIGON18_FIXTURE, "rt", encoding="utf-8") as fh:
+            return json.load(fh)
 
     @pytest.fixture(scope="class")
     def extracted(self):
-        if not SAIGON18_EXTRACTED.exists():
-            pytest.skip("Saigon18 extracted inputs not available")
         return json.loads(SAIGON18_EXTRACTED.read_text(encoding="utf-8"))
 
     @pytest.fixture(scope="class")
-    def reopt_results(self):
-        if not SAIGON18_REOPT.exists():
-            pytest.skip("Saigon18 REopt results not available")
-        return json.loads(SAIGON18_REOPT.read_text(encoding="utf-8"))
+    def reopt_results(self, reference):
+        # Generation series are stored in the same fixture alongside settlement reference.
+        return {
+            "PV": {"electric_to_load_series_kw": reference["pv_electric_to_load_series_kw"]},
+            "ElectricStorage": {"storage_to_load_series_kw": reference["storage_to_load_series_kw"]},
+        }
 
     @pytest.fixture(scope="class")
     def generalized_result(self, reference, extracted, reopt_results):
