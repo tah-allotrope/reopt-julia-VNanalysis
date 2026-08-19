@@ -80,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         res2 = build_saigon18_fixture(args.saigon18_settlement, args.saigon18_reopt, args.saigon18_dest)
         print(f"saigon18 fixture: {res2}")
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - top-level CLI error handling, any failure is user-facing
         print(f"error: {exc}", file=sys.stderr)
         return 1
     return 0

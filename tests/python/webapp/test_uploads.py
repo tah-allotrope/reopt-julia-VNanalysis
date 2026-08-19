@@ -86,7 +86,7 @@ def test_parse_xlsx_single_column():
         ws.append([200.0])
     buf = io.BytesIO()
     wb.save(buf)
-    series, summary = parse_load_upload(buf.getvalue(), "load.xlsx")
+    series, _summary = parse_load_upload(buf.getvalue(), "load.xlsx")
     assert len(series) == _HOURS
     assert series[0] == pytest.approx(200.0)
 
@@ -95,5 +95,5 @@ def test_parse_json():
     import json
 
     data = {"loads_kw": [1000.0] * _HOURS}
-    series, summary = parse_load_upload(json.dumps(data).encode("utf-8"), "load.json")
+    series, _summary = parse_load_upload(json.dumps(data).encode("utf-8"), "load.json")
     assert len(series) == _HOURS
