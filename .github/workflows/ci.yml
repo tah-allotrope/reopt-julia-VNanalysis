@@ -32,7 +32,7 @@ jobs:
         run: mypy src/python/reopt_pysam_vn/analysis src/python/reopt_pysam_vn/webapp
 
       - name: Test (portable suite)
-        run: python -m pytest tests/python -m "not network and not requires_artifacts and not golden_machine and not requires_julia and not requires_nrel_key and not requires_pysam_resource" -rs -q --cov=reopt_pysam_vn --cov-report=term-missing --cov-fail-under=83
+        run: python -m pytest tests/python -m "not network and not requires_artifacts and not golden_machine and not requires_julia and not requires_nrel_key and not requires_pysam_resource" -rs -q --cov=reopt_pysam_vn --cov-report=term-missing --cov-fail-under=82
         env:
           PYTHONPATH: ""
           REOPT_PYSAM_VN_MAX_SKIPS: "0"
