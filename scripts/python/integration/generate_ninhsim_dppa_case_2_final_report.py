@@ -6,13 +6,13 @@ import json
 import re
 from pathlib import Path
 
+from reopt_pysam_vn.common.reporting import phase_report_template
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPORT_DATE = "2026-04-15"
 PROJECT = REPO_ROOT.name
 REPO = str(REPO_ROOT)
-TEMPLATE_PATH = (
-    Path.home() / ".claude" / "skills" / "report" / "assets" / "template.html"
-)
+TEMPLATE_PATH = phase_report_template()
 OUTPUT_DIR = REPO_ROOT / "reports"
 
 FINAL = (

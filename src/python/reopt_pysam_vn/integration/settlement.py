@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from reopt_pysam_vn.common.series import pad_to_8760
+
 VALID_MODES = ("private_wire", "virtual_cfd")
 VALID_SETTLEMENT_RULES = ("matched_only", "contracted_volume")
 VALID_EXCESS_TREATMENTS = ("curtail", "export_at_surplus", "cfd_on_excess")
@@ -94,11 +96,7 @@ class SettlementResult:
     market_source_label: str = ""
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    if len(series) >= 8760:
-        return [float(v) for v in series[:8760]]
-    return [float(v) for v in series] + [0.0] * (8760 - len(series))
-
+_pad_to_8760 = pad_to_8760
 
 def compute_hourly_settlement(
     loads_kw: list[float],

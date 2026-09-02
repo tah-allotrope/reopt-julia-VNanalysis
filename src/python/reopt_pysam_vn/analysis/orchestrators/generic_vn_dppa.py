@@ -14,19 +14,23 @@ reader knows exactly what was computed and from what.
 
 from __future__ import annotations
 
-import math
 from dataclasses import asdict
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Any
 
-from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorInputError
+from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorContext, OrchestratorInputError
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.integration.settlement import (
     ContractParams,
     compute_buyer_benchmark,
     compute_hourly_settlement,
     run_strike_sweep,
+)
+from reopt_pysam_vn.pysam.generation_profile import (
+    SOURCE_EXTRACTED,
+    ArrayConfig,
+    calibrate_to_target,
+    pad_to_8760,
+    resolve_generation_profile,
 )
 
 __all__ = [
@@ -39,59 +43,12 @@ _DEFAULT_REGIME_ID = "decision_963_2026_current"
 _MODEL = "generic_vn_dppa_offsite_artifact"
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    values = [float(value) for value in series[:_HOURS]]
-    if len(values) < _HOURS:
-        values.extend([0.0] * (_HOURS - len(values)))
-    return values
+# The generation ladder — the shape resolution, the PVWatts adapter, the
+# synthetic shape and this calibration — now lives in one module. These names
+# are kept as re-exports because the orchestrator tests reach for them directly.
+_pad_to_8760 = pad_to_8760
+_calibrate_to_target = calibrate_to_target
 
-
-def _calibrate_to_target(
-    series: list[float], annual_target_kwh: float, cap_kw: float | None
-) -> tuple[list[float], list[str]]:
-    """Scale a shape to the annual target; AC-clip when a cap is supplied (S2)."""
-    warnings: list[str] = []
-    total = sum(series)
-    if cap_kw is None:
-        if total == 0:
-            return [0.0] * len(series), warnings
-        scale = annual_target_kwh / total
-        return [value * scale for value in series], warnings
-
-    # Daylight set D = {h: s[h] > 0}
-    daylight = [i for i, v in enumerate(series) if v > 0]
-    if not daylight:
-        warnings.append("generation shape is entirely zero")
-        return [0.0] * len(series), warnings
-
-    daylight_count = len(daylight)
-    emax = cap_kw * daylight_count
-    if annual_target_kwh > emax:
-        out = [0.0] * len(series)
-        for idx in daylight:
-            out[idx] = cap_kw
-        warnings.append(
-            f"annual target {annual_target_kwh / 1e6:.3f} GWh is infeasible at "
-            f"{cap_kw / 1000:.3f} MWac (max {emax / 1e6:.3f} GWh); series clipped at the AC cap"
-        )
-        return out, warnings
-
-    scale = annual_target_kwh / total if total else 0.0
-    out = [min(value * scale, cap_kw) for value in series]
-
-    for _ in range(50):
-        deficit = annual_target_kwh - sum(out)
-        if deficit <= 1.0:
-            break
-        headroom = [0.0] * len(series)
-        for idx in daylight:
-            headroom[idx] = cap_kw - out[idx]
-        head_total = sum(headroom)
-        if head_total <= 1e-9:
-            break
-        for idx in daylight:
-            out[idx] = min(out[idx] + deficit * headroom[idx] / head_total, cap_kw)
-    return out, warnings
 
 
 def _array_config(deal_config: DealConfig, site_latitude: float | None) -> tuple[int, float]:
@@ -103,81 +60,6 @@ def _array_config(deal_config: DealConfig, site_latitude: float | None) -> tuple
         return 2, 0.0
     # default fixed_open_rack
     return 0, float(site_latitude) if site_latitude is not None else 0.0
-
-
-def _synthetic_generation_8760(annual_target_kwh: float, cap_kw: float | None) -> list[float]:
-    """Deterministic representative profile (half-sine arc x seasonal)."""
-    start = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    weights: list[float] = []
-    for hour_index in range(_HOURS):
-        ts = start + timedelta(hours=hour_index)
-        hour = ts.hour
-        arc = math.sin(math.pi * (hour - 6) / 12.0) if 6 <= hour < 18 else 0.0
-        day_of_year = ts.timetuple().tm_yday
-        seasonal = 1.0 + 0.18 * math.cos(2.0 * math.pi * (day_of_year - 15) / 365.0)
-        weights.append(max(0.0, arc * seasonal))
-    series, _ = _calibrate_to_target(weights, annual_target_kwh, cap_kw)
-    return series
-
-
-def _try_pvwatts_generation(
-    extracted: dict[str, Any], deal_config: DealConfig
-) -> tuple[list[float], dict[str, Any]] | None:
-    """Run PySAM PVWatts against a cached resource only; never fetch over the network."""
-    site = extracted.get("site", {}) or {}
-    if site.get("latitude") is None or site.get("longitude") is None:
-        return None
-    try:
-        import PySAM.Pvwattsv8 as pv
-    except ImportError:
-        return None
-    try:
-        from reopt_pysam_vn.pysam.pvwatts_battery import (
-            DEFAULT_SOLAR_RESOURCE_FILE,
-            great_circle_km,
-            resource_coordinates,
-        )
-    except (ImportError, AttributeError):
-        return None
-    resource = Path(DEFAULT_SOLAR_RESOURCE_FILE)
-    if not resource.is_file():
-        return None
-    dc_kw = _dc_capacity_kw(deal_config)
-    if dc_kw is None:
-        return None
-    site_lat = float(site["latitude"])
-    site_lon = float(site["longitude"])
-    array_type, tilt = _array_config(deal_config, site_lat)
-    coords = resource_coordinates(resource)
-    distance_km: float | None = None
-    if coords is not None:
-        distance_km = great_circle_km(site_lat, site_lon, coords[0], coords[1])
-    try:
-        model = pv.default("PVWattsSingleOwner")
-        model.SolarResource.solar_resource_file = str(resource)
-        model.SystemDesign.system_capacity = float(dc_kw)
-        model.SystemDesign.dc_ac_ratio = 1.2
-        model.SystemDesign.inv_eff = 96.0
-        model.SystemDesign.losses = 14.0
-        model.SystemDesign.array_type = float(array_type)
-        model.SystemDesign.tilt = float(tilt)
-        model.SystemDesign.azimuth = 180.0
-        model.SystemDesign.gcr = 0.3
-        model.SystemDesign.module_type = 0.0
-        model.execute(0)
-        gen = [max(0.0, float(value)) for value in list(model.Outputs.gen)[:_HOURS]]
-    except Exception:  # noqa: BLE001 - PySAM raises bare Exception on simulation failure.
-        return None
-    series = _pad_to_8760(gen)
-    provenance: dict[str, Any] = {
-        "resource_file": resource.name,
-        "resource_latitude": coords[0] if coords else None,
-        "resource_longitude": coords[1] if coords else None,
-        "distance_km": round(float(distance_km), 1) if distance_km is not None else None,
-        "array_type": array_type,
-        "tilt_degrees": float(tilt),
-    }
-    return series, provenance
 
 
 def _dc_capacity_kw(deal_config: DealConfig) -> float | None:
@@ -197,53 +79,51 @@ def build_generic_generation_profile(
 ) -> dict[str, Any]:
     """Resolve an 8760 generation profile per S3 step 2 / ASM-006.
 
-    Prefers (1) an explicit ``extracted["generation_kw"]`` series, (2) PySAM
-    PVWatts against a cached resource, (3) a deterministic synthetic profile —
-    and records which one ran in ``source``. Never fetches over the network.
+    Thin over ``pysam.generation_profile``: this function owns only what is
+    deal-config-specific — the array configuration derived from ``mounting`` and
+    site latitude, the DC sizing rule, and this orchestrator's published
+    ``source`` label. The ladder itself lives behind one interface.
     """
-    generation_kw = extracted.get("generation_kw")
-    warnings: list[str] = []
-    provenance: dict[str, Any] = {}
-    if generation_kw is not None and len(generation_kw) == _HOURS:
-        series: list[float] | None = [float(value) for value in generation_kw]
-        source = "extracted_generation_kw"
-    else:
-        pvwatts = _try_pvwatts_generation(extracted, deal_config)
-        if pvwatts is not None:
-            series, provenance = pvwatts
-            source = "pvwatts"
-        else:
-            series = None
-            source = "synthetic"
+    site = extracted.get("site", {}) or {}
+    raw_lat = site.get("latitude")
+    raw_lon = site.get("longitude")
+    site_lat = float(raw_lat) if raw_lat is not None else None
+    site_lon = float(raw_lon) if raw_lon is not None else None
+    have_site = site_lat is not None and site_lon is not None
+
+    dc_kw = _dc_capacity_kw(deal_config)
+    array_type, tilt = _array_config(deal_config, site_lat)
 
     annual_solar_gwh = (deal_config.contract or {}).get("annual_solar_gwh")
-    calibrated_to_gwh: float | None = None
-    if annual_solar_gwh is not None:
-        target_kwh = float(annual_solar_gwh) * 1e6
-        capacity_mwac = (deal_config.plant or {}).get("capacity_mwac")
-        cap_kw = float(capacity_mwac) * 1000.0 if capacity_mwac is not None else None
-        if source == "synthetic" and series is None:
-            series = _synthetic_generation_8760(target_kwh, cap_kw)
-            # Synthetic path already calibrates internally; but for infeasibility
-            # we need to surface warnings via _calibrate. Re-run calibration
-            # check quickly: if target infeasible, _synthetic already handled
-            # but warnings discarded. Preserve behaviour: no extra warnings here.
-        else:
-            calibrated, cal_warnings = _calibrate_to_target(series or [], target_kwh, cap_kw)
-            series = calibrated
-            warnings.extend(cal_warnings)
-        calibrated_to_gwh = float(annual_solar_gwh)
-    elif series is None:
-        # No generation supplied and no target: synthesize a nominal 1.0 GWh shape.
-        series = _synthetic_generation_8760(1.0e6, None)
+    target_kwh = float(annual_solar_gwh) * 1e6 if annual_solar_gwh is not None else None
+    capacity_mwac = (deal_config.plant or {}).get("capacity_mwac")
+    cap_kw = float(capacity_mwac) * 1000.0 if capacity_mwac is not None else None
 
+    profile = resolve_generation_profile(
+        extracted_series=extracted.get("generation_kw"),
+        target_kwh=target_kwh,
+        cap_kw=cap_kw,
+        system_capacity_kw_dc=dc_kw,
+        array=ArrayConfig(array_type=array_type, tilt_degrees=tilt),
+        use_pvwatts=have_site,
+        pvwatts_skip_reason=(
+            None if have_site else "site latitude/longitude not supplied, so PVWatts cannot run"
+        ),
+        site_latitude=site_lat,
+        site_longitude=site_lon,
+    )
+
+    source = (
+        "extracted_generation_kw" if profile.source == SOURCE_EXTRACTED else profile.source
+    )
     return {
-        "series_kw": series,
+        "series_kw": profile.series_kw,
         "source": source,
-        "calibrated_to_gwh": calibrated_to_gwh,
-        "provenance": provenance,
-        "warnings": warnings,
+        "calibrated_to_gwh": profile.calibrated_to_gwh,
+        "provenance": profile.provenance,
+        "warnings": profile.warnings,
     }
+
 
 
 def _contract_mode(deal_config: DealConfig) -> str:
@@ -269,18 +149,16 @@ def _resolve_strike_vnd_kwh(extracted: dict[str, Any], deal_config: DealConfig) 
 
 
 def build_generic_offsite_artifact(
-    extracted: dict[str, Any],
-    *,
-    deal_config: DealConfig,
-    run_developer: bool = True,
-    results: dict[str, Any] | None = None,
-    scenario: dict[str, Any] | None = None,
+    extracted: dict[str, Any], ctx: OrchestratorContext
 ) -> dict[str, Any]:
     """Assemble the generic offsite result in the ``OffsiteDppaResult`` block
-    vocabulary per S3. ``run_developer``/``results``/``scenario`` are accepted
-    for signature compatibility with the bespoke orchestrators; the generic path
-    is directional and does not run a PySAM developer screen."""
-    del run_developer, results, scenario
+    vocabulary per S3.
+
+    Speaks the declared orchestrator contract. The generic path is directional
+    and does not run a PySAM developer screen, so it uses only
+    ``ctx.deal_config`` and ignores the rest of the context.
+    """
+    deal_config = ctx.deal_config
 
     loads_kw = extracted.get("loads_kw")
     if not isinstance(loads_kw, list) or len(loads_kw) != _HOURS:

@@ -5,6 +5,14 @@ from __future__ import annotations
 from dataclasses import replace
 
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.common.series import (
+    annual_energy_kwh,
+    financial_value,
+    pad_to_8760,
+    pad_to_length,
+    sum_series,
+    sum_series_to_length,
+)
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 DEFAULT_STRIKE_DISCOUNT_FRACTION = 0.05
@@ -20,28 +28,13 @@ DEFAULT_MARKET_PRICE_SOURCE_PRIORITY = [
 ]
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    if len(series) >= 8760:
-        return [float(value) for value in series[:8760]]
-    return [float(value) for value in series] + [0.0] * (8760 - len(series))
+_pad_to_8760 = pad_to_8760
 
+_sum_series = sum_series
 
-def _sum_series(*series_list: list[float]) -> list[float]:
-    padded = [_pad_to_8760(series) for series in series_list]
-    return [sum(values) for values in zip(*padded)]
+_annual_energy_kwh = annual_energy_kwh
 
-
-def _annual_energy_kwh(tech_results: dict) -> float:
-    return float(
-        tech_results.get("year_one_energy_produced_kwh")
-        or tech_results.get("annual_energy_produced_kwh")
-        or 0.0
-    )
-
-
-def _financial_value(results: dict, key: str, default: float) -> float:
-    return float(results.get("Financial", {}).get(key) or default)
-
+_financial_value = financial_value
 
 def _proxy_market_fraction(extracted: dict) -> float:
     weighted = float(extracted["benchmark"]["weighted_evn_price_vnd_per_kwh"])
@@ -136,17 +129,9 @@ def _build_developer_case_result(
     }
 
 
-def _pad_to_length(series: list[float], length: int) -> list[float]:
-    values = [float(value) for value in series[:length]]
-    if len(values) < length:
-        values.extend([0.0] * (length - len(values)))
-    return values
+_pad_to_length = pad_to_length
 
-
-def _sum_series_to_length(length: int, *series_list: list[float]) -> list[float]:
-    padded = [_pad_to_length(series, length) for series in series_list]
-    return [sum(values) for values in zip(*padded)]
-
+_sum_series_to_length = sum_series_to_length
 
 def _load_reopt_delivery_profile(results: dict) -> list[float]:
     pv = results.get("PV", {})

@@ -8,6 +8,8 @@ import argparse
 import json
 from pathlib import Path
 
+from reopt_pysam_vn.common.reporting import phase_report_template
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_JSON_IN = (
     REPO_ROOT
@@ -19,15 +21,7 @@ DEFAULT_JSON_IN = (
 DEFAULT_HTML_OUT = (
     REPO_ROOT / "reports" / "2026-04-02-ninhsim-commercial-candidate-memo.html"
 )
-DEFAULT_TEMPLATE = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "report-template.html"
-)
+DEFAULT_TEMPLATE = phase_report_template()
 REPORT_DATE = "2026-04-02"
 PROJECT_NAME = "Saigon18 REopt Integration"
 PHASE_NAME = "Ninhsim Commercial Candidate Memo"

@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from reopt_pysam_vn.common.reporting import phase_report_template
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 DEFAULT_ANALYSIS_IN = (
     REPO_ROOT
@@ -23,17 +25,7 @@ DEFAULT_COMBINED_IN = (
 DEFAULT_HTML_OUT = (
     REPO_ROOT / "reports" / "2026-04-08-ninhsim-solar-storage-60pct-dppa.html"
 )
-DEFAULT_TEMPLATE = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "report-template.html"
-)
-
-
+DEFAULT_TEMPLATE = phase_report_template()
 def render_column(label: str, items: list[str]) -> str:
     bullets = "".join(f"<li>{item}</li>" for item in items)
     return (

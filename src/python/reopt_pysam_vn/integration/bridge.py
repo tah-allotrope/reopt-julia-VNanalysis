@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from reopt_pysam_vn.common.series import pad_to_8760, sum_series
 from reopt_pysam_vn.integration.assumptions import DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
 from reopt_pysam_vn.integration.dppa_case_1 import calculate_private_wire_strike_basis
 from reopt_pysam_vn.integration.ninhsim_solar_storage_60pct import (
@@ -28,21 +29,9 @@ def _float_list(values: list[Any]) -> list[float]:
     return [float(value) for value in values]
 
 
-def _pad_to_8760(values: list[float]) -> list[float]:
-    series = [float(value) for value in values[:8760]]
-    if len(series) < 8760:
-        series.extend([0.0] * (8760 - len(series)))
-    return series
+_pad_to_8760 = pad_to_8760
 
-
-def _sum_series(*series_groups: list[float]) -> list[float]:
-    lengths = {len(series) for series in series_groups}
-    if len(lengths) != 1:
-        raise ValueError(
-            f"Generation series length mismatch in bridge inputs: {sorted(lengths)}"
-        )
-    return [sum(values) for values in zip(*series_groups)]
-
+_sum_series = sum_series
 
 def _value_or_default(container: dict, key: str, default: float) -> float:
     value = container.get(key)

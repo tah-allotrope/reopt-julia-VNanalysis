@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from reopt_pysam_vn.common.series import annual_energy_kwh, financial_value, pad_to_8760, sum_series
 from reopt_pysam_vn.integration.assumptions import DEFAULT_TARGET_DEVELOPER_IRR_FRACTION
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
@@ -13,28 +14,13 @@ DEFAULT_ANNUAL_GENERATION_DEGRADATION_FRACTION = 0.005
 DEFAULT_ANNUAL_LOAD_GROWTH_FRACTION = 0.01
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    if len(series) >= 8760:
-        return list(series[:8760])
-    return list(series) + [0.0] * (8760 - len(series))
+_pad_to_8760 = pad_to_8760
 
+_sum_series = sum_series
 
-def _sum_series(*series_list: list[float]) -> list[float]:
-    padded = [_pad_to_8760(series) for series in series_list]
-    return [sum(values) for values in zip(*padded)]
+_annual_energy_kwh = annual_energy_kwh
 
-
-def _annual_energy_kwh(tech_results: dict) -> float:
-    return float(
-        tech_results.get("year_one_energy_produced_kwh")
-        or tech_results.get("annual_energy_produced_kwh")
-        or 0.0
-    )
-
-
-def _financial_value(results: dict, key: str, default: float) -> float:
-    return float(results.get("Financial", {}).get(key) or default)
-
+_financial_value = financial_value
 
 def _clean_small(value: float, tolerance: float = 1e-6) -> float:
     return 0.0 if abs(value) <= tolerance else value

@@ -5,17 +5,10 @@ Generate the Final DPPA Case 3 Report HTML.
 import json
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-SKILL_TEMPLATE = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "final-report-template.html"
-)
+from reopt_pysam_vn.common.reporting import final_report_template
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+SKILL_TEMPLATE = final_report_template()
 REPORT_DATE = "2026-04-21"
 PROJECT = "Saigon18 DPPA Case 3"
 REPO = "reopt-pysam-vn"

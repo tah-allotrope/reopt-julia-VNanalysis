@@ -17,6 +17,7 @@ import re
 from pathlib import Path
 
 from openpyxl import load_workbook
+from reopt_pysam_vn.common.reporting import phase_report_template
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 CASE_STUDIES_DIR = REPO_ROOT / "scenarios" / "case_studies"
@@ -30,15 +31,7 @@ DEFAULT_JSON_OUT = (
 DEFAULT_HTML_OUT = (
     REPO_ROOT / "reports" / "2026-04-01-case-study-offtaker-physical-match-ranking.html"
 )
-DEFAULT_TEMPLATE = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "report-template.html"
-)
+DEFAULT_TEMPLATE = phase_report_template()
 REFERENCE_SOLAR_SCENARIO = (
     CASE_STUDIES_DIR / "saigon18" / "2026-03-20_scenario-a_fixed-sizing_evntou.json"
 )

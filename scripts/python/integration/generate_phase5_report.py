@@ -1,8 +1,12 @@
 import os
+import sys
+from pathlib import Path
 
-template_path = "assets/report-template.html"
-if not os.path.exists(template_path):
-    template_path = os.path.expanduser("~/.config/opencode/skills/report/assets/report-template.html")
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src" / "python"))
+
+from reopt_pysam_vn.common.reporting import phase_report_template
+
+template_path = phase_report_template()
 
 with open(template_path, "r", encoding="utf-8") as f:
     html = f.read()

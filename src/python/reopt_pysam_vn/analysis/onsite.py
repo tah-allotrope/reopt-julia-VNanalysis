@@ -17,6 +17,7 @@ from collections.abc import Callable
 from typing import Any
 
 from reopt_pysam_vn.analysis.types import DealConfig, OnsiteResult
+from reopt_pysam_vn.common.series import pad_to_8760, sum_series
 
 __all__ = ["build_onsite_scenario", "run_onsite"]
 
@@ -24,16 +25,9 @@ _HOURS = 8760
 _DEFAULT_TARGET_FRACTION = 0.6
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    if len(series) >= _HOURS:
-        return list(series[:_HOURS])
-    return list(series) + [0.0] * (_HOURS - len(series))
+_pad_to_8760 = pad_to_8760
 
-
-def _sum_series(*series_list: list[float]) -> list[float]:
-    padded = [_pad_to_8760(series) for series in series_list]
-    return [sum(values) for values in zip(*padded)]
-
+_sum_series = sum_series
 
 def _delivery_profile(results: dict[str, Any]) -> list[float]:
     pv = results.get("PV", {})

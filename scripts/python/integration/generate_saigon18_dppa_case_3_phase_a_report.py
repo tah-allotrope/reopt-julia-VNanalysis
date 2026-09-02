@@ -6,18 +6,12 @@ import json
 import sys
 from pathlib import Path
 
+from reopt_pysam_vn.common.reporting import phase_report_template
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
-TEMPLATE_PATH = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "report-template.html"
-)
+TEMPLATE_PATH = phase_report_template()
 OUTPUT_DIR = REPO_ROOT / "reports"
 REPORT_DATE = "2026-04-20"
 

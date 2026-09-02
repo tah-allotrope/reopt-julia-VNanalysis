@@ -15,15 +15,18 @@ The orchestrator is resolved in this order:
    builder (``analysis.orchestrators.dppa_case_1``, which consumes a REopt
    ``results`` dict + the ``scenario`` it was solved from).
 
-Orchestrator contract (S1): ``(extracted, *, run_developer=True, results=None,
-scenario=None, deal_config=None) -> dict``. ``results`` is the ``results`` block
-of a REopt solve output; ``scenario`` is the ``Scenario`` input dict the solve
-was built from; ``deal_config`` is the driving ``DealConfig`` (consumed by the
-generic fallback orchestrator). Orchestrators that derive generation internally
-(Samsung) take only ``run_developer``. ``run_offsite_dppa`` filters the
-candidate keyword set down to the parameter names the chosen orchestrator
-actually accepts (via ``inspect.signature``), so a two-parameter orchestrator
-and a four-parameter one keep their exact call shape without per-deal branching.
+Orchestrator contract (C2): ``(extracted: dict, ctx: OrchestratorContext) -> dict``.
+The context carries everything an orchestrator may need — the driving
+``DealConfig``, the REopt ``results`` block, the ``Scenario`` input dict it was
+solved from, and the ``run_developer`` flag — so every adapter has the same call
+shape and a new one has a single thing to learn. Adapters that do not need a
+field simply ignore it.
+
+Legacy keyword-style orchestrators — ``(extracted, *, run_developer=..., results=...,
+scenario=..., deal_config=...)`` — remain supported because ``combined_decision_fn``
+is public API. They are detected by signature and called with the narrowed keyword
+set they declare. All three shipped adapters speak the declared contract; the
+legacy path exists only for callers outside this repo and is deprecated.
 
 Input resolution order (S2): for each of ``extracted``, ``results``, and
 ``scenario``, the first non-``None`` of (a) the explicit keyword argument, (b)
@@ -38,17 +41,47 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Callable
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, Protocol, runtime_checkable
 
 from reopt_pysam_vn.analysis.types import DealConfig, OffsiteDppaResult
 from reopt_pysam_vn.analysis.validation import ExtractedInputsValidationError, validate_extracted_inputs
 
-__all__ = ["OrchestratorInputError", "register_orchestrator", "run_offsite_dppa"]
+__all__ = [
+    "OffsiteOrchestrator",
+    "OrchestratorContext",
+    "OrchestratorInputError",
+    "register_orchestrator",
+    "run_offsite_dppa",
+]
 
-# orchestrator signature:
-#   (extracted: dict, *, run_developer: bool = True,
-#    results: dict | None = None, scenario: dict | None = None,
-#    deal_config: DealConfig | None = None) -> dict
+
+@dataclass(frozen=True)
+class OrchestratorContext:
+    """Everything an offsite orchestrator may need, in one object.
+
+    Passing a context rather than a narrowed keyword set means every adapter has
+    the same call shape: one parameter to learn, and no reflective inspection at
+    call time to decide what an adapter is allowed to see.
+    """
+
+    deal_config: DealConfig
+    results: dict[str, Any] | None = None
+    scenario: dict[str, Any] | None = None
+    run_developer: bool = True
+
+
+@runtime_checkable
+class OffsiteOrchestrator(Protocol):
+    """The declared interface at the orchestrator seam."""
+
+    def __call__(self, extracted: dict[str, Any], ctx: OrchestratorContext) -> dict[str, Any]:
+        ...
+
+
+#: Registry values are either an :class:`OffsiteOrchestrator` or a deprecated
+#: keyword-style callable. ``Callable[..., dict]`` remains the stored type only
+#: because the legacy shape must keep working for callers outside this repo.
 CombinedDecisionFn = Callable[..., dict[str, Any]]
 
 
@@ -61,12 +94,14 @@ class OrchestratorInputError(ValueError):
     """
 
 
-def _samsung_ttc_orchestrator(extracted: dict[str, Any], *, run_developer: bool = True) -> dict[str, Any]:
+def _samsung_ttc_orchestrator(
+    extracted: dict[str, Any], ctx: OrchestratorContext
+) -> dict[str, Any]:
     # Lazy import: keep `analysis` importable without pulling the heavy case module
     # (and PySAM) until an offsite run actually needs it.
     from reopt_pysam_vn.integration.dppa_samsung_ttc import build_samsung_ttc_combined_decision
 
-    return build_samsung_ttc_combined_decision(extracted, run_developer=run_developer)
+    return build_samsung_ttc_combined_decision(extracted, run_developer=ctx.run_developer)
 
 
 _ORCHESTRATORS: dict[str, CombinedDecisionFn] = {
@@ -87,6 +122,15 @@ def set_generic_orchestrator(fn: CombinedDecisionFn | None) -> None:
     """Install (or, with ``None``, remove) the registry fallback orchestrator."""
     global _GENERIC_ORCHESTRATOR
     _GENERIC_ORCHESTRATOR = fn
+
+
+def _takes_context(fn: CombinedDecisionFn) -> bool:
+    """True when ``fn`` speaks the declared ``(extracted, ctx)`` contract."""
+    try:
+        parameters = list(inspect.signature(fn).parameters)
+    except (TypeError, ValueError):
+        return False
+    return parameters[:2] == ["extracted", "ctx"]
 
 
 def _supported_kwargs(fn: CombinedDecisionFn, candidates: dict[str, Any]) -> dict[str, Any]:
@@ -173,16 +217,25 @@ def run_offsite_dppa(
     results = _resolve_input(deal_config, "results", results)
     scenario = _resolve_input(deal_config, "scenario", scenario)
 
-    candidates: dict[str, Any] = {
-        "run_developer": run_developer,
-        "results": results,
-        "scenario": scenario,
-        "deal_config": deal_config,
-    }
-    if results is None:
-        candidates.pop("results")
-    if scenario is None:
-        candidates.pop("scenario")
-
-    raw = fn(extracted, **_supported_kwargs(fn, candidates))
+    if _takes_context(fn):
+        ctx = OrchestratorContext(
+            deal_config=deal_config,
+            results=results,
+            scenario=scenario,
+            run_developer=run_developer,
+        )
+        raw = fn(extracted, ctx)
+    else:
+        # Deprecated keyword-style adapter (external `combined_decision_fn`).
+        candidates: dict[str, Any] = {
+            "run_developer": run_developer,
+            "results": results,
+            "scenario": scenario,
+            "deal_config": deal_config,
+        }
+        if results is None:
+            candidates.pop("results")
+        if scenario is None:
+            candidates.pop("scenario")
+        raw = fn(extracted, **_supported_kwargs(fn, candidates))
     return OffsiteDppaResult.from_dict(raw)

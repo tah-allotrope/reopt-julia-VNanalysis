@@ -48,14 +48,22 @@ injected `combined_decision_fn`.
   field on `/deals/new` is therefore meaningful: an unregistered case no longer
   errors, it returns a directional result.
 
-The orchestrator contract is `(extracted, *, run_developer=True, results=None,
-scenario=None, deal_config=None) -> dict`; `run_offsite_dppa` filters the
-candidate keyword set down to what the chosen orchestrator actually accepts
-(via `inspect.signature`), so a two-parameter orchestrator and a four-parameter
-one keep their exact call shape. The resolved orchestrator name is echoed in
-`quality.orchestrator`. Register another bespoke case via
-`register_orchestrator(case, fn)`; disable the fallback with
-`set_generic_orchestrator(None)`.
+The orchestrator contract is `(extracted: dict, ctx: OrchestratorContext) -> dict`
+(2026-09-02, C2). `OrchestratorContext` carries `deal_config`, `results`,
+`scenario` and `run_developer`, so every adapter has the same call shape and a
+new one has a single thing to learn; adapters ignore the fields they do not
+need. All three shipped adapters (Samsung, Ninhsim case 1, generic fallback)
+speak this contract.
+
+Keyword-style orchestrators — the pre-C2 shape `(extracted, *,
+run_developer=..., results=..., scenario=..., deal_config=...)` — are still
+accepted, because `combined_decision_fn` is public API. They are detected by
+signature and called with the narrowed keyword set they declare. That path is
+deprecated and exists only for callers outside this repo.
+
+The resolved orchestrator name is echoed in `quality.orchestrator`. Register
+another bespoke case via `register_orchestrator(case, fn)`; disable the fallback
+with `set_generic_orchestrator(None)`.
 
 ## CLI usage
 

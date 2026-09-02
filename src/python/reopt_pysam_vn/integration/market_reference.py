@@ -20,6 +20,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from reopt_pysam_vn.common.series import pad_to_8760
+
 __all__ = [
     "market_proxy_fraction",
     "resolve_market_reference_series",
@@ -34,12 +36,7 @@ _PROXY_NOTES = [
 ]
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    values = [float(value) for value in series[: _HOURS]]
-    if len(values) < _HOURS:
-        values.extend([0.0] * (_HOURS - len(values)))
-    return values
-
+_pad_to_8760 = pad_to_8760
 
 def _wholesale_reference(extracted: dict[str, Any], vn: Any | None) -> float:
     wholesale = extracted.get("benchmark", {}).get("wholesale_rate_vnd_per_kwh")

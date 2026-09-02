@@ -16,7 +16,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorInputError
+from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorContext, OrchestratorInputError
 
 DeveloperRunner = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -62,18 +62,22 @@ def _adapt_case_1_artifact(artifact: dict[str, Any], *, developer_basis: str) ->
 
 def build_case_1_offsite_artifact(
     extracted: dict[str, Any],
+    ctx: OrchestratorContext,
     *,
-    run_developer: bool = True,
-    results: dict[str, Any] | None = None,
-    scenario: dict[str, Any] | None = None,
     developer_runner: DeveloperRunner | None = None,
 ) -> dict[str, Any]:
     """Compose the four ``dppa_case_1`` builders per S3 and adapt to the
     ``OffsiteDppaResult`` block vocabulary per S4.
 
-    Raises ``OrchestratorInputError`` naming the missing argument when ``results``
-    or ``scenario`` is ``None``.
+    Speaks the declared orchestrator contract: everything it needs arrives on
+    ``ctx``. ``developer_runner`` stays a keyword-only injection point for tests.
+
+    Raises ``OrchestratorInputError`` naming the missing input when ``results``
+    or ``scenario`` is absent.
     """
+    results = ctx.results
+    scenario = ctx.scenario
+    run_developer = ctx.run_developer
     if results is None:
         raise OrchestratorInputError(
             "run_offsite_dppa for DPPA_CASE_1_NINHSIM needs `results` (the REopt "

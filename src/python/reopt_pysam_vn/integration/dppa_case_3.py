@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
+from reopt_pysam_vn.common.series import pad_to_8760
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
 DEFAULT_STRIKE_DISCOUNT_FRACTION = 0.05
@@ -171,11 +172,7 @@ def build_dppa_case_3_phase_a_definition(extracted: dict) -> dict:
     }
 
 
-def _pad_to_8760(series: list[float]) -> list[float]:
-    if len(series) >= 8760:
-        return [float(v) for v in series[:8760]]
-    return [float(v) for v in series] + [0.0] * (8760 - len(series))
-
+_pad_to_8760 = pad_to_8760
 
 def load_saigon18_load_series(extracted: dict) -> list[float]:
     return _pad_to_8760(extracted.get("loads_kw", []))

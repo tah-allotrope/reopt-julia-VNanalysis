@@ -6,19 +6,13 @@ import json
 import re
 from pathlib import Path
 
+from reopt_pysam_vn.common.reporting import phase_report_template
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPORT_DATE = "2026-04-09"
 PROJECT = "Saigon18 REopt Integration"
 REPO = REPO_ROOT.name
-DEFAULT_TEMPLATE = (
-    Path.home()
-    / ".config"
-    / "opencode"
-    / "skills"
-    / "report"
-    / "assets"
-    / "report-template.html"
-)
+DEFAULT_TEMPLATE = phase_report_template()
 DEFAULT_SUMMARY_IN = (
     REPO_ROOT
     / "artifacts"

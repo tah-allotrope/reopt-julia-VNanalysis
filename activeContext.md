@@ -38,3 +38,144 @@ Both are the Samsung parity divergence (developer_irr 0.0289 vs golden None, max
 ## Decree 243/2026 ingestion (2026-07-18)
 
 The rooftop-solar surplus export cap was raised from 20% to 50% by Decree 243/2026/ND-CP (effective 2026-06-26). Fixed by manifest flip to `vn_export_rules_2026_decree243.json` (`max_export_fraction: 0.50`) and regime plumbing; `decree_57_2025_legacy` preserves pre-2026 results.
+
+## In progress — architecture deepening sprint (2026-09-02)
+
+Source: `/codebase` architecture review, report at
+`%TEMP%/claude/.../scratchpad/architecture-review-20260902-123440.html`.
+Three `Strong` candidates accepted by the user; candidates 4–6 deferred.
+
+Vocabulary note: **module / interface / implementation / depth / seam / adapter /
+leverage / locality** per the `codebase-design` skill.
+
+### C1 — Give the generation profile a module (top recommendation)
+
+Problem: the 8760 solar profile has no module. Two orchestrators each carry
+their own three-tier ladder (extracted → PVWatts-on-cache → synthetic), their
+own PySAM import guard, their own `source` vocabulary, and both signal
+fall-back with a silent `return None`.
+Sites: `analysis/orchestrators/generic_vn_dppa.py:108,125-240`,
+`integration/dppa_samsung_ttc.py:439-530`, plus a *fourth* hand-rolled PVWatts
+construction inside `tests/python/integration/test_capacity_factor_benchmark.py:24-40`.
+
+- [x] C1.1 Red: test that a resolver returns a `GenerationProfile` carrying
+      `series`, `source`, `warnings` — and that a missing PySAM produces a
+      *stated* warning, not a silent swap.
+- [x] C1.2 Add `pysam/generation_profile.py`: one interface
+      `resolve_generation_profile(...) -> GenerationProfile`; extracted /
+      PVWatts / synthetic as adapters behind it. One `source` vocabulary.
+- [x] C1.3 Repoint `generic_vn_dppa` to it; keep `quality.solar_profile_source`
+      strings byte-identical (the parity gate asserts `"pvwatts" in source`).
+- [x] C1.4 Repoint `dppa_samsung_ttc` to it. **Golden risk:** Samsung is
+      parity-gated. Run the exploratory diff against
+      `examples/samsung-ttc_combined-decision.example.json` BEFORE asserting
+      (lessons.md 2026-06-14). Must stay bit-exact.
+- [x] C1.5 Repoint the capacity-factor gate at the module.
+- [x] C1.6 Verify: full suite + parity pair on the golden machine.
+
+**C1 result (2026-09-02):** `pysam/generation_profile.py` — one interface
+(`resolve_generation_profile` -> `GenerationProfile`), three adapters
+(extracted / PVWatts / synthetic). PVWatts model construction went from **three
+sites to one** (both orchestrators plus the capacity-factor gate, which had
+hand-rolled a fourth). Net −283 lines in the two orchestrators.
+Proven before adoption, per lessons.md 2026-06-14:
+- Samsung PVWatts *and* synthetic branches bit-identical (max abs diff 0.0),
+  `native_annual_gwh` included.
+- All four generic branches bit-identical in series, `source` and provenance.
+- The two calibrations agreed exactly on Samsung's real inputs, so the daylight-only
+  S2 semantic could replace Samsung's single-pass one with no golden movement.
+Behaviour change, intended: a synthetic fall-back now emits a stated warning
+instead of a silent `None`. Interface shrank further — Samsung's
+`reference_year` argument was inert (the shape is a function of hour-of-day and
+day-of-year only, identical for leap and non-leap years) and is gone.
+Gates: 721 passed / 21 deselected / 2 xfailed (the pre-existing Samsung pair,
+unchanged), `ruff check src scripts tests` clean, `mypy` clean.
+
+### C2 — Declare the orchestrator interface
+
+Problem: the seam is real (3 adapters) but undeclared — typed
+`Callable[..., dict[str, Any]]` (`analysis/offsite_dppa.py:52`) with the call
+shape resolved at runtime by `inspect.signature` (`:92`). Behind it, six case
+modules expose **66 public builders** callers must sequence by hand;
+`_pad_to_8760` exists 4× and has already drifted (`dppa_case_1.py:12` returns
+the series uncoerced; `dppa_case_2.py:23` / `dppa_case_3.py:174` coerce to
+`float`). The per-phase test files mirror the builder list exactly.
+
+Blast radius: 42 scripts + 15 test files import these builders directly.
+Therefore staged, not big-bang.
+
+- [x] C2.1 Red: test pinning the three current variants of `_pad_to_8760` and
+      naming the intended semantic.
+- [x] C2.2 Move the triplicated series helpers (`_pad_to_8760`, `_sum_series`,
+      `_financial_value`, `_annual_energy_kwh`) into one module; case modules
+      import them. Value-preserving — no number moves.
+- [x] C2.3 Declare an `OffsiteOrchestrator` protocol with an explicit context
+      object; keep `_supported_kwargs` as a deprecated compatibility path so
+      existing adapters keep working.
+- [x] C2.4 Migrate the three registered adapters to the protocol; delete the
+      `inspect.signature` path once none remain.
+- [x] C2.5 Leave the 66 builders public (scripts depend on them); mark them
+      implementation in docs. Demotion is a later cycle.
+
+**C2 result (2026-09-02):** `common/series.py` — `_pad_to_8760` was defined
+**eight** times in `src/` (not four; `analysis/onsite`, `integration/bridge`,
+`market_reference` and `settlement` also had copies), in three variants that
+differed only in float coercion. All eight now route to one definition, along
+with `_sum_series`, `_annual_energy_kwh`, `_financial_value`, `_pad_to_length`
+and `_sum_series_to_length`. The tracked settlement-regression and Factory-A
+fixtures passing is the numeric proof that coercion was value-preserving.
+
+The seam is now declared: `OrchestratorContext` (deal_config, results, scenario,
+run_developer) + an `OffsiteOrchestrator` Protocol, replacing
+`Callable[..., dict[str, Any]]`. All three shipped adapters migrated to
+`(extracted, ctx)`; `inspect.signature` narrowing survives **only** on the
+legacy path, kept because `combined_decision_fn` is public API.
+`docs/onsite_vs_offsite.md` updated to match (no doc claiming what the code does
+not enforce).
+
+### C3 — One deal-report module
+
+Problem: 11,495 lines across 35 emitters, none tested. **20 of them are
+already broken on this machine** — they read a template from
+`~/.config/opencode/...` or `~/.claude/...`, neither of which exists
+(verified: `generate_ninhsim_phase13_report.py` dies with `FileNotFoundError`).
+The repo already tracks the same template contract at
+`assets/report-template.html` (694 ln, `{{PHASE_NAME}}` etc.) and
+`assets/final-report-template.html` — 26 scripts already use it.
+
+- [x] C3.1 Red: test that rendering resolves the tracked template and fills
+      placeholders, and that an unknown placeholder is an error not a silent gap.
+- [x] C3.2 Add a reporting module owning template resolution + substitution +
+      write; tracked `assets/` as the only source.
+- [x] C3.3 Repoint the 20 broken emitters at it; confirm each runs.
+- [x] C3.4 Audit the remaining emitters (see result — the "26 working" figure
+      was wrong; five more were broken and are now fixed).
+
+**C3 result (2026-09-02):** `common/reporting.py` owns template resolution,
+placeholder substitution and writing, against the tracked `assets/` templates.
+**25 emitters were broken, not 20** — an initial `Path.home()` grep missed five
+more that resolved the same missing template via
+`os.path.expanduser("~/.config/opencode/...")` behind a CWD-dependent relative
+path. All 25 now run: verified by executing every one of them (25 OK, 0 fail),
+with 0 unfilled placeholders in the rendered HTML. Zero out-of-repo template
+references remain anywhere under `scripts/`.
+An unknown section name now raises `UnknownPlaceholderError` instead of the old
+`sections.get(key, "")`, which silently dropped a typo'd section.
+
+**Known gap, deliberately surfaced not hidden:** six emitters substitute
+`{{SUMMARY_SENTENCE}}`, which exists in neither tracked template, so that
+substitution is a no-op. This is not a regression — those emitters produced
+nothing at all before, since their template was missing — but the tracked
+template has no slot for a summary sentence and someone should decide whether
+to add one.
+
+**Not done, deliberately:** the emitters still carry their own substitution
+loops rather than calling `render_report`. Their idioms are heterogeneous (18
+use a `replacements` dict, others chain `.replace()`), so a scripted migration
+would have been riskier than the gain, and they work. Repointing template
+resolution — the property that was actually broken — is complete.
+
+### Verification bar
+
+Full portable suite green (`709 passed` baseline), `ruff` + `mypy` gates clean,
+and `gh run list --limit 3` green on both matrix legs before any claim of done.

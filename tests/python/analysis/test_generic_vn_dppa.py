@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.analysis import offsite_dppa as od
-from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorInputError, run_offsite_dppa
+from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorContext, OrchestratorInputError, run_offsite_dppa
 from reopt_pysam_vn.analysis.orchestrators.generic_vn_dppa import (
     build_generic_generation_profile,
     build_generic_offsite_artifact,
@@ -47,7 +47,7 @@ def _deal(case="SOME_NEW_DEAL", **contract):
 def _artifact(**kwargs):
     return build_generic_offsite_artifact(
         _extracted(),
-        deal_config=_deal(**kwargs),
+        OrchestratorContext(deal_config=_deal(**kwargs)),
     )
 
 
@@ -83,10 +83,12 @@ def test_excess_generation_exports_at_surplus_up_to_cap():
     extracted = _extracted(generation_kw=[1500.0] * _HOURS)
     result = build_generic_offsite_artifact(
         extracted,
-        deal_config=_deal(
-            settlement_mechanism="physical",
-            strike_vnd_per_kwh=1200.0,
-            regime_id="decision_963_2026_current",
+        OrchestratorContext(
+            deal_config=_deal(
+                settlement_mechanism="physical",
+                strike_vnd_per_kwh=1200.0,
+                regime_id="decision_963_2026_current",
+            )
         ),
     )
     annual = result["base_settlement"]["annual_summary"]
@@ -100,7 +102,9 @@ def test_wrong_length_load_raises_orchestrator_input_error():
     with pytest.raises(OrchestratorInputError, match="8760"):
         build_generic_offsite_artifact(
             _extracted(loads_kw=[1000.0] * 8000),
-            deal_config=_deal(settlement_mechanism="physical", strike_vnd_per_kwh=1200.0),
+            OrchestratorContext(
+                deal_config=_deal(settlement_mechanism="physical", strike_vnd_per_kwh=1200.0)
+            ),
         )
 
 
@@ -259,7 +263,7 @@ def test_distance_disclosure_for_far_site():
             "load": {"loads_kw": [1000.0] * _HOURS},
         }
     )
-    result = build_generic_offsite_artifact(extracted, deal_config=deal)
+    result = build_generic_offsite_artifact(extracted, OrchestratorContext(deal_config=deal))
     quality = result["quality"]
     # Only check when PVWatts actually ran; synthetic fallback has no distance.
     if quality.get("solar_resource_file") is None:
