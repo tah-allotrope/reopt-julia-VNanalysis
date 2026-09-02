@@ -154,7 +154,7 @@ def test_run_single_owner_model_notes_only_carry_clean_slate_when_flag_is_on():
     assert "clean_slate" in flag_on_results["notes"]
     assert flag_on_results["notes"]["clean_slate"] == (
         "US SAM reference-plant cost defaults zeroed; "
-        "see reports/2026-07-24-single-owner-defaults-audit.md"
+        "see reports/archive/2026-07/2026-07-24-single-owner-defaults-audit.md"
     )
     # Existing note strings must be unchanged for both runs.
     assert (

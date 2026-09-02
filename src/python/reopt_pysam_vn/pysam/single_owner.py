@@ -38,7 +38,7 @@ class SingleOwnerInputs:
     # apply_clean_slate_financials(). Default False preserves legacy behavior
     # exactly (CON-001: Samsung/TTC bit-exact parity is never affected by this
     # flag unless a caller explicitly opts in). See
-    # reports/2026-07-24-single-owner-defaults-audit.md.
+    # reports/archive/2026-07/2026-07-24-single-owner-defaults-audit.md.
     zero_reference_plant_defaults: bool = False
     metadata: dict = field(default_factory=dict)
 
@@ -69,7 +69,7 @@ def _safe_float(value: float) -> float | None:
 
 # The twelve SAM Singleowner.FinancialParameters fields that carry non-zero,
 # ~100 MW-reference-plant cost defaults (verified live against nrel-pysam
-# 7.1.0 on 2026-07-24; see reports/2026-07-24-single-owner-defaults-audit.md
+# 7.1.0 on 2026-07-24; see reports/archive/2026-07/2026-07-24-single-owner-defaults-audit.md
 # and this repo's plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md
 # Specification section for the full field-by-field rationale).
 CLEAN_SLATE_REFERENCE_PLANT_FIELDS = (
@@ -235,7 +235,7 @@ def run_single_owner_model(inputs: SingleOwnerInputs) -> dict:
     if inputs.zero_reference_plant_defaults:
         notes["clean_slate"] = (
             "US SAM reference-plant cost defaults zeroed; "
-            "see reports/2026-07-24-single-owner-defaults-audit.md"
+            "see reports/archive/2026-07/2026-07-24-single-owner-defaults-audit.md"
         )
 
     return {

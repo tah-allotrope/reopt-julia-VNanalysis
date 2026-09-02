@@ -51,7 +51,7 @@ def run_single_owner_model_clean(inputs: SingleOwnerInputs) -> dict:
     library-level replacement for this reimplementation is
     reopt_pysam_vn.pysam.single_owner.SingleOwnerInputs(zero_reference_plant_defaults=True),
     added in plans/2026-07-24-post-ci-hygiene-finance-audit-plan.md PHASE-02
-    -- see reports/2026-07-24-single-owner-defaults-audit.md."""
+    -- see reports/archive/2026-07/2026-07-24-single-owner-defaults-audit.md."""
     import PySAM.CustomGeneration as cg
     import PySAM.Grid as gr
     import PySAM.Singleowner as so

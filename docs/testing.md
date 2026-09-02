@@ -72,7 +72,7 @@ That means:
   by hand on a machine with Julia installed. No automation checks this today.
 - **`tests/python/analysis/test_samsung_ttc_parity.py` is CI-excluded** via
   its module-level `golden_machine` marker, and its two strongest assertions
-  additionally carry `xfail`. See `reports/2026-07-26-samsung-parity-diagnosis.md`
+  additionally carry `xfail`. See `reports/archive/2026-07/2026-07-26-samsung-parity-diagnosis.md`
   for why, and the "Samsung-TTC" bullets in `README.md` / `docs/onsite_vs_offsite.md`
   for the honest current status.
 - **Environment-dependent skips are declarative markers, not runtime guards.**

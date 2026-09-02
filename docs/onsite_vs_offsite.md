@@ -83,7 +83,7 @@ orchestrate (see [`onsite_offsite_reuse_map.md`](onsite_offsite_reuse_map.md)):
   and the bespoke combined-decision golden (`tests/python/analysis/test_samsung_ttc_parity.py`),
   but it is a **local-only diagnostic**: excluded from CI (`golden_machine`
   marker) and currently `xfail`ed on a PySAM developer-finance divergence.
-  See `reports/2026-07-26-samsung-parity-diagnosis.md` for the evidence.
+  See `reports/archive/2026-07/2026-07-26-samsung-parity-diagnosis.md` for the evidence.
 - The case modules (`integration/dppa_case_1/2/3`, `dppa_samsung_ttc`,
   `ninhsim_solar_storage_60pct`) remain the orchestration engines behind the registry
   and keep their own tests. They are **deprecated as direct public entry points** — new
