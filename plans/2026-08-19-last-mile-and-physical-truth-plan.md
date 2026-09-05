@@ -1,3 +1,7 @@
+---
+status: "complete — all 6 phases implemented in commit 62b81f3 (plus follow-ups ea4020d/34ab245/b6b5885); verified in-tree and by a green portable suite run: 758 passed, 21 deselected, 2 xfailed"
+---
+
 # Plan: Last Mile and Physical Truth
 
 ## Objective
@@ -450,32 +454,32 @@ later phase is measured against a floor rather than a moving target, and clear t
 six small carried items so they stop being re-discovered.
 
 **Tasks**
-- [ ] TASK-01-01: Extend `tests/conftest.py` with a deselect budget mirroring the
+- [x] TASK-01-01: Extend `tests/conftest.py` with a deselect budget mirroring the
   existing skip budget. Count deselected tests in `pytest_collection_modifyitems`
   and fail the session in `pytest_sessionfinish` when the count exceeds
   `REOPT_PYSAM_VN_MAX_DESELECTED`. When the variable is unset, do not enforce.
-- [ ] TASK-01-02: Add `REOPT_PYSAM_VN_MAX_DESELECTED: "46"` to the `env:` block of
+- [x] TASK-01-02: Add `REOPT_PYSAM_VN_MAX_DESELECTED: "46"` to the `env:` block of
   the test step in `.github/workflows/ci.yml`, alongside the existing
   `REOPT_PYSAM_VN_MAX_SKIPS: "0"`.
-- [ ] TASK-01-03: Add `--cov-fail-under=82` to the pytest invocation in
+- [x] TASK-01-03: Add `--cov-fail-under=82` to the pytest invocation in
   `.github/workflows/ci.yml`.
-- [ ] TASK-01-04: Replace the bare `assert` at
+- [x] TASK-01-04: Replace the bare `assert` at
   `src/python/reopt_pysam_vn/webapp/jobs.py:149` with an explicit
   `raise RuntimeError(...)` carrying the same message, so it survives `python -O`.
-- [ ] TASK-01-05: Delete the three unused stub modules
+- [x] TASK-01-05: Delete the three unused stub modules
   `src/python/reopt_pysam_vn/common/currency.py`,
   `src/python/reopt_pysam_vn/common/time_series.py`, and
   `src/python/reopt_pysam_vn/common/validation.py`. First confirm zero importers
   with `grep -rn "common.currency\|common.time_series\|common.validation\|identity_currency\|constant_series\|require_positive" src scripts tests` and
   leave `src/python/reopt_pysam_vn/common/__init__.py` and `assumptions.py` untouched.
-- [ ] TASK-01-06: `git mv` the three completed plans
+- [x] TASK-01-06: `git mv` the three completed plans
   `plans/active/2026-05-22-gap01-factory-ingestion-plan.md`,
   `plans/active/2026-05-22-gap02-procurement-comparison-plan.md`, and
   `plans/active/2026-05-22-gap04-generalized-settlement-plan.md` into
   `plans/archive/`.
-- [ ] TASK-01-07: `git mv` `ceba_delta_report.md`, `ceba_repo_test_results.md`, and
+- [x] TASK-01-07: `git mv` `ceba_delta_report.md`, `ceba_repo_test_results.md`, and
   `ceba_slide_review_report.md` from the repository root into `reports/`.
-- [ ] TASK-01-08: Correct the `generation_kw` description in
+- [x] TASK-01-08: Correct the `generation_kw` description in
   `data/schemas/extracted_inputs.schema.json` — it currently says the generic
   orchestrator uses it "when a PVWatts resource is unavailable", whereas the code
   prefers it *first*. Change the text to state that an explicit `generation_kw`
@@ -556,30 +560,30 @@ reach a completed offsite/DPPA result, through both the web form and the CLI,
 without a hand-built `extracted` JSON.
 
 **Tasks**
-- [ ] TASK-02-01: Add a public, VND-denominated TOU series builder to
+- [x] TASK-02-01: Add a public, VND-denominated TOU series builder to
   `src/python/reopt_pysam_vn/reopt/preprocess.py` by extracting the rate
   computation that currently happens inside `build_vietnam_tariff` before its
   `convert_vnd_to_usd` calls. `build_vietnam_tariff` must keep returning exactly
   what it returns today — refactor it to call the new helper and convert, so no
   existing numeric output changes.
-- [ ] TASK-02-02: Create `src/python/reopt_pysam_vn/analysis/extracted.py`
+- [x] TASK-02-02: Create `src/python/reopt_pysam_vn/analysis/extracted.py`
   implementing `build_extracted_inputs` per Specification S3.
-- [ ] TASK-02-03: Validate the assembled dict with
+- [x] TASK-02-03: Validate the assembled dict with
   `reopt_pysam_vn.analysis.validation.validate_extracted_inputs` before returning
   it, so a defect in the assembler surfaces as a collected list of violations
   rather than a `KeyError` deep inside an orchestrator.
-- [ ] TASK-02-04: Wire the assembler into
+- [x] TASK-02-04: Wire the assembler into
   `src/python/reopt_pysam_vn/webapp/service.py::run_analysis._run_offsite`: when
   `extracted is None` **and** `deal_config.load.get("loads_kw")` is a list, call
   `build_extracted_inputs(deal_config)` instead of raising `MissingInputsError`.
   Keep raising `MissingInputsError` when neither is available, with the message
   updated to mention that a load series in `deal_config.load['loads_kw']` is
   sufficient.
-- [ ] TASK-02-05: Add a `--derive-extracted` flag to the `offsite_dppa` subcommand
+- [x] TASK-02-05: Add a `--derive-extracted` flag to the `offsite_dppa` subcommand
   in `src/python/reopt_pysam_vn/analysis/__main__.py`. When set and `--extracted`
   is absent, call `build_extracted_inputs(deal)` and pass the result. When both are
   given, `--extracted` wins and the CLI prints a one-line notice to stderr.
-- [ ] TASK-02-06: Add tests covering the assembler in isolation and the
+- [x] TASK-02-06: Add tests covering the assembler in isolation and the
   end-to-end web submission.
 
 **File Changes**
@@ -718,37 +722,37 @@ explicitly, stop manufacturing night-time solar, and restore the repository's on
 physical plausibility gate to CI.
 
 **Tasks**
-- [ ] TASK-03-01: Add a solar-resource catalogue to
+- [x] TASK-03-01: Add a solar-resource catalogue to
   `src/python/reopt_pysam_vn/pysam/pvwatts_battery.py` mapping each tracked resource
   file to its latitude and longitude (ASM-002), plus a great-circle helper
   implementing Specification S1.
-- [ ] TASK-03-02: Rewrite
+- [x] TASK-03-02: Rewrite
   `analysis/orchestrators/generic_vn_dppa._try_pvwatts_generation` to resolve the
   resource through the catalogue, compute the site-to-resource distance, and return
   the distance and file identity alongside the series.
-- [ ] TASK-03-03: Set `array_type`, `tilt`, `azimuth` and `gcr` explicitly in
+- [x] TASK-03-03: Set `array_type`, `tilt`, `azimuth` and `gcr` explicitly in
   `generic_vn_dppa`, mapped from `deal_config.plant["mounting"]` per ASM-004, with
   `tilt` equal to the site latitude for the two fixed options.
-- [ ] TASK-03-04: Add `mounting` to the `plant` block of
+- [x] TASK-03-04: Add `mounting` to the `plant` block of
   `data/schemas/deal_config.schema.json` as an optional string with the three-value
   enum.
-- [ ] TASK-03-05: Pin `integration/dppa_samsung_ttc._pvwatts_south_solar_8760` to
+- [x] TASK-03-05: Pin `integration/dppa_samsung_ttc._pvwatts_south_solar_8760` to
   `array_type = 2` and `tilt = 0.0` explicitly (ASM-005), and correct its docstring,
   which currently calls the Ninh Thuan file "the cached southern resource".
-- [ ] TASK-03-06: Replace `_calibrate_to_target` with the Specification S2
+- [x] TASK-03-06: Replace `_calibrate_to_target` with the Specification S2
   algorithm, returning `(series, warnings)` so the infeasibility warning reaches the
   result.
-- [ ] TASK-03-07: Extend the generic result's `quality` block with
+- [x] TASK-03-07: Extend the generic result's `quality` block with
   `solar_resource_file`, `solar_resource_latitude`, `solar_resource_longitude`,
   `solar_resource_distance_km`, `array_type`, and `tilt_degrees`, and set
   `solar_profile_source` to `"pvwatts_fallback_resource"` when the distance is at
   or above 100 km (ASM-003).
-- [ ] TASK-03-08: Rewrite `tests/python/integration/test_capacity_factor_benchmark.py`
+- [x] TASK-03-08: Rewrite `tests/python/integration/test_capacity_factor_benchmark.py`
   to run against the tracked resource file with an explicit fixed open-rack
   configuration, remove the `@pytest.mark.xfail` decorator, and remove the
   `pytest.importorskip("PySAM")` guard — `nrel-pysam` is a hard dependency and is
   installed in CI, so a runtime skip would violate CON-005.
-- [ ] TASK-03-09: Record the change in a short dated memo under `reports/` naming
+- [x] TASK-03-09: Record the change in a short dated memo under `reports/` naming
   the measured before/after yields, so the movement is documented rather than
   absorbed silently.
 
@@ -893,25 +897,25 @@ Stop storing, serving, and inlining a 3.79 MB result document. Keep the hourly
 ledger as a first-class artifact, served separately as CSV.
 
 **Tasks**
-- [ ] TASK-04-01: Add `save_ledger_csv` and `get_ledger_csv_path` to
+- [x] TASK-04-01: Add `save_ledger_csv` and `get_ledger_csv_path` to
   `src/python/reopt_pysam_vn/webapp/storage.py`, writing `ledger.csv` into the same
   per-run directory as `result.json`.
-- [ ] TASK-04-02: In `webapp/service.run_analysis`, after producing an offsite
+- [x] TASK-04-02: In `webapp/service.run_analysis`, after producing an offsite
   result dict, pop `base_settlement["hourly_ledger"]` out of the returned document
   and return it separately so the caller can persist it. Preserve
   `base_settlement["annual_summary"]`, `["contract_params"]`,
   `["market_source_label"]`, and `["buyer_benchmark"]` in the summary result.
-- [ ] TASK-04-03: In `webapp/routes/api.py::_submit_deal_config`, write the ledger
+- [x] TASK-04-03: In `webapp/routes/api.py::_submit_deal_config`, write the ledger
   via `storage.save_ledger_csv` before `storage.save_result`, and add a
   `GET /api/runs/{run_id}/ledger.csv` route returning
   `Content-Type: text/csv` with a `Content-Disposition: attachment` header.
-- [ ] TASK-04-04: Add a "Download hourly ledger (CSV)" link to
+- [x] TASK-04-04: Add a "Download hourly ledger (CSV)" link to
   `src/python/reopt_pysam_vn/webapp/templates/run.html`, rendered only when the
   ledger file exists.
-- [ ] TASK-04-05: Remove the raw-result JSON blob from
+- [x] TASK-04-05: Remove the raw-result JSON blob from
   `webapp/results_view.render_standalone_report_html`. Keep the metrics table; embed
   only the summary blocks, never the ledger.
-- [ ] TASK-04-06: Document the new artifact in the storage-layout section of
+- [x] TASK-04-06: Document the new artifact in the storage-layout section of
   `src/python/reopt_pysam_vn/webapp/README.md`.
 
 **File Changes**
@@ -1005,21 +1009,21 @@ Route the web upload through the mature ingestion library so the product accepts
 files with gaps — and reports exactly what it did to the data.
 
 **Tasks**
-- [ ] TASK-05-01: Rewrite `src/python/reopt_pysam_vn/webapp/uploads.py` to persist
+- [x] TASK-05-01: Rewrite `src/python/reopt_pysam_vn/webapp/uploads.py` to persist
   the uploaded bytes to a temporary file carrying the original suffix, call
   `reopt_pysam_vn.ingestion.loader.ingest_factory_load` on that path, and delete the
   temporary file in a `finally` block. Return both the series and the cleaning
   summary.
-- [ ] TASK-05-02: Map `ingestion.loader.LoadLengthError` and any `ValueError` from
+- [x] TASK-05-02: Map `ingestion.loader.LoadLengthError` and any `ValueError` from
   the loader onto the existing `UploadError` so `routes/api.py`'s HTTP 422 handling
   is unchanged.
-- [ ] TASK-05-03: Accept `.json` uploads in `routes/api.py::create_deal` in addition
+- [x] TASK-05-03: Accept `.json` uploads in `routes/api.py::create_deal` in addition
   to `.csv`, `.xlsx`, `.xlsm`, and `.xls`; reject any other suffix with a 422 naming
   the accepted list.
-- [ ] TASK-05-04: Carry the cleaning summary into `deal_config["load"]["load_cleaning"]`
+- [x] TASK-05-04: Carry the cleaning summary into `deal_config["load"]["load_cleaning"]`
   so it reaches `extracted["load_cleaning"]` through the PHASE-02 assembler, and
   render it as a card on the run page.
-- [ ] TASK-05-05: Add a load plausibility screen that appends advisory strings to
+- [x] TASK-05-05: Add a load plausibility screen that appends advisory strings to
   the cleaning summary without ever rejecting the upload.
 
 **File Changes**
@@ -1129,21 +1133,21 @@ enforced on one machine only — into tests that run on every push, by replacing
 their dependency on git-ignored `artifacts/` files with small tracked fixtures.
 
 **Tasks**
-- [ ] TASK-06-01: Write a fixture-builder script that reads the git-ignored source
+- [x] TASK-06-01: Write a fixture-builder script that reads the git-ignored source
   artifacts (when present on a developer machine) and writes reduced, gzipped
   fixtures containing only the series and scalars the tests actually consume.
-- [ ] TASK-06-02: Generate and commit the settlement-regression fixtures.
-- [ ] TASK-06-03: Copy the four 12 KB Factory-A PySAM result files into
+- [x] TASK-06-02: Generate and commit the settlement-regression fixtures.
+- [x] TASK-06-03: Copy the four 12 KB Factory-A PySAM result files into
   `tests/fixtures/factory_a/` and commit them.
-- [ ] TASK-06-04: Repoint `tests/python/integration/test_settlement_regression.py`
+- [x] TASK-06-04: Repoint `tests/python/integration/test_settlement_regression.py`
   and `tests/python/analysis/test_factory_a_validation.py` at the fixtures and
   remove their `requires_artifacts` markers.
-- [ ] TASK-06-05: Amend the `test_factory_a_validation.py` module docstring per
+- [x] TASK-06-05: Amend the `test_factory_a_validation.py` module docstring per
   ASM-009 so it does not overclaim.
-- [ ] TASK-06-06: Lower `REOPT_PYSAM_VN_MAX_DESELECTED` in
+- [x] TASK-06-06: Lower `REOPT_PYSAM_VN_MAX_DESELECTED` in
   `.github/workflows/ci.yml` to the count the suite actually reports, and raise
   `--cov-fail-under` if coverage improved.
-- [ ] TASK-06-07: Update `AGENTS.md` and `activeContext.md` with the new enforced
+- [x] TASK-06-07: Update `AGENTS.md` and `activeContext.md` with the new enforced
   test count and the new exclusion set.
 
 **File Changes**
