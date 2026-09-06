@@ -15,14 +15,19 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.integration.settlement import (
+    BuyerBenchmark,
     ContractParams,
     HourlySeries,
     MarketReference,
     SettlementInputs,
     build_settlement_inputs,
+    compute_buyer_benchmark_typed,
+    compute_hourly_settlement,
+    compute_hourly_settlement_typed,
     resolve_market_reference,
     resolve_samsung_strike,
     resolve_strike_weighted_discount,
+    run_strike_sweep_typed,
 )
 
 
@@ -155,3 +160,82 @@ class TestBuildSettlementInputs:
                 contract=_virtual_cfd_params(),
                 exchange_rate_vnd_per_usd=26400.0,
             )
+
+
+def _typed_inputs(**overrides) -> SettlementInputs:
+    market = resolve_market_reference(
+        retail_vnd_per_kwh=_const(1900.0),
+        weighted_evn_price_vnd_per_kwh=1900.0,
+        wholesale_rate_vnd_per_kwh=1700.0,
+    )
+    kwargs = {
+        "loads_kw": _const(1000.0),
+        "generation_kw": _const(800.0),
+        "tariff_vnd_per_kwh": _const(1900.0),
+        "market": market,
+        "contract": _virtual_cfd_params(),
+        "exchange_rate_vnd_per_usd": 26400.0,
+    }
+    kwargs.update(overrides)
+    return build_settlement_inputs(**kwargs)
+
+
+class TestTypedEngine:
+    def test_typed_matches_list_engine_exactly(self):
+        inputs = _typed_inputs()
+        typed = compute_hourly_settlement_typed(inputs)
+        listed = compute_hourly_settlement(
+            inputs.loads_kw.to_list(),
+            inputs.generation_kw.to_list(),
+            inputs.tariff_vnd_per_kwh.to_list(),
+            inputs.market_vnd_per_kwh.to_list(),
+            inputs.contract,
+            market_source_label=inputs.market_type,
+        )
+        assert typed.annual_summary == listed.annual_summary
+        assert typed.hourly_ledger == listed.hourly_ledger
+
+    def test_benchmark_clamp_never_both_positive(self):
+        cheap = _typed_inputs(
+            tariff_vnd_per_kwh=_const(100.0),
+            contract=_virtual_cfd_params(strike_vnd_kwh=5000.0),
+        )
+        benchmark = compute_buyer_benchmark_typed(cheap)
+        assert isinstance(benchmark, BuyerBenchmark)
+        assert benchmark.buyer_premium_vs_evn_vnd > 0.0
+        assert benchmark.buyer_savings_vs_evn_vnd == 0.0
+
+        rich = _typed_inputs(contract=_virtual_cfd_params(strike_vnd_kwh=100.0))
+        benchmark = compute_buyer_benchmark_typed(rich)
+        assert benchmark.buyer_savings_vs_evn_vnd > 0.0
+        assert benchmark.buyer_premium_vs_evn_vnd == 0.0
+
+    def test_strike_sweep_monotonic_buyer_cost(self):
+        inputs = _typed_inputs()
+        sweep = run_strike_sweep_typed(inputs, [1500.0, 1900.0, 2300.0])
+        costs = [entry["buyer_cost_vnd"] for entry in sweep]
+        assert costs == sorted(costs)
+        assert [entry["strike_vnd_kwh"] for entry in sweep] == [1500.0, 1900.0, 2300.0]
+
+    def test_excess_treatment_matrix_on_short_synthetic(self):
+        import dataclasses
+
+        base = _typed_inputs(
+            loads_kw=[500.0] * 8760,
+            generation_kw=[900.0] * 8760,
+        )
+        curtail = compute_hourly_settlement_typed(base)
+        export = compute_hourly_settlement_typed(
+            dataclasses.replace(
+                base,
+                contract=ContractParams(
+                    mode="private_wire",
+                    strike_vnd_kwh=1900.0,
+                    excess_treatment="export_at_surplus",
+                    export_cap_pct=50.0,
+                ),
+            )
+        )
+        assert curtail.annual_summary["exported_mwh"] == pytest.approx(0.0)
+        assert curtail.annual_summary["curtailed_mwh"] > 0.0
+        assert export.annual_summary["exported_mwh"] > 0.0

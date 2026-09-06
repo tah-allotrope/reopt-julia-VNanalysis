@@ -267,6 +267,19 @@ def build_settlement_inputs(
     )
 
 
+@dataclass(frozen=True)
+class BuyerBenchmark:
+    """EVN-only cost vs buyer all-in cost for one ``SettlementInputs``."""
+
+    evn_only_cost_vnd: float
+    buyer_cost_vnd: float
+    buyer_savings_vs_evn_vnd: float
+    buyer_premium_vs_evn_vnd: float
+    buyer_blended_cost_vnd_per_kwh: float
+    benchmark_blended_cost_vnd_per_kwh: float
+    total_load_kwh: float
+
+
 @dataclass
 class SettlementResult:
     hourly_ledger: list[dict]
@@ -536,3 +549,53 @@ def run_strike_sweep(
         })
 
     return results
+
+
+def compute_hourly_settlement_typed(inputs: SettlementInputs) -> SettlementResult:
+    """Typed entry to the hourly ledger: validate once, then run the engine."""
+    return compute_hourly_settlement(
+        inputs.loads_kw.to_list(),
+        inputs.generation_kw.to_list(),
+        inputs.tariff_vnd_per_kwh.to_list(),
+        inputs.market_vnd_per_kwh.to_list(),
+        inputs.contract,
+        market_source_label=inputs.market_type,
+    )
+
+
+def compute_buyer_benchmark_typed(inputs: SettlementInputs) -> BuyerBenchmark:
+    """Buyer vs EVN-only benchmark for one ``SettlementInputs``."""
+    benchmark = compute_buyer_benchmark(
+        inputs.loads_kw.to_list(), inputs.tariff_vnd_per_kwh.to_list()
+    )
+    settlement = compute_hourly_settlement_typed(inputs)
+    buyer_cost = float(settlement.annual_summary["buyer_cost_vnd"])
+    evn_cost = float(benchmark["evn_only_cost_vnd"])
+    total_load = float(benchmark["total_load_kwh"])
+    return BuyerBenchmark(
+        evn_only_cost_vnd=evn_cost,
+        buyer_cost_vnd=buyer_cost,
+        buyer_savings_vs_evn_vnd=max(0.0, evn_cost - buyer_cost),
+        buyer_premium_vs_evn_vnd=max(0.0, buyer_cost - evn_cost),
+        buyer_blended_cost_vnd_per_kwh=float(
+            settlement.annual_summary["buyer_blended_rate_vnd_kwh"]
+        ),
+        benchmark_blended_cost_vnd_per_kwh=float(benchmark["blended_rate_vnd_kwh"]),
+        total_load_kwh=total_load,
+    )
+
+
+def run_strike_sweep_typed(
+    inputs: SettlementInputs,
+    strike_range_vnd_per_kwh: list[float],
+) -> list[dict]:
+    """Strike sweep over the typed seam; per-strike overrides via ``replace``."""
+    return run_strike_sweep(
+        inputs.loads_kw.to_list(),
+        inputs.generation_kw.to_list(),
+        inputs.tariff_vnd_per_kwh.to_list(),
+        inputs.market_vnd_per_kwh.to_list(),
+        inputs.contract,
+        list(strike_range_vnd_per_kwh),
+        market_source_label=inputs.market_type,
+    )
