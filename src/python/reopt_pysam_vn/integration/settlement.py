@@ -197,6 +197,76 @@ class ContractParams:
         )
 
 
+def resolve_strike_weighted_discount(
+    weighted_evn_price_vnd_per_kwh: float,
+    discount_fraction: float = 0.05,
+) -> float:
+    """Strike anchored to the weighted EVN tariff minus a discount fraction.
+
+    Single home for the ``weighted * (1 - discount)`` anchor previously copied
+    across ``dppa_case_2``, ``dppa_case_3`` and ``ninhsim_solar_storage_60pct``.
+    """
+    return float(weighted_evn_price_vnd_per_kwh) * (1.0 - float(discount_fraction))
+
+
+def resolve_samsung_strike(
+    southern_ceiling_vnd_per_kwh: float,
+    standard_rate_vnd_per_kwh: float,
+    sweep_fraction: float = 0.0,
+) -> float:
+    """Samsung strike: Southern ground-mount ceiling swept toward avoided cost.
+
+    ``sweep_fraction = 0`` returns the directional base strike (ceiling);
+    ``sweep_fraction = 1`` returns the sweep top (EVN standard-hour avoided
+    cost). Pure float math; the caller supplies deal-anchored endpoints.
+    """
+    base = float(southern_ceiling_vnd_per_kwh)
+    top = float(standard_rate_vnd_per_kwh)
+    return base + float(sweep_fraction) * (top - base)
+
+
+@dataclass(frozen=True)
+class SettlementInputs:
+    """Typed replacement for the legacy ``settlement_inputs: dict``.
+
+    Key-name leaks (``strike_price_vnd_per_kwh`` vs ``strike_vnd_kwh``,
+    ``load_kwh_series`` vs ``loads_kw``, ``kpp_factor`` vs ``kpp_pct``)
+    become type errors, not silent KeyErrors.
+    """
+
+    loads_kw: HourlySeries
+    generation_kw: HourlySeries
+    tariff_vnd_per_kwh: HourlySeries
+    market_vnd_per_kwh: HourlySeries
+    contract: ContractParams
+    market_type: MarketReferenceType
+    exchange_rate_vnd_per_usd: float
+    notes: tuple[str, ...] = ()
+
+
+def build_settlement_inputs(
+    *,
+    loads_kw: list[float],
+    generation_kw: list[float],
+    tariff_vnd_per_kwh: list[float],
+    market: MarketReference,
+    contract: ContractParams,
+    exchange_rate_vnd_per_usd: float,
+    notes: tuple[str, ...] = (),
+) -> SettlementInputs:
+    """Validate raw series into one ``SettlementInputs`` at the seam."""
+    return SettlementInputs(
+        loads_kw=HourlySeries(values=tuple(loads_kw)),
+        generation_kw=HourlySeries(values=tuple(generation_kw)),
+        tariff_vnd_per_kwh=HourlySeries(values=tuple(tariff_vnd_per_kwh)),
+        market_vnd_per_kwh=market.series_vnd_per_kwh,
+        contract=contract,
+        market_type=market.reference_type,
+        exchange_rate_vnd_per_usd=float(exchange_rate_vnd_per_usd),
+        notes=tuple(notes),
+    )
+
+
 @dataclass
 class SettlementResult:
     hourly_ledger: list[dict]

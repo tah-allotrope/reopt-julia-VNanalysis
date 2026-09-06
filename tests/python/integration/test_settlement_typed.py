@@ -15,9 +15,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from reopt_pysam_vn.integration.settlement import (
+    ContractParams,
     HourlySeries,
     MarketReference,
+    SettlementInputs,
+    build_settlement_inputs,
     resolve_market_reference,
+    resolve_samsung_strike,
+    resolve_strike_weighted_discount,
 )
 
 
@@ -87,3 +92,66 @@ class TestResolveMarketReference:
         )
         assert ref.proxy_fraction_of_evn == 0.0
         assert ref.series_vnd_per_kwh.to_list() == _const(0.0)
+
+
+class TestStrikeResolvers:
+    @pytest.mark.parametrize(
+        ("discount", "expected"),
+        [(0.0, 2000.0), (0.05, 1900.0), (0.10, 1800.0), (0.15, 1700.0), (0.20, 1600.0)],
+    )
+    def test_weighted_discount_table(self, discount, expected):
+        assert resolve_strike_weighted_discount(2000.0, discount) == pytest.approx(expected)
+
+    def test_samsung_strike_endpoints_and_midpoint(self):
+        assert resolve_samsung_strike(1500.0, 2500.0, 0.0) == pytest.approx(1500.0)
+        assert resolve_samsung_strike(1500.0, 2500.0, 1.0) == pytest.approx(2500.0)
+        assert resolve_samsung_strike(1500.0, 2500.0, 0.5) == pytest.approx(2000.0)
+
+
+def _virtual_cfd_params(**overrides) -> ContractParams:
+    defaults = {
+        "mode": "virtual_cfd",
+        "strike_vnd_kwh": 1900.0,
+        "settlement_quantity_rule": "matched_only",
+        "excess_treatment": "curtail",
+    }
+    defaults.update(overrides)
+    return ContractParams(**defaults)
+
+
+class TestBuildSettlementInputs:
+    def test_builds_typed_inputs(self):
+        market = resolve_market_reference(
+            retail_vnd_per_kwh=_const(1900.0),
+            weighted_evn_price_vnd_per_kwh=1900.0,
+            wholesale_rate_vnd_per_kwh=900.0,
+        )
+        inputs = build_settlement_inputs(
+            loads_kw=_const(1000.0),
+            generation_kw=_const(800.0),
+            tariff_vnd_per_kwh=_const(1900.0),
+            market=market,
+            contract=_virtual_cfd_params(),
+            exchange_rate_vnd_per_usd=26400.0,
+        )
+        assert isinstance(inputs, SettlementInputs)
+        assert inputs.loads_kw.to_list() == _const(1000.0)
+        assert inputs.market_type == "proxy_cfmp_or_fmp"
+        assert inputs.exchange_rate_vnd_per_usd == pytest.approx(26400.0)
+        assert inputs.notes == ()
+
+    def test_rejects_short_series(self):
+        market = resolve_market_reference(
+            retail_vnd_per_kwh=_const(1900.0),
+            weighted_evn_price_vnd_per_kwh=1900.0,
+            wholesale_rate_vnd_per_kwh=900.0,
+        )
+        with pytest.raises(ValueError):
+            build_settlement_inputs(
+                loads_kw=[1000.0] * 100,
+                generation_kw=_const(800.0),
+                tariff_vnd_per_kwh=_const(1900.0),
+                market=market,
+                contract=_virtual_cfd_params(),
+                exchange_rate_vnd_per_usd=26400.0,
+            )
