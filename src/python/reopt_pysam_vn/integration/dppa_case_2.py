@@ -182,14 +182,6 @@ def _load_reopt_grid_supply_profile(results: dict) -> list[float]:
     return _pad_to_8760(utility.get("electric_to_load_series_kw", []))
 
 
-def _strike_vnd_per_kwh(
-    extracted: dict,
-    strike_discount_fraction: float = DEFAULT_STRIKE_DISCOUNT_FRACTION,
-) -> float:
-    weighted_vnd = float(extracted["benchmark"]["weighted_evn_price_vnd_per_kwh"])
-    return weighted_vnd * (1.0 - float(strike_discount_fraction))
-
-
 def _strike_usd_per_kwh(
     extracted: dict,
     strike_discount_fraction: float = DEFAULT_STRIKE_DISCOUNT_FRACTION,
