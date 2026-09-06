@@ -45,6 +45,18 @@ from reopt_pysam_vn.integration.dppa_case_2 import (
     build_dppa_case_2_settlement_inputs,
     run_dppa_case_2_buyer_settlement,
 )
+from reopt_pysam_vn.integration.settlement import (
+    compute_hourly_settlement_typed as _compute_typed_settlement,
+)
+from reopt_pysam_vn.integration.settlement import (
+    legacy_case2_dict_from_result as _legacy_dict_from_result,
+)
+from reopt_pysam_vn.integration.settlement import (
+    resolve_samsung_strike as _resolve_samsung_strike,
+)
+from reopt_pysam_vn.integration.settlement import (
+    settlement_inputs_from_legacy_case2_dict as _typed_inputs_from_legacy_dict,
+)
 from reopt_pysam_vn.reopt.preprocess import apply_vietnam_defaults, load_vietnam_data
 
 # --- Disclosed deal facts (multi-source; see research brief) ------------------
@@ -314,13 +326,16 @@ def samsung_strike_vnd_per_kwh(
     standard-hour avoided cost by default), used to bracket the buyer-premium
     surface in PHASE-03. Strikes above the ceiling are regulatory sensitivity
     points only.
+
+    Thin adapter over the shared resolver; the name stays so the parity gate
+    and golden keep their Samsung strike-basis vocabulary.
     """
     base = float(extracted["strike_basis"]["southern_ground_mount_ceiling_vnd_per_kwh"])
     if sweep_top_vnd_per_kwh is None:
         top = float(extracted["benchmark"]["standard_rate_vnd_per_kwh"])
     else:
         top = float(sweep_top_vnd_per_kwh)
-    return base + float(sweep_fraction) * (top - base)
+    return _resolve_samsung_strike(base, top, float(sweep_fraction))
 
 
 def build_scenario_samsung_ttc(extracted: dict) -> dict:
@@ -589,24 +604,33 @@ def analyze_samsung_ttc_settlement(
         results, extracted, scenario
     )
     strike = samsung_strike_vnd_per_kwh(extracted, sweep_fraction)
-    settlement_inputs["strike_price_vnd_per_kwh"] = strike
-    settlement = run_dppa_case_2_buyer_settlement(settlement_inputs)
+    typed_inputs = _typed_inputs_from_legacy_dict(
+        settlement_inputs, strike_vnd_kwh=strike
+    )
+    typed_result = _compute_typed_settlement(typed_inputs)
+    settlement = _legacy_dict_from_result(
+        typed_result,
+        typed_inputs,
+        market_reference_price_type=settlement_inputs["market_reference_price_type"],
+        settlement_quantity_rule=settlement_inputs["settlement_quantity_rule"],
+        excess_generation_treatment=settlement_inputs["excess_generation_treatment"],
+    )
     benchmark = build_dppa_case_2_buyer_benchmark(physical, settlement)
 
     # Contracted-slice economics: isolate the matched (solar) volume so the deal
     # signal is not diluted by the 930 GWh of non-solar residual load.
-    ledger = settlement["hourly_ledger"]
-    matched_kwh = float(settlement["summary"]["matched_quantity_kwh"])
+    # Read from the typed ledger (same numbers as the legacy shape above).
+    typed_ledger = typed_result.hourly_ledger
+    matched_kwh = float(typed_result.annual_summary["matched_mwh"]) * 1000.0
     evn_on_matched = sum(
-        float(entry["matched_quantity_kwh"])
-        * float(entry["evn_retail_rate_vnd_per_kwh"])
-        for entry in ledger
+        float(entry["matched_kwh"]) * float(entry["retail_price_vnd_kwh"])
+        for entry in typed_ledger
     )
     buyer_on_matched = sum(
-        float(entry["buyer_evn_matched_payment_vnd"])
-        + float(entry["buyer_dppa_charge_vnd"])
+        float(entry["evn_matched_payment_vnd"])
+        + float(entry["dppa_charge_vnd"])
         + float(entry["buyer_cfd_payment_vnd"])
-        for entry in ledger
+        for entry in typed_ledger
     )
     contracted_slice = {
         "matched_quantity_gwh": matched_kwh / 1e6,

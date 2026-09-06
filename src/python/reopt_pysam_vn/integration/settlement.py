@@ -599,3 +599,146 @@ def run_strike_sweep_typed(
         list(strike_range_vnd_per_kwh),
         market_source_label=inputs.market_type,
     )
+
+
+def contract_params_for_legacy_case2(
+    strike_vnd_kwh: float,
+    dppa_adder_vnd_kwh: float,
+    kpp_factor: float,
+) -> ContractParams:
+    """Case-2 virtual-CfD contract from legacy dict fields.
+
+    Single home for the ``kpp_factor``-to-``kpp_pct`` conversion every legacy
+    caller repeated; the matched-only/curtail shape is the Case-2 invariant.
+    """
+    return ContractParams(
+        mode="virtual_cfd",
+        strike_vnd_kwh=float(strike_vnd_kwh),
+        settlement_quantity_rule="matched_only",
+        excess_treatment="curtail",
+        dppa_adder_vnd_kwh=float(dppa_adder_vnd_kwh),
+        kpp_pct=(float(kpp_factor) - 1.0) * 100.0,
+    )
+
+
+def settlement_inputs_from_legacy_case2_dict(
+    settlement_inputs: dict,
+    *,
+    strike_vnd_kwh: float | None = None,
+) -> SettlementInputs:
+    """Translate a legacy Case-2 ``settlement_inputs`` dict onto the typed seam.
+
+    Short series are padded to 8760 (the legacy engine's zip-shortest
+    tolerance, made explicit); padded zero hours contribute nothing to the
+    totals. ``strike_vnd_kwh`` overrides the dict's strike for deal-specific
+    anchors (e.g. the Samsung Southern-ceiling strike).
+    """
+    from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_fx
+    from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+
+    market_series = pad_to_8760(
+        [float(v) for v in settlement_inputs["market_reference_price_vnd_per_kwh_series"]]
+    )
+    notes = tuple(settlement_inputs.get("notes", []))
+    market = MarketReference(
+        series_vnd_per_kwh=HourlySeries(values=tuple(market_series)),
+        reference_type=settlement_inputs["market_reference_price_type"],
+        proxy_fraction_of_evn=None,
+        method="legacy_case_2_dict_inputs",
+        notes=notes,
+    )
+    raw_strike = strike_vnd_kwh
+    if raw_strike is None:
+        raw_strike = settlement_inputs["strike_price_vnd_per_kwh"]
+    return build_settlement_inputs(
+        loads_kw=pad_to_8760([float(v) for v in settlement_inputs["load_kwh_series"]]),
+        generation_kw=pad_to_8760(
+            [float(v) for v in settlement_inputs["contracted_generation_kwh_series"]]
+        ),
+        tariff_vnd_per_kwh=pad_to_8760(
+            [float(v) for v in settlement_inputs["evn_retail_rate_vnd_per_kwh_series"]]
+        ),
+        market=market,
+        contract=contract_params_for_legacy_case2(
+            float(raw_strike),
+            float(settlement_inputs["dppa_adder_vnd_per_kwh"]),
+            float(settlement_inputs["kpp_factor"]),
+        ),
+        exchange_rate_vnd_per_usd=_resolve_fx(
+            load_vietnam_data(),
+            caller_value=settlement_inputs.get("exchange_rate_vnd_per_usd"),
+        ),
+        notes=notes,
+    )
+
+
+def legacy_case2_dict_from_result(
+    result: SettlementResult,
+    inputs: SettlementInputs,
+    *,
+    market_reference_price_type: str,
+    settlement_quantity_rule: str,
+    excess_generation_treatment: str,
+) -> dict:
+    """Translate a typed result back onto the historical Case-2 dict shape.
+
+    The ``hour_index`` ledger, ``summary`` block and USD conversions are
+    byte-identical to the pre-typed engine for the same inputs.
+    """
+    summary = result.annual_summary
+    buyer_total = float(summary["buyer_cost_vnd"])
+    total_load = float(summary["total_load_kwh"])
+    blended_cost = float(summary["buyer_blended_rate_vnd_kwh"])
+    exchange_rate = float(inputs.exchange_rate_vnd_per_usd)
+    contract = inputs.contract
+    return {
+        "model": "Ninhsim DPPA Case 2 Buyer Settlement",
+        "status": "ok",
+        "market_reference_price_type": market_reference_price_type,
+        "settlement_quantity_rule": settlement_quantity_rule,
+        "excess_generation_treatment": excess_generation_treatment,
+        "parameters": {
+            "strike_price_vnd_per_kwh": float(contract.strike_vnd_kwh),
+            "dppa_adder_vnd_per_kwh": float(contract.dppa_adder_vnd_kwh),
+            "kpp_factor": float(contract.kpp_factor),
+            "exchange_rate_vnd_per_usd": exchange_rate,
+        },
+        "hourly_ledger": [
+            {
+                "hour_index": entry["hour"],
+                "load_kwh": entry["load_kwh"],
+                "contracted_generation_kwh": entry["generation_kwh"],
+                "matched_quantity_kwh": entry["matched_kwh"],
+                "shortfall_quantity_kwh": entry["shortfall_kwh"],
+                "excess_quantity_kwh": entry["excess_kwh"],
+                "market_reference_price_vnd_per_kwh": entry["market_price_vnd_kwh"],
+                "evn_retail_rate_vnd_per_kwh": entry["retail_price_vnd_kwh"],
+                "buyer_evn_matched_payment_vnd": entry["evn_matched_payment_vnd"],
+                "buyer_dppa_charge_vnd": entry["dppa_charge_vnd"],
+                "buyer_shortfall_payment_vnd": entry["shortfall_payment_vnd"],
+                "buyer_cfd_payment_vnd": entry["buyer_cfd_payment_vnd"],
+                "buyer_total_payment_vnd": entry["buyer_total_payment_vnd"],
+            }
+            for entry in result.hourly_ledger
+        ],
+        "summary": {
+            "matched_quantity_kwh": float(summary["matched_mwh"]) * 1000.0,
+            "shortfall_quantity_kwh": float(summary["shortfall_mwh"]) * 1000.0,
+            "excess_quantity_kwh": float(summary["excess_mwh"]) * 1000.0,
+            "buyer_evn_matched_payment_vnd": float(
+                summary["buyer_evn_matched_payment_vnd"]
+            ),
+            "buyer_dppa_charge_vnd": float(summary["buyer_dppa_charge_vnd"]),
+            "buyer_shortfall_payment_vnd": float(
+                summary["buyer_shortfall_payment_vnd"]
+            ),
+            "buyer_cfd_payment_vnd": float(summary["buyer_cfd_payment_vnd"]),
+            "buyer_total_payment_vnd": buyer_total,
+            "buyer_total_payment_usd": buyer_total / exchange_rate,
+            "buyer_blended_cost_vnd_per_kwh": blended_cost,
+            "buyer_blended_cost_usd_per_kwh": blended_cost / exchange_rate,
+            "total_consumed_load_kwh": total_load,
+            "hours_with_negative_cfd_credit": int(summary["hours_with_negative_cfd"]),
+        },
+        "notes": list(inputs.notes),
+    }
