@@ -7,13 +7,122 @@ support any factory+project pair. See GAP-04 plan for design rationale.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, Literal
 
 from reopt_pysam_vn.common.series import pad_to_8760
 
 VALID_MODES = ("private_wire", "virtual_cfd")
 VALID_SETTLEMENT_RULES = ("matched_only", "contracted_volume")
 VALID_EXCESS_TREATMENTS = ("curtail", "export_at_surplus", "cfd_on_excess")
+
+HOURS = 8760
+
+SettlementMode = Literal["private_wire", "virtual_cfd"]
+SettlementQuantityRule = Literal["matched_only", "contracted_volume"]
+ExcessTreatment = Literal["curtail", "export_at_surplus", "cfd_on_excess"]
+MarketReferenceType = Literal["cfmp", "fmp", "proxy_cfmp_or_fmp"]
+
+
+@dataclass(frozen=True)
+class HourlySeries:
+    """One validated 8760-hour series.
+
+    Coerces elements to ``float`` and rejects any length other than 8760.
+    Padding a short series is the caller's job (``common.series.pad_to_8760``);
+    the seam fails loudly instead of guessing.
+    """
+
+    values: tuple[float, ...]
+
+    def __post_init__(self) -> None:
+        coerced = tuple(float(value) for value in self.values)
+        if len(coerced) != HOURS:
+            raise ValueError(
+                f"HourlySeries needs exactly {HOURS} values, got {len(coerced)}"
+            )
+        object.__setattr__(self, "values", coerced)
+
+    def to_list(self) -> list[float]:
+        return list(self.values)
+
+
+@dataclass(frozen=True)
+class MarketReference:
+    """Resolved hourly market series plus how it was obtained."""
+
+    series_vnd_per_kwh: HourlySeries
+    reference_type: MarketReferenceType
+    proxy_fraction_of_evn: float | None
+    method: str
+    notes: tuple[str, ...] = ()
+
+
+def resolve_market_reference(
+    *,
+    retail_vnd_per_kwh: list[float],
+    cfmp_vnd_per_mwh: list[float] | None = None,
+    fmp_vnd_per_mwh: list[float] | None = None,
+    weighted_evn_price_vnd_per_kwh: float | None = None,
+    wholesale_rate_vnd_per_kwh: float | None = None,
+    vn: Any | None = None,
+) -> MarketReference:
+    """Resolve the 8760 market-reference series from explicit arguments.
+
+    Priority: explicit CFMP (VND/MWh, converted to VND/kWh), then explicit FMP,
+    then the proxy (hourly EVN retail scaled by wholesale/weighted-retail).
+    Takes values, not ``extracted`` dicts, so key-name leaks across the seam
+    become type errors. Never loads the data layer itself: pass ``vn``
+    (or an explicit wholesale rate) when the proxy must resolve wholesale
+    from ``market_prices``; with neither, wholesale falls back to 0.0.
+    """
+    if cfmp_vnd_per_mwh is not None:
+        series = HourlySeries(
+            values=tuple(value / 1_000.0 for value in cfmp_vnd_per_mwh)
+        )
+        return MarketReference(
+            series_vnd_per_kwh=series,
+            reference_type="cfmp",
+            proxy_fraction_of_evn=None,
+            method="extracted_cfmp_vnd_per_mwh",
+            notes=("CFMP series supplied directly (VND/MWh, converted to VND/kWh).",),
+        )
+    if fmp_vnd_per_mwh is not None:
+        series = HourlySeries(
+            values=tuple(value / 1_000.0 for value in fmp_vnd_per_mwh)
+        )
+        return MarketReference(
+            series_vnd_per_kwh=series,
+            reference_type="fmp",
+            proxy_fraction_of_evn=None,
+            method="extracted_fmp_vnd_per_mwh",
+            notes=("FMP series supplied directly (VND/MWh, converted to VND/kWh).",),
+        )
+    wholesale = wholesale_rate_vnd_per_kwh
+    if wholesale is None and vn is not None:
+        from reopt_pysam_vn.common.assumptions import (
+            market_wholesale_reference_vnd_per_kwh,
+        )
+
+        wholesale = market_wholesale_reference_vnd_per_kwh(vn)
+    wholesale_value = float(wholesale or 0.0)
+    weighted_value = float(weighted_evn_price_vnd_per_kwh or 0.0)
+    fraction = wholesale_value / weighted_value if weighted_value else 0.0
+    retail = HourlySeries(values=tuple(retail_vnd_per_kwh))
+    proxy = HourlySeries(
+        values=tuple(rate * fraction for rate in retail.values)
+    )
+    return MarketReference(
+        series_vnd_per_kwh=proxy,
+        reference_type="proxy_cfmp_or_fmp",
+        proxy_fraction_of_evn=fraction,
+        method="hourly_evn_tariff_scaled_by_wholesale_ratio",
+        notes=(
+            "Proxy uses the repo wholesale benchmark divided by the weighted "
+            "EVN tariff and scales the hourly EVN retail series by that ratio.",
+            "Replace with actual hourly CFMP/FMP once a trusted market series "
+            "is available.",
+        ),
+    )
 
 
 @dataclass(frozen=True)
