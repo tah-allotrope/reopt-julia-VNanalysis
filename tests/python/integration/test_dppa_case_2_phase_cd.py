@@ -111,15 +111,19 @@ def _synthetic_results() -> dict:
 
 
 def _settlement_inputs() -> dict:
+    # Full 8760 hours: the three meaningful hours first, zero-padded after.
+    # Zero hours contribute nothing to any total, so every numeric assertion
+    # below matches the pre-typed-core 3-hour run exactly.
+    pad = [0.0] * (8760 - 3)
     return {
         "settlement_quantity_rule": "min_load_and_contracted_generation",
         "matched_quantity_rule": "min_load_and_contracted_generation",
         "excess_generation_treatment": "excluded_from_buyer_settlement",
         "market_reference_price_type": "proxy_cfmp_or_fmp",
-        "load_kwh_series": [100.0, 100.0, 100.0],
-        "contracted_generation_kwh_series": [80.0, 120.0, 40.0],
-        "market_reference_price_vnd_per_kwh_series": [70.0, 90.0, 110.0],
-        "evn_retail_rate_vnd_per_kwh_series": [100.0, 100.0, 100.0],
+        "load_kwh_series": [100.0, 100.0, 100.0] + pad,
+        "contracted_generation_kwh_series": [80.0, 120.0, 40.0] + pad,
+        "market_reference_price_vnd_per_kwh_series": [70.0, 90.0, 110.0] + pad,
+        "evn_retail_rate_vnd_per_kwh_series": [100.0, 100.0, 100.0] + pad,
         "strike_price_vnd_per_kwh": 95.0,
         "dppa_adder_vnd_per_kwh": 5.0,
         "kpp_factor": 1.1,
