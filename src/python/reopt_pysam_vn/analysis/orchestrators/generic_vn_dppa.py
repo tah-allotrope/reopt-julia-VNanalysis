@@ -21,9 +21,11 @@ from reopt_pysam_vn.analysis.offsite_dppa import OrchestratorContext, Orchestrat
 from reopt_pysam_vn.analysis.types import DealConfig
 from reopt_pysam_vn.integration.settlement import (
     ContractParams,
-    compute_buyer_benchmark,
-    compute_hourly_settlement,
-    run_strike_sweep,
+    build_settlement_inputs,
+    compute_buyer_benchmark_typed,
+    compute_hourly_settlement_typed,
+    resolve_market_reference,
+    run_strike_sweep_typed,
 )
 from reopt_pysam_vn.pysam.generation_profile import (
     SOURCE_EXTRACTED,
@@ -180,9 +182,22 @@ def build_generic_offsite_artifact(
         )
     tariff_kw = _pad_to_8760(tariff)
 
-    from reopt_pysam_vn.integration.market_reference import resolve_market_reference_series
+    from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_fx
+    from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
-    market_kw, market_type, market_provenance = resolve_market_reference_series(extracted)
+    vn = load_vietnam_data()
+    benchmark_block = extracted.get("benchmark") or {}
+    market = resolve_market_reference(
+        retail_vnd_per_kwh=tariff_kw,
+        cfmp_vnd_per_mwh=extracted.get("cfmp_vnd_per_mwh"),
+        fmp_vnd_per_mwh=extracted.get("fmp_vnd_per_mwh"),
+        weighted_evn_price_vnd_per_kwh=benchmark_block.get(
+            "weighted_evn_price_vnd_per_kwh"
+        ),
+        wholesale_rate_vnd_per_kwh=benchmark_block.get("wholesale_rate_vnd_per_kwh"),
+        vn=vn,
+    )
+    market_type = market.reference_type
 
     regime_id = (deal_config.contract or {}).get("regime_id", _DEFAULT_REGIME_ID)
     mode = _contract_mode(deal_config)
@@ -192,32 +207,30 @@ def build_generic_offsite_artifact(
     if dppa_adder is not None:
         overrides["dppa_adder_vnd_kwh"] = float(dppa_adder)
     params = ContractParams.from_regime(
-        regime_id, mode=mode, strike_vnd_kwh=strike_vnd_kwh, **overrides
+        regime_id, mode=mode, strike_vnd_kwh=strike_vnd_kwh, vn=vn, **overrides
     )
 
-    settlement = compute_hourly_settlement(
-        loads_kw,
-        generation_kw,
-        tariff_kw,
-        market_kw,
-        params,
-        market_source_label=market_type,
+    inputs = build_settlement_inputs(
+        loads_kw=loads_kw,
+        generation_kw=generation_kw,
+        tariff_vnd_per_kwh=tariff_kw,
+        market=market,
+        contract=params,
+        exchange_rate_vnd_per_usd=_resolve_fx(vn, extracted=extracted),
     )
-    benchmark = compute_buyer_benchmark(loads_kw, tariff_kw)
+    settlement = compute_hourly_settlement_typed(inputs)
+    typed_benchmark = compute_buyer_benchmark_typed(inputs)
+    benchmark = {
+        "evn_only_cost_vnd": typed_benchmark.evn_only_cost_vnd,
+        "total_load_kwh": typed_benchmark.total_load_kwh,
+        "blended_rate_vnd_kwh": typed_benchmark.benchmark_blended_cost_vnd_per_kwh,
+    }
     savings = benchmark["evn_only_cost_vnd"] - settlement.annual_summary["buyer_cost_vnd"]
     annual_summary = dict(settlement.annual_summary)
     annual_summary["buyer_savings_vs_evn_vnd"] = savings
 
     strike_points = [strike_vnd_kwh * (0.6 + 0.8 * i / 20.0) for i in range(21)]
-    sweep = run_strike_sweep(
-        loads_kw,
-        generation_kw,
-        tariff_kw,
-        market_kw,
-        params,
-        strike_points,
-        market_source_label=market_type,
-    )
+    sweep = run_strike_sweep_typed(inputs, strike_points)
 
     viable = [entry for entry in sweep if entry["buyer_savings_vs_evn_vnd"] > 0.0]
     recommended_strike = (
@@ -241,7 +254,7 @@ def build_generic_offsite_artifact(
         "basis": "directional",
         "orchestrator": "generic_vn_dppa",
         "market_reference_price_type": market_type,
-        "market_reference_proxy_fraction_of_evn": market_provenance["proxy_fraction_of_evn"],
+        "market_reference_proxy_fraction_of_evn": market.proxy_fraction_of_evn,
         "solar_profile_source": solar_source,
         "solar_resource_file": provenance.get("resource_file"),
         "solar_resource_latitude": provenance.get("resource_latitude"),

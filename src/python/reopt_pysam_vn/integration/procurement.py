@@ -14,12 +14,65 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from reopt_pysam_vn.common.series import pad_to_8760
 from reopt_pysam_vn.integration.settlement import (
     ContractParams,
+    HourlySeries,
+    MarketReference,
     SettlementResult,
-    compute_buyer_benchmark,
-    compute_hourly_settlement,
+    build_settlement_inputs,
+    compute_buyer_benchmark_typed,
+    compute_hourly_settlement_typed,
 )
+
+
+def _direct_market_reference(series_vnd_per_kwh: list[float]) -> MarketReference:
+    """Market reference for a directly supplied hourly series (no proxy)."""
+    return MarketReference(
+        series_vnd_per_kwh=HourlySeries(values=tuple(pad_to_8760(series_vnd_per_kwh))),
+        reference_type="fmp",
+        proxy_fraction_of_evn=None,
+        method="direct_hourly_series",
+        notes=("Hourly market series supplied directly (VND/kWh).",),
+    )
+
+
+def _canonical_exchange_rate_vnd_per_usd() -> float:
+    from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_fx
+    from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+
+    return _resolve_fx(load_vietnam_data())
+
+
+def _settlement_inputs(
+    loads_kw: list[float],
+    generation_kw: list[float],
+    tariff_rates_vnd_kwh: list[float],
+    fmp_vnd_kwh: list[float],
+    contract_params: ContractParams,
+    market_source_label: str,
+):
+    """Validate raw series into the typed settlement seam (pads short series)."""
+    market = _direct_market_reference(fmp_vnd_kwh)
+    return build_settlement_inputs(
+        loads_kw=pad_to_8760(loads_kw),
+        generation_kw=pad_to_8760(generation_kw),
+        tariff_vnd_per_kwh=pad_to_8760(tariff_rates_vnd_kwh),
+        market=market,
+        contract=contract_params,
+        exchange_rate_vnd_per_usd=_canonical_exchange_rate_vnd_per_usd(),
+        notes=(market_source_label,),
+    )
+
+
+def _benchmark_dict(inputs) -> dict:
+    """Legacy benchmark dict shape from the typed benchmark."""
+    typed = compute_buyer_benchmark_typed(inputs)
+    return {
+        "evn_only_cost_vnd": typed.evn_only_cost_vnd,
+        "total_load_kwh": typed.total_load_kwh,
+        "blended_rate_vnd_kwh": typed.benchmark_blended_cost_vnd_per_kwh,
+    }
 
 
 @dataclass
@@ -144,13 +197,14 @@ def evaluate_onsite(
             "Provide an 8760 hourly series or pre-solve with REopt."
         )
 
-    settlement = compute_hourly_settlement(
+    inputs = _settlement_inputs(
         loads_kw, generation, tariff_rates_vnd_kwh,
         fmp_vnd_kwh or [0.0] * 8760, contract_params,
-        market_source_label="onsite_private_wire",
+        "onsite_private_wire",
     )
+    settlement = compute_hourly_settlement_typed(inputs)
 
-    benchmark = compute_buyer_benchmark(loads_kw, tariff_rates_vnd_kwh)
+    benchmark = _benchmark_dict(inputs)
     evn_cost = benchmark["evn_only_cost_vnd"]
     buyer_cost = settlement.annual_summary["buyer_cost_vnd"]
     savings = evn_cost - buyer_cost
@@ -210,13 +264,14 @@ def evaluate_offsite(
             "Provide an 8760 hourly series or use a pre-solved result."
         )
 
-    settlement = compute_hourly_settlement(
+    inputs = _settlement_inputs(
         loads_kw, generation, tariff_rates_vnd_kwh,
         fmp_vnd_kwh, contract_params,
-        market_source_label="offsite_virtual_cfd",
+        "offsite_virtual_cfd",
     )
+    settlement = compute_hourly_settlement_typed(inputs)
 
-    benchmark = compute_buyer_benchmark(loads_kw, tariff_rates_vnd_kwh)
+    benchmark = _benchmark_dict(inputs)
     evn_cost = benchmark["evn_only_cost_vnd"]
     buyer_cost = settlement.annual_summary["buyer_cost_vnd"]
     savings = evn_cost - buyer_cost

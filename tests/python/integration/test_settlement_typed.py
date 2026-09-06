@@ -98,6 +98,32 @@ class TestResolveMarketReference:
         assert ref.proxy_fraction_of_evn == 0.0
         assert ref.series_vnd_per_kwh.to_list() == _const(0.0)
 
+    def test_empty_explicit_series_falls_through_to_proxy(self):
+        ref = resolve_market_reference(
+            cfmp_vnd_per_mwh=[],
+            fmp_vnd_per_mwh=[],
+            retail_vnd_per_kwh=_const(2000.0),
+            weighted_evn_price_vnd_per_kwh=2000.0,
+            wholesale_rate_vnd_per_kwh=1000.0,
+        )
+        assert ref.reference_type == "proxy_cfmp_or_fmp"
+
+    def test_zero_wholesale_falls_back_to_data_layer(self):
+        from reopt_pysam_vn.common.assumptions import (
+            market_wholesale_reference_vnd_per_kwh,
+        )
+        from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
+
+        vn = load_vietnam_data()
+        expected = market_wholesale_reference_vnd_per_kwh(vn)
+        ref = resolve_market_reference(
+            retail_vnd_per_kwh=_const(2000.0),
+            weighted_evn_price_vnd_per_kwh=2000.0,
+            wholesale_rate_vnd_per_kwh=0.0,
+            vn=vn,
+        )
+        assert ref.proxy_fraction_of_evn == pytest.approx(expected / 2000.0)
+
 
 class TestStrikeResolvers:
     @pytest.mark.parametrize(

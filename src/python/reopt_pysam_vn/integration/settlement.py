@@ -75,7 +75,7 @@ def resolve_market_reference(
     (or an explicit wholesale rate) when the proxy must resolve wholesale
     from ``market_prices``; with neither, wholesale falls back to 0.0.
     """
-    if cfmp_vnd_per_mwh is not None:
+    if cfmp_vnd_per_mwh:
         series = HourlySeries(
             values=tuple(value / 1_000.0 for value in cfmp_vnd_per_mwh)
         )
@@ -86,7 +86,7 @@ def resolve_market_reference(
             method="extracted_cfmp_vnd_per_mwh",
             notes=("CFMP series supplied directly (VND/MWh, converted to VND/kWh).",),
         )
-    if fmp_vnd_per_mwh is not None:
+    if fmp_vnd_per_mwh:
         series = HourlySeries(
             values=tuple(value / 1_000.0 for value in fmp_vnd_per_mwh)
         )
@@ -98,7 +98,7 @@ def resolve_market_reference(
             notes=("FMP series supplied directly (VND/MWh, converted to VND/kWh).",),
         )
     wholesale = wholesale_rate_vnd_per_kwh
-    if wholesale is None and vn is not None:
+    if not wholesale and vn is not None:
         from reopt_pysam_vn.common.assumptions import (
             market_wholesale_reference_vnd_per_kwh,
         )

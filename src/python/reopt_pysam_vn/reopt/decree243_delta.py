@@ -19,7 +19,11 @@ from typing import Any
 from reopt_pysam_vn.common.assumptions import exchange_rate as _resolve_exchange_rate
 from reopt_pysam_vn.integration.settlement import (
     PRESET_CONTRACTS,
-    compute_hourly_settlement,
+    ContractParams,
+    HourlySeries,
+    MarketReference,
+    build_settlement_inputs,
+    compute_hourly_settlement_typed,
 )
 from reopt_pysam_vn.reopt.preprocess import load_vietnam_data
 
@@ -120,12 +124,26 @@ def compute_export_cap_delta(
     cap20 = PRESET_CONTRACTS["decree57_private_wire_standard"]
     cap50 = PRESET_CONTRACTS["decree243_export_50pct_standard"]
 
-    result_cap20 = compute_hourly_settlement(
-        loads_kw, generation_kw, tariff_vnd_per_kwh, fmp_vnd_kwh, cap20
-    )
-    result_cap50 = compute_hourly_settlement(
-        loads_kw, generation_kw, tariff_vnd_per_kwh, fmp_vnd_kwh, cap50
-    )
+    def _settle(contract: ContractParams):
+        market = MarketReference(
+            series_vnd_per_kwh=HourlySeries(values=tuple(fmp_vnd_kwh)),
+            reference_type="fmp",
+            proxy_fraction_of_evn=None,
+            method="zero_fmp_private_wire_ignores_market",
+            notes=("Private-wire presets ignore the market series.",),
+        )
+        inputs = build_settlement_inputs(
+            loads_kw=loads_kw,
+            generation_kw=generation_kw,
+            tariff_vnd_per_kwh=tariff_vnd_per_kwh,
+            market=market,
+            contract=contract,
+            exchange_rate_vnd_per_usd=exchange_rate_vnd_per_usd,
+        )
+        return compute_hourly_settlement_typed(inputs)
+
+    result_cap20 = _settle(cap20)
+    result_cap50 = _settle(cap50)
 
     exported_kwh_cap20 = result_cap20.annual_summary["exported_mwh"] * 1000.0
     exported_kwh_cap50 = result_cap50.annual_summary["exported_mwh"] * 1000.0
